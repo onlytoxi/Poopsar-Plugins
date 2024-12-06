@@ -1,4 +1,5 @@
-﻿using Quasar.Common.DNS;
+﻿using DarkModeForms;
+using Quasar.Common.DNS;
 using Quasar.Common.Helpers;
 using Quasar.Server.Build;
 using Quasar.Server.Models;
@@ -16,6 +17,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmBuilder : Form
     {
+        private readonly DarkModeCS dm = null;
+
         private bool _profileLoaded;
         private bool _changed;
         private readonly BindingList<Host> _hosts = new BindingList<Host>();
@@ -24,6 +27,13 @@ namespace Quasar.Server.Forms
         public FrmBuilder()
         {
             InitializeComponent();
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false,
+                //OwnerForm = this
+            };
         }
 
         private void LoadProfile(string profileName)

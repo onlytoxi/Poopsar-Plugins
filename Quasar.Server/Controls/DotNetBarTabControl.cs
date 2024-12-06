@@ -24,46 +24,35 @@ namespace Quasar.Server.Controls
         {
             Bitmap b = new Bitmap(Width, Height);
             Graphics g = Graphics.FromImage(b);
+
             if (!DesignMode)
-                SelectedTab.BackColor = SystemColors.Control;
-            g.Clear(SystemColors.Control);
-            g.FillRectangle(new SolidBrush(Color.FromArgb(246, 248, 252)),
-                new Rectangle(0, 0, ItemSize.Height + 4, Height));
-            g.DrawLine(new Pen(Color.FromArgb(170, 187, 204)), new Point(ItemSize.Height + 3, 0),
-                new Point(ItemSize.Height + 3, 999));
-            g.DrawLine(new Pen(Color.FromArgb(170, 187, 204)), new Point(0, Size.Height - 1),
+                SelectedTab.BackColor = Color.FromArgb(55, 55, 55); // Dark background for selected tab
+
+            g.Clear(Color.FromArgb(55, 55, 55)); // Overall background color
+            g.FillRectangle(new SolidBrush(Color.FromArgb(55, 55, 55)),
+                new Rectangle(0, 0, ItemSize.Height + 4, Height)); // Sidebar background
+            g.DrawLine(new Pen(Color.FromArgb(80, 80, 80)), new Point(ItemSize.Height + 3, 0),
+                new Point(ItemSize.Height + 3, 999)); // Divider line
+            g.DrawLine(new Pen(Color.FromArgb(80, 80, 80)), new Point(0, Size.Height - 1),
                 new Point(Width + 3, Size.Height - 1));
+
             for (int i = 0; i <= TabCount - 1; i++)
             {
                 if (i == SelectedIndex)
                 {
                     Rectangle x2 = new Rectangle(new Point(GetTabRect(i).Location.X - 2, GetTabRect(i).Location.Y - 2),
                         new Size(GetTabRect(i).Width + 3, GetTabRect(i).Height - 1));
-                    ColorBlend myBlend = new ColorBlend();
-                    myBlend.Colors = new Color[] { Color.FromArgb(232, 232, 240), Color.FromArgb(232, 232, 240), Color.FromArgb(232, 232, 240) };
-                    myBlend.Positions = new float[] { 0f, 0.5f, 1f };
-                    LinearGradientBrush lgBrush = new LinearGradientBrush(x2, Color.Black, Color.Black, 90f);
-                    lgBrush.InterpolationColors = myBlend;
-                    g.FillRectangle(lgBrush, x2);
-                    g.DrawRectangle(new Pen(Color.FromArgb(170, 187, 204)), x2);
+                    g.FillRectangle(new SolidBrush(Color.FromArgb(70, 70, 70)), x2); // Selected tab background
+                    g.DrawRectangle(new Pen(Color.FromArgb(100, 100, 100)), x2);
 
                     g.SmoothingMode = SmoothingMode.HighQuality;
-                    Point[] p =
-                    {
-                        new Point(ItemSize.Height - 3, GetTabRect(i).Location.Y + 20),
-                        new Point(ItemSize.Height + 4, GetTabRect(i).Location.Y + 14),
-                        new Point(ItemSize.Height + 4, GetTabRect(i).Location.Y + 27)
-                    };
-                    g.FillPolygon(SystemBrushes.Control, p);
-                    g.DrawPolygon(new Pen(Color.FromArgb(170, 187, 204)), p);
-
                     if (ImageList != null)
                     {
                         try
                         {
                             g.DrawImage(ImageList.Images[TabPages[i].ImageIndex],
                                 new Point(x2.Location.X + 8, x2.Location.Y + 6));
-                            g.DrawString("  " + TabPages[i].Text, Font, Brushes.Black, x2, new StringFormat
+                            g.DrawString("  " + TabPages[i].Text, Font, Brushes.White, x2, new StringFormat
                             {
                                 LineAlignment = StringAlignment.Center,
                                 Alignment = StringAlignment.Center
@@ -72,7 +61,7 @@ namespace Quasar.Server.Controls
                         catch (Exception)
                         {
                             g.DrawString(TabPages[i].Text, new Font(Font.FontFamily, Font.Size, FontStyle.Bold),
-                                Brushes.Black, x2, new StringFormat
+                                Brushes.White, x2, new StringFormat
                                 {
                                     LineAlignment = StringAlignment.Center,
                                     Alignment = StringAlignment.Center
@@ -82,32 +71,28 @@ namespace Quasar.Server.Controls
                     else
                     {
                         g.DrawString(TabPages[i].Text, new Font(Font.FontFamily, Font.Size, FontStyle.Bold),
-                            Brushes.Black, x2, new StringFormat
+                            Brushes.White, x2, new StringFormat
                             {
                                 LineAlignment = StringAlignment.Center,
                                 Alignment = StringAlignment.Center
                             });
                     }
-
-                    g.DrawLine(new Pen(Color.FromArgb(200, 200, 250)), new Point(x2.Location.X - 1, x2.Location.Y - 1),
-                        new Point(x2.Location.X, x2.Location.Y));
-                    g.DrawLine(new Pen(Color.FromArgb(200, 200, 250)), new Point(x2.Location.X - 1, x2.Bottom - 1),
-                        new Point(x2.Location.X, x2.Bottom));
                 }
                 else
                 {
                     Rectangle x2 = new Rectangle(new Point(GetTabRect(i).Location.X - 2, GetTabRect(i).Location.Y - 2),
                         new Size(GetTabRect(i).Width + 3, GetTabRect(i).Height - 1));
-                    g.FillRectangle(new SolidBrush(Color.FromArgb(246, 248, 252)), x2);
-                    g.DrawLine(new Pen(Color.FromArgb(170, 187, 204)), new Point(x2.Right, x2.Top),
+                    g.FillRectangle(new SolidBrush(Color.FromArgb(55, 55, 55)), x2); // Unselected tab background
+                    g.DrawLine(new Pen(Color.FromArgb(80, 80, 80)), new Point(x2.Right, x2.Top),
                         new Point(x2.Right, x2.Bottom));
+
                     if (ImageList != null)
                     {
                         try
                         {
                             g.DrawImage(ImageList.Images[TabPages[i].ImageIndex],
                                 new Point(x2.Location.X + 8, x2.Location.Y + 6));
-                            g.DrawString("  " + TabPages[i].Text, Font, Brushes.DimGray, x2, new StringFormat
+                            g.DrawString("  " + TabPages[i].Text, Font, Brushes.LightGray, x2, new StringFormat
                             {
                                 LineAlignment = StringAlignment.Center,
                                 Alignment = StringAlignment.Center
@@ -115,7 +100,7 @@ namespace Quasar.Server.Controls
                         }
                         catch (Exception)
                         {
-                            g.DrawString(TabPages[i].Text, Font, Brushes.DimGray, x2, new StringFormat
+                            g.DrawString(TabPages[i].Text, Font, Brushes.LightGray, x2, new StringFormat
                             {
                                 LineAlignment = StringAlignment.Center,
                                 Alignment = StringAlignment.Center
@@ -124,7 +109,7 @@ namespace Quasar.Server.Controls
                     }
                     else
                     {
-                        g.DrawString(TabPages[i].Text, Font, Brushes.DimGray, x2, new StringFormat
+                        g.DrawString(TabPages[i].Text, Font, Brushes.LightGray, x2, new StringFormat
                         {
                             LineAlignment = StringAlignment.Center,
                             Alignment = StringAlignment.Center
