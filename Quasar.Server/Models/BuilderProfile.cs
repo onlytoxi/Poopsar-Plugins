@@ -58,18 +58,6 @@ namespace Quasar.Server.Models
             }
         }
 
-        public bool UnattendedMode
-        {
-            get
-            {
-                return bool.Parse(ReadValueSafe("UnattendedMode", "False"));
-            }
-            set
-            {
-                WriteValue("UnattendedMode", value.ToString());
-            }
-        }
-
         public bool InstallClient
         {
             get

@@ -37,7 +37,6 @@ namespace Quasar.Server.Forms
             txtTag.Text = profile.Tag;
             numericUpDownDelay.Value = profile.Delay;
             txtMutex.Text = profile.Mutex;
-            chkUnattendedMode.Checked = profile.UnattendedMode;
             chkInstall.Checked = profile.InstallClient;
             txtInstallName.Text = profile.InstallName;
             GetInstallPath(profile.InstallPath).Checked = true;
@@ -72,7 +71,6 @@ namespace Quasar.Server.Forms
             profile.Hosts = _hostsConverter.ListToRawHosts(_hosts);
             profile.Delay = (int) numericUpDownDelay.Value;
             profile.Mutex = txtMutex.Text;
-            profile.UnattendedMode = chkUnattendedMode.Checked;
             profile.InstallClient = chkInstall.Checked;
             profile.InstallName = txtInstallName.Text;
             profile.InstallPath = GetInstallPath();
@@ -257,7 +255,6 @@ namespace Quasar.Server.Forms
 
             options.Tag = txtTag.Text;
             options.Mutex = txtMutex.Text;
-            options.UnattendedMode = chkUnattendedMode.Checked;
             options.RawHosts = _hostsConverter.ListToRawHosts(_hosts);
             options.Delay = (int) numericUpDownDelay.Value;
             options.IconPath = txtIconPath.Text;

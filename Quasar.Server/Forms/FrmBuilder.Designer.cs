@@ -43,10 +43,6 @@ namespace Quasar.Server.Forms
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.builderTabs = new Quasar.Server.Controls.DotNetBarTabControl();
             this.generalPage = new System.Windows.Forms.TabPage();
-            this.label3 = new System.Windows.Forms.Label();
-            this.chkUnattendedMode = new System.Windows.Forms.CheckBox();
-            this.line2 = new Quasar.Server.Controls.Line();
-            this.label2 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.line6 = new Quasar.Server.Controls.Line();
             this.label8 = new System.Windows.Forms.Label();
@@ -242,10 +238,6 @@ namespace Quasar.Server.Forms
             // generalPage
             // 
             this.generalPage.BackColor = System.Drawing.SystemColors.Control;
-            this.generalPage.Controls.Add(this.label3);
-            this.generalPage.Controls.Add(this.chkUnattendedMode);
-            this.generalPage.Controls.Add(this.line2);
-            this.generalPage.Controls.Add(this.label2);
             this.generalPage.Controls.Add(this.label9);
             this.generalPage.Controls.Add(this.line6);
             this.generalPage.Controls.Add(this.label8);
@@ -263,45 +255,6 @@ namespace Quasar.Server.Forms
             this.generalPage.Size = new System.Drawing.Size(391, 376);
             this.generalPage.TabIndex = 4;
             this.generalPage.Text = "Basic Settings";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(17, 214);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(354, 26);
-            this.label3.TabIndex = 24;
-            this.label3.Text = "Activating the unattended mode allows remote control of the client\r\nwithout user " +
-    "interaction.";
-            // 
-            // chkUnattendedMode
-            // 
-            this.chkUnattendedMode.AutoSize = true;
-            this.chkUnattendedMode.Location = new System.Drawing.Point(20, 252);
-            this.chkUnattendedMode.Name = "chkUnattendedMode";
-            this.chkUnattendedMode.Size = new System.Drawing.Size(157, 17);
-            this.chkUnattendedMode.TabIndex = 23;
-            this.chkUnattendedMode.Text = "Enable unattended mode";
-            this.chkUnattendedMode.UseVisualStyleBackColor = true;
-            this.chkUnattendedMode.CheckedChanged += new System.EventHandler(this.HasChangedSetting);
-            // 
-            // line2
-            // 
-            this.line2.LineAlignment = Quasar.Server.Controls.Line.Alignment.Horizontal;
-            this.line2.Location = new System.Drawing.Point(115, 196);
-            this.line2.Name = "line2";
-            this.line2.Size = new System.Drawing.Size(270, 13);
-            this.line2.TabIndex = 22;
-            this.line2.TabStop = false;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(8, 196);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(101, 13);
-            this.label2.TabIndex = 21;
-            this.label2.Text = "Unattended mode";
             // 
             // label9
             // 
@@ -1235,9 +1188,5 @@ namespace Quasar.Server.Forms
         private System.Windows.Forms.NumericUpDown numericUpDownDelay;
         private System.Windows.Forms.NumericUpDown numericUpDownPort;
         private System.Windows.Forms.CheckBox chkHideSubDirectory;
-        private System.Windows.Forms.CheckBox chkUnattendedMode;
-        private Line line2;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
     }
 }

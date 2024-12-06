@@ -1,4 +1,5 @@
-﻿using Quasar.Common.Enums;
+﻿using DarkModeForms;
+using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Server.Extensions;
 using Quasar.Server.Messages;
@@ -18,6 +19,7 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmMain : Form
     {
+        private DarkModeCS dm = null;
         public QuasarServer ListenServer { get; set; }
 
         private const int STATUS_ID = 4;
@@ -35,6 +37,12 @@ namespace Quasar.Server.Forms
             _clientStatusHandler = new ClientStatusHandler();
             RegisterMessageHandler();
             InitializeComponent();
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         /// <summary>
@@ -153,6 +161,7 @@ namespace Quasar.Server.Forms
         {
             InitializeServer();
             AutostartListening();
+            notifyIcon.Visible = false;
         }
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -437,10 +446,12 @@ namespace Quasar.Server.Forms
                 this.Invoke((MethodInvoker)delegate
                 {
                     if (c == null || c.Value == null) return;
-                    
+
+                    notifyIcon.Visible = true; // Temporarily show the task tray icon
                     notifyIcon.ShowBalloonTip(4000, string.Format("Client connected from {0}!", c.Value.Country),
                         string.Format("IP Address: {0}\nOperating System: {1}", c.EndPoint.Address.ToString(),
                         c.Value.OperatingSystem), ToolTipIcon.Info);
+                    notifyIcon.Visible = false; // Hide the task tray icon again
                 });
             }
             catch (InvalidOperationException)
@@ -766,10 +777,6 @@ namespace Quasar.Server.Forms
 
         private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            this.WindowState = (this.WindowState == FormWindowState.Normal)
-                ? FormWindowState.Minimized
-                : FormWindowState.Normal;
-            this.ShowInTaskbar = (this.WindowState == FormWindowState.Normal);
         }
 
         #endregion
