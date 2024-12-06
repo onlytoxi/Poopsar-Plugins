@@ -5,11 +5,14 @@ using System.Globalization;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using Quasar.Server.Models;
+using DarkModeForms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmSettings : Form
     {
+        private readonly DarkModeCS dm = null;
+
         private readonly QuasarServer _listenServer;
 
         public FrmSettings(QuasarServer listenServer)
@@ -17,6 +20,13 @@ namespace Quasar.Server.Forms
             this._listenServer = listenServer;
 
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
 
             ToggleListenerSettings(!listenServer.Listening);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using DarkModeForms;
 using Microsoft.Win32;
 using Quasar.Common.Models;
 using Quasar.Common.Utilities;
@@ -9,6 +10,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmRegValueEditWord : Form
     {
+        private readonly DarkModeCS dm = null;
+
         private readonly RegValueData _value;
 
         private const string DWORD_WARNING = "The decimal value entered is greater than the maximum value of a DWORD (32-bit number). Should the value be truncated in order to continue?";
@@ -19,6 +22,13 @@ namespace Quasar.Server.Forms
             _value = value;
 
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
 
             this.valueNameTxtBox.Text = value.Name;
 

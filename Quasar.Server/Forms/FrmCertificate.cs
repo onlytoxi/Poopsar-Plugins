@@ -5,16 +5,25 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using Quasar.Server.Models;
+using DarkModeForms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmCertificate : Form
     {
+        private readonly DarkModeCS dm = null;
+
         private X509Certificate2 _certificate;
 
         public FrmCertificate()
         {
             InitializeComponent();
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         private void SetCertificate(X509Certificate2 certificate)

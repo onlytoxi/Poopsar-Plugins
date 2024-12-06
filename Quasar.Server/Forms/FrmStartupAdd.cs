@@ -1,4 +1,5 @@
-﻿using Quasar.Common.Enums;
+﻿using DarkModeForms;
+using Quasar.Common.Enums;
 using Quasar.Common.Helpers;
 using Quasar.Common.Models;
 using System;
@@ -9,11 +10,20 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmStartupAdd : Form
     {
+        private readonly DarkModeCS dm = null;
         public StartupItem StartupItem { get; set; }
 
         public FrmStartupAdd()
         {
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
+
             AddTypes();
         }
 

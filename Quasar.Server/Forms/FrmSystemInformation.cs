@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using DarkModeForms;
 using Quasar.Common.Messages;
 using Quasar.Server.Extensions;
 using Quasar.Server.Helper;
@@ -12,6 +13,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmSystemInformation : Form
     {
+        private readonly DarkModeCS dm = null;
+
         /// <summary>
         /// The client which can be used for the system information.
         /// </summary>
@@ -57,6 +60,13 @@ namespace Quasar.Server.Forms
 
             RegisterMessageHandler();
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         /// <summary>

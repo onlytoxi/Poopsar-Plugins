@@ -1,4 +1,5 @@
-﻿using Quasar.Common.Enums;
+﻿using DarkModeForms;
+using Quasar.Common.Enums;
 using Quasar.Common.Helpers;
 using Quasar.Common.Messages;
 using Quasar.Common.Models;
@@ -17,6 +18,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmFileManager : Form
     {
+        private readonly DarkModeCS dm = null;
+
         /// <summary>
         /// The current remote directory shown in the file manager.
         /// </summary>
@@ -75,6 +78,13 @@ namespace Quasar.Server.Forms
 
             RegisterMessageHandler();
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         /// <summary>

@@ -1,4 +1,6 @@
 ﻿using Quasar.Server.Controls;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {

@@ -1,4 +1,5 @@
-﻿using Quasar.Common.Helpers;
+﻿using DarkModeForms;
+using Quasar.Common.Helpers;
 using Quasar.Common.Messages;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
@@ -14,6 +15,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmReverseProxy : Form
     {
+        private readonly DarkModeCS dm = null;
+
         /// <summary>
         /// The clients which can be used for the reverse proxy.
         /// </summary>
@@ -40,6 +43,13 @@ namespace Quasar.Server.Forms
 
             RegisterMessageHandler();
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         /// <summary>

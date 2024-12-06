@@ -1,4 +1,5 @@
-﻿using Quasar.Common.Enums;
+﻿using DarkModeForms;
+using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
@@ -13,6 +14,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmRemoteExecution : Form
     {
+
+        private readonly DarkModeCS dm = null;
         private class RemoteExecutionMessageHandler
         {
             public FileManagerHandler FileHandler;
@@ -40,6 +43,13 @@ namespace Quasar.Server.Forms
             _remoteExecutionMessageHandlers = new List<RemoteExecutionMessageHandler>(clients.Length);
 
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
 
             foreach (var client in clients)
             {

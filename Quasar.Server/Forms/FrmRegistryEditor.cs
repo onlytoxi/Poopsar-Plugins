@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using DarkModeForms;
 using Microsoft.Win32;
 using Quasar.Common.Messages;
 using Quasar.Common.Models;
@@ -18,6 +19,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmRegistryEditor : Form
     {
+        private readonly DarkModeCS dm = null;
+
         /// <summary>
         /// The client which can be used for the registry editor.
         /// </summary>
@@ -63,6 +66,13 @@ namespace Quasar.Server.Forms
 
             RegisterMessageHandler();
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         /// <summary>

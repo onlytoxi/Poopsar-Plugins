@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using DarkModeForms;
 using Quasar.Common.Messages;
 using Quasar.Common.Models;
 using Quasar.Server.Helper;
@@ -15,6 +16,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmPasswordRecovery : Form
     {
+        private readonly DarkModeCS dm = null;
+
         /// <summary>
         /// The clients which can be used for the password recovery.
         /// </summary>
@@ -47,6 +50,13 @@ namespace Quasar.Server.Forms
 
             RegisterMessageHandler();
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         /// <summary>

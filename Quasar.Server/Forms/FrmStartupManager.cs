@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using DarkModeForms;
 using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Common.Models;
@@ -13,6 +14,8 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmStartupManager : Form
     {
+        private readonly DarkModeCS dm = null;
+
         /// <summary>
         /// The client which can be used for the startup manager.
         /// </summary>
@@ -58,6 +61,13 @@ namespace Quasar.Server.Forms
 
             RegisterMessageHandler();
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         /// <summary>

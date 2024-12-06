@@ -32,6 +32,8 @@ namespace Quasar.Server.Forms
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmFileManager));
+            Quasar.Server.Utilities.ListViewColumnSorter listViewColumnSorter1 = new Quasar.Server.Utilities.ListViewColumnSorter();
+            Quasar.Server.Utilities.ListViewColumnSorter listViewColumnSorter2 = new Quasar.Server.Utilities.ListViewColumnSorter();
             this.contextMenuStripDirectory = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.downloadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uploadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -322,17 +324,22 @@ namespace Quasar.Server.Forms
             this.lstDirectory.ContextMenuStrip = this.contextMenuStripDirectory;
             this.lstDirectory.FullRowSelect = true;
             this.lstDirectory.GridLines = true;
+            this.lstDirectory.HideSelection = false;
             this.lstDirectory.Location = new System.Drawing.Point(8, 35);
+            listViewColumnSorter1.NeedNumberCompare = false;
+            listViewColumnSorter1.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter1.SortColumn = 0;
+            this.lstDirectory.LvwColumnSorter = listViewColumnSorter1;
             this.lstDirectory.Name = "lstDirectory";
             this.lstDirectory.Size = new System.Drawing.Size(700, 406);
             this.lstDirectory.SmallImageList = this.imgListDirectory;
             this.lstDirectory.TabIndex = 2;
             this.lstDirectory.UseCompatibleStateImageBehavior = false;
             this.lstDirectory.View = System.Windows.Forms.View.Details;
+            this.lstDirectory.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lstDirectory_ColumnClick);
             this.lstDirectory.DragDrop += new System.Windows.Forms.DragEventHandler(this.lstDirectory_DragDrop);
             this.lstDirectory.DragEnter += new System.Windows.Forms.DragEventHandler(this.lstDirectory_DragEnter);
             this.lstDirectory.DoubleClick += new System.EventHandler(this.lstDirectory_DoubleClick);
-            this.lstDirectory.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.lstDirectory_ColumnClick);
             // 
             // hName
             // 
@@ -403,7 +410,12 @@ namespace Quasar.Server.Forms
             this.lstTransfers.ContextMenuStrip = this.contextMenuStripTransfers;
             this.lstTransfers.FullRowSelect = true;
             this.lstTransfers.GridLines = true;
+            this.lstTransfers.HideSelection = false;
             this.lstTransfers.Location = new System.Drawing.Point(8, 35);
+            listViewColumnSorter2.NeedNumberCompare = false;
+            listViewColumnSorter2.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter2.SortColumn = 0;
+            this.lstTransfers.LvwColumnSorter = listViewColumnSorter2;
             this.lstTransfers.Name = "lstTransfers";
             this.lstTransfers.Size = new System.Drawing.Size(698, 407);
             this.lstTransfers.SmallImageList = this.imgListTransfers;

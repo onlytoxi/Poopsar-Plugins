@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Windows.Forms;
+using DarkModeForms;
 using Quasar.Server.Helper;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmShowMessagebox : Form
     {
+        private readonly DarkModeCS dm = null;
+
         private readonly int _selectedClients;
 
         public string MsgBoxCaption { get; set; }
@@ -18,6 +21,13 @@ namespace Quasar.Server.Forms
             _selectedClients = selected;
 
             InitializeComponent();
+
+            dm = new DarkModeCS(this)
+            {
+                //[Optional] Choose your preferred color mode here:
+                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
+                ColorizeIcons = false
+            };
         }
 
         private void FrmShowMessagebox_Load(object sender, EventArgs e)
