@@ -159,9 +159,29 @@ namespace Quasar.Server.Forms
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
+            SetEqualColumnWidths();
             InitializeServer();
             AutostartListening();
             notifyIcon.Visible = false;
+        }
+
+        private void SetEqualColumnWidths()
+        {
+            int totalWidth = lstClients.ClientSize.Width;
+            int columnCount = lstClients.Columns.Count;
+
+            if (columnCount > 0)
+            {
+                int columnWidth = totalWidth / columnCount;
+
+                foreach (ColumnHeader column in lstClients.Columns)
+                {
+                    column.Width = columnWidth;
+                }
+            }
+
+            // add 4 pixels to the last column to prevent horizontal scrollbar
+            lstClients.Columns[columnCount - 1].Width += 4;
         }
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
