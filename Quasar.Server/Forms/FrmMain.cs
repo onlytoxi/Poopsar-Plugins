@@ -75,9 +75,9 @@ namespace Quasar.Server.Forms
                 {
                     int selected = lstClients.SelectedItems.Count;
                     this.Text = (selected > 0)
-                        ? string.Format("Quasar - Connected: {0} [Selected: {1}]", ListenServer.ConnectedClients.Length,
+                        ? string.Format("Quasar - Modded by KDot227 - Connected: {0} [Selected: {1}]", ListenServer.ConnectedClients.Length,
                             selected)
-                        : string.Format("Quasar - Connected: {0}", ListenServer.ConnectedClients.Length);
+                        : string.Format("Quasar - Modded by KDot227 - Connected: {0}", ListenServer.ConnectedClients.Length);
                 });
             }
             catch (Exception)
@@ -534,6 +534,16 @@ namespace Quasar.Server.Forms
             }
         }
 
+        private void kematianGrabbingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                MessageBox.Show("test");
+                //c.Send();
+            }
+
+        }
+
         #endregion
 
         #region "Administration"
@@ -800,5 +810,7 @@ namespace Quasar.Server.Forms
         }
 
         #endregion
+
+
     }
 }

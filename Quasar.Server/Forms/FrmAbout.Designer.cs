@@ -158,7 +158,7 @@
             this.MinimizeBox = false;
             this.Name = "FrmAbout";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Quasar - About";
+            this.Text = "Quasar - Modded by KDot227 - About";
             ((System.ComponentModel.ISupportInitialize)(this.picIcon)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

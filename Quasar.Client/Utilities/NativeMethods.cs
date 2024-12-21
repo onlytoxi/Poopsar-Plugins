@@ -48,16 +48,6 @@ namespace Quasar.Client.Utilities
         /// <returns>
         ///    <c>true</c> if the operation succeedes, <c>false</c> otherwise. To get extended error information, call <see cref="System.Runtime.InteropServices.Marshal.GetLastWin32Error"/>.
         /// </returns>
-        [DllImport("gdi32.dll", EntryPoint = "BitBlt", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool BitBlt([In] IntPtr hdc, int nXDest, int nYDest, int nWidth, int nHeight,
-            [In] IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
-
-        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
-        internal static extern IntPtr CreateDC(string lpszDriver, string lpszDevice, string lpszOutput, IntPtr lpInitData);
-
-        [DllImport("gdi32.dll")]
-        internal static extern bool DeleteDC([In] IntPtr hdc);
 
         [DllImport("user32.dll")]
         internal static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);

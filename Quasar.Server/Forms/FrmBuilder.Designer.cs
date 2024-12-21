@@ -259,6 +259,7 @@ namespace Quasar.Server.Forms
             // label9
             // 
             this.label9.AutoSize = true;
+            this.label9.BackColor = System.Drawing.Color.Transparent;
             this.label9.Location = new System.Drawing.Point(17, 94);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(370, 26);
@@ -278,6 +279,7 @@ namespace Quasar.Server.Forms
             // label8
             // 
             this.label8.AutoSize = true;
+            this.label8.BackColor = System.Drawing.Color.Transparent;
             this.label8.Location = new System.Drawing.Point(6, 78);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(80, 13);
@@ -321,12 +323,13 @@ namespace Quasar.Server.Forms
             // 
             // btnMutex
             // 
+            this.btnMutex.BackColor = System.Drawing.Color.Transparent;
             this.btnMutex.Location = new System.Drawing.Point(262, 158);
             this.btnMutex.Name = "btnMutex";
             this.btnMutex.Size = new System.Drawing.Size(121, 23);
             this.btnMutex.TabIndex = 8;
             this.btnMutex.Text = "Random Mutex";
-            this.btnMutex.UseVisualStyleBackColor = true;
+            this.btnMutex.UseVisualStyleBackColor = false;
             this.btnMutex.Click += new System.EventHandler(this.btnMutex_Click);
             // 
             // line5
@@ -341,6 +344,7 @@ namespace Quasar.Server.Forms
             // lblMutex
             // 
             this.lblMutex.AutoSize = true;
+            this.lblMutex.BackColor = System.Drawing.Color.Transparent;
             this.lblMutex.Location = new System.Drawing.Point(17, 133);
             this.lblMutex.Name = "lblMutex";
             this.lblMutex.Size = new System.Drawing.Size(42, 13);

