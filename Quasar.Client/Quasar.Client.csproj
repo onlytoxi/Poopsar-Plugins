@@ -68,4 +68,8 @@
       <Version>2.4.8</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Kematian\Browsers\" />
+    <Folder Include="Kematian\Wallets\" />
+  </ItemGroup>
 </Project>

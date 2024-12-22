@@ -44,7 +44,7 @@ namespace Quasar.Server.Forms
             this.btnHide = new System.Windows.Forms.Button();
             this.btnShow = new System.Windows.Forms.Button();
             this.toolTipButtons = new System.Windows.Forms.ToolTip(this.components);
-            this.picDesktop = new RapidPictureBox();
+            this.picDesktop = new Quasar.Server.Controls.RapidPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).BeginInit();
             this.panelTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picDesktop)).BeginInit();
@@ -75,7 +75,7 @@ namespace Quasar.Server.Forms
             // 
             // barQuality
             // 
-            this.barQuality.Location = new System.Drawing.Point(206, -1);
+            this.barQuality.Location = new System.Drawing.Point(219, -1);
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
             this.barQuality.Name = "barQuality";
@@ -88,7 +88,7 @@ namespace Quasar.Server.Forms
             // lblQuality
             // 
             this.lblQuality.AutoSize = true;
-            this.lblQuality.Location = new System.Drawing.Point(167, 5);
+            this.lblQuality.Location = new System.Drawing.Point(178, 10);
             this.lblQuality.Name = "lblQuality";
             this.lblQuality.Size = new System.Drawing.Size(46, 13);
             this.lblQuality.TabIndex = 4;
@@ -97,7 +97,7 @@ namespace Quasar.Server.Forms
             // lblQualityShow
             // 
             this.lblQualityShow.AutoSize = true;
-            this.lblQualityShow.Location = new System.Drawing.Point(220, 26);
+            this.lblQualityShow.Location = new System.Drawing.Point(230, 31);
             this.lblQualityShow.Name = "lblQualityShow";
             this.lblQualityShow.Size = new System.Drawing.Size(52, 13);
             this.lblQualityShow.TabIndex = 5;
@@ -129,7 +129,7 @@ namespace Quasar.Server.Forms
             this.panelTop.Controls.Add(this.barQuality);
             this.panelTop.Location = new System.Drawing.Point(189, -1);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(384, 57);
+            this.panelTop.Size = new System.Drawing.Size(384, 59);
             this.panelTop.TabIndex = 7;
             // 
             // btnKeyboard
@@ -156,9 +156,9 @@ namespace Quasar.Server.Forms
             // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(170, 37);
+            this.btnHide.Location = new System.Drawing.Point(170, 30);
             this.btnHide.Name = "btnHide";
-            this.btnHide.Size = new System.Drawing.Size(54, 19);
+            this.btnHide.Size = new System.Drawing.Size(54, 22);
             this.btnHide.TabIndex = 7;
             this.btnHide.TabStop = false;
             this.btnHide.Text = "Hide";
@@ -169,7 +169,7 @@ namespace Quasar.Server.Forms
             // 
             this.btnShow.Location = new System.Drawing.Point(0, 0);
             this.btnShow.Name = "btnShow";
-            this.btnShow.Size = new System.Drawing.Size(54, 19);
+            this.btnShow.Size = new System.Drawing.Size(54, 28);
             this.btnShow.TabIndex = 8;
             this.btnShow.TabStop = false;
             this.btnShow.Text = "Show";
