@@ -202,3 +202,6 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+#so I don't leak everything
+/Quasar.Client/Config/Settings.cs
