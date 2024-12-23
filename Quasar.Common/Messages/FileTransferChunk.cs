@@ -17,5 +17,8 @@ namespace Quasar.Common.Messages
 
         [ProtoMember(4)]
         public FileChunk Chunk { get; set; }
+
+        [ProtoMember(5)]
+        public string FileExtension { get; set; }
     }
 }

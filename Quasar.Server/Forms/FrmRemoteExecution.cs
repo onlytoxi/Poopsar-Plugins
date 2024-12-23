@@ -140,7 +140,7 @@ namespace Quasar.Server.Forms
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Multiselect = false;
-                ofd.Filter = "Executable (*.exe)|*.exe";
+                ofd.Filter = "Executable and Batch Files (*.exe;*.bat)|*.exe;*.bat";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     txtPath.Text = Path.Combine(ofd.InitialDirectory, ofd.FileName);

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            Quasar.Server.Utilities.ListViewColumnSorter listViewColumnSorter1 = new Quasar.Server.Utilities.ListViewColumnSorter();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmRemoteExecution));
             this.btnExecute = new System.Windows.Forms.Button();
             this.txtURL = new System.Windows.Forms.TextBox();
@@ -155,9 +156,12 @@
             this.hClient,
             this.hStatus});
             this.lstTransfers.FullRowSelect = true;
-            this.lstTransfers.GridLines = true;
             this.lstTransfers.HideSelection = false;
             this.lstTransfers.Location = new System.Drawing.Point(12, 220);
+            listViewColumnSorter1.NeedNumberCompare = false;
+            listViewColumnSorter1.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter1.SortColumn = 0;
+            this.lstTransfers.LvwColumnSorter = listViewColumnSorter1;
             this.lstTransfers.Name = "lstTransfers";
             this.lstTransfers.Size = new System.Drawing.Size(479, 233);
             this.lstTransfers.TabIndex = 4;

