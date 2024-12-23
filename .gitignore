@@ -205,3 +205,4 @@ FakesAssemblies/
 
 #so I don't leak everything
 /Quasar.Client/Config/Settings.cs
+/Quasar.Client/Config/Settings.cs
