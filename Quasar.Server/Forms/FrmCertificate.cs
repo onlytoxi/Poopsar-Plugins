@@ -35,7 +35,7 @@ namespace Quasar.Server.Forms
 
         private void btnCreate_Click(object sender, EventArgs e)
         {
-            SetCertificate(CertificateHelper.CreateCertificateAuthority("Quasar Server CA", 4096));
+            SetCertificate(CertificateHelper.CreateCertificateAuthority("Mod Server CA", 4096));
         }
 
         private void btnImport_Click(object sender, EventArgs e)

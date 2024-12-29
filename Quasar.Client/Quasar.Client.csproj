@@ -67,9 +67,9 @@
     <PackageReference Include="protobuf-net">
       <Version>2.4.8</Version>
     </PackageReference>
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Kematian\Browsers\" />
     <Folder Include="Kematian\Wallets\" />
   </ItemGroup>
 </Project>

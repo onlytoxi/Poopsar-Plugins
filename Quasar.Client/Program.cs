@@ -28,11 +28,11 @@ namespace Quasar.Client
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var tokens = new GetTokens().ScanDiscordTokens();
-            foreach (var token in tokens)
-            {
-                MessageBox.Show(token, "Discord Token", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            //var token = GetTokens.Tokens();
+            //if (token != null)
+            //{
+            //    MessageBox.Show(token, "Token", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //}
 
             Application.Run(new QuasarApplication());
         }

