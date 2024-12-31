@@ -3,6 +3,7 @@
     public enum RemoteDesktopStatus
     {
         Start,
-        Stop
+        Stop,
+        Stopped,
     }
 }

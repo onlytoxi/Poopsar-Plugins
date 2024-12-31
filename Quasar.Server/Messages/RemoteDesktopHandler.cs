@@ -138,7 +138,7 @@ namespace Quasar.Server.Messages
                 IsStarted = true;
                 _codec?.Dispose();
                 _codec = null;
-                _client.Send(new GetDesktop { CreateNew = true, Quality = quality, DisplayIndex = display });
+                _client.Send(new GetDesktop { CreateNew = true, Quality = quality, DisplayIndex = display, Status = RemoteDesktopStatus.Start });
             }
         }
 
@@ -151,6 +151,10 @@ namespace Quasar.Server.Messages
             {
                 IsStarted = false;
             }
+
+            Console.WriteLine("we done here");
+
+            _client.Send(new GetDesktop { Status = RemoteDesktopStatus.Stop });
         }
 
         /// <summary>
@@ -158,6 +162,7 @@ namespace Quasar.Server.Messages
         /// </summary>
         public void RefreshDisplays()
         {
+            Console.WriteLine("refreshing displays");
             _client.Send(new GetMonitors());
         }
 
@@ -213,10 +218,10 @@ namespace Quasar.Server.Messages
                     // create deep copy & resize bitmap to local resolution
                     OnReport(new Bitmap(_codec.DecodeData(ms), LocalResolution));
                 }
-                
+
                 message.Image = null;
 
-                client.Send(new GetDesktop {Quality = message.Quality, DisplayIndex = message.Monitor});
+                //client.Send(new GetDesktop { Quality = message.Quality, DisplayIndex = message.Monitor });
             }
         }
 

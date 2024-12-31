@@ -10,6 +10,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.ServiceModel.Channels;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Quasar.Client.Messages
 {
@@ -21,6 +22,12 @@ namespace Quasar.Client.Messages
                                                              message is DoMouseEvent ||
                                                              message is DoKeyboardEvent ||
                                                              message is GetMonitors;
+
+        private BitmapData desktopData = null;
+        private Bitmap desktop = null;
+        private int displayIndex = 0;
+        private ISender clientMain;
+        private Thread send_frames_thread;
 
         public override bool CanExecuteFrom(ISender sender) => true;
 
@@ -45,83 +52,135 @@ namespace Quasar.Client.Messages
 
         private void Execute(ISender client, GetDesktop message)
         {
-            // TODO: Switch to streaming mode without request-response once switched from windows forms
-            // TODO: Capture mouse in frames: https://stackoverflow.com/questions/6750056/how-to-capture-the-screen-and-mouse-pointer-using-windows-apis
-            var monitorBounds = ScreenHelper.GetBounds((message.DisplayIndex));
-            var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
-
-            if (_streamCodec == null)
-                _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-
-            if (message.CreateNew)
+            if (message.Status == RemoteDesktopStatus.Stop)
             {
-                _streamCodec?.Dispose();
-                _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-                OnReport("Remote desktop session started");
-            }
-
-            if (_streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
-            {
-                _streamCodec?.Dispose();
-
-                _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-            }
-
-            BitmapData desktopData = null;
-            Bitmap desktop = null;
-            try
-            {
-                desktop = ScreenHelper.CaptureScreen(message.DisplayIndex);
-                desktopData = desktop.LockBits(new Rectangle(0, 0, desktop.Width, desktop.Height),
-                    ImageLockMode.ReadWrite, desktop.PixelFormat);
-
-                using (MemoryStream stream = new MemoryStream())
+                // we must kill the thread
+                if (send_frames_thread != null && send_frames_thread.IsAlive)
                 {
-                    if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
-                    _streamCodec.CodeImage(desktopData.Scan0,
-                        new Rectangle(0, 0, desktop.Width, desktop.Height),
-                        new Size(desktop.Width, desktop.Height),
-                        desktop.PixelFormat, stream);
-                    client.Send(new GetDesktopResponse
-                    {
-                        Image = stream.ToArray(),
-                        Quality = _streamCodec.ImageQuality,
-                        Monitor = _streamCodec.Monitor,
-                        Resolution = _streamCodec.Resolution
-                    });
+                    send_frames_thread.Abort();
+                    send_frames_thread = null;
                 }
-            }
-            catch (Exception)
-            {
+
                 if (_streamCodec != null)
                 {
-                    client.Send(new GetDesktopResponse
-                    {
-                        Image = null,
-                        Quality = _streamCodec.ImageQuality,
-                        Monitor = _streamCodec.Monitor,
-                        Resolution = _streamCodec.Resolution
-                    });
+                    _streamCodec.Dispose();
+                    _streamCodec = null;
+                }
+            }
+
+            else if (message.Status == RemoteDesktopStatus.Start)
+            {
+                Console.WriteLine("we here fr");
+
+                var monitorBounds = ScreenHelper.GetBounds((message.DisplayIndex));
+                var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
+
+                if (_streamCodec == null)
+                    _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+
+                if (message.CreateNew)
+                {
+                    _streamCodec?.Dispose();
+                    _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                    OnReport("Remote desktop session started");
                 }
 
-                _streamCodec = null;
-            }
-            finally
-            {
-                if (desktop != null)
+                if (_streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
                 {
-                    if (desktopData != null)
-                    {
-                        try
-                        {
-                            desktop.UnlockBits(desktopData);
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    desktop.Dispose();
+                    _streamCodec?.Dispose();
+
+                    _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
                 }
+
+                try
+                {
+                    displayIndex = message.DisplayIndex;
+                    clientMain = client;
+
+                    if (send_frames_thread == null || !send_frames_thread.IsAlive)
+                    {
+                        send_frames_thread = new Thread(() =>
+                        {
+                            while (true)
+                            {
+                                CaptureScreen();
+                                //Thread.Sleep(1000 / 30);
+                            }
+                        });
+                        send_frames_thread.Start();
+                    }
+                }
+                catch (Exception)
+                {
+                    if (_streamCodec != null)
+                    {
+                        Console.WriteLine("sending null frame");
+                        client.Send(new GetDesktopResponse
+                        {
+                            Image = null,
+                            Quality = _streamCodec.ImageQuality,
+                            Monitor = _streamCodec.Monitor,
+                            Resolution = _streamCodec.Resolution
+                        });
+                    }
+
+                    _streamCodec = null;
+                }
+                finally
+                {
+                    if (desktop != null)
+                    {
+                        if (desktopData != null)
+                        {
+                            try
+                            {
+                                desktop.UnlockBits(desktopData);
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        desktop.Dispose();
+                    }
+                }
+            }
+
+            else
+            {
+                if (send_frames_thread != null && send_frames_thread.IsAlive)
+                {
+                    send_frames_thread.Abort();
+                    send_frames_thread = null;
+                }
+                if (_streamCodec != null)
+                {
+                    _streamCodec.Dispose();
+                    _streamCodec = null;
+                }
+            }
+        }
+
+        private void CaptureScreen()
+        {
+            desktop = ScreenHelper.CaptureScreen(displayIndex);
+            desktopData = desktop.LockBits(new Rectangle(0, 0, desktop.Width, desktop.Height),
+                ImageLockMode.ReadWrite, desktop.PixelFormat);
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
+                _streamCodec.CodeImage(desktopData.Scan0,
+                    new Rectangle(0, 0, desktop.Width, desktop.Height),
+                    new Size(desktop.Width, desktop.Height),
+                    desktop.PixelFormat, stream);
+                Console.WriteLine("sending frame");
+                clientMain.Send(new GetDesktopResponse
+                {
+                    Image = stream.ToArray(),
+                    Quality = _streamCodec.ImageQuality,
+                    Monitor = _streamCodec.Monitor,
+                    Resolution = _streamCodec.Resolution
+                });
             }
         }
 
