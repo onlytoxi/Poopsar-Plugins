@@ -33,6 +33,7 @@ namespace Quasar.Client.Kematian.Browsers.Helpers.Structs
     public struct GeckoProfile
     {
         public string Name;
+        public string Path;
         public string Key4DB;
         public string LoginsJson;
         public string Cookies;

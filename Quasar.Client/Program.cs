@@ -30,8 +30,8 @@ namespace Quasar.Client
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Handler.GetData();
-            Debug.WriteLine("Done");
+            //Handler.GetData();
+            //Console.WriteLine("Done");
 
             Application.Run(new QuasarApplication());
         }

@@ -37,7 +37,7 @@ namespace Quasar.Client.Kematian.Browsers.Gecko.History
                         var title = sqlDatabase.GetValue(i, "title");
                         var visitCount = sqlDatabase.GetValue(i, "visit_count");
                         var lastVisitTime = sqlDatabase.GetValue(i, "last_visit_date");
-                        Debug.WriteLine(visitCount);
+
                         historyData.Add(new HistoryData(url, title, visitCount, lastVisitTime));
                     }
                     catch (Exception ex)

