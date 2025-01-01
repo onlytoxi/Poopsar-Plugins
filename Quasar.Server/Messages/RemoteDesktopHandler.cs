@@ -215,8 +215,12 @@ namespace Quasar.Server.Messages
 
                 using (MemoryStream ms = new MemoryStream(message.Image))
                 {
-                    // create deep copy & resize bitmap to local resolution
-                    OnReport(new Bitmap(_codec.DecodeData(ms), LocalResolution));
+                    try
+                    {
+                        // create deep copy & resize bitmap to local resolution
+                        OnReport(new Bitmap(_codec.DecodeData(ms), LocalResolution));
+                    } catch { }
+
                 }
 
                 message.Image = null;

