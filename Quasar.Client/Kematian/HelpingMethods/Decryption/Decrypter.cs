@@ -90,3 +90,4 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
         }
     }
 }
+

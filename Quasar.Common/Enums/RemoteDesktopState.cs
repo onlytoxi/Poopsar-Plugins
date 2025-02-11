@@ -6,4 +6,10 @@
         Stop,
         Stopped,
     }
+
+    public enum HVNCStatus
+    {
+        Start,
+        Stop,
+    }
 }

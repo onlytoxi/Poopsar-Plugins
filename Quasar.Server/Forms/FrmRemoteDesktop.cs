@@ -294,9 +294,7 @@ namespace Quasar.Server.Forms
                 return;
 
             _remoteDesktopHandler.LocalResolution = picDesktop.Size;
-            panelTop.Left = (this.Width - panelTop.Width) / 2;
             btnShow.Left = (this.Width - btnShow.Width) / 2;
-            btnHide.Left = (panelTop.Width - btnHide.Width) / 2;
         }
 
         private void btnStart_Click(object sender, EventArgs e)

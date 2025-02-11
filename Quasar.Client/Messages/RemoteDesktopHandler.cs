@@ -23,10 +23,8 @@ namespace Quasar.Client.Messages
         private ISender _clientMain;
         private Thread _sendFramesThread;
 
-#if DEBUG
-        private Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new Stopwatch();
         private int _frameCount = 0;
-#endif
 
         public override bool CanExecute(IMessage message) => message is GetDesktop ||
                                                              message is DoMouseEvent ||
@@ -96,9 +94,7 @@ namespace Quasar.Client.Messages
             {
                 _sendFramesThread = new Thread(() =>
                 {
-#if DEBUG
                     _stopwatch.Start();
-#endif
                     while (true)
                     {
                         CaptureScreen();
@@ -164,7 +160,6 @@ namespace Quasar.Client.Messages
                 });
             }
 
-#if DEBUG
             _frameCount++;
             if (_stopwatch.ElapsedMilliseconds >= 1000)
             {
@@ -172,7 +167,6 @@ namespace Quasar.Client.Messages
                 _frameCount = 0;
                 _stopwatch.Restart();
             }
-#endif
         }
 
 

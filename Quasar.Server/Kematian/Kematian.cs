@@ -17,10 +17,6 @@ namespace Quasar.Server.Kematian
 {
     public class KematianHandler : MessageProcessorBase<object>
     {
-
-        private readonly KematianHandler _kematianhandler;
-
-
         private readonly Client[] _clients;
 
         public KematianHandler(Client[] clients) : base(true)
