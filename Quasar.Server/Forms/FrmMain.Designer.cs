@@ -314,7 +314,7 @@ namespace Quasar.Server.Forms
             this.hVNCToolStripMenuItem.Name = "hVNCToolStripMenuItem";
             this.hVNCToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.hVNCToolStripMenuItem.Text = "HVNC";
-            this.hVNCToolStripMenuItem.Click += new System.EventHandler(this.hVNCToolStripMenuItem_Click);
+            //this.hVNCToolStripMenuItem.Click += new System.EventHandler(this.hVNCToolStripMenuItem_Click);
             // 
             // userSupportToolStripMenuItem
             // 
