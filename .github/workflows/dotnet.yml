@@ -15,22 +15,24 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Debug List Files
+        run: Get-ChildItem -Path ${{ github.workspace }} -Recurse
+        shell: pwsh
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.x"
 
-      - name: Install Missing Dependencies
-        run: |
-          dotnet add package System.Resources.Extensions --version 7.0.0
-          dotnet add package Microsoft.Build.Utilities.Core --version 17.9.2
-
       - name: Restore Dependencies
-        run: dotnet restore --force
+        run: dotnet restore Quasar.sln
 
       - name: Build Solution
-        run: dotnet build --no-restore --configuration Release --output build_output
+        run: dotnet build Quasar.sln --no-restore --configuration Release --output build_output
 
       - name: Zip Build Output
         run: Compress-Archive -Path build_output/* -DestinationPath build_output.zip
