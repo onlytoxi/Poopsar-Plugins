@@ -2,7 +2,7 @@ name: .NET Windows Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -21,8 +21,13 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+      - name: Install Missing Dependencies
+        run: |
+          dotnet add package System.Resources.Extensions --version 7.0.0
+          dotnet add package Microsoft.Build.Utilities.Core --version 17.9.2
+
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore --force
 
       - name: Build Solution
         run: dotnet build --no-restore --configuration Release --output build_output
@@ -35,33 +40,3 @@ jobs:
         with:
           name: windows-build
           path: build_output.zip
-
-      - name: Delete Old AutoBuild Release
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          tag_name: AutoBuild
-          delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create New Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: AutoBuild
-          release_name: AutoBuild
-          body: "Automated Build Release"
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build_output.zip
-          asset_name: build_output.zip
-          asset_content_type: application/zip
