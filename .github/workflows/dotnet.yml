@@ -37,7 +37,7 @@ jobs:
         shell: cmd
 
       - name: Zip Build Output
-        run: Compress-Archive -Path build_output/* -DestinationPath build_output.zip
+        run: Compress-Archive -Path "D:\a\Quasar-Modded\Quasar-Modded\bin\Release\net452\*" -DestinationPath "build_output.zip"
         shell: pwsh
 
       - name: Upload Build Artifact
