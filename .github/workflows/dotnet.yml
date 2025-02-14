@@ -28,6 +28,11 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+      - name: Install Missing Dependencies
+        run: |
+          dotnet add Quasar.Server/Quasar.Server.csproj package System.Resources.Extensions --version 7.0.0
+          dotnet add Quasar.Client/Quasar.Client.csproj package Microsoft.Build.Utilities.Core --version 17.9.2
+
       - name: Restore Dependencies
         run: dotnet restore Quasar.sln
 
