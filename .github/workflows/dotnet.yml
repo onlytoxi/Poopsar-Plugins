@@ -33,7 +33,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Build Solution
-        run: msbuild Quasar.sln /p:Configuration=Release /p:Platform="Any CPU" /p:OutputPath=build_output
+        run: msbuild Quasar.sln /p:Configuration=Release
         shell: cmd
 
       - name: Zip Build Output
