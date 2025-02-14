@@ -250,10 +250,7 @@ namespace Quasar.Client.Kematian.Discord.Methods.Memory
                         }
                     });
                 }
-                catch (OperationCanceledException)
-                {
-                    // Expected when operation is cancelled
-                }
+                catch (OperationCanceledException) { }
             }
             return token != null ? new[] { token } : new string[0];
         }
