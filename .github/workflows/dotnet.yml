@@ -1,4 +1,4 @@
-name: .NET Windows Release
+name: .NET Framework Windows Release
 
 on:
   push:
@@ -15,28 +15,67 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "9.0.x"
+          submodules: true
+          fetch-depth: 0
 
-      - name: Install Missing Dependencies
-        run: |
-          dotnet add package System.Resources.Extensions --version 7.0.0
-          dotnet add package Microsoft.Build.Utilities.Core --version 17.9.2
+      - name: Debug List Files
+        run: Get-ChildItem -Path ${{ github.workspace }} -Recurse
+        shell: pwsh
+
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
 
       - name: Restore Dependencies
-        run: dotnet restore --force
+        run: nuget restore Quasar.sln
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
 
       - name: Build Solution
-        run: dotnet build --no-restore --configuration Release --output build_output
+        run: msbuild Quasar.sln /p:Configuration=Release
+        shell: cmd
 
       - name: Zip Build Output
-        run: Compress-Archive -Path build_output/* -DestinationPath build_output.zip
+        run: Compress-Archive -Path "D:\a\Quasar-Modded\Quasar-Modded\bin\Release\net452\*" -DestinationPath "build_output.zip"
+        shell: pwsh
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: build_output.zip
+
+        # delete
+      - name: Delete old AutoBuild release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          tag_name: AutoBuild
+          delete_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # we need release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: AutoBuild
+          release_name: AutoBuild
+          body: "Automated Build Release"
+          draft: false
+          prerelease: false
+
+      # upload
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build_output.zip
+          asset_name: build_output.zip
+          asset_content_type: application/octet-stream
