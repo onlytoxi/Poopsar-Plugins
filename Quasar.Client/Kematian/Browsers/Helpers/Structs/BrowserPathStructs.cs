@@ -1,5 +1,4 @@
-﻿using Org.BouncyCastle.Crypto.Paddings;
-using System;
+﻿using System;
 using System.IO;
 
 namespace Quasar.Client.Kematian.Browsers.Helpers.Structs
