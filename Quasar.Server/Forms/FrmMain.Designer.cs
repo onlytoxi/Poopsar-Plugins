@@ -57,22 +57,22 @@ namespace Quasar.Server.Forms
             this.passwordRecoveryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keyloggerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.remoteDesktopToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.kematianGrabbingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hVNCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.kematianGrabbingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.userSupportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showMessageboxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.remoteDesktopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.visitWebsiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.funMethodsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bSODToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.jumpScareToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.swapMouseButtonsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.elevateClientPermissionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uninstallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.funMethodsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bSODToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.jumpScareToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.swapMouseButtonsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lineToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imgFlags = new System.Windows.Forms.ImageList(this.components);
@@ -96,6 +96,7 @@ namespace Quasar.Server.Forms
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.builderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.webcamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip.SuspendLayout();
             this.tableLayoutPanel.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -270,6 +271,7 @@ namespace Quasar.Server.Forms
             this.passwordRecoveryToolStripMenuItem,
             this.keyloggerToolStripMenuItem,
             this.remoteDesktopToolStripMenuItem2,
+            this.webcamToolStripMenuItem,
             this.hVNCToolStripMenuItem,
             this.kematianGrabbingToolStripMenuItem});
             this.surveillanceToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.monitoring;
@@ -301,6 +303,12 @@ namespace Quasar.Server.Forms
             this.remoteDesktopToolStripMenuItem2.Text = "Remote Desktop";
             this.remoteDesktopToolStripMenuItem2.Click += new System.EventHandler(this.remoteDesktopToolStripMenuItem_Click);
             // 
+            // hVNCToolStripMenuItem
+            // 
+            this.hVNCToolStripMenuItem.Name = "hVNCToolStripMenuItem";
+            this.hVNCToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.hVNCToolStripMenuItem.Text = "HVNC";
+            // 
             // kematianGrabbingToolStripMenuItem
             // 
             this.kematianGrabbingToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("kematianGrabbingToolStripMenuItem.Image")));
@@ -308,13 +316,6 @@ namespace Quasar.Server.Forms
             this.kematianGrabbingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.kematianGrabbingToolStripMenuItem.Text = "Kematian Grabbing";
             this.kematianGrabbingToolStripMenuItem.Click += new System.EventHandler(this.kematianGrabbingToolStripMenuItem_Click);
-            // 
-            // hVNCToolStripMenuItem
-            // 
-            this.hVNCToolStripMenuItem.Name = "hVNCToolStripMenuItem";
-            this.hVNCToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.hVNCToolStripMenuItem.Text = "HVNC";
-            //this.hVNCToolStripMenuItem.Click += new System.EventHandler(this.hVNCToolStripMenuItem_Click);
             // 
             // userSupportToolStripMenuItem
             // 
@@ -331,7 +332,7 @@ namespace Quasar.Server.Forms
             // 
             this.showMessageboxToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("showMessageboxToolStripMenuItem.Image")));
             this.showMessageboxToolStripMenuItem.Name = "showMessageboxToolStripMenuItem";
-            this.showMessageboxToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.showMessageboxToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.showMessageboxToolStripMenuItem.Text = "Show Messagebox";
             this.showMessageboxToolStripMenuItem.Click += new System.EventHandler(this.showMessageboxToolStripMenuItem_Click);
             // 
@@ -339,7 +340,7 @@ namespace Quasar.Server.Forms
             // 
             this.remoteDesktopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("remoteDesktopToolStripMenuItem.Image")));
             this.remoteDesktopToolStripMenuItem.Name = "remoteDesktopToolStripMenuItem";
-            this.remoteDesktopToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.remoteDesktopToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.remoteDesktopToolStripMenuItem.Text = "Remote Desktop";
             this.remoteDesktopToolStripMenuItem.Click += new System.EventHandler(this.remoteDesktopToolStripMenuItem_Click);
             // 
@@ -347,9 +348,40 @@ namespace Quasar.Server.Forms
             // 
             this.visitWebsiteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("visitWebsiteToolStripMenuItem.Image")));
             this.visitWebsiteToolStripMenuItem.Name = "visitWebsiteToolStripMenuItem";
-            this.visitWebsiteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.visitWebsiteToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.visitWebsiteToolStripMenuItem.Text = "Send to Website";
             this.visitWebsiteToolStripMenuItem.Click += new System.EventHandler(this.visitWebsiteToolStripMenuItem_Click);
+            // 
+            // funMethodsToolStripMenuItem
+            // 
+            this.funMethodsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bSODToolStripMenuItem,
+            this.jumpScareToolStripMenuItem,
+            this.swapMouseButtonsToolStripMenuItem});
+            this.funMethodsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.emoticon_evilgrin;
+            this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
+            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
+            // 
+            // bSODToolStripMenuItem
+            // 
+            this.bSODToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.nuclear;
+            this.bSODToolStripMenuItem.Name = "bSODToolStripMenuItem";
+            this.bSODToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.bSODToolStripMenuItem.Text = "BSOD";
+            this.bSODToolStripMenuItem.Click += new System.EventHandler(this.bSODToolStripMenuItem_Click);
+            // 
+            // jumpScareToolStripMenuItem
+            // 
+            this.jumpScareToolStripMenuItem.Name = "jumpScareToolStripMenuItem";
+            this.jumpScareToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.jumpScareToolStripMenuItem.Text = "Jump Scare";
+            // 
+            // swapMouseButtonsToolStripMenuItem
+            // 
+            this.swapMouseButtonsToolStripMenuItem.Name = "swapMouseButtonsToolStripMenuItem";
+            this.swapMouseButtonsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.swapMouseButtonsToolStripMenuItem.Text = "Swap Mouse Buttons";
             // 
             // connectionToolStripMenuItem
             // 
@@ -403,37 +435,6 @@ namespace Quasar.Server.Forms
             this.uninstallToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.uninstallToolStripMenuItem.Text = "Uninstall";
             this.uninstallToolStripMenuItem.Click += new System.EventHandler(this.uninstallToolStripMenuItem_Click);
-            // 
-            // funMethodsToolStripMenuItem
-            // 
-            this.funMethodsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bSODToolStripMenuItem,
-            this.jumpScareToolStripMenuItem,
-            this.swapMouseButtonsToolStripMenuItem});
-            this.funMethodsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.emoticon_evilgrin;
-            this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
-            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
-            // 
-            // bSODToolStripMenuItem
-            // 
-            this.bSODToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.nuclear;
-            this.bSODToolStripMenuItem.Name = "bSODToolStripMenuItem";
-            this.bSODToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.bSODToolStripMenuItem.Text = "BSOD";
-            this.bSODToolStripMenuItem.Click += new System.EventHandler(this.bSODToolStripMenuItem_Click);
-            // 
-            // jumpScareToolStripMenuItem
-            // 
-            this.jumpScareToolStripMenuItem.Name = "jumpScareToolStripMenuItem";
-            this.jumpScareToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.jumpScareToolStripMenuItem.Text = "Jump Scare";
-            // 
-            // swapMouseButtonsToolStripMenuItem
-            // 
-            this.swapMouseButtonsToolStripMenuItem.Name = "swapMouseButtonsToolStripMenuItem";
-            this.swapMouseButtonsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.swapMouseButtonsToolStripMenuItem.Text = "Swap Mouse Buttons";
             // 
             // lineToolStripMenuItem
             // 
@@ -870,6 +871,13 @@ namespace Quasar.Server.Forms
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
+            // webcamToolStripMenuItem
+            // 
+            this.webcamToolStripMenuItem.Name = "webcamToolStripMenuItem";
+            this.webcamToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.webcamToolStripMenuItem.Text = "Webcam";
+            this.webcamToolStripMenuItem.Click += new System.EventHandler(this.webcamToolStripMenuItem_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -959,6 +967,7 @@ namespace Quasar.Server.Forms
         private ToolStripMenuItem jumpScareToolStripMenuItem;
         private ToolStripMenuItem swapMouseButtonsToolStripMenuItem;
         private ToolStripMenuItem hVNCToolStripMenuItem;
+        private ToolStripMenuItem webcamToolStripMenuItem;
     }
 }
 
