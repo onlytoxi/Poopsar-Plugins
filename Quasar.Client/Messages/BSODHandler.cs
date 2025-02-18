@@ -3,6 +3,7 @@ using Quasar.Common.Networking;
 using System.Runtime.InteropServices;
 using System;
 using System.Windows.Forms;
+using Quasar.Common.Messages.FunStuff;
 
 namespace Quasar.Client.Messages
 {

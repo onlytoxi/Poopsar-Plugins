@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace Quasar.Common.Messages
+namespace Quasar.Common.Messages.Webcam
 {
     [ProtoContract]
     public class GetAvailableWebcamsResponse : IMessage

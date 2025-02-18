@@ -5,6 +5,7 @@ using Quasar.Client.User;
 using Quasar.Client.Utilities;
 using Quasar.Common.Enums;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.ClientManagement;
 using Quasar.Common.Networking;
 using System;
 using System.Diagnostics;

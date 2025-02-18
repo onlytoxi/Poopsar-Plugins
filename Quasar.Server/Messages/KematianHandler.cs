@@ -9,6 +9,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Quasar.Common.Messages.Monitoring.Kematian;
 
 namespace Quasar.Server.Messages
 {

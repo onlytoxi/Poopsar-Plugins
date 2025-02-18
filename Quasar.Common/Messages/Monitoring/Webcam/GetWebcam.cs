@@ -1,8 +1,7 @@
 ﻿using ProtoBuf;
-
 using Quasar.Common.Enums;
 
-namespace Quasar.Common.Messages
+namespace Quasar.Common.Messages.Webcam
 {
     [ProtoContract]
     public class GetWebcam : IMessage

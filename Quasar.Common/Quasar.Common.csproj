@@ -28,4 +28,8 @@
 	 <PackageReference Include="System.Drawing.Common" />
 	<PackageReference Include="System.Management" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Messages\Administration\" />
+    <Folder Include="Messages\UserSupport\" />
+  </ItemGroup>
 </Project>

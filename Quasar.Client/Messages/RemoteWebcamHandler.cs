@@ -11,6 +11,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
+using Quasar.Common.Messages.Webcam;
 
 namespace Quasar.Client.Messages
 {

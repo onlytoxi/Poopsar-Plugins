@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows.Forms;
 using DarkModeForms;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Monitoring.Kematian;
 using Quasar.Common.Models;
 using Quasar.Common.Networking;
 using Quasar.Server.Helper;
