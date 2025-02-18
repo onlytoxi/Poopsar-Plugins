@@ -4,6 +4,7 @@ using Quasar.Common.Networking;
 using Quasar.Common.Video.Codecs;
 using Quasar.Server.Networking;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
@@ -63,7 +64,7 @@ namespace Quasar.Server.Messages
         /// </summary>
         /// <param name="sender">The message processor which raised the event.</param>
         /// <param name="value">All currently available displays.</param>
-        public delegate void DisplaysChangedEventHandler(object sender, int value);
+        public delegate void DisplaysChangedEventHandler(object sender, string[] value);
 
         /// <summary>
         /// Raised when a display changed.
@@ -78,12 +79,12 @@ namespace Quasar.Server.Messages
         /// Reports changed displays.
         /// </summary>
         /// <param name="value">All currently available displays.</param>
-        private void OnDisplaysChanged(int value)
+        private void OnDisplaysChanged(string[] value)
         {
             SynchronizationContext.Post(val =>
             {
                 var handler = DisplaysChanged;
-                handler?.Invoke(this, (int)val);
+                handler?.Invoke(this, (string[])val);
             }, value);
         }
 
@@ -199,8 +200,8 @@ namespace Quasar.Server.Messages
 
         private void Execute(ISender client, GetAvailableWebcamsResponse message)
         {
-            int displays = message.Webcams.Length;
-            OnDisplaysChanged(displays);
+            Debug.WriteLine(message.Webcams);
+            OnDisplaysChanged(message.Webcams);
         }
 
         /// <summary>

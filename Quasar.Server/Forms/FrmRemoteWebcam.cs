@@ -207,11 +207,11 @@ namespace Quasar.Server.Forms
         /// </summary>
         /// <param name="sender">The message handler which raised the event.</param>
         /// <param name="displays">The currently available displays.</param>
-        private void DisplaysChanged(object sender, int displays)
+        private void DisplaysChanged(object sender, string[] displays)
         {
             cbMonitors.Items.Clear();
-            for (int i = 0; i < displays; i++)
-                cbMonitors.Items.Add($"Display {i + 1}");
+            for (int i = 0; i < displays.Length; i++)
+                cbMonitors.Items.Add($"Display {displays[i]}");
             cbMonitors.SelectedIndex = 0;
         }
 
