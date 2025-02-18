@@ -37,17 +37,15 @@ namespace Quasar.Server.Forms
             this.barQuality = new System.Windows.Forms.TrackBar();
             this.lblQuality = new System.Windows.Forms.Label();
             this.lblQualityShow = new System.Windows.Forms.Label();
-            this.btnMouse = new System.Windows.Forms.Button();
             this.panelTop = new System.Windows.Forms.Panel();
-            this.btnKeyboard = new System.Windows.Forms.Button();
             this.cbMonitors = new System.Windows.Forms.ComboBox();
             this.btnHide = new System.Windows.Forms.Button();
             this.btnShow = new System.Windows.Forms.Button();
             this.toolTipButtons = new System.Windows.Forms.ToolTip(this.components);
-            this.picDesktop = new Quasar.Server.Controls.RapidPictureBox();
+            this.picWebcam = new Quasar.Server.Controls.RapidPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).BeginInit();
             this.panelTop.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picDesktop)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picWebcam)).BeginInit();
             this.SuspendLayout();
             // 
             // btnStart
@@ -75,7 +73,7 @@ namespace Quasar.Server.Forms
             // 
             // barQuality
             // 
-            this.barQuality.Location = new System.Drawing.Point(627, 3);
+            this.barQuality.Location = new System.Drawing.Point(700, 1);
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
             this.barQuality.Name = "barQuality";
@@ -88,7 +86,7 @@ namespace Quasar.Server.Forms
             // lblQuality
             // 
             this.lblQuality.AutoSize = true;
-            this.lblQuality.Location = new System.Drawing.Point(575, 5);
+            this.lblQuality.Location = new System.Drawing.Point(648, 3);
             this.lblQuality.Name = "lblQuality";
             this.lblQuality.Size = new System.Drawing.Size(46, 13);
             this.lblQuality.TabIndex = 4;
@@ -97,31 +95,18 @@ namespace Quasar.Server.Forms
             // lblQualityShow
             // 
             this.lblQualityShow.AutoSize = true;
-            this.lblQualityShow.Location = new System.Drawing.Point(575, 18);
+            this.lblQualityShow.Location = new System.Drawing.Point(648, 16);
             this.lblQualityShow.Name = "lblQualityShow";
             this.lblQualityShow.Size = new System.Drawing.Size(52, 13);
             this.lblQualityShow.TabIndex = 5;
             this.lblQualityShow.Text = "75 (high)";
             // 
-            // btnMouse
-            // 
-            this.btnMouse.Image = global::Quasar.Server.Properties.Resources.mouse_delete;
-            this.btnMouse.Location = new System.Drawing.Point(709, 3);
-            this.btnMouse.Name = "btnMouse";
-            this.btnMouse.Size = new System.Drawing.Size(28, 28);
-            this.btnMouse.TabIndex = 6;
-            this.btnMouse.TabStop = false;
-            this.toolTipButtons.SetToolTip(this.btnMouse, "Enable mouse input.");
-            this.btnMouse.UseVisualStyleBackColor = true;
-            // 
             // panelTop
             // 
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelTop.Controls.Add(this.btnKeyboard);
             this.panelTop.Controls.Add(this.cbMonitors);
             this.panelTop.Controls.Add(this.btnHide);
             this.panelTop.Controls.Add(this.lblQualityShow);
-            this.panelTop.Controls.Add(this.btnMouse);
             this.panelTop.Controls.Add(this.btnStart);
             this.panelTop.Controls.Add(this.btnStop);
             this.panelTop.Controls.Add(this.lblQuality);
@@ -131,30 +116,19 @@ namespace Quasar.Server.Forms
             this.panelTop.Size = new System.Drawing.Size(784, 37);
             this.panelTop.TabIndex = 7;
             // 
-            // btnKeyboard
-            // 
-            this.btnKeyboard.Image = global::Quasar.Server.Properties.Resources.keyboard_delete;
-            this.btnKeyboard.Location = new System.Drawing.Point(743, 3);
-            this.btnKeyboard.Name = "btnKeyboard";
-            this.btnKeyboard.Size = new System.Drawing.Size(28, 28);
-            this.btnKeyboard.TabIndex = 9;
-            this.btnKeyboard.TabStop = false;
-            this.toolTipButtons.SetToolTip(this.btnKeyboard, "Enable keyboard input.");
-            this.btnKeyboard.UseVisualStyleBackColor = true;
-            // 
             // cbMonitors
             // 
             this.cbMonitors.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbMonitors.FormattingEnabled = true;
             this.cbMonitors.Location = new System.Drawing.Point(159, 5);
             this.cbMonitors.Name = "cbMonitors";
-            this.cbMonitors.Size = new System.Drawing.Size(350, 21);
+            this.cbMonitors.Size = new System.Drawing.Size(423, 21);
             this.cbMonitors.TabIndex = 8;
             this.cbMonitors.TabStop = false;
             // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(515, 3);
+            this.btnHide.Location = new System.Drawing.Point(588, 3);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(54, 28);
             this.btnHide.TabIndex = 7;
@@ -175,20 +149,20 @@ namespace Quasar.Server.Forms
             this.btnShow.Visible = false;
             this.btnShow.Click += new System.EventHandler(this.btnShow_Click);
             // 
-            // picDesktop
+            // picWebcam
             // 
-            this.picDesktop.BackColor = System.Drawing.Color.Black;
-            this.picDesktop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picDesktop.Cursor = System.Windows.Forms.Cursors.Default;
-            this.picDesktop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.picDesktop.GetImageSafe = null;
-            this.picDesktop.Location = new System.Drawing.Point(0, 0);
-            this.picDesktop.Name = "picDesktop";
-            this.picDesktop.Running = false;
-            this.picDesktop.Size = new System.Drawing.Size(784, 562);
-            this.picDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picDesktop.TabIndex = 0;
-            this.picDesktop.TabStop = false;
+            this.picWebcam.BackColor = System.Drawing.Color.Black;
+            this.picWebcam.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picWebcam.Cursor = System.Windows.Forms.Cursors.Default;
+            this.picWebcam.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.picWebcam.GetImageSafe = null;
+            this.picWebcam.Location = new System.Drawing.Point(0, 0);
+            this.picWebcam.Name = "picWebcam";
+            this.picWebcam.Running = false;
+            this.picWebcam.Size = new System.Drawing.Size(784, 562);
+            this.picWebcam.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picWebcam.TabIndex = 0;
+            this.picWebcam.TabStop = false;
             // 
             // FrmRemoteWebcam
             // 
@@ -197,21 +171,21 @@ namespace Quasar.Server.Forms
             this.ClientSize = new System.Drawing.Size(784, 562);
             this.Controls.Add(this.btnShow);
             this.Controls.Add(this.panelTop);
-            this.Controls.Add(this.picDesktop);
+            this.Controls.Add(this.picWebcam);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(640, 480);
             this.Name = "FrmRemoteWebcam";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Remote Desktop []";
+            this.Text = "Remote Webcam []";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmRemoteWebcam_FormClosing);
             this.Load += new System.EventHandler(this.FrmRemoteWebcam_Load);
             this.Resize += new System.EventHandler(this.FrmRemoteWebcam_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).EndInit();
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picDesktop)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picWebcam)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -223,13 +197,11 @@ namespace Quasar.Server.Forms
         private System.Windows.Forms.TrackBar barQuality;
         private System.Windows.Forms.Label lblQuality;
         private System.Windows.Forms.Label lblQualityShow;
-        private System.Windows.Forms.Button btnMouse;
         private System.Windows.Forms.Panel panelTop;
         private System.Windows.Forms.Button btnHide;
         private System.Windows.Forms.Button btnShow;
         private System.Windows.Forms.ComboBox cbMonitors;
-        private System.Windows.Forms.Button btnKeyboard;
         private System.Windows.Forms.ToolTip toolTipButtons;
-        private Controls.RapidPictureBox picDesktop;
+        private Controls.RapidPictureBox picWebcam;
     }
 }

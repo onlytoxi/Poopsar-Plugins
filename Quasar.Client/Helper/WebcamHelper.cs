@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using AForge.Video;
@@ -17,36 +18,51 @@ namespace Quasar.Client.Helper
 
         public void StartWebcam(int webcamIndex)
         {
-            if (_isRunning) return;
-
-            FilterInfoCollection captureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-            if (captureDevices.Count == 0)
+            try
             {
-                Console.WriteLine("No webcam detected.");
-                return;
-            }
+                if (_isRunning) return;
 
-            if (webcamIndex < 0 || webcamIndex >= captureDevices.Count)
+                FilterInfoCollection captureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+                if (captureDevices.Count == 0)
+                {
+                    Console.WriteLine("No webcam detected.");
+                    return;
+                }
+
+                if (webcamIndex < 0 || webcamIndex >= captureDevices.Count)
+                {
+                    Console.WriteLine("Invalid selection.");
+                    return;
+                }
+
+                _videoDevice = new VideoCaptureDevice(captureDevices[webcamIndex].MonikerString);
+                _videoDevice.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
+                _videoDevice.Start();
+                _isRunning = true;
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("Invalid selection.");
-                return;
+                Debug.WriteLine($"Error starting webcam: {ex.Message}");
             }
-
-            _videoDevice = new VideoCaptureDevice(captureDevices[webcamIndex].MonikerString);
-            _videoDevice.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
-            _videoDevice.Start();
-            _isRunning = true;
         }
 
         public string[] GetWebcams()
         {
-            FilterInfoCollection captureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-            string[] webcams = new string[captureDevices.Count];
-            for (int i = 0; i < captureDevices.Count; i++)
+            try
             {
-                webcams[i] = captureDevices[i].Name;
+                FilterInfoCollection captureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+                string[] webcams = new string[captureDevices.Count];
+                for (int i = 0; i < captureDevices.Count; i++)
+                {
+                    webcams[i] = captureDevices[i].Name;
+                }
+                return webcams;
             }
-            return webcams;
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting webcams: {ex.Message}");
+                return new string[0];
+            }
         }
 
         public void StopWebcam()
@@ -64,8 +80,11 @@ namespace Quasar.Client.Helper
             }
             finally
             {
-                _videoDevice.NewFrame -= FinalFrame_NewFrame;
-                _videoDevice = null;
+                if (_videoDevice != null)
+                {
+                    _videoDevice.NewFrame -= FinalFrame_NewFrame;
+                    _videoDevice = null;
+                }
                 _isRunning = false;
             }
         }
@@ -74,8 +93,16 @@ namespace Quasar.Client.Helper
         {
             lock (_lock)
             {
-                Thread.Sleep(22); // is this a shitty way to do this? yes. But every other way I tried was even shittier or didn't work at all. Love it or hate it, it works.
-                return _currentFrame?.Clone() as Bitmap;
+                try
+                {
+                    Thread.Sleep(22);
+                    return _currentFrame?.Clone() as Bitmap;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error getting latest frame: {ex.Message}");
+                    return null;
+                }
             }
         }
 
@@ -83,7 +110,15 @@ namespace Quasar.Client.Helper
         {
             lock (_lock)
             {
-                return new Bounds { Width = _width, Height = _height };
+                try
+                {
+                    return new Bounds { Width = _width, Height = _height };
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error getting bounds: {ex.Message}");
+                    return new Bounds { Width = 0, Height = 0 };
+                }
             }
         }
 
@@ -91,10 +126,17 @@ namespace Quasar.Client.Helper
         {
             lock (_lock)
             {
-                _currentFrame?.Dispose();
-                _currentFrame = (Bitmap)eventArgs.Frame.Clone();
-                _width = _currentFrame.Width;
-                _height = _currentFrame.Height;
+                try
+                {
+                    _currentFrame?.Dispose();
+                    _currentFrame = (Bitmap)eventArgs.Frame.Clone();
+                    _width = _currentFrame.Width;
+                    _height = _currentFrame.Height;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error processing new frame: {ex.Message}");
+                }
             }
         }
     }

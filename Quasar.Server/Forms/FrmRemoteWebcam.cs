@@ -44,7 +44,7 @@ namespace Quasar.Server.Forms
         private readonly List<Keys> _keysPressed;
 
         /// <summary>
-        /// The client which can be used for the remote desktop.
+        /// The client which can be used for the remote webcam.
         /// </summary>
         private readonly Client _connectClient;
 
@@ -54,16 +54,16 @@ namespace Quasar.Server.Forms
         private readonly RemoteWebcamHandler _RemoteWebcamHandler;
 
         /// <summary>
-        /// Holds the opened remote desktop form for each client.
+        /// Holds the opened remote webcam form for each client.
         /// </summary>
         private static readonly Dictionary<Client, FrmRemoteWebcam> OpenedForms = new Dictionary<Client, FrmRemoteWebcam>();
 
         /// <summary>
-        /// Creates a new remote desktop form for the client or gets the current open form, if there exists one already.
+        /// Creates a new remote webcam form for the client or gets the current open form, if there exists one already.
         /// </summary>
-        /// <param name="client">The client used for the remote desktop form.</param>
+        /// <param name="client">The client used for the remote webcam form.</param>
         /// <returns>
-        /// Returns a new remote desktop form for the client if there is none currently open, otherwise creates a new one.
+        /// Returns a new remote webcam form for the client if there is none currently open, otherwise creates a new one.
         /// </returns>
         public static FrmRemoteWebcam CreateNewOrGetExisting(Client client)
         {
@@ -80,7 +80,7 @@ namespace Quasar.Server.Forms
         /// <summary>
         /// Initializes a new instance of the <see cref="FrmRemoteWebcam"/> class using the given client.
         /// </summary>
-        /// <param name="client">The client used for the remote desktop form.</param>
+        /// <param name="client">The client used for the remote webcam form.</param>
         public FrmRemoteWebcam(Client client)
         {
             _connectClient = client;
@@ -112,7 +112,7 @@ namespace Quasar.Server.Forms
         }
 
         /// <summary>
-        /// Registers the remote desktop message handler for client communication.
+        /// Registers the remote webcam message handler for client communication.
         /// </summary>
         private void RegisterMessageHandler()
         {
@@ -123,7 +123,7 @@ namespace Quasar.Server.Forms
         }
 
         /// <summary>
-        /// Unregisters the remote desktop message handler.
+        /// Unregisters the remote webcam message handler.
         /// </summary>
         private void UnregisterMessageHandler()
         {
@@ -134,7 +134,7 @@ namespace Quasar.Server.Forms
         }
 
         /// <summary>
-        /// Subscribes to local mouse and keyboard events for remote desktop input.
+        /// Subscribes to local mouse and keyboard events for remote webcam input.
         /// </summary>
         private void SubscribeEvents()
         {
@@ -148,17 +148,17 @@ namespace Quasar.Server.Forms
         }
 
         /// <summary>
-        /// Starts the remote desktop stream and begin to receive desktop frames.
+        /// Starts the remote webcam stream and begin to receive webcam frames.
         /// </summary>
         private void StartStream()
         {
             ToggleConfigurationControls(true);
 
-            picDesktop.Start();
+            picWebcam.Start();
             // Subscribe to the new frame counter.
-            picDesktop.SetFrameUpdatedEvent(frameCounter_FrameUpdated);
+            picWebcam.SetFrameUpdatedEvent(frameCounter_FrameUpdated);
 
-            this.ActiveControl = picDesktop;
+            this.ActiveControl = picWebcam;
 
             _RemoteWebcamHandler.BeginReceiveFrames(barQuality.Value, cbMonitors.SelectedIndex);
         }
@@ -170,11 +170,11 @@ namespace Quasar.Server.Forms
         {
             ToggleConfigurationControls(false);
 
-            picDesktop.Stop();
+            picWebcam.Stop();
             // Unsubscribe from the frame counter. It will be re-created when starting again.
-            picDesktop.UnsetFrameUpdatedEvent(frameCounter_FrameUpdated);
+            picWebcam.UnsetFrameUpdatedEvent(frameCounter_FrameUpdated);
 
-            this.ActiveControl = picDesktop;
+            this.ActiveControl = picWebcam;
 
             _RemoteWebcamHandler.EndReceiveFrames();
         }
@@ -199,7 +199,7 @@ namespace Quasar.Server.Forms
         {
             panelTop.Visible = visible;
             btnShow.Visible = !visible;
-            this.ActiveControl = picDesktop;
+            this.ActiveControl = picWebcam;
         }
 
         /// <summary>
@@ -216,18 +216,18 @@ namespace Quasar.Server.Forms
         }
 
         /// <summary>
-        /// Updates the current desktop image by drawing it to the desktop picturebox.
+        /// Updates the current webcam image by drawing it to the webcam picturebox.
         /// </summary>
         /// <param name="sender">The message handler which raised the event.</param>
-        /// <param name="bmp">The new desktop image to draw.</param>
+        /// <param name="bmp">The new webcam image to draw.</param>
         private void UpdateImage(object sender, Bitmap bmp)
         {
-            picDesktop.UpdateImage(bmp, false);
+            picWebcam.UpdateImage(bmp, false);
         }
 
         private void FrmRemoteWebcam_Load(object sender, EventArgs e)
         {
-            this.Text = WindowHelper.GetWindowTitle("Remote Desktop", _connectClient);
+            this.Text = WindowHelper.GetWindowTitle("Remote Webcam", _connectClient);
 
             OnResize(EventArgs.Empty); // trigger resize event to align controls 
 
@@ -240,7 +240,7 @@ namespace Quasar.Server.Forms
         /// <param name="e">The new frames per second.</param>
         private void frameCounter_FrameUpdated(FrameUpdatedEventArgs e)
         {
-            this.Text = string.Format("{0} - FPS: {1}", WindowHelper.GetWindowTitle("Remote Desktop", _connectClient), e.CurrentFramesPerSecond.ToString("0.00"));
+            this.Text = string.Format("{0} - FPS: {1}", WindowHelper.GetWindowTitle("Remote Webcam", _connectClient), e.CurrentFramesPerSecond.ToString("0.00"));
         }
 
         private void FrmRemoteWebcam_FormClosing(object sender, FormClosingEventArgs e)
@@ -250,7 +250,7 @@ namespace Quasar.Server.Forms
             if (_RemoteWebcamHandler.IsStarted) StopStream();
             UnregisterMessageHandler();
             _RemoteWebcamHandler.Dispose();
-            picDesktop.Image?.Dispose();
+            picWebcam.Image?.Dispose();
         }
 
         private void FrmRemoteWebcam_Resize(object sender, EventArgs e)
@@ -258,7 +258,7 @@ namespace Quasar.Server.Forms
             if (WindowState == FormWindowState.Minimized)
                 return;
 
-            _RemoteWebcamHandler.LocalResolution = picDesktop.Size;
+            _RemoteWebcamHandler.LocalResolution = picWebcam.Size;
             btnShow.Left = (this.Width - btnShow.Width) / 2;
         }
 
@@ -297,7 +297,7 @@ namespace Quasar.Server.Forms
             else if (value >= 25)
                 lblQualityShow.Text += " (mid)";
 
-            this.ActiveControl = picDesktop;
+            this.ActiveControl = picWebcam;
         }
 
         #endregion

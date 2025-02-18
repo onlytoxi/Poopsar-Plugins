@@ -48,7 +48,7 @@ namespace Quasar.Client.Messages
         {
             if (message.Status == RemoteWebcamStatus.Stop)
             {
-                StopScreenStreaming();
+                StopWebcamStreaming();
             }
             else if (message.Status == RemoteWebcamStatus.Start)
             {
@@ -89,7 +89,7 @@ namespace Quasar.Client.Messages
                     _stopwatch.Start();
                     while (true)
                     {
-                        CaptureScreen();
+                        CaptureWebcam();
                     }
                 });
                 _sendFramesThread.Start();
@@ -97,7 +97,7 @@ namespace Quasar.Client.Messages
         }
 
 
-        private void StopScreenStreaming()
+        private void StopWebcamStreaming()
         {
             _webcamHelper.StopWebcam();
             Console.WriteLine("Stopping remote webcam session");
@@ -132,7 +132,7 @@ namespace Quasar.Client.Messages
             }
         }
 
-        private void CaptureScreen()
+        private void CaptureWebcam()
         {
             _webcam = _webcamHelper.GetLatestFrame();
 
@@ -186,7 +186,7 @@ namespace Quasar.Client.Messages
         {
             if (disposing)
             {
-                StopScreenStreaming();
+                StopWebcamStreaming();
                 _streamCodec?.Dispose();
             }
         }
