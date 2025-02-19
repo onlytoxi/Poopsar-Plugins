@@ -2,6 +2,8 @@
 using Quasar.Client.Helper;
 using Quasar.Client.Registry;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Administration.RegistryEditor;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Models;
 using Quasar.Common.Networking;
 using System;
@@ -221,7 +223,7 @@ namespace Quasar.Client.Messages
             responsePacket.ErrorMsg = errorMsg;
             responsePacket.KeyPath = message.KeyPath;
             responsePacket.Value = message.Value;
-
+            
             client.Send(responsePacket);
         }
     }

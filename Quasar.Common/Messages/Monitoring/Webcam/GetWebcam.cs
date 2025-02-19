@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using Quasar.Common.Enums;
+using Quasar.Common.Messages.other;
 
 namespace Quasar.Common.Messages.Webcam
 {

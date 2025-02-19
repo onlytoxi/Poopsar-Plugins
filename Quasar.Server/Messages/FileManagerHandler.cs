@@ -1,6 +1,8 @@
 ﻿using Quasar.Common.Enums;
 using Quasar.Common.IO;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Administration.FileManager;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Models;
 using Quasar.Common.Networking;
 using Quasar.Server.Enums;
@@ -11,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Messages
 {
@@ -243,7 +246,7 @@ namespace Quasar.Server.Messages
 
             OnFileTransferUpdated(transfer);
 
-            _client.Send(new FileTransferRequest { RemotePath = remotePath, Id = id });
+            _client.Send(new FileTransferRequest {RemotePath = remotePath, Id = id});
         }
 
         /// <summary>
@@ -351,7 +354,7 @@ namespace Quasar.Server.Messages
         /// <param name="transferId">The id of the file transfer to cancel.</param>
         public void CancelFileTransfer(int transferId)
         {
-            _client.Send(new FileTransferCancel { Id = transferId });
+            _client.Send(new FileTransferCancel {Id = transferId});
         }
 
         /// <summary>
@@ -377,7 +380,7 @@ namespace Quasar.Server.Messages
         /// <param name="type">The type of the file (file or directory).</param>
         public void DeleteFile(string remotePath, FileType type)
         {
-            _client.Send(new DoPathDelete { Path = remotePath, PathType = type });
+            _client.Send(new DoPathDelete {Path = remotePath, PathType = type});
         }
 
         /// <summary>
@@ -395,7 +398,7 @@ namespace Quasar.Server.Messages
         /// <param name="item">The startup item to add.</param>
         public void AddToStartup(StartupItem item)
         {
-            _client.Send(new DoStartupItemAdd { StartupItem = item });
+            _client.Send(new DoStartupItemAdd {StartupItem = item});
         }
 
         /// <summary>
@@ -404,7 +407,7 @@ namespace Quasar.Server.Messages
         /// <param name="remotePath">The remote path of the directory.</param>
         public void GetDirectoryContents(string remotePath)
         {
-            _client.Send(new GetDirectory { RemotePath = remotePath });
+            _client.Send(new GetDirectory {RemotePath = remotePath});
         }
 
         /// <summary>
@@ -441,7 +444,7 @@ namespace Quasar.Server.Messages
                 return;
             }
 
-            decimal progress = transfer.Size == 0 ? 100 : Math.Round((decimal)((double)transfer.TransferredSize / (double)transfer.Size * 100.0), 2);
+            decimal progress = transfer.Size == 0 ? 100 : Math.Round((decimal) ((double) transfer.TransferredSize / (double) transfer.Size * 100.0), 2);
             transfer.Status = $"Downloading...({progress}%)";
 
             OnFileTransferUpdated(transfer);
@@ -490,7 +493,7 @@ namespace Quasar.Server.Messages
 
             OnDrivesChanged(message.Drives);
         }
-
+        
         private void Execute(ISender client, GetDirectoryResponse message)
         {
             if (message.Items == null)
@@ -561,7 +564,7 @@ namespace Quasar.Server.Messages
                 {
                     foreach (var transfer in _activeFileTransfers)
                     {
-                        _client.Send(new FileTransferCancel { Id = transfer.Id });
+                        _client.Send(new FileTransferCancel {Id = transfer.Id});
                         transfer.FileSplit?.Dispose();
                         if (transfer.Type == TransferType.Download)
                             File.Delete(transfer.LocalPath);

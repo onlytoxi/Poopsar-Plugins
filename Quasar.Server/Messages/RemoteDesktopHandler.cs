@@ -1,6 +1,7 @@
 ﻿using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Common.Messages.Monitoring.RemoteDesktop;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
 using Quasar.Common.Video.Codecs;
 using Quasar.Server.Networking;

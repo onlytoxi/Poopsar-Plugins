@@ -1,5 +1,4 @@
 ﻿using Quasar.Client.Helper;
-using Quasar.Client.IO;
 using Quasar.Client.IpGeoLocation;
 using Quasar.Client.User;
 using Quasar.Common.Messages;
@@ -8,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.NetworkInformation;
+using Quasar.Client.IO;
+using Quasar.Common.Messages.Administration.SystemInfo;
+using Quasar.Common.Messages.other;
 
 namespace Quasar.Client.Messages
 {

@@ -1,4 +1,4 @@
-﻿using Quasar.Common.Messages;
+﻿using Quasar.Common.Messages.other;
 
 namespace Quasar.Common.Models
 {

@@ -29,7 +29,7 @@
 	<PackageReference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Messages\Administration\" />
-    <Folder Include="Messages\UserSupport\" />
+    <Folder Include="Messages\Administration\RemoteExecute\" />
+    <Folder Include="Messages\Administration\ReverseProxy\" />
   </ItemGroup>
 </Project>

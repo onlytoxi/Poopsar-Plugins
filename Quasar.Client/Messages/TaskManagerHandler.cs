@@ -4,6 +4,8 @@ using Quasar.Common;
 using Quasar.Common.Enums;
 using Quasar.Common.Helpers;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Administration.TaskManager;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
 using System;
 using System.ComponentModel;
@@ -87,7 +89,7 @@ namespace Quasar.Client.Messages
                 // download and then execute
                 if (string.IsNullOrEmpty(message.DownloadUrl))
                 {
-                    client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                    client.Send(new DoProcessResponse {Action = ProcessAction.Start, Result = false});
                     return;
                 }
 
@@ -108,7 +110,7 @@ namespace Quasar.Client.Messages
                 }
                 catch
                 {
-                    client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                    client.Send(new DoProcessResponse {Action = ProcessAction.Start, Result = false});
                     NativeMethods.DeleteFile(message.FilePath);
                 }
             }
@@ -121,7 +123,7 @@ namespace Quasar.Client.Messages
 
         private void OnDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            var message = (DoProcessStart)e.UserState;
+            var message = (DoProcessStart) e.UserState;
             if (e.Cancelled)
             {
                 NativeMethods.DeleteFile(message.FilePath);

@@ -6,6 +6,7 @@ using Quasar.Client.User;
 using Quasar.Common.DNS;
 using Quasar.Common.Helpers;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Utilities;
 using System;
 using System.Diagnostics;
@@ -102,7 +103,7 @@ namespace Quasar.Client.Networking
             {
                 if (message.GetType() == typeof(ClientIdentificationResult))
                 {
-                    var reply = (ClientIdentificationResult)message;
+                    var reply = (ClientIdentificationResult) message;
                     _identified = reply.Result;
                 }
                 return;

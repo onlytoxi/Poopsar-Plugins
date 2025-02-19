@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Video;
 
 namespace Quasar.Common.Messages.Monitoring.RemoteDesktop

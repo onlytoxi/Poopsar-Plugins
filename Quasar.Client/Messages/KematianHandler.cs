@@ -1,7 +1,8 @@
-﻿using Quasar.Client.Kematian;
-using Quasar.Common.Messages;
-using Quasar.Common.Messages.Monitoring.Kematian;
+﻿using Quasar.Common.Messages;
 using Quasar.Common.Networking;
+using Quasar.Client.Kematian;
+using Quasar.Common.Messages.Monitoring.Kematian;
+using Quasar.Common.Messages.other;
 
 namespace Quasar.Client.Messages
 {

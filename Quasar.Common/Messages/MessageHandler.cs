@@ -1,4 +1,5 @@
-﻿using Quasar.Common.Networking;
+﻿using Quasar.Common.Messages.other;
+using Quasar.Common.Networking;
 using System.Collections.Generic;
 using System.Linq;
 

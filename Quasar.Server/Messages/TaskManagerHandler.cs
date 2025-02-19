@@ -1,5 +1,7 @@
 ﻿using Quasar.Common.Enums;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Administration.TaskManager;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Models;
 using Quasar.Common.Networking;
 using Quasar.Server.Networking;
@@ -91,7 +93,7 @@ namespace Quasar.Server.Messages
         /// <param name="isUpdate">Decides whether the file is a client update.</param>
         public void StartProcessFromWeb(string url, bool isUpdate = false)
         {
-            _client.Send(new DoProcessStart { DownloadUrl = url, IsUpdate = isUpdate });
+            _client.Send(new DoProcessStart { DownloadUrl = url, IsUpdate = isUpdate});
         }
 
         /// <summary>

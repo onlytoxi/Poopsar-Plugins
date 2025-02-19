@@ -1,6 +1,8 @@
 ﻿using Quasar.Client.IO;
 using Quasar.Client.Networking;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Administration.RemoteShell;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
 using System;
 

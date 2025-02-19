@@ -1,4 +1,4 @@
-﻿using Quasar.Common.Messages;
+﻿using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
 using System;
 using System.Collections.Generic;
@@ -131,7 +131,7 @@ namespace Quasar.Server.Networking
         public override int GetHashCode()
         {
             return this.EndPoint.GetHashCode();
-        }
+        }  
 
         /// <summary>
         /// The type of the message received.
@@ -406,9 +406,9 @@ namespace Quasar.Server.Networking
                         case ReceiveType.Payload:
                             {
                                 int length = (_writeOffset - HeaderSize + _readableDataLen) >= _payloadLen
-                                    ? _payloadLen - (_writeOffset - HeaderSize)
+                                    ?  _payloadLen - (_writeOffset - HeaderSize)
                                     : _readableDataLen;
-
+                                
                                 try
                                 {
                                     Array.Copy(readBuffer, _readOffset, _payloadBuffer, _writeOffset, length);
@@ -419,11 +419,11 @@ namespace Quasar.Server.Networking
                                     Disconnect();
                                     break;
                                 }
-
+                                
                                 _writeOffset += length;
                                 _readOffset += length;
                                 _readableDataLen -= length;
-
+                                
                                 if (_writeOffset - HeaderSize == _payloadLen)
                                 {
                                     // completely received payload
@@ -442,7 +442,7 @@ namespace Quasar.Server.Networking
                                         Disconnect();
                                         break;
                                     }
-
+                                    
                                     _receiveState = ReceiveType.Header;
                                     _payloadLen = 0;
                                     _writeOffset = 0;

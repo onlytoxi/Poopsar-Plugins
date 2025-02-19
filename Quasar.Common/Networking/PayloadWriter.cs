@@ -1,5 +1,5 @@
 ﻿using ProtoBuf;
-using Quasar.Common.Messages;
+using Quasar.Common.Messages.other;
 using System;
 using System.IO;
 

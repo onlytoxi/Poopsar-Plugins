@@ -1,6 +1,7 @@
 ﻿using Quasar.Client.ReverseProxy;
 using Quasar.Common.Extensions;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Messages.ReverseProxy;
 using Quasar.Common.Networking;
 using System;

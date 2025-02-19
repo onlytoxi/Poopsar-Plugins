@@ -1,5 +1,6 @@
 ﻿using Quasar.Common.Cryptography;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.other;
 using System;
 using System.Linq;
 using System.Security.Cryptography;

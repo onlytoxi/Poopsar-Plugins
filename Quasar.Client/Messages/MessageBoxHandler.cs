@@ -1,4 +1,6 @@
 ﻿using Quasar.Common.Messages;
+using Quasar.Common.Messages.other;
+using Quasar.Common.Messages.UserSupport.MessageBox;
 using Quasar.Common.Networking;
 using System;
 using System.Threading;
@@ -31,8 +33,7 @@ namespace Quasar.Client.Messages
                     (MessageBoxButtons)Enum.Parse(typeof(MessageBoxButtons), message.Button),
                     (MessageBoxIcon)Enum.Parse(typeof(MessageBoxIcon), message.Icon),
                     MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-            })
-            { IsBackground = true }.Start();
+            }) {IsBackground = true}.Start();
 
             client.Send(new SetStatus { Message = "Successfully displayed MessageBox" });
         }
