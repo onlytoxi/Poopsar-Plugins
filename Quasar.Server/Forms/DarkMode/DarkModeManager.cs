@@ -14,7 +14,8 @@ namespace Quasar.Server.Forms.DarkMode
 
             DarkModeCS _ = new DarkModeCS(form)
             {
-                ColorMode = isDarkModeChecked ? darkMode : lightMode
+                ColorMode = isDarkModeChecked ? darkMode : lightMode,
+                ColorizeIcons = false,
             };
         }
     }
