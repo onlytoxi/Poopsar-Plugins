@@ -1,17 +1,17 @@
 ﻿using Quasar.Client.Helper;
 using Quasar.Common.Enums;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Monitoring.RemoteDesktop;
 using Quasar.Common.Networking;
 using Quasar.Common.Video;
 using Quasar.Common.Video.Codecs;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Forms;
 using System.Threading;
-using System.Diagnostics;
-using Quasar.Common.Messages.Monitoring.RemoteDesktop;
+using System.Windows.Forms;
 
 namespace Quasar.Client.Messages
 {

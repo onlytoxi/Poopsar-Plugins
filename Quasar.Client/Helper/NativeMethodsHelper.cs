@@ -22,7 +22,7 @@ namespace Quasar.Client.Helper
         public static uint GetLastInputInfoTickCount()
         {
             NativeMethods.LASTINPUTINFO lastInputInfo = new NativeMethods.LASTINPUTINFO();
-            lastInputInfo.cbSize = (uint) Marshal.SizeOf(lastInputInfo);
+            lastInputInfo.cbSize = (uint)Marshal.SizeOf(lastInputInfo);
             lastInputInfo.dwTime = 0;
             NativeMethods.GetLastInputInfo(ref lastInputInfo);
             return lastInputInfo.dwTime;

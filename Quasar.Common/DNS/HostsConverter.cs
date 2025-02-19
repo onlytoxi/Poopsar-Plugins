@@ -27,7 +27,7 @@ namespace Quasar.Common.DNS
             return hostsList;
         }
 
-        public  string ListToRawHosts(IList<Host> hosts)
+        public string ListToRawHosts(IList<Host> hosts)
         {
             StringBuilder rawHosts = new StringBuilder();
 

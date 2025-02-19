@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Quasar.Client.Kematian.Discord.Methods.Memory;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Quasar.Client.Kematian.Discord.Methods.Memory;
 
 namespace Quasar.Client.Kematian.Discord
 {

@@ -193,7 +193,7 @@ namespace Quasar.Server.Models
         /// <summary>
         /// Initializes a new instance of <see cref="DummyCertificate"/> with a static dummy certificate.
         /// </summary>
-        public DummyCertificate() :base(CertificateBytes)
+        public DummyCertificate() : base(CertificateBytes)
         {
         }
     }

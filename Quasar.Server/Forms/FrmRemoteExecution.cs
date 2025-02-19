@@ -1,6 +1,6 @@
-﻿using DarkModeForms;
-using Quasar.Common.Enums;
+﻿using Quasar.Common.Enums;
 using Quasar.Common.Messages;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Models;
@@ -14,8 +14,6 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmRemoteExecution : Form
     {
-
-        private readonly DarkModeCS dm = null;
         private class RemoteExecutionMessageHandler
         {
             public FileManagerHandler FileHandler;
@@ -44,25 +42,22 @@ namespace Quasar.Server.Forms
 
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             foreach (var client in clients)
             {
                 var remoteExecutionMessageHandler = new RemoteExecutionMessageHandler
                 {
-                    FileHandler = new FileManagerHandler(client), TaskHandler = new TaskManagerHandler(client)
+                    FileHandler = new FileManagerHandler(client),
+                    TaskHandler = new TaskManagerHandler(client)
                 };
 
                 var lvi = new ListViewItem(new[]
                 {
                     $"{client.Value.Username}@{client.Value.PcName} [{client.EndPoint.Address}:{client.EndPoint.Port}]",
                     "Waiting..."
-                }) {Tag = remoteExecutionMessageHandler};
+                })
+                { Tag = remoteExecutionMessageHandler };
 
                 lstTransfers.Items.Add(lvi);
                 _remoteExecutionMessageHandlers.Add(remoteExecutionMessageHandler);
@@ -169,11 +164,11 @@ namespace Quasar.Server.Forms
         {
             for (var i = 0; i < lstTransfers.Items.Count; i++)
             {
-                var handler = (RemoteExecutionMessageHandler) lstTransfers.Items[i].Tag;
+                var handler = (RemoteExecutionMessageHandler)lstTransfers.Items[i].Tag;
 
                 if (handler.FileHandler.Equals(sender as FileManagerHandler) || handler.TaskHandler.Equals(sender as TaskManagerHandler))
                 {
-                    lstTransfers.Items[i].SubItems[(int) TransferColumn.Status].Text = transfer.Status;
+                    lstTransfers.Items[i].SubItems[(int)TransferColumn.Status].Text = transfer.Status;
 
                     if (transfer.Status == "Completed")
                     {
@@ -198,7 +193,7 @@ namespace Quasar.Server.Forms
 
                 if (handler.FileHandler.Equals(sender as FileManagerHandler) || handler.TaskHandler.Equals(sender as TaskManagerHandler))
                 {
-                    lstTransfers.Items[i].SubItems[(int) TransferColumn.Status].Text = message;
+                    lstTransfers.Items[i].SubItems[(int)TransferColumn.Status].Text = message;
                     return;
                 }
             }

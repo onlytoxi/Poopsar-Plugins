@@ -1,17 +1,15 @@
-﻿using System;
-using System.Windows.Forms;
-using DarkModeForms;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Quasar.Common.Models;
 using Quasar.Common.Utilities;
 using Quasar.Server.Enums;
+using Quasar.Server.Forms.DarkMode;
+using System;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmRegValueEditWord : Form
     {
-        private readonly DarkModeCS dm = null;
-
         private readonly RegValueData _value;
 
         private const string DWORD_WARNING = "The decimal value entered is greater than the maximum value of a DWORD (32-bit number). Should the value be truncated in order to continue?";
@@ -23,22 +21,17 @@ namespace Quasar.Server.Forms
 
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             this.valueNameTxtBox.Text = value.Name;
 
-            if (value.Kind == RegistryValueKind.DWord) 
+            if (value.Kind == RegistryValueKind.DWord)
             {
                 this.Text = "Edit DWORD (32-bit) Value";
                 this.valueDataTxtBox.Type = WordType.DWORD;
                 this.valueDataTxtBox.Text = ByteConverter.ToUInt32(value.Data).ToString("x");
             }
-            else 
+            else
             {
                 this.Text = "Edit QWORD (64-bit) Value";
                 this.valueDataTxtBox.Type = WordType.QWORD;
@@ -51,7 +44,7 @@ namespace Quasar.Server.Forms
             if (valueDataTxtBox.IsHexNumber == radioHexa.Checked)
                 return;
 
-            if(valueDataTxtBox.IsConversionValid() || IsOverridePossible())
+            if (valueDataTxtBox.IsConversionValid() || IsOverridePossible())
                 valueDataTxtBox.IsHexNumber = radioHexa.Checked;
             else
                 radioDecimal.Checked = true;

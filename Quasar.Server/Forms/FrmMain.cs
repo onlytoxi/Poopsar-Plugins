@@ -1,16 +1,15 @@
-﻿using DarkModeForms;
-using Quasar.Common.Enums;
+﻿using Quasar.Common.Enums;
 using Quasar.Common.Messages;
-using Quasar.Common.Messages.FunStuff;
 using Quasar.Common.Messages.ClientManagement;
+using Quasar.Common.Messages.FunStuff;
 using Quasar.Server.Extensions;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Messages;
 using Quasar.Server.Models;
 using Quasar.Server.Networking;
 using Quasar.Server.Utilities;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -21,7 +20,6 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmMain : Form
     {
-        private DarkModeCS dm = null;
         public QuasarServer ListenServer { get; set; }
 
         private const int STATUS_ID = 4;
@@ -39,12 +37,7 @@ namespace Quasar.Server.Forms
             _clientStatusHandler = new ClientStatusHandler();
             RegisterMessageHandler();
             InitializeComponent();
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         /// <summary>

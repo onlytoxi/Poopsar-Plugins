@@ -87,7 +87,7 @@ namespace Quasar.Client.Messages
                 // download and then execute
                 if (string.IsNullOrEmpty(message.DownloadUrl))
                 {
-                    client.Send(new DoProcessResponse {Action = ProcessAction.Start, Result = false});
+                    client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                     return;
                 }
 
@@ -108,7 +108,7 @@ namespace Quasar.Client.Messages
                 }
                 catch
                 {
-                    client.Send(new DoProcessResponse {Action = ProcessAction.Start, Result = false});
+                    client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                     NativeMethods.DeleteFile(message.FilePath);
                 }
             }
@@ -121,7 +121,7 @@ namespace Quasar.Client.Messages
 
         private void OnDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            var message = (DoProcessStart) e.UserState;
+            var message = (DoProcessStart)e.UserState;
             if (e.Cancelled)
             {
                 NativeMethods.DeleteFile(message.FilePath);

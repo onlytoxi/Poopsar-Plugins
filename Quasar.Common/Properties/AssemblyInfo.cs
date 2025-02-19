@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Quasar Common")]
+[assembly: AssemblyTitle("Quasar Modded Common")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Quasar")]
+[assembly: AssemblyProduct("Quasar Modded")]
 [assembly: AssemblyCopyright("Copyright © MaxXor 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

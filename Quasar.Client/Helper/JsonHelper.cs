@@ -39,7 +39,7 @@ namespace Quasar.Client.Helper
         /// </summary>
         public static T Deserialize<T>(Stream stream)
         {
-            var s = new DataContractJsonSerializer(typeof(T)); 
+            var s = new DataContractJsonSerializer(typeof(T));
             return (T)s.ReadObject(stream);
         }
     }

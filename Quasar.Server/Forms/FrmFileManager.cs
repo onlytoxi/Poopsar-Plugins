@@ -1,9 +1,9 @@
-﻿using DarkModeForms;
-using Quasar.Common.Enums;
+﻿using Quasar.Common.Enums;
 using Quasar.Common.Helpers;
 using Quasar.Common.Messages;
 using Quasar.Common.Models;
 using Quasar.Server.Controls;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Models;
@@ -18,8 +18,6 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmFileManager : Form
     {
-        private readonly DarkModeCS dm = null;
-
         /// <summary>
         /// The current remote directory shown in the file manager.
         /// </summary>
@@ -79,12 +77,7 @@ namespace Quasar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         /// <summary>
@@ -212,7 +205,7 @@ namespace Quasar.Server.Forms
 
             var lvi = new ListViewItem(new[]
                     {transfer.Id.ToString(), transfer.Type.ToString(), transfer.Status, transfer.RemotePath})
-                {Tag = transfer, ImageIndex = GetTransferImageIndex(transfer.Status)};
+            { Tag = transfer, ImageIndex = GetTransferImageIndex(transfer.Status) };
 
             lstTransfers.Items.Add(lvi);
         }
@@ -278,7 +271,7 @@ namespace Quasar.Server.Forms
         {
             if (lstDirectory.SelectedItems.Count > 0)
             {
-                FileManagerListTag tag = (FileManagerListTag) lstDirectory.SelectedItems[0].Tag;
+                FileManagerListTag tag = (FileManagerListTag)lstDirectory.SelectedItems[0].Tag;
 
                 switch (tag.Type)
                 {
@@ -338,7 +331,7 @@ namespace Quasar.Server.Forms
         {
             foreach (ListViewItem files in lstDirectory.SelectedItems)
             {
-                FileManagerListTag tag = (FileManagerListTag) files.Tag;
+                FileManagerListTag tag = (FileManagerListTag)files.Tag;
 
                 if (tag.Type == FileType.File)
                 {
@@ -446,7 +439,7 @@ namespace Quasar.Server.Forms
         {
             if (!Directory.Exists(_connectClient.Value.DownloadDirectory))
                 Directory.CreateDirectory(_connectClient.Value.DownloadDirectory);
-            
+
             Process.Start(_connectClient.Value.DownloadDirectory);
         }
 

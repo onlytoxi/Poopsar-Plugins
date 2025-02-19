@@ -88,7 +88,7 @@ namespace Quasar.Common.Video.Codecs
                 if (IntPtr.Size == 8)
                 {
                     // 64 bit process
-                    pScan0 = (byte*) scan0.ToInt64();
+                    pScan0 = (byte*)scan0.ToInt64();
                 }
                 else
                 {

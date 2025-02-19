@@ -1,7 +1,4 @@
 ﻿using Quasar.Client.IO;
-using Quasar.Client.Kematian;
-using Quasar.Client.Kematian.Browsers;
-using Quasar.Client.Kematian.Discord;
 using System;
 using System.Diagnostics;
 using System.Net;

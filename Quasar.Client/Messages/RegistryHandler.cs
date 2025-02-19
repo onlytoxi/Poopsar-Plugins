@@ -221,7 +221,7 @@ namespace Quasar.Client.Messages
             responsePacket.ErrorMsg = errorMsg;
             responsePacket.KeyPath = message.KeyPath;
             responsePacket.Value = message.Value;
-            
+
             client.Send(responsePacket);
         }
     }

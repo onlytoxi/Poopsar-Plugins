@@ -54,7 +54,7 @@ namespace Quasar.Server.Build
                 versionResource.ProductVersion = _options.AssemblyInformation[6];
                 versionResource.Language = 0;
 
-                StringFileInfo stringFileInfo = (StringFileInfo) versionResource["StringFileInfo"];
+                StringFileInfo stringFileInfo = (StringFileInfo)versionResource["StringFileInfo"];
                 stringFileInfo["CompanyName"] = _options.AssemblyInformation[2];
                 stringFileInfo["FileDescription"] = _options.AssemblyInformation[1];
                 stringFileInfo["ProductName"] = _options.AssemblyInformation[0];
@@ -88,7 +88,7 @@ namespace Quasar.Server.Build
 
             byte[] signature;
             // https://stackoverflow.com/a/49777672 RSACryptoServiceProvider must be changed with .NET 4.6
-            using (var csp = (RSACryptoServiceProvider) caCertificate.PrivateKey)
+            using (var csp = (RSACryptoServiceProvider)caCertificate.PrivateKey)
             {
                 var hash = Sha256.ComputeHash(Encoding.UTF8.GetBytes(key));
                 signature = csp.SignHash(hash, CryptoConfig.MapNameToOID("SHA256"));

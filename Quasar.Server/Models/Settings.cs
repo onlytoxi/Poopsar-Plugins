@@ -11,6 +11,18 @@ namespace Quasar.Server.Models
 
         public static readonly string CertificatePath = Path.Combine(Application.StartupPath, "quasar.p12");
 
+        public static bool DarkMode
+        {
+            get
+            {
+                return bool.Parse(ReadValueSafe("DarkMode", "False"));
+            }
+            set
+            {
+                WriteValue("DarkMode", value.ToString());
+            }
+        }
+
         public static ushort ListenPort
         {
             get
@@ -179,7 +191,7 @@ namespace Quasar.Server.Models
         private static string ReadValueSafe(string pstrValueToRead, string defaultValue = "")
         {
             string value = ReadValue(pstrValueToRead);
-            return (!string.IsNullOrEmpty(value)) ? value: defaultValue;
+            return (!string.IsNullOrEmpty(value)) ? value : defaultValue;
         }
 
         private static void WriteValue(string pstrValueToRead, string pstrValueToWrite)

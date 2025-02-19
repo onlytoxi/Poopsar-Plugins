@@ -1,5 +1,5 @@
-﻿using System;
-using Quasar.Server.Utilities;
+﻿using Quasar.Server.Utilities;
+using System;
 
 namespace Quasar.Server.Helper
 {

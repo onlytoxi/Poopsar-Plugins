@@ -35,8 +35,14 @@ namespace Quasar.Server.Models
         {
             return new FileTransfer()
             {
-                Id = Id, Type = Type, Size = Size, TransferredSize = TransferredSize, LocalPath = LocalPath,
-                RemotePath = RemotePath, Status = Status, FileSplit = FileSplit
+                Id = Id,
+                Type = Type,
+                Size = Size,
+                TransferredSize = TransferredSize,
+                LocalPath = LocalPath,
+                RemotePath = RemotePath,
+                Status = Status,
+                FileSplit = FileSplit
             };
         }
 

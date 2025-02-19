@@ -54,7 +54,7 @@ namespace Quasar.Server.Messages
             SynchronizationContext.Post(c =>
             {
                 var handler = StatusUpdated;
-                handler?.Invoke(this, (Client) c, statusMessage);
+                handler?.Invoke(this, (Client)c, statusMessage);
             }, client);
         }
 
@@ -68,7 +68,7 @@ namespace Quasar.Server.Messages
             SynchronizationContext.Post(c =>
             {
                 var handler = UserStatusUpdated;
-                handler?.Invoke(this, (Client) c, userStatusMessage);
+                handler?.Invoke(this, (Client)c, userStatusMessage);
             }, client);
         }
 
@@ -91,10 +91,10 @@ namespace Quasar.Server.Messages
             switch (message)
             {
                 case SetStatus status:
-                    Execute((Client) sender, status);
+                    Execute((Client)sender, status);
                     break;
                 case SetUserStatus userStatus:
-                    Execute((Client) sender, userStatus);
+                    Execute((Client)sender, userStatus);
                     break;
             }
         }

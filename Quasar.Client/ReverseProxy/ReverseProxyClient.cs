@@ -96,7 +96,7 @@ namespace Quasar.Client.ReverseProxy
 
                 byte[] payload = new byte[received];
                 Array.Copy(_buffer, payload, received);
-                Client.Send(new ReverseProxyData {ConnectionId = ConnectionId, Data = payload});
+                Client.Send(new ReverseProxyData { ConnectionId = ConnectionId, Data = payload });
             }
             catch
             {
@@ -121,7 +121,7 @@ namespace Quasar.Client.ReverseProxy
             {
                 _disconnectIsSend = true;
                 //send to the Server we've been disconnected
-                Client.Send(new ReverseProxyDisconnect {ConnectionId = ConnectionId});
+                Client.Send(new ReverseProxyDisconnect { ConnectionId = ConnectionId });
             }
 
             try

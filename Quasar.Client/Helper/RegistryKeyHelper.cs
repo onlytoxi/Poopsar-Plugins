@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Quasar.Client.Extensions;
 using Quasar.Common.Models;
 using Quasar.Common.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Quasar.Client.Helper
 {
@@ -102,7 +102,7 @@ namespace Quasar.Client.Helper
         /// <returns>Array with all of the values including the default value</returns>
         public static RegValueData[] AddDefaultValue(List<RegValueData> values)
         {
-            if(!values.Any(value => IsDefaultValue(value.Name)))
+            if (!values.Any(value => IsDefaultValue(value.Name)))
             {
                 values.Add(GetDefaultValue());
             }
@@ -115,12 +115,12 @@ namespace Quasar.Client.Helper
         /// <returns>A array with the default registry values</returns>
         public static RegValueData[] GetDefaultValues()
         {
-            return new[] {GetDefaultValue()};
+            return new[] { GetDefaultValue() };
         }
 
         public static RegValueData CreateRegValueData(string name, RegistryValueKind kind, object value = null)
         {
-            var newRegValue = new RegValueData {Name = name, Kind = kind};
+            var newRegValue = new RegValueData { Name = name, Kind = kind };
 
             if (value == null)
                 newRegValue.Data = new byte[] { };
@@ -129,20 +129,20 @@ namespace Quasar.Client.Helper
                 switch (newRegValue.Kind)
                 {
                     case RegistryValueKind.Binary:
-                        newRegValue.Data = (byte[]) value;
+                        newRegValue.Data = (byte[])value;
                         break;
                     case RegistryValueKind.MultiString:
-                        newRegValue.Data = ByteConverter.GetBytes((string[]) value);
+                        newRegValue.Data = ByteConverter.GetBytes((string[])value);
                         break;
                     case RegistryValueKind.DWord:
-                        newRegValue.Data = ByteConverter.GetBytes((uint) (int) value);
+                        newRegValue.Data = ByteConverter.GetBytes((uint)(int)value);
                         break;
                     case RegistryValueKind.QWord:
-                        newRegValue.Data = ByteConverter.GetBytes((ulong) (long) value);
+                        newRegValue.Data = ByteConverter.GetBytes((ulong)(long)value);
                         break;
                     case RegistryValueKind.String:
                     case RegistryValueKind.ExpandString:
-                        newRegValue.Data = ByteConverter.GetBytes((string) value);
+                        newRegValue.Data = ByteConverter.GetBytes((string)value);
                         break;
                 }
             }

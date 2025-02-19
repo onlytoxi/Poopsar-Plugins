@@ -75,7 +75,7 @@ namespace Quasar.Server.Messages
         /// <param name="command">The command to execute.</param>
         public void SendCommand(string command)
         {
-            _client.Send(new DoShellExecute {Command = command});
+            _client.Send(new DoShellExecute { Command = command });
         }
 
         private void Execute(ISender client, DoShellExecuteResponse message)

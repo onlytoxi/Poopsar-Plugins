@@ -1,7 +1,7 @@
-﻿using DarkModeForms;
-using Quasar.Common.DNS;
+﻿using Quasar.Common.DNS;
 using Quasar.Common.Helpers;
 using Quasar.Server.Build;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Models;
 using System;
 using System.Collections.Generic;
@@ -17,8 +17,6 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmBuilder : Form
     {
-        private readonly DarkModeCS dm = null;
-
         private bool _profileLoaded;
         private bool _changed;
         private readonly BindingList<Host> _hosts = new BindingList<Host>();
@@ -27,13 +25,7 @@ namespace Quasar.Server.Forms
         public FrmBuilder()
         {
             InitializeComponent();
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false,
-                //OwnerForm = this
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         private void LoadProfile(string profileName)
@@ -79,7 +71,7 @@ namespace Quasar.Server.Forms
 
             profile.Tag = txtTag.Text;
             profile.Hosts = _hostsConverter.ListToRawHosts(_hosts);
-            profile.Delay = (int) numericUpDownDelay.Value;
+            profile.Delay = (int)numericUpDownDelay.Value;
             profile.Mutex = txtMutex.Text;
             profile.InstallClient = chkInstall.Checked;
             profile.InstallName = txtInstallName.Text;
@@ -136,9 +128,9 @@ namespace Quasar.Server.Forms
             HasChanged();
 
             var host = txtHost.Text;
-            ushort port = (ushort) numericUpDownPort.Value;
+            ushort port = (ushort)numericUpDownPort.Value;
 
-            _hosts.Add(new Host {Hostname = host, Port = port});
+            _hosts.Add(new Host { Hostname = host, Port = port });
             txtHost.Text = "";
         }
 
@@ -250,7 +242,7 @@ namespace Quasar.Server.Forms
         private bool CheckForEmptyInput()
         {
             return (!string.IsNullOrWhiteSpace(txtTag.Text) && !string.IsNullOrWhiteSpace(txtMutex.Text) && // General Settings
-                 _hosts.Count > 0  && // Connection
+                 _hosts.Count > 0 && // Connection
                  (!chkInstall.Checked || (chkInstall.Checked && !string.IsNullOrWhiteSpace(txtInstallName.Text))) && // Installation
                  (!chkStartup.Checked || (chkStartup.Checked && !string.IsNullOrWhiteSpace(txtRegistryKeyName.Text)))); // Installation
         }
@@ -266,7 +258,7 @@ namespace Quasar.Server.Forms
             options.Tag = txtTag.Text;
             options.Mutex = txtMutex.Text;
             options.RawHosts = _hostsConverter.ListToRawHosts(_hosts);
-            options.Delay = (int) numericUpDownDelay.Value;
+            options.Delay = (int)numericUpDownDelay.Value;
             options.IconPath = txtIconPath.Text;
             options.Version = Application.ProductVersion;
             options.InstallPath = GetInstallPath();
@@ -359,7 +351,7 @@ namespace Quasar.Server.Forms
             }
 
             SetBuildState(false);
-            
+
             Thread t = new Thread(BuildClient);
             t.Start(options);
         }
@@ -383,7 +375,7 @@ namespace Quasar.Server.Forms
         {
             try
             {
-                BuildOptions options = (BuildOptions) o;
+                BuildOptions options = (BuildOptions)o;
 
                 var builder = new ClientBuilder(options, "client.bin");
 
@@ -391,7 +383,7 @@ namespace Quasar.Server.Forms
 
                 try
                 {
-                    this.Invoke((MethodInvoker) delegate
+                    this.Invoke((MethodInvoker)delegate
                     {
                         MessageBox.Show(this,
                             $"Successfully built client! Saved to:\\{options.OutputPath}",

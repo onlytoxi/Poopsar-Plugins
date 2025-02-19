@@ -91,7 +91,7 @@ namespace Quasar.Server.Messages
         /// <param name="isUpdate">Decides whether the file is a client update.</param>
         public void StartProcessFromWeb(string url, bool isUpdate = false)
         {
-            _client.Send(new DoProcessStart { DownloadUrl = url, IsUpdate = isUpdate});
+            _client.Send(new DoProcessStart { DownloadUrl = url, IsUpdate = isUpdate });
         }
 
         /// <summary>

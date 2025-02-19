@@ -36,7 +36,7 @@ namespace Quasar.Server.Controls
                 buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
                 form.ClientSize = new Size(396, 107);
-                form.Controls.AddRange(new Control[] {label, textBox, buttonOk, buttonCancel});
+                form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
                 form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
                 form.FormBorderStyle = FormBorderStyle.FixedDialog;
                 form.StartPosition = FormStartPosition.CenterScreen;

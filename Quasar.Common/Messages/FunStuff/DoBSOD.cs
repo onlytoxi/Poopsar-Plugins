@@ -1,5 +1,4 @@
 ﻿using ProtoBuf;
-using Quasar.Common.Models;
 
 namespace Quasar.Common.Messages.FunStuff
 {

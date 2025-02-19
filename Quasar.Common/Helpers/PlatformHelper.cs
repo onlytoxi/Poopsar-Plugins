@@ -38,7 +38,7 @@ namespace Quasar.Common.Helpers
         /// <summary>
         /// Gets the full name of the operating system running on this computer (including the edition and architecture).
         /// </summary>
-        public static string FullName { get; } 
+        public static string FullName { get; }
 
         /// <summary>
         /// Gets the name of the operating system running on this computer (including the edition).

@@ -38,7 +38,7 @@ namespace Quasar.Server.Networking
         /// <param name="e">The event arguments.</param>
         protected virtual void OnBufferRequested(EventArgs e)
         {
-            var handler =BufferRequested;
+            var handler = BufferRequested;
             if (handler != null)
                 handler(this, e);
         }
@@ -53,7 +53,7 @@ namespace Quasar.Server.Networking
         /// <param name="e">The event arguments.</param>
         protected virtual void OnBufferReturned(EventArgs e)
         {
-            var handler = BufferReturned; 
+            var handler = BufferReturned;
             if (handler != null)
                 handler(this, e);
         }

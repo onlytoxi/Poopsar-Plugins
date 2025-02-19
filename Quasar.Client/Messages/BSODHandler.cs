@@ -1,9 +1,8 @@
 ﻿using Quasar.Common.Messages;
-using Quasar.Common.Networking;
-using System.Runtime.InteropServices;
-using System;
-using System.Windows.Forms;
 using Quasar.Common.Messages.FunStuff;
+using Quasar.Common.Networking;
+using System;
+using System.Runtime.InteropServices;
 
 namespace Quasar.Client.Messages
 {

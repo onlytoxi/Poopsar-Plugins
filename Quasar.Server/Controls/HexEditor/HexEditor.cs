@@ -293,7 +293,8 @@ namespace Quasar.Server.Controls.HexEditor
                 if (CharSizeChanged != null)
                     CharSizeChanged(this, EventArgs.Empty);
             }
-        }SizeF _charSize;
+        }
+        SizeF _charSize;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int MaxBytesV
@@ -332,7 +333,8 @@ namespace Quasar.Server.Controls.HexEditor
                 UpdateRectanglePositioning();
                 Invalidate();
             }
-        }bool _isVScrollHidden = true;
+        }
+        bool _isVScrollHidden = true;
 
         #endregion
 
@@ -355,7 +357,8 @@ namespace Quasar.Server.Controls.HexEditor
                 UpdateRectanglePositioning();
                 Invalidate();
             }
-        }int _bytesPerLine = 8;
+        }
+        int _bytesPerLine = 8;
 
 
         /// <summary>
@@ -375,7 +378,8 @@ namespace Quasar.Server.Controls.HexEditor
                 UpdateRectanglePositioning();
                 Invalidate();
             }
-        }int _entityMargin = 10;
+        }
+        int _entityMargin = 10;
 
         /// <summary>
         /// Contains the type of border 
@@ -397,7 +401,8 @@ namespace Quasar.Server.Controls.HexEditor
                 UpdateRectanglePositioning();
                 Invalidate();
             }
-        }BorderStyle _borderStyle = BorderStyle.Fixed3D;
+        }
+        BorderStyle _borderStyle = BorderStyle.Fixed3D;
 
         /// <summary>
         /// Contains the color for the border 
@@ -416,7 +421,8 @@ namespace Quasar.Server.Controls.HexEditor
                 _borderColor = value;
                 Invalidate();
             }
-        }Color _borderColor = Color.Empty;
+        }
+        Color _borderColor = Color.Empty;
 
         /// <summary>
         /// Contains the color of the selected
@@ -433,7 +439,8 @@ namespace Quasar.Server.Controls.HexEditor
 
                 _selectionBackColor = value;
             }
-        }Color _selectionBackColor = Color.Blue;
+        }
+        Color _selectionBackColor = Color.Blue;
 
         /// <summary>
         /// Contains the color of the selected
@@ -450,7 +457,8 @@ namespace Quasar.Server.Controls.HexEditor
 
                 _selectionForeColor = value;
             }
-        }Color _selectionForeColor = Color.White;
+        }
+        Color _selectionForeColor = Color.White;
 
         /// <summary>
         /// Contains the case type for the
@@ -474,7 +482,8 @@ namespace Quasar.Server.Controls.HexEditor
 
                 Invalidate();
             }
-        }CaseStyle _lineCountCaseStyle = CaseStyle.UpperCase;
+        }
+        CaseStyle _lineCountCaseStyle = CaseStyle.UpperCase;
 
         /// <summary>
         /// Contains the case type for the
@@ -498,7 +507,8 @@ namespace Quasar.Server.Controls.HexEditor
 
                 Invalidate();
             }
-        }CaseStyle _hexViewCaseStyle = CaseStyle.UpperCase;
+        }
+        CaseStyle _hexViewCaseStyle = CaseStyle.UpperCase;
 
         /// <summary>
         /// Property that contains if the
@@ -519,7 +529,8 @@ namespace Quasar.Server.Controls.HexEditor
                 UpdateRectanglePositioning();
                 Invalidate();
             }
-        }bool _isVScrollVisible = false;
+        }
+        bool _isVScrollVisible = false;
 
         #endregion
 

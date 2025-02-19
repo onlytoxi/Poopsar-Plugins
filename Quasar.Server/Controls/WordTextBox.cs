@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Quasar.Server.Enums;
+using System;
 using System.Globalization;
 using System.Windows.Forms;
-using Quasar.Server.Enums;
 
 namespace Quasar.Server.Controls
 {
@@ -27,7 +27,7 @@ namespace Quasar.Server.Controls
                 if (isHexNumber == value)
                     return;
 
-                if(value)
+                if (value)
                 {
                     if (Type == WordType.DWORD)
                         Text = UIntValue.ToString("x");
@@ -135,7 +135,7 @@ namespace Quasar.Server.Controls
 
         private void UpdateMaxLength()
         {
-            if(Type == WordType.DWORD)
+            if (Type == WordType.DWORD)
             {
                 if (IsHexNumber)
                     base.MaxLength = 8;

@@ -1,6 +1,6 @@
-﻿using System;
-using ProtoBuf;
+﻿using ProtoBuf;
 using Quasar.Common.Enums;
+using System;
 
 namespace Quasar.Common.Models
 {

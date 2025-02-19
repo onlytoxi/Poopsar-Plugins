@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Quasar.Client.Kematian.Browsers.Helpers.Structs
+﻿namespace Quasar.Client.Kematian.Browsers.Helpers.Structs
 {
     public struct ChromiumBrowserPath
     {

@@ -150,9 +150,9 @@ namespace Quasar.Client
         private void ConnectClientOnClientState(Networking.Client s, bool connected)
         {
             if (connected)
-                _notifyIcon.Text = "Quasar Client\nConnection established";
+                _notifyIcon.Text = "Quasar Modded Client\nConnection established";
             else
-                _notifyIcon.Text = "Quasar Client\nNo connection";
+                _notifyIcon.Text = "Quasar Modded Client\nNo connection";
         }
 
         /// <summary>

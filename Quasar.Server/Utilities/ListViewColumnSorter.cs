@@ -52,8 +52,8 @@ namespace Quasar.Server.Utilities
         public int Compare(object x, object y)
         {
             // Cast the objects to be compared to ListViewItem objects
-            var listviewX = (ListViewItem) x;
-            var listviewY = (ListViewItem) y;
+            var listviewX = (ListViewItem)x;
+            var listviewY = (ListViewItem)y;
 
             if (listviewX.SubItems[0].Text == ".." || listviewY.SubItems[0].Text == "..")
                 return 0;

@@ -1,4 +1,4 @@
-﻿using DarkModeForms;
+﻿using Quasar.Server.Forms.DarkMode;
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -7,28 +7,21 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmAbout : Form
     {
-        private readonly DarkModeCS dm = null;
-
         private readonly string _repositoryUrl = @"https://github.com/quasar/Quasar";
 
         public FrmAbout()
         {
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             lblVersion.Text = $"v{Application.ProductVersion}";
             rtxtContent.Text = Properties.Resources.License;
 
-            lnkGithubPage.Links.Add(new LinkLabel.Link {LinkData = _repositoryUrl});
-            lnkCredits.Links.Add(new LinkLabel.Link {LinkData = _repositoryUrl + "/tree/master/Licenses"});
+            lnkGithubPage.Links.Add(new LinkLabel.Link { LinkData = _repositoryUrl });
+            lnkCredits.Links.Add(new LinkLabel.Link { LinkData = _repositoryUrl + "/tree/master/Licenses" });
         }
-        
+
         private void lnkGithubPage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             lnkGithubPage.LinkVisited = true;

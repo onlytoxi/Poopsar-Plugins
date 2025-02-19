@@ -280,7 +280,7 @@ namespace Quasar.Server.Networking
                                 sslStream = new SslStream(new NetworkStream(clientSocket, true), false);
                                 // the SslStream owns the socket and on disposing also disposes the NetworkStream and Socket
                                 sslStream.BeginAuthenticateAsServer(ServerCertificate, false, SslProtocols.Tls12, false, EndAuthenticateClient,
-                                    new PendingClient {Stream = sslStream, EndPoint = (IPEndPoint) clientSocket.RemoteEndPoint});
+                                    new PendingClient { Stream = sslStream, EndPoint = (IPEndPoint)clientSocket.RemoteEndPoint });
                             }
                             catch (Exception)
                             {
@@ -290,7 +290,7 @@ namespace Quasar.Server.Networking
                         case SocketError.ConnectionReset:
                             break;
                         default:
-                            throw new SocketException((int) e.SocketError);
+                            throw new SocketException((int)e.SocketError);
                     }
 
                     e.AcceptSocket = null; // enable reuse
@@ -317,7 +317,7 @@ namespace Quasar.Server.Networking
         /// <param name="ar">The status of the asynchronous operation.</param>
         private void EndAuthenticateClient(IAsyncResult ar)
         {
-            var con = (PendingClient) ar.AsyncState;
+            var con = (PendingClient)ar.AsyncState;
             try
             {
                 con.Stream.EndAuthenticateAsServer(ar);

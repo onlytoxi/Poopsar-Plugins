@@ -1,15 +1,13 @@
-﻿using System;
-using System.Windows.Forms;
-using DarkModeForms;
-using Quasar.Common.Models;
+﻿using Quasar.Common.Models;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Registry;
+using System;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmRegValueEditBinary : Form
     {
-        private readonly DarkModeCS dm = null;
-
         private readonly RegValueData _value;
 
         private const string INVALID_BINARY_ERROR = "The binary value was invalid and could not be converted correctly.";
@@ -20,12 +18,7 @@ namespace Quasar.Server.Forms
 
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             this.valueNameTxtBox.Text = RegValueHelper.GetName(value.Name);
             hexEditor.HexTable = value.Data;

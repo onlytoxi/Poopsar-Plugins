@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using DarkModeForms;
-using Quasar.Common.Messages;
+﻿using Quasar.Common.Messages;
 using Quasar.Common.Models;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Networking;
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmConnections : Form
     {
-        private readonly DarkModeCS dm = null;
-
         /// <summary>
         /// The client which can be used for the connections manager.
         /// </summary>
@@ -65,12 +63,7 @@ namespace Quasar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         /// <summary>

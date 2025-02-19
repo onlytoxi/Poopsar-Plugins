@@ -1,16 +1,14 @@
-﻿using System;
-using System.Windows.Forms;
-using DarkModeForms;
-using Quasar.Common.Models;
+﻿using Quasar.Common.Models;
 using Quasar.Common.Utilities;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Registry;
+using System;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmRegValueEditString : Form
     {
-        private readonly DarkModeCS dm = null;
-
         private readonly RegValueData _value;
 
         public FrmRegValueEditString(RegValueData value)
@@ -19,12 +17,7 @@ namespace Quasar.Server.Forms
 
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             this.valueNameTxtBox.Text = RegValueHelper.GetName(value.Name);
             this.valueDataTxtBox.Text = ByteConverter.ToString(value.Data);

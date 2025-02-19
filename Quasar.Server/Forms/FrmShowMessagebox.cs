@@ -1,14 +1,12 @@
-﻿using System;
-using System.Windows.Forms;
-using DarkModeForms;
+﻿using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
+using System;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmShowMessagebox : Form
     {
-        private readonly DarkModeCS dm = null;
-
         private readonly int _selectedClients;
 
         public string MsgBoxCaption { get; set; }
@@ -22,12 +20,7 @@ namespace Quasar.Server.Forms
 
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         private void FrmShowMessagebox_Load(object sender, EventArgs e)
@@ -46,8 +39,8 @@ namespace Quasar.Server.Forms
         {
             MessageBox.Show(null, txtText.Text, txtCaption.Text,
                 (MessageBoxButtons)
-                    Enum.Parse(typeof (MessageBoxButtons), GetMessageBoxButton(cmbMsgButtons.SelectedIndex)),
-                (MessageBoxIcon) Enum.Parse(typeof (MessageBoxIcon), GetMessageBoxIcon(cmbMsgIcon.SelectedIndex)));
+                    Enum.Parse(typeof(MessageBoxButtons), GetMessageBoxButton(cmbMsgButtons.SelectedIndex)),
+                (MessageBoxIcon)Enum.Parse(typeof(MessageBoxIcon), GetMessageBoxIcon(cmbMsgIcon.SelectedIndex)));
         }
 
         private void btnSend_Click(object sender, EventArgs e)

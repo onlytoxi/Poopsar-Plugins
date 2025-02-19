@@ -85,7 +85,7 @@ namespace Quasar.Common.Utilities
         {
             List<byte> bytes = new List<byte>();
 
-            foreach(string str in strings)
+            foreach (string str in strings)
             {
                 bytes.AddRange(StringToBytes(str));
                 bytes.AddRange(GetNullBytes());

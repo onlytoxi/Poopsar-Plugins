@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using DarkModeForms;
-using Quasar.Common.Messages;
+﻿using Quasar.Common.Messages;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Networking;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmRemoteShell : Form
     {
-        private readonly DarkModeCS dm = null;
-
         /// <summary>
         /// The client which can be used for the remote shell.
         /// </summary>
@@ -60,12 +58,7 @@ namespace Quasar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             txtConsoleOutput.AppendText(">> Type 'exit' to close this session" + Environment.NewLine);
         }
@@ -184,7 +177,7 @@ namespace Quasar.Server.Forms
 
         private void txtConsoleOutput_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar != (char) 2)
+            if (e.KeyChar != (char)2)
             {
                 txtConsoleInput.Text += e.KeyChar.ToString();
                 txtConsoleInput.Focus();

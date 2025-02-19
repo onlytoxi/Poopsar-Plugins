@@ -1,9 +1,9 @@
-﻿using Quasar.Client.Kematian.Discord;
+﻿using Quasar.Client.Kematian.Browsers;
+using Quasar.Client.Kematian.Discord;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using Quasar.Client.Kematian.Browsers;
 using System.Threading.Tasks;
 
 

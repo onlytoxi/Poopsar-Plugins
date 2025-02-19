@@ -12,7 +12,7 @@ namespace Quasar.Common.DNS
 
         public HostsManager(List<Host> hosts)
         {
-            foreach(var host in hosts)
+            foreach (var host in hosts)
                 _hosts.Enqueue(host);
         }
 

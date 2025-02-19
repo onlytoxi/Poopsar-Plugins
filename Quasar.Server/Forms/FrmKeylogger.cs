@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Windows.Forms;
-using DarkModeForms;
-using Quasar.Common.Messages;
+﻿using Quasar.Common.Messages;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Networking;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmKeylogger : Form
     {
-        private readonly DarkModeCS dm = null;
-
         /// <summary>
         /// The client which can be used for the keylogger.
         /// </summary>
@@ -67,12 +65,7 @@ namespace Quasar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         /// <summary>
@@ -164,7 +157,7 @@ namespace Quasar.Server.Forms
 
             foreach (FileInfo file in iFiles)
             {
-                lstLogs.Items.Add(new ListViewItem {Text = file.Name});
+                lstLogs.Items.Add(new ListViewItem { Text = file.Name });
             }
         }
     }

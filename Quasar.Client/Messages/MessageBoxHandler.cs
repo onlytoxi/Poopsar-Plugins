@@ -31,7 +31,8 @@ namespace Quasar.Client.Messages
                     (MessageBoxButtons)Enum.Parse(typeof(MessageBoxButtons), message.Button),
                     (MessageBoxIcon)Enum.Parse(typeof(MessageBoxIcon), message.Icon),
                     MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-            }) {IsBackground = true}.Start();
+            })
+            { IsBackground = true }.Start();
 
             client.Send(new SetStatus { Message = "Successfully displayed MessageBox" });
         }

@@ -146,7 +146,7 @@ namespace Quasar.Server.Models
         {
             get
             {
-                return ReadValueSafe("RegistryName", "Quasar Client Startup");
+                return ReadValueSafe("RegistryName", "Quasar Modded Client Startup");
             }
             set
             {
@@ -377,7 +377,7 @@ namespace Quasar.Server.Models
                     }
                     doc.AppendChild(doc.CreateElement("settings"));
                 }
-                
+
                 XmlElement root = doc.DocumentElement;
                 XmlNode oldNode = root.SelectSingleNode(@"/settings/" + pstrValueToRead);
                 if (oldNode == null) // create if not exist

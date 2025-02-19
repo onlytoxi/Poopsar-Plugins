@@ -1,10 +1,6 @@
-﻿using Quasar.Common.Cryptography;
-using Quasar.Common.Messages;
-using System;
+﻿using Quasar.Common.Messages;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace Quasar.Server.Networking
 {
@@ -99,12 +95,12 @@ namespace Quasar.Server.Networking
         {
             if (!client.Identified)
             {
-                if (message.GetType() == typeof (ClientIdentification))
+                if (message.GetType() == typeof(ClientIdentification))
                 {
-                    client.Identified = IdentifyClient(client, (ClientIdentification) message);
+                    client.Identified = IdentifyClient(client, (ClientIdentification)message);
                     if (client.Identified)
                     {
-                        client.Send(new ClientIdentificationResult {Result = true}); // finish handshake
+                        client.Send(new ClientIdentificationResult { Result = true }); // finish handshake
                         OnClientConnected(client);
                     }
                     else

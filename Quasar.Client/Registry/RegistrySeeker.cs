@@ -25,18 +25,18 @@ namespace Quasar.Client.Registry
         {
             if (!String.IsNullOrEmpty(rootKeyName))
             {
-                using(RegistryKey root = GetRootKey(rootKeyName))
+                using (RegistryKey root = GetRootKey(rootKeyName))
                 {
                     //Check if this is a root key or not
                     if (root != null && root.Name != rootKeyName)
                     {
                         //Must get the subKey name by removing root and '\'
                         string subKeyName = rootKeyName.Substring(root.Name.Length + 1);
-                        using(RegistryKey subroot = root.OpenReadonlySubKeySafe(subKeyName))
+                        using (RegistryKey subroot = root.OpenReadonlySubKeySafe(subKeyName))
                         {
-                            if(subroot != null)
+                            if (subroot != null)
                                 Seek(subroot);
-                        } 
+                        }
                     }
                     else
                     {
@@ -68,7 +68,7 @@ namespace Quasar.Client.Registry
 
         private void Search(RegistryKey rootKey)
         {
-            foreach(string subKeyName in rootKey.GetSubKeyNames())
+            foreach (string subKeyName in rootKey.GetSubKeyNames())
             {
                 RegistryKey subKey = rootKey.OpenReadonlySubKeySafe(subKeyName);
                 ProcessKey(subKey, subKeyName);
@@ -98,7 +98,7 @@ namespace Quasar.Client.Registry
 
         private void AddMatch(string key, RegValueData[] values, int subkeycount)
         {
-            RegSeekerMatch match = new RegSeekerMatch {Key = key, Data = values, HasSubKeys = subkeycount > 0};
+            RegSeekerMatch match = new RegSeekerMatch { Key = key, Data = values, HasSubKeys = subkeycount > 0 };
 
             _matches.Add(match);
         }
@@ -129,7 +129,7 @@ namespace Quasar.Client.Registry
             {
                 throw new Exception("Unable to open root registry key, you do not have the needed permissions.");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }

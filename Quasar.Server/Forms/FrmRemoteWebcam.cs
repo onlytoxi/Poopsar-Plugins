@@ -1,8 +1,6 @@
-﻿using DarkModeForms;
-using Gma.System.MouseKeyHook;
-using Quasar.Common.Enums;
-using Quasar.Common.Helpers;
+﻿using Gma.System.MouseKeyHook;
 using Quasar.Common.Messages;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Networking;
@@ -16,8 +14,6 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmRemoteWebcam : Form
     {
-        private readonly DarkModeCS dm = null;
-
         /// <summary>
         /// States whether remote mouse input is enabled.
         /// </summary>
@@ -90,12 +86,7 @@ namespace Quasar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         /// <summary>

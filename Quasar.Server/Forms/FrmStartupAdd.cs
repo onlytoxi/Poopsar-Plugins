@@ -1,7 +1,7 @@
-﻿using DarkModeForms;
-using Quasar.Common.Enums;
+﻿using Quasar.Common.Enums;
 using Quasar.Common.Helpers;
 using Quasar.Common.Models;
+using Quasar.Server.Forms.DarkMode;
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -10,19 +10,13 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmStartupAdd : Form
     {
-        private readonly DarkModeCS dm = null;
         public StartupItem StartupItem { get; set; }
 
         public FrmStartupAdd()
         {
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             AddTypes();
         }
@@ -56,7 +50,7 @@ namespace Quasar.Server.Forms
         private void btnAdd_Click(object sender, EventArgs e)
         {
             StartupItem = new StartupItem
-                {Name = txtName.Text, Path = txtPath.Text, Type = (StartupType) cmbType.SelectedIndex};
+            { Name = txtName.Text, Path = txtPath.Text, Type = (StartupType)cmbType.SelectedIndex };
 
             this.DialogResult = DialogResult.OK;
             this.Close();

@@ -237,16 +237,16 @@ namespace Quasar.Client.Extensions
                     {
                         case RegistryValueKind.String:
                         case RegistryValueKind.ExpandString:
-                            data = ByteConverter.ToString((byte[]) data);
+                            data = ByteConverter.ToString((byte[])data);
                             break;
                         case RegistryValueKind.DWord:
-                            data = ByteConverter.ToUInt32((byte[]) data);
+                            data = ByteConverter.ToUInt32((byte[])data);
                             break;
                         case RegistryValueKind.QWord:
-                            data = ByteConverter.ToUInt64((byte[]) data);
+                            data = ByteConverter.ToUInt64((byte[])data);
                             break;
                         case RegistryValueKind.MultiString:
-                            data = ByteConverter.ToStringArray((byte[]) data);
+                            data = ByteConverter.ToStringArray((byte[])data);
                             break;
                     }
                 }
@@ -382,9 +382,9 @@ namespace Quasar.Client.Extensions
             switch (valueKind)
             {
                 case RegistryValueKind.Binary:
-                    return new byte[] {};
+                    return new byte[] { };
                 case RegistryValueKind.MultiString:
-                    return new string[] {};
+                    return new string[] { };
                 case RegistryValueKind.DWord:
                     return 0;
                 case RegistryValueKind.QWord:

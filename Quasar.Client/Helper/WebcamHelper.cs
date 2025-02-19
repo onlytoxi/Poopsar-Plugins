@@ -1,9 +1,9 @@
-﻿using System;
+﻿using AForge.Video;
+using AForge.Video.DirectShow;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
-using AForge.Video;
-using AForge.Video.DirectShow;
 
 namespace Quasar.Client.Helper
 {

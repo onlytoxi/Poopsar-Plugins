@@ -50,7 +50,7 @@ namespace Quasar.Server.Controls
                 NativeMethods.SendMessage(this.Handle, WM_CHANGEUISTATE, _removeDots, IntPtr.Zero);
             }
         }
-        
+
         /// <summary>
         /// Raises the <see cref="E:ColumnClick" /> event.
         /// </summary>

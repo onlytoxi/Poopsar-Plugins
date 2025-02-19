@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Quasar.Server.Utilities;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
-using Quasar.Server.Utilities;
 
 namespace Quasar.Server.Controls
 {
@@ -127,7 +127,7 @@ namespace Quasar.Server.Controls
                 {
                     // get old image to dispose it correctly
                     var oldImage = GetImageSafe;
-                    
+
                     SuspendLayout();
                     GetImageSafe = cloneBitmap ? new Bitmap(bmp, Width, Height) /*resize bitmap*/ : bmp;
                     ResumeLayout();

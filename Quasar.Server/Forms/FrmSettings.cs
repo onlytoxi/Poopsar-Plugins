@@ -1,18 +1,16 @@
-﻿using Quasar.Server.Networking;
+﻿using Quasar.Server.Forms.DarkMode;
+using Quasar.Server.Models;
+using Quasar.Server.Networking;
 using Quasar.Server.Utilities;
 using System;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Windows.Forms;
-using Quasar.Server.Models;
-using DarkModeForms;
 
 namespace Quasar.Server.Forms
 {
     public partial class FrmSettings : Form
     {
-        private readonly DarkModeCS dm = null;
-
         private readonly QuasarServer _listenServer;
 
         public FrmSettings(QuasarServer listenServer)
@@ -21,12 +19,7 @@ namespace Quasar.Server.Forms
 
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
 
             ToggleListenerSettings(!listenServer.Listening);
 
@@ -36,6 +29,7 @@ namespace Quasar.Server.Forms
         private void FrmSettings_Load(object sender, EventArgs e)
         {
             ncPort.Value = Settings.ListenPort;
+            chkDarkMode.Checked = Settings.DarkMode;
             chkIPv6Support.Checked = Settings.IPv6Support;
             chkAutoListen.Checked = Settings.AutoListen;
             chkPopup.Checked = Settings.ShowPopup;
@@ -69,7 +63,7 @@ namespace Quasar.Server.Forms
             {
                 try
                 {
-                    if(chkNoIPIntegration.Checked)
+                    if (chkNoIPIntegration.Checked)
                         NoIpUpdater.Start();
                     _listenServer.Listen(port, chkIPv6Support.Checked, chkUseUpnp.Checked);
                     ToggleListenerSettings(false);
@@ -110,6 +104,7 @@ namespace Quasar.Server.Forms
             }
 
             Settings.ListenPort = port;
+            Settings.DarkMode = chkDarkMode.Checked;
             Settings.IPv6Support = chkIPv6Support.Checked;
             Settings.AutoListen = chkAutoListen.Checked;
             Settings.ShowPopup = chkPopup.Checked;

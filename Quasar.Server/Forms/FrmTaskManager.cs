@@ -1,8 +1,8 @@
-﻿using DarkModeForms;
-using Quasar.Common.Enums;
+﻿using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Common.Models;
 using Quasar.Server.Controls;
+using Quasar.Server.Forms.DarkMode;
 using Quasar.Server.Helper;
 using Quasar.Server.Messages;
 using Quasar.Server.Networking;
@@ -14,8 +14,6 @@ namespace Quasar.Server.Forms
 {
     public partial class FrmTaskManager : Form
     {
-        private readonly DarkModeCS dm = null;
-
         /// <summary>
         /// The client which can be used for the task manager.
         /// </summary>
@@ -62,12 +60,7 @@ namespace Quasar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
 
-            dm = new DarkModeCS(this)
-            {
-                //[Optional] Choose your preferred color mode here:
-                ColorMode = DarkModeCS.DisplayMode.SystemDefault,
-                ColorizeIcons = false
-            };
+            DarkModeManager.ApplyDarkMode(this);
         }
 
         /// <summary>
@@ -112,7 +105,7 @@ namespace Quasar.Server.Forms
             foreach (var process in processes)
             {
                 ListViewItem lvi =
-                    new ListViewItem(new[] {process.Name, process.Id.ToString(), process.MainWindowTitle});
+                    new ListViewItem(new[] { process.Name, process.Id.ToString(), process.MainWindowTitle });
                 lstTasks.Items.Add(lvi);
             }
 
