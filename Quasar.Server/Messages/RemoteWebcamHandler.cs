@@ -142,7 +142,7 @@ namespace Quasar.Server.Messages
                 _codec?.Dispose();
                 _codec = null;
                 _client.Send(new GetWebcam { CreateNew = true, Quality = quality, DisplayIndex = display, Status = RemoteWebcamStatus.Start });
-                Console.WriteLine("Sent message!");
+                Debug.WriteLine("Sent message!");
             }
         }
 
@@ -156,7 +156,7 @@ namespace Quasar.Server.Messages
                 IsStarted = false;
             }
 
-            Console.WriteLine("we done here");
+            Debug.WriteLine("we done here");
 
             _client.Send(new GetWebcam { Status = RemoteWebcamStatus.Stop });
         }
@@ -166,7 +166,7 @@ namespace Quasar.Server.Messages
         /// </summary>
         public void RefreshDisplays()
         {
-            Console.WriteLine("refreshing displays");
+            Debug.WriteLine("refreshing displays");
             _client.Send(new GetAvailableWebcams());
         }
 

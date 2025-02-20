@@ -6,6 +6,7 @@ using Quasar.Common.Networking;
 using Quasar.Common.Video.Codecs;
 using Quasar.Server.Networking;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
@@ -154,7 +155,7 @@ namespace Quasar.Server.Messages
                 IsStarted = false;
             }
 
-            Console.WriteLine("we done here");
+            Debug.WriteLine("we done here");
 
             _client.Send(new GetDesktop { Status = RemoteDesktopStatus.Stop });
         }
@@ -164,7 +165,7 @@ namespace Quasar.Server.Messages
         /// </summary>
         public void RefreshDisplays()
         {
-            Console.WriteLine("refreshing displays");
+            Debug.WriteLine("refreshing displays");
             _client.Send(new GetMonitors());
         }
 

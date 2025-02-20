@@ -25,13 +25,13 @@ namespace Quasar.Client.Helper
                 FilterInfoCollection captureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
                 if (captureDevices.Count == 0)
                 {
-                    Console.WriteLine("No webcam detected.");
+                    Debug.WriteLine("No webcam detected.");
                     return;
                 }
 
                 if (webcamIndex < 0 || webcamIndex >= captureDevices.Count)
                 {
-                    Console.WriteLine("Invalid selection.");
+                    Debug.WriteLine("Invalid selection.");
                     return;
                 }
 
@@ -76,7 +76,7 @@ namespace Quasar.Client.Helper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error stopping webcam: {ex.Message}");
+                Debug.WriteLine($"Error stopping webcam: {ex.Message}");
             }
             finally
             {

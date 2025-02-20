@@ -69,7 +69,7 @@ namespace Quasar.Client.Messages
 
         private void StartScreenStreaming(ISender client, GetDesktop message)
         {
-            Console.WriteLine("Starting remote desktop session");
+            Debug.WriteLine("Starting remote desktop session");
 
             var monitorBounds = ScreenHelper.GetBounds(message.DisplayIndex);
             var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
@@ -103,7 +103,7 @@ namespace Quasar.Client.Messages
 
         private void StopScreenStreaming()
         {
-            Console.WriteLine("Stopping remote desktop session");
+            Debug.WriteLine("Stopping remote desktop session");
 
             _cancellationTokenSource?.Cancel();
 
@@ -173,14 +173,14 @@ namespace Quasar.Client.Messages
                 _frameCount++;
                 if (_stopwatch.ElapsedMilliseconds >= 1000)
                 {
-                    Console.WriteLine($"FPS: {_frameCount}");
+                    Debug.WriteLine($"FPS: {_frameCount}");
                     _frameCount = 0;
                     _stopwatch.Restart();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error capturing screen: {ex.Message}");
+                Debug.WriteLine($"Error capturing screen: {ex.Message}");
             }
             finally
             {
@@ -230,7 +230,7 @@ namespace Quasar.Client.Messages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error executing mouse event: {ex.Message}");
+                Debug.WriteLine($"Error executing mouse event: {ex.Message}");
             }
         }
 
@@ -245,7 +245,7 @@ namespace Quasar.Client.Messages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error executing keyboard event: {ex.Message}");
+                Debug.WriteLine($"Error executing keyboard event: {ex.Message}");
             }
         }
 

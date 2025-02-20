@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Vestris.ResourceLib;
+using System.Diagnostics;
 
 namespace Quasar.Server.Build
 {
@@ -114,7 +115,7 @@ namespace Quasar.Server.Build
                                             methodDef.Body.Instructions[i].Operand = aes.Encrypt(_options.Version);
                                             break;
                                         case 2: //ip/hostname
-                                            Console.WriteLine(_options.RawHosts);
+                                            Debug.WriteLine(_options.RawHosts);
                                             methodDef.Body.Instructions[i].Operand = aes.Encrypt(_options.RawHosts);
                                             break;
                                         case 3: //installsub

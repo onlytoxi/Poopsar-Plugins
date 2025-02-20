@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -48,8 +49,8 @@ namespace Quasar.Common.DNS
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("Failed to get host from pastebin.");
-                        Console.WriteLine(e);
+                        Debug.WriteLine("Failed to get host from pastebin.");
+                        Debug.WriteLine(e);
                         continue; // if there's an error, ignore this host
                     }
                 }

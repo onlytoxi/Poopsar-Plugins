@@ -27,7 +27,8 @@ namespace Quasar.Server.Forms
         public QuasarServer ListenServer { get; set; }
 
         private const int STATUS_ID = 4;
-        private const int USERSTATUS_ID = 5;
+        private const int CURRENTWINDOW_ID = 5;
+        private const int USERSTATUS_ID = 6;
 
         private bool _titleUpdateRunning;
         private bool _processingClientConnections;
@@ -52,6 +53,7 @@ namespace Quasar.Server.Forms
             MessageHandler.Register(_clientStatusHandler);
             _clientStatusHandler.StatusUpdated += SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated += SetUserStatusByClient;
+            _clientStatusHandler.UserActiveWindowStatusUpdated += SetUserActiveWindowByClient;
         }
 
         /// <summary>
@@ -62,6 +64,7 @@ namespace Quasar.Server.Forms
             MessageHandler.Unregister(_clientStatusHandler);
             _clientStatusHandler.StatusUpdated -= SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated -= SetUserStatusByClient;
+            _clientStatusHandler.UserActiveWindowStatusUpdated -= SetUserActiveWindowByClient;
         }
 
         public void UpdateWindowTitle()
@@ -327,7 +330,7 @@ namespace Quasar.Server.Forms
                 ListViewItem lvi = new ListViewItem(new string[]
                 {
                     " " + client.EndPoint.Address, client.Value.Tag,
-                    client.Value.UserAtPc, client.Value.Version, "Connected", "Active", client.Value.CountryWithCode,
+                    client.Value.UserAtPc, client.Value.Version, "Connected", "idk", "Active", client.Value.CountryWithCode,
                     client.Value.OperatingSystem, client.Value.AccountType
                 })
                 { Tag = client, ImageIndex = client.Value.ImageIndex };
@@ -401,6 +404,13 @@ namespace Quasar.Server.Forms
             if (item != null)
                 item.SubItems[USERSTATUS_ID].Text = userStatus.ToString();
 
+        }
+
+        private void SetUserActiveWindowByClient(object sender, Client client, string newWindow)
+        {
+            var item = GetListViewItemByClient(client);
+            if (item != null)
+                item.SubItems[CURRENTWINDOW_ID].Text = newWindow;
         }
 
         /// <summary>
