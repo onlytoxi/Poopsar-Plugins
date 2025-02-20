@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace Quasar.Common.DNS
 {
     public class HostsConverter
     {
-        public List<Host> RawHostsToList(string rawHosts)
+        public List<Host> RawHostsToList(string rawHosts, bool server = false)
         {
             List<Host> hostsList = new List<Host>();
 
@@ -16,12 +19,51 @@ namespace Quasar.Common.DNS
 
             foreach (var host in hosts)
             {
-                if ((string.IsNullOrEmpty(host) || !host.Contains(':'))) continue; // invalid host, ignore
+                if (string.IsNullOrEmpty(host) || !host.Contains(':')) continue; // invalid host, ignore
 
-                ushort port;
-                if (!ushort.TryParse(host.Substring(host.LastIndexOf(':') + 1), out port)) continue; // invalid, ignore host
+                if (host.StartsWith("https://pastebin") && !server)
+                {
+                    var hostWithoutPort = host.Substring(0, host.LastIndexOf(':'));
+                    try
+                    {
+                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(hostWithoutPort);
+                        request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0";
+                        request.Proxy = null;
+                        request.Timeout = 10000;
 
-                hostsList.Add(new Host { Hostname = host.Substring(0, host.LastIndexOf(':')), Port = port });
+                        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                        {
+                            using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                            {
+                                string pastebinContent = reader.ReadToEnd().Trim();
+                                if (!string.IsNullOrEmpty(pastebinContent) && pastebinContent.Contains(':'))
+                                {
+                                    if (ushort.TryParse(pastebinContent.Substring(pastebinContent.LastIndexOf(':') + 1), out ushort port))
+                                    {
+                                        hostsList.Add(new Host { Hostname = pastebinContent.Substring(0, pastebinContent.LastIndexOf(':')), Port = port });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to get host from pastebin.");
+                        Console.WriteLine(e);
+                        continue; // if there's an error, ignore this host
+                    }
+                }
+                else
+                {
+                    if (ushort.TryParse(host.Substring(host.LastIndexOf(':') + 1), out ushort port))
+                    {
+                        hostsList.Add(new Host { Hostname = host.Substring(0, host.LastIndexOf(':')), Port = port });
+                    }
+                    else if (server && host.StartsWith("https://pastebin"))
+                    {
+                        hostsList.Add(new Host { Hostname = host.Substring(0, host.LastIndexOf(':')) });
+                    }
+                }
             }
 
             return hostsList;

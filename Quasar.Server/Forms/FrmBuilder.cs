@@ -33,7 +33,7 @@ namespace Quasar.Server.Forms
             var profile = new BuilderProfile(profileName);
 
             _hosts.Clear();
-            foreach (var host in _hostsConverter.RawHostsToList(profile.Hosts))
+            foreach (var host in _hostsConverter.RawHostsToList(profile.Hosts, true))
                 _hosts.Add(host);
 
             txtTag.Text = profile.Tag;

