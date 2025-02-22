@@ -134,14 +134,14 @@ namespace Quasar.Server.Messages
         /// </summary>
         /// <param name="quality">The quality of the remote desktop frames.</param>
         /// <param name="display">The display to receive frames from.</param>
-        public void BeginReceiveFrames(int quality, int display)
+        public void BeginReceiveFrames(int quality, int display, bool useGPU)
         {
             lock (_syncLock)
             {
                 IsStarted = true;
                 _codec?.Dispose();
                 _codec = null;
-                _client.Send(new GetDesktop { CreateNew = true, Quality = quality, DisplayIndex = display, Status = RemoteDesktopStatus.Start });
+                _client.Send(new GetDesktop { CreateNew = true, Quality = quality, DisplayIndex = display, Status = RemoteDesktopStatus.Start, UseGPU = useGPU });
             }
         }
 

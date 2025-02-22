@@ -18,6 +18,9 @@ namespace Quasar.Common.Messages.Monitoring.RemoteDesktop
 
         [ProtoMember(4)]
         public RemoteDesktopStatus Status { get; set; }
+
+        [ProtoMember(5)]
+        public bool UseGPU { get; set; }
     }
 
     public class GetDesktopHVNC : IMessage

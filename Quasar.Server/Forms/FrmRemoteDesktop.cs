@@ -56,6 +56,8 @@ namespace Quasar.Server.Forms
         /// </summary>
         private static readonly Dictionary<Client, FrmRemoteDesktop> OpenedForms = new Dictionary<Client, FrmRemoteDesktop>();
 
+        private bool _useGPU = false;
+
         /// <summary>
         /// Creates a new remote desktop form for the client or gets the current open form, if there exists one already.
         /// </summary>
@@ -178,7 +180,7 @@ namespace Quasar.Server.Forms
         /// <summary>
         /// Starts the remote desktop stream and begin to receive desktop frames.
         /// </summary>
-        private void StartStream()
+        private void StartStream(bool useGPU)
         {
             ToggleConfigurationControls(true);
 
@@ -188,7 +190,7 @@ namespace Quasar.Server.Forms
 
             this.ActiveControl = picDesktop;
 
-            _remoteDesktopHandler.BeginReceiveFrames(barQuality.Value, cbMonitors.SelectedIndex);
+            _remoteDesktopHandler.BeginReceiveFrames(barQuality.Value, cbMonitors.SelectedIndex, useGPU);
         }
 
         /// <summary>
@@ -300,7 +302,7 @@ namespace Quasar.Server.Forms
             }
 
             SubscribeEvents();
-            StartStream();
+            StartStream(_useGPU);
         }
 
         private void btnStop_Click(object sender, EventArgs e)
@@ -459,6 +461,21 @@ namespace Quasar.Server.Forms
             }
 
             this.ActiveControl = picDesktop;
+        }
+
+        private void enableGPU_Click(object sender, EventArgs e)
+        {
+            _useGPU = !_useGPU;
+            if (_useGPU)
+            {
+                enableGPU.Image = Properties.Resources.computer_go; // enable GPU
+                toolTipButtons.SetToolTip(enableGPU, "Disable GPU.");
+            }
+            else
+            {
+                enableGPU.Image = Properties.Resources.computer_error; // disable GPU
+                toolTipButtons.SetToolTip(enableGPU, "Enable GPU.");
+            }
         }
 
         #endregion

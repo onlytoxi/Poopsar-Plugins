@@ -39,6 +39,7 @@ namespace Quasar.Server.Forms
             this.lblQualityShow = new System.Windows.Forms.Label();
             this.btnMouse = new System.Windows.Forms.Button();
             this.panelTop = new System.Windows.Forms.Panel();
+            this.enableGPU = new System.Windows.Forms.Button();
             this.btnKeyboard = new System.Windows.Forms.Button();
             this.cbMonitors = new System.Windows.Forms.ComboBox();
             this.btnHide = new System.Windows.Forms.Button();
@@ -75,7 +76,7 @@ namespace Quasar.Server.Forms
             // 
             // barQuality
             // 
-            this.barQuality.Location = new System.Drawing.Point(627, 3);
+            this.barQuality.Location = new System.Drawing.Point(598, 3);
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
             this.barQuality.Name = "barQuality";
@@ -88,7 +89,7 @@ namespace Quasar.Server.Forms
             // lblQuality
             // 
             this.lblQuality.AutoSize = true;
-            this.lblQuality.Location = new System.Drawing.Point(575, 5);
+            this.lblQuality.Location = new System.Drawing.Point(546, 5);
             this.lblQuality.Name = "lblQuality";
             this.lblQuality.Size = new System.Drawing.Size(46, 13);
             this.lblQuality.TabIndex = 4;
@@ -97,7 +98,7 @@ namespace Quasar.Server.Forms
             // lblQualityShow
             // 
             this.lblQualityShow.AutoSize = true;
-            this.lblQualityShow.Location = new System.Drawing.Point(575, 18);
+            this.lblQualityShow.Location = new System.Drawing.Point(546, 18);
             this.lblQualityShow.Name = "lblQualityShow";
             this.lblQualityShow.Size = new System.Drawing.Size(52, 13);
             this.lblQualityShow.TabIndex = 5;
@@ -118,6 +119,7 @@ namespace Quasar.Server.Forms
             // panelTop
             // 
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelTop.Controls.Add(this.enableGPU);
             this.panelTop.Controls.Add(this.btnKeyboard);
             this.panelTop.Controls.Add(this.cbMonitors);
             this.panelTop.Controls.Add(this.btnHide);
@@ -131,6 +133,18 @@ namespace Quasar.Server.Forms
             this.panelTop.Name = "panelTop";
             this.panelTop.Size = new System.Drawing.Size(784, 37);
             this.panelTop.TabIndex = 7;
+            // 
+            // enableGPU
+            // 
+            this.enableGPU.Image = global::Quasar.Server.Properties.Resources.computer_error;
+            this.enableGPU.Location = new System.Drawing.Point(675, 4);
+            this.enableGPU.Name = "enableGPU";
+            this.enableGPU.Size = new System.Drawing.Size(28, 28);
+            this.enableGPU.TabIndex = 10;
+            this.enableGPU.TabStop = false;
+            this.toolTipButtons.SetToolTip(this.enableGPU, "Enable mouse input.");
+            this.enableGPU.UseVisualStyleBackColor = true;
+            this.enableGPU.Click += new System.EventHandler(this.enableGPU_Click);
             // 
             // btnKeyboard
             // 
@@ -150,13 +164,13 @@ namespace Quasar.Server.Forms
             this.cbMonitors.FormattingEnabled = true;
             this.cbMonitors.Location = new System.Drawing.Point(159, 5);
             this.cbMonitors.Name = "cbMonitors";
-            this.cbMonitors.Size = new System.Drawing.Size(350, 21);
+            this.cbMonitors.Size = new System.Drawing.Size(323, 21);
             this.cbMonitors.TabIndex = 8;
             this.cbMonitors.TabStop = false;
             // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(515, 3);
+            this.btnHide.Location = new System.Drawing.Point(486, 3);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(54, 28);
             this.btnHide.TabIndex = 7;
@@ -236,5 +250,6 @@ namespace Quasar.Server.Forms
         private System.Windows.Forms.Button btnKeyboard;
         private System.Windows.Forms.ToolTip toolTipButtons;
         private Controls.RapidPictureBox picDesktop;
+        private System.Windows.Forms.Button enableGPU;
     }
 }

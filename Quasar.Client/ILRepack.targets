@@ -10,6 +10,9 @@
 			<InputAssemblies Include="$(TargetDir)AForge.dll"/>
 			<InputAssemblies Include="$(TargetDir)AForge.Video.dll"/>
 			<InputAssemblies Include="$(TargetDir)AForge.Video.DirectShow.dll"/>
+			<InputAssemblies Include="$(TargetDir)SharpDX.dll"/>
+			<InputAssemblies Include="$(TargetDir)SharpDX.DXGI.dll"/>
+			<InputAssemblies Include="$(TargetDir)SharpDX.Direct3D11.dll"/>
 		</ItemGroup>
 
 		<ILRepack
