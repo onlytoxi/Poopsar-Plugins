@@ -15,43 +15,43 @@ namespace Quasar.Server.Helper
 {
     public static class CertificateHelper
     {
-        public static X509Certificate2 CreateCertificate(string certName, X509Certificate2 ca, int keyStrength)
-        {
-            var caCert = DotNetUtilities.FromX509Certificate(ca);
-            var random = new SecureRandom(new CryptoApiRandomGenerator());
-            var keyPairGen = new RsaKeyPairGenerator();
-            keyPairGen.Init(new KeyGenerationParameters(random, keyStrength));
-            AsymmetricCipherKeyPair keyPair = keyPairGen.GenerateKeyPair();
+        //public static X509Certificate2 CreateCertificate(string certName, X509Certificate2 ca, int keyStrength)
+        //{
+        //    var caCert = DotNetUtilities.FromX509Certificate(ca);
+        //    var random = new SecureRandom(new CryptoApiRandomGenerator());
+        //    var keyPairGen = new RsaKeyPairGenerator();
+        //    keyPairGen.Init(new KeyGenerationParameters(random, keyStrength));
+        //    AsymmetricCipherKeyPair keyPair = keyPairGen.GenerateKeyPair();
 
-            var certificateGenerator = new X509V3CertificateGenerator();
+        //    var certificateGenerator = new X509V3CertificateGenerator();
 
-            var CN = new X509Name("CN=" + certName);
-            var SN = BigInteger.ProbablePrime(120, random);
+        //    var CN = new X509Name("CN=" + certName);
+        //    var SN = BigInteger.ProbablePrime(120, random);
 
-            certificateGenerator.SetSerialNumber(SN);
-            certificateGenerator.SetSubjectDN(CN);
-            certificateGenerator.SetIssuerDN(caCert.IssuerDN);
-            certificateGenerator.SetNotAfter(DateTime.MaxValue);
-            certificateGenerator.SetNotBefore(DateTime.UtcNow.Subtract(new TimeSpan(1, 0, 0, 0)));
-            certificateGenerator.SetPublicKey(keyPair.Public);
-            certificateGenerator.AddExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(keyPair.Public));
-            certificateGenerator.AddExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(caCert.GetPublicKey()));
+        //    certificateGenerator.SetSerialNumber(SN);
+        //    certificateGenerator.SetSubjectDN(CN);
+        //    certificateGenerator.SetIssuerDN(caCert.IssuerDN);
+        //    certificateGenerator.SetNotAfter(DateTime.MaxValue);
+        //    certificateGenerator.SetNotBefore(DateTime.UtcNow.Subtract(new TimeSpan(1, 0, 0, 0)));
+        //    certificateGenerator.SetPublicKey(keyPair.Public);
+        //    certificateGenerator.AddExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(keyPair.Public));
+        //    certificateGenerator.AddExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(caCert.GetPublicKey()));
 
-            var caKeyPair = DotNetUtilities.GetKeyPair(ca.PrivateKey);
+        //    var caKeyPair = DotNetUtilities.GetKeyPair(ca.PrivateKey);
 
-            ISignatureFactory signatureFactory = new Asn1SignatureFactory("SHA512WITHRSA", caKeyPair.Private, random);
+        //    ISignatureFactory signatureFactory = new Asn1SignatureFactory("SHA512WITHRSA", caKeyPair.Private, random);
 
-            var certificate = certificateGenerator.Generate(signatureFactory);
+        //    var certificate = certificateGenerator.Generate(signatureFactory);
 
-            certificate.Verify(caCert.GetPublicKey());
+        //    certificate.Verify(caCert.GetPublicKey());
 
-            var certificate2 = new X509Certificate2(DotNetUtilities.ToX509Certificate(certificate));
-            certificate2.PrivateKey = DotNetUtilities.ToRSA(keyPair.Private as RsaPrivateCrtKeyParameters);
+        //    var certificate2 = new X509Certificate2(DotNetUtilities.ToX509Certificate(certificate));
+        //    certificate2.PrivateKey = DotNetUtilities.ToRSA(keyPair.Private as RsaPrivateCrtKeyParameters);
 
-            return certificate2;
-        }
+        //    return certificate2;
+        //}
 
-        public static X509Certificate2 CreateCertificateAuthority(string caName, int keyStrength)
+        public static X509Certificate2 CreateCertificateAuthority(string caName, int keyStrength = 4096)
         {
             var random = new SecureRandom(new CryptoApiRandomGenerator());
             var keyPairGen = new RsaKeyPairGenerator();
@@ -61,16 +61,18 @@ namespace Quasar.Server.Helper
             var certificateGenerator = new X509V3CertificateGenerator();
 
             var CN = new X509Name("CN=" + caName);
-            var SN = BigInteger.ProbablePrime(120, random);
+            var SN = BigInteger.ProbablePrime(160, random);
 
             certificateGenerator.SetSerialNumber(SN);
             certificateGenerator.SetSubjectDN(CN);
             certificateGenerator.SetIssuerDN(CN);
-            certificateGenerator.SetNotAfter(DateTime.MaxValue);
-            certificateGenerator.SetNotBefore(DateTime.UtcNow.Subtract(new TimeSpan(2, 0, 0, 0)));
+            certificateGenerator.SetNotAfter(DateTime.UtcNow.AddYears(10));
+            certificateGenerator.SetNotBefore(DateTime.UtcNow.Subtract(new TimeSpan(1, 0, 0, 0)));
             certificateGenerator.SetPublicKey(keypair.Public);
             certificateGenerator.AddExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(keypair.Public));
             certificateGenerator.AddExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(true));
+            certificateGenerator.AddExtension(X509Extensions.KeyUsage, true, new KeyUsage(KeyUsage.KeyCertSign | KeyUsage.CrlSign));
+            certificateGenerator.AddExtension(X509Extensions.ExtendedKeyUsage, true, new ExtendedKeyUsage(KeyPurposeID.IdKPServerAuth));
 
             ISignatureFactory signatureFactory = new Asn1SignatureFactory("SHA512WITHRSA", keypair.Private, random);
 

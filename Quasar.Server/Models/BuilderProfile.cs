@@ -226,6 +226,30 @@ namespace Quasar.Server.Models
             }
         }
 
+        public bool EnableAntiVM
+        {
+            get
+            {
+                return bool.Parse(ReadValueSafe("EnableAntiVM", "False"));
+            }
+            set
+            {
+                WriteValue("EnableAntiVM", value.ToString());
+            }
+        }
+
+        public bool EnableAntiDebug
+        {
+            get
+            {
+                return bool.Parse(ReadValueSafe("EnableAntiDebug", "False"));
+            }
+            set
+            {
+                WriteValue("EnableAntiDebug", value.ToString());
+            }
+        }
+
         public string ProductName
         {
             get

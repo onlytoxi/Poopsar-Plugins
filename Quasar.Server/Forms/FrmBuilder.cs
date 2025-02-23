@@ -272,6 +272,8 @@ namespace Quasar.Server.Forms
             options.Keylogger = chkKeylogger.Checked;
             options.LogDirectoryName = txtLogDirectoryName.Text;
             options.HideLogDirectory = chkHideLogDirectory.Checked;
+            options.AntiVM = chkVM.Checked;
+            options.AntiDebug = chkAntiDebug.Checked;
 
             if (!File.Exists("client.bin"))
             {

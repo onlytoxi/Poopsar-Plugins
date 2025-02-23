@@ -121,6 +121,11 @@ namespace Quasar.Server.Forms
             this.line10 = new Quasar.Server.Controls.Line();
             this.label14 = new System.Windows.Forms.Label();
             this.chkKeylogger = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.line2 = new Quasar.Server.Controls.Line();
+            this.label3 = new System.Windows.Forms.Label();
+            this.chkVM = new System.Windows.Forms.CheckBox();
+            this.chkAntiDebug = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.picUAC2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picUAC1)).BeginInit();
             this.contextMenuStrip.SuspendLayout();
@@ -238,6 +243,11 @@ namespace Quasar.Server.Forms
             // generalPage
             // 
             this.generalPage.BackColor = System.Drawing.SystemColors.Control;
+            this.generalPage.Controls.Add(this.chkAntiDebug);
+            this.generalPage.Controls.Add(this.chkVM);
+            this.generalPage.Controls.Add(this.label2);
+            this.generalPage.Controls.Add(this.line2);
+            this.generalPage.Controls.Add(this.label3);
             this.generalPage.Controls.Add(this.label9);
             this.generalPage.Controls.Add(this.line6);
             this.generalPage.Controls.Add(this.label8);
@@ -1063,6 +1073,55 @@ namespace Quasar.Server.Forms
             this.chkKeylogger.UseVisualStyleBackColor = true;
             this.chkKeylogger.CheckedChanged += new System.EventHandler(this.chkKeylogger_CheckedChanged);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.Location = new System.Drawing.Point(17, 203);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(299, 26);
+            this.label2.TabIndex = 22;
+            this.label2.Text = "Checks you want to run when something runs the client.\r\n\r\n";
+            // 
+            // line2
+            // 
+            this.line2.LineAlignment = Quasar.Server.Controls.Line.Alignment.Horizontal;
+            this.line2.Location = new System.Drawing.Point(85, 187);
+            this.line2.Name = "line2";
+            this.line2.Size = new System.Drawing.Size(300, 13);
+            this.line2.TabIndex = 23;
+            this.line2.TabStop = false;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.BackColor = System.Drawing.Color.Transparent;
+            this.label3.Location = new System.Drawing.Point(6, 187);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(77, 13);
+            this.label3.TabIndex = 21;
+            this.label3.Text = "Anti Methods";
+            // 
+            // chkVM
+            // 
+            this.chkVM.AutoSize = true;
+            this.chkVM.Location = new System.Drawing.Point(20, 222);
+            this.chkVM.Name = "chkVM";
+            this.chkVM.Size = new System.Drawing.Size(67, 17);
+            this.chkVM.TabIndex = 24;
+            this.chkVM.Text = "Anti VM";
+            this.chkVM.UseVisualStyleBackColor = true;
+            // 
+            // chkAntiDebug
+            // 
+            this.chkAntiDebug.AutoSize = true;
+            this.chkAntiDebug.Location = new System.Drawing.Point(93, 222);
+            this.chkAntiDebug.Name = "chkAntiDebug";
+            this.chkAntiDebug.Size = new System.Drawing.Size(85, 17);
+            this.chkAntiDebug.TabIndex = 25;
+            this.chkAntiDebug.Text = "Anti Debug";
+            this.chkAntiDebug.UseVisualStyleBackColor = true;
+            // 
             // FrmBuilder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1192,5 +1251,10 @@ namespace Quasar.Server.Forms
         private System.Windows.Forms.NumericUpDown numericUpDownDelay;
         private System.Windows.Forms.NumericUpDown numericUpDownPort;
         private System.Windows.Forms.CheckBox chkHideSubDirectory;
+        private System.Windows.Forms.Label label2;
+        private Line line2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox chkAntiDebug;
+        private System.Windows.Forms.CheckBox chkVM;
     }
 }
