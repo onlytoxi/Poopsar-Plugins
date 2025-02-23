@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -138,21 +139,29 @@ namespace Quasar.Client.Recovery.Utilities
 
         public string GetValue(int row_num, string field)
         {
-            int num = -1;
-            int length = this.field_names.Length - 1;
-            for (int i = 0; i <= length; i++)
+            try
             {
-                if (this.field_names[i].ToLower().CompareTo(field.ToLower()) == 0)
+                int num = -1;
+                int length = this.field_names.Length - 1;
+                for (int i = 0; i <= length; i++)
                 {
-                    num = i;
-                    break;
+                    if (this.field_names[i].ToLower().CompareTo(field.ToLower()) == 0)
+                    {
+                        num = i;
+                        break;
+                    }
                 }
+                if (num == -1)
+                {
+                    return null;
+                }
+                return this.GetValue(row_num, num);
             }
-            if (num == -1)
+            catch (Exception e)
             {
+                Debug.WriteLine(e);
                 return null;
             }
-            return this.GetValue(row_num, num);
         }
 
         private int GVL(int startIndex)

