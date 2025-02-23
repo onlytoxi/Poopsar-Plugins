@@ -259,7 +259,6 @@ namespace DarkModeForms
 
         private IntPtr originalWndProc;
         private WndProc newWndProcDelegate;
-        private IntPtr formHandle;
         private bool applyingTheme = false; // Flag to prevent recursion
 
         #endregion

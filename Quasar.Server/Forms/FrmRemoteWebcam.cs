@@ -15,31 +15,6 @@ namespace Quasar.Server.Forms
     public partial class FrmRemoteWebcam : Form
     {
         /// <summary>
-        /// States whether remote mouse input is enabled.
-        /// </summary>
-        private bool _enableMouseInput;
-
-        /// <summary>
-        /// States whether remote keyboard input is enabled.
-        /// </summary>
-        private bool _enableKeyboardInput;
-
-        /// <summary>
-        /// Holds the state of the local keyboard hooks.
-        /// </summary>
-        private IKeyboardMouseEvents _keyboardHook;
-
-        /// <summary>
-        /// Holds the state of the local mouse hooks.
-        /// </summary>
-        private IKeyboardMouseEvents _mouseHook;
-
-        /// <summary>
-        /// A list of pressed keys for synchronization between key down & -up events.
-        /// </summary>
-        private readonly List<Keys> _keysPressed;
-
-        /// <summary>
         /// The client which can be used for the remote webcam.
         /// </summary>
         private readonly Client _connectClient;
@@ -81,7 +56,6 @@ namespace Quasar.Server.Forms
         {
             _connectClient = client;
             _RemoteWebcamHandler = new RemoteWebcamHandler(client);
-            _keysPressed = new List<Keys>();
 
             RegisterMessageHandler();
             InitializeComponent();

