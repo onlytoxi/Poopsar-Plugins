@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Quasar.Server.Forms
 {
@@ -250,8 +251,28 @@ namespace Quasar.Server.Forms
         /// </summary>
         /// <param name="sender">The message handler which raised the event.</param>
         /// <param name="bmp">The new desktop image to draw.</param>
+        private Stopwatch _stopwatch = new Stopwatch();
+        private int _frameCount = 0;
+        private float _fps = 0;
+
         private void UpdateImage(object sender, Bitmap bmp)
         {
+            if (!_stopwatch.IsRunning)
+            {
+                _stopwatch.Start();
+            }
+
+            _frameCount++;
+
+            double elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
+
+            if (elapsedSeconds >= 1.0)
+            {
+                _fps = _frameCount / (float)elapsedSeconds;
+                _frameCount = 0;
+                _stopwatch.Restart();
+            }
+
             picDesktop.UpdateImage(bmp, false);
         }
 

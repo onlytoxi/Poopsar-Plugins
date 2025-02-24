@@ -194,6 +194,7 @@ namespace Quasar.Client.Messages
                 if (_stopwatch.ElapsedMilliseconds >= 1000)
                 {
                     Debug.WriteLine($"FPS: {_frameCount}");
+                    Console.WriteLine($"FPS: {_frameCount}");
                     _frameCount = 0;
                     _stopwatch.Restart();
                 }

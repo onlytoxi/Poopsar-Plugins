@@ -2,10 +2,10 @@
 using Quasar.Common.Messages.other;
 using Quasar.Common.Video;
 
-namespace Quasar.Common.Messages.Monitoring.RemoteDesktop
+namespace Quasar.Common.Messages.Preview
 {
     [ProtoContract]
-    public class GetDesktopResponse : IMessage
+    public class GetPreviewImageResponse : IMessage
     {
         [ProtoMember(1)]
         public byte[] Image { get; set; }
@@ -18,8 +18,5 @@ namespace Quasar.Common.Messages.Monitoring.RemoteDesktop
 
         [ProtoMember(4)]
         public Resolution Resolution { get; set; }
-
-        [ProtoMember(5)]
-        public bool Renew { get; set; }
     }
 }
