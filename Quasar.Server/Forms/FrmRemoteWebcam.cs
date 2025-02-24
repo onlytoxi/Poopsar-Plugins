@@ -174,6 +174,13 @@ namespace Quasar.Server.Forms
         /// <param name="displays">The currently available displays.</param>
         private void DisplaysChanged(object sender, string[] displays)
         {
+            if (displays == null || displays.Length == 0)
+            {
+                MessageBox.Show("No remote display detected.\nPlease wait till the client sends a list with available displays.",
+                    "Display change failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             cbMonitors.Items.Clear();
             for (int i = 0; i < displays.Length; i++)
                 cbMonitors.Items.Add($"Display {displays[i]}");

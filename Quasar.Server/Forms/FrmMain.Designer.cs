@@ -725,7 +725,7 @@ namespace Quasar.Server.Forms
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(1084, 598);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(1084, 475);
             this.tableLayoutPanel.TabIndex = 6;
             // 
             // statusStrip
@@ -734,7 +734,7 @@ namespace Quasar.Server.Forms
             this.statusStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.listenToolStripStatusLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 576);
+            this.statusStrip.Location = new System.Drawing.Point(0, 453);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1084, 22);
             this.statusStrip.SizingGrip = false;
@@ -812,7 +812,7 @@ namespace Quasar.Server.Forms
             // 
             this.gBoxClientInfo.Location = new System.Drawing.Point(1090, 241);
             this.gBoxClientInfo.Name = "gBoxClientInfo";
-            this.gBoxClientInfo.Size = new System.Drawing.Size(339, 332);
+            this.gBoxClientInfo.Size = new System.Drawing.Size(339, 209);
             this.gBoxClientInfo.TabIndex = 9;
             this.gBoxClientInfo.TabStop = false;
             this.gBoxClientInfo.Text = "Client Info";
@@ -850,7 +850,7 @@ namespace Quasar.Server.Forms
             this.lstClients.LvwColumnSorter = listViewColumnSorter1;
             this.lstClients.Name = "lstClients";
             this.lstClients.ShowItemToolTips = true;
-            this.lstClients.Size = new System.Drawing.Size(1078, 545);
+            this.lstClients.Size = new System.Drawing.Size(1078, 422);
             this.lstClients.SmallImageList = this.imgFlags;
             this.lstClients.TabIndex = 1;
             this.lstClients.UseCompatibleStateImageBehavior = false;
@@ -909,7 +909,7 @@ namespace Quasar.Server.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(1442, 598);
+            this.ClientSize = new System.Drawing.Size(1442, 482);
             this.Controls.Add(this.pictureBoxMain);
             this.Controls.Add(this.gBoxClientInfo);
             this.Controls.Add(this.label1);
