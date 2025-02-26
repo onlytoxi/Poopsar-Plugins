@@ -5,7 +5,7 @@ using Quasar.Common.Video;
 namespace Quasar.Common.Messages.Preview
 {
     [ProtoContract]
-    public class GetPreviewImageResponse : IMessage
+    public class GetPreviewResponse : IMessage
     {
         [ProtoMember(1)]
         public byte[] Image { get; set; }
@@ -18,5 +18,17 @@ namespace Quasar.Common.Messages.Preview
 
         [ProtoMember(4)]
         public Resolution Resolution { get; set; }
+
+        [ProtoMember(5)]
+        public string CPU { get; set; }
+
+        [ProtoMember(6)]
+        public string GPU { get; set; }
+
+        [ProtoMember(7)]
+        public string RAM { get; set; }
+
+        [ProtoMember(8)]
+        public string Uptime { get; set; }
     }
 }

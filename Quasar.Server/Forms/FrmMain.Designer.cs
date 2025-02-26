@@ -34,6 +34,10 @@ namespace Quasar.Server.Forms
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("CPU");
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("GPU");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("RAM");
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Uptime");
             Quasar.Server.Utilities.ListViewColumnSorter listViewColumnSorter1 = new Quasar.Server.Utilities.ListViewColumnSorter();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.systemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,8 +69,9 @@ namespace Quasar.Server.Forms
             this.visitWebsiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.funMethodsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bSODToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.jumpScareToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swapMouseButtonsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hideTaskBarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.invertMouseMovementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.elevateClientPermissionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -88,6 +93,9 @@ namespace Quasar.Server.Forms
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.gBoxClientInfo = new System.Windows.Forms.GroupBox();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.Names = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Stats = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pictureBoxMain = new System.Windows.Forms.PictureBox();
             this.lstClients = new Quasar.Server.Controls.AeroListView();
             this.hIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -104,6 +112,7 @@ namespace Quasar.Server.Forms
             this.tableLayoutPanel.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.menuStrip.SuspendLayout();
+            this.gBoxClientInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
             this.SuspendLayout();
             // 
@@ -118,7 +127,7 @@ namespace Quasar.Server.Forms
             this.lineToolStripMenuItem,
             this.selectAllToolStripMenuItem});
             this.contextMenuStrip.Name = "ctxtMenu";
-            this.contextMenuStrip.Size = new System.Drawing.Size(180, 142);
+            this.contextMenuStrip.Size = new System.Drawing.Size(181, 164);
             // 
             // systemToolStripMenuItem
             // 
@@ -136,7 +145,7 @@ namespace Quasar.Server.Forms
             this.actionsToolStripMenuItem});
             this.systemToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.cog;
             this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
-            this.systemToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.systemToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.systemToolStripMenuItem.Text = "Administration";
             // 
             // systemInformationToolStripMenuItem
@@ -280,7 +289,7 @@ namespace Quasar.Server.Forms
             this.kematianGrabbingToolStripMenuItem});
             this.surveillanceToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.monitoring;
             this.surveillanceToolStripMenuItem.Name = "surveillanceToolStripMenuItem";
-            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.surveillanceToolStripMenuItem.Text = "Monitoring";
             // 
             // passwordRecoveryToolStripMenuItem
@@ -336,7 +345,7 @@ namespace Quasar.Server.Forms
             this.visitWebsiteToolStripMenuItem});
             this.userSupportToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.user;
             this.userSupportToolStripMenuItem.Name = "userSupportToolStripMenuItem";
-            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.userSupportToolStripMenuItem.Text = "User Support";
             // 
             // showMessageboxToolStripMenuItem
@@ -359,32 +368,43 @@ namespace Quasar.Server.Forms
             // 
             this.funMethodsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bSODToolStripMenuItem,
-            this.jumpScareToolStripMenuItem,
-            this.swapMouseButtonsToolStripMenuItem});
+            this.swapMouseButtonsToolStripMenuItem,
+            this.hideTaskBarToolStripMenuItem,
+            this.invertMouseMovementToolStripMenuItem});
             this.funMethodsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.emoticon_evilgrin;
             this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
-            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
             // 
             // bSODToolStripMenuItem
             // 
             this.bSODToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.nuclear;
             this.bSODToolStripMenuItem.Name = "bSODToolStripMenuItem";
-            this.bSODToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.bSODToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.bSODToolStripMenuItem.Text = "BSOD";
             this.bSODToolStripMenuItem.Click += new System.EventHandler(this.bSODToolStripMenuItem_Click);
             // 
-            // jumpScareToolStripMenuItem
-            // 
-            this.jumpScareToolStripMenuItem.Name = "jumpScareToolStripMenuItem";
-            this.jumpScareToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.jumpScareToolStripMenuItem.Text = "Jump Scare";
-            // 
             // swapMouseButtonsToolStripMenuItem
             // 
+            this.swapMouseButtonsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.mouse;
             this.swapMouseButtonsToolStripMenuItem.Name = "swapMouseButtonsToolStripMenuItem";
-            this.swapMouseButtonsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.swapMouseButtonsToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.swapMouseButtonsToolStripMenuItem.Text = "Swap Mouse Buttons";
+            this.swapMouseButtonsToolStripMenuItem.Click += new System.EventHandler(this.swapMouseButtonsToolStripMenuItem_Click);
+            // 
+            // hideTaskBarToolStripMenuItem
+            // 
+            this.hideTaskBarToolStripMenuItem.Name = "hideTaskBarToolStripMenuItem";
+            this.hideTaskBarToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.hideTaskBarToolStripMenuItem.Text = "Hide Taskbar";
+            this.hideTaskBarToolStripMenuItem.Click += new System.EventHandler(this.hideTaskBarToolStripMenuItem_Click);
+            // 
+            // invertMouseMovementToolStripMenuItem
+            // 
+            this.invertMouseMovementToolStripMenuItem.Name = "invertMouseMovementToolStripMenuItem";
+            this.invertMouseMovementToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.invertMouseMovementToolStripMenuItem.Text = "Invert Mouse Movement";
+            this.invertMouseMovementToolStripMenuItem.Click += new System.EventHandler(this.invertMouseMovementToolStripMenuItem_Click);
             // 
             // connectionToolStripMenuItem
             // 
@@ -396,7 +416,7 @@ namespace Quasar.Server.Forms
             this.uninstallToolStripMenuItem});
             this.connectionToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("connectionToolStripMenuItem.Image")));
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.connectionToolStripMenuItem.Text = "Client Management";
             // 
             // elevateClientPermissionsToolStripMenuItem
@@ -442,12 +462,12 @@ namespace Quasar.Server.Forms
             // lineToolStripMenuItem
             // 
             this.lineToolStripMenuItem.Name = "lineToolStripMenuItem";
-            this.lineToolStripMenuItem.Size = new System.Drawing.Size(176, 6);
+            this.lineToolStripMenuItem.Size = new System.Drawing.Size(177, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
@@ -725,7 +745,7 @@ namespace Quasar.Server.Forms
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(1084, 475);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(804, 475);
             this.tableLayoutPanel.TabIndex = 6;
             // 
             // statusStrip
@@ -736,7 +756,7 @@ namespace Quasar.Server.Forms
             this.listenToolStripStatusLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 453);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1084, 22);
+            this.statusStrip.Size = new System.Drawing.Size(804, 22);
             this.statusStrip.SizingGrip = false;
             this.statusStrip.TabIndex = 3;
             this.statusStrip.Text = "statusStrip1";
@@ -802,7 +822,7 @@ namespace Quasar.Server.Forms
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1087, 9);
+            this.label1.Location = new System.Drawing.Point(807, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(79, 13);
             this.label1.TabIndex = 8;
@@ -810,16 +830,45 @@ namespace Quasar.Server.Forms
             // 
             // gBoxClientInfo
             // 
-            this.gBoxClientInfo.Location = new System.Drawing.Point(1090, 241);
+            this.gBoxClientInfo.Controls.Add(this.listView1);
+            this.gBoxClientInfo.Location = new System.Drawing.Point(810, 241);
             this.gBoxClientInfo.Name = "gBoxClientInfo";
             this.gBoxClientInfo.Size = new System.Drawing.Size(339, 209);
             this.gBoxClientInfo.TabIndex = 9;
             this.gBoxClientInfo.TabStop = false;
             this.gBoxClientInfo.Text = "Client Info";
             // 
+            // listView1
+            // 
+            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.Names,
+            this.Stats});
+            this.listView1.HideSelection = false;
+            this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem1,
+            listViewItem2,
+            listViewItem3,
+            listViewItem4});
+            this.listView1.Location = new System.Drawing.Point(0, 21);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(339, 188);
+            this.listView1.TabIndex = 0;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Details;
+            // 
+            // Names
+            // 
+            this.Names.Text = "Names";
+            this.Names.Width = 122;
+            // 
+            // Stats
+            // 
+            this.Stats.Text = "Stats";
+            this.Stats.Width = 212;
+            // 
             // pictureBoxMain
             // 
-            this.pictureBoxMain.Location = new System.Drawing.Point(1090, 28);
+            this.pictureBoxMain.Location = new System.Drawing.Point(810, 28);
             this.pictureBoxMain.Name = "pictureBoxMain";
             this.pictureBoxMain.Size = new System.Drawing.Size(339, 207);
             this.pictureBoxMain.TabIndex = 31;
@@ -850,7 +899,7 @@ namespace Quasar.Server.Forms
             this.lstClients.LvwColumnSorter = listViewColumnSorter1;
             this.lstClients.Name = "lstClients";
             this.lstClients.ShowItemToolTips = true;
-            this.lstClients.Size = new System.Drawing.Size(1078, 422);
+            this.lstClients.Size = new System.Drawing.Size(798, 422);
             this.lstClients.SmallImageList = this.imgFlags;
             this.lstClients.TabIndex = 1;
             this.lstClients.UseCompatibleStateImageBehavior = false;
@@ -909,7 +958,7 @@ namespace Quasar.Server.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(1442, 482);
+            this.ClientSize = new System.Drawing.Size(1162, 482);
             this.Controls.Add(this.pictureBoxMain);
             this.Controls.Add(this.gBoxClientInfo);
             this.Controls.Add(this.label1);
@@ -917,6 +966,7 @@ namespace Quasar.Server.Forms
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ForeColor = System.Drawing.Color.Black;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(680, 415);
             this.Name = "FrmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -930,6 +980,7 @@ namespace Quasar.Server.Forms
             this.statusStrip.PerformLayout();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
+            this.gBoxClientInfo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -995,7 +1046,6 @@ namespace Quasar.Server.Forms
         private ToolStripMenuItem kematianGrabbingToolStripMenuItem;
         private ToolStripMenuItem funMethodsToolStripMenuItem;
         private ToolStripMenuItem bSODToolStripMenuItem;
-        private ToolStripMenuItem jumpScareToolStripMenuItem;
         private ToolStripMenuItem swapMouseButtonsToolStripMenuItem;
         private ToolStripMenuItem hVNCToolStripMenuItem;
         private ToolStripMenuItem webcamToolStripMenuItem;
@@ -1003,6 +1053,11 @@ namespace Quasar.Server.Forms
         private Label label1;
         private GroupBox gBoxClientInfo;
         private PictureBox pictureBoxMain;
+        private ToolStripMenuItem hideTaskBarToolStripMenuItem;
+        private ToolStripMenuItem invertMouseMovementToolStripMenuItem;
+        private ListView listView1;
+        private ColumnHeader Names;
+        private ColumnHeader Stats;
     }
 }
 

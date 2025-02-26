@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace Quasar.Server.Messages
 {
-    public class GetPreviewImageHandler : MessageProcessorBase<Bitmap>, IDisposable
+    public class PreviewHandler : MessageProcessorBase<Bitmap>, IDisposable
     {
         public bool IsStarted { get; set; }
 
@@ -25,17 +25,19 @@ namespace Quasar.Server.Messages
         private readonly PictureBox _box;
         private readonly Client _client;
         private UnsafeStreamCodec _codec;
+        private ListView _verticleStatsTable;
 
         /// <summary>
         /// Used in lock statements to synchronize access to <see cref="LocalResolution"/> between UI thread and thread pool.
         /// </summary>
         private readonly object _sizeLock = new object();
 
-        public GetPreviewImageHandler(Client client, PictureBox box) : base(true)
+        public PreviewHandler(Client client, PictureBox box, ListView importantStatsView) : base(true)
         {
             _box = box;
             _client = client;
             LocalResolution = box.Size;
+            _verticleStatsTable = importantStatsView;
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace Quasar.Server.Messages
             }
         }
 
-        public override bool CanExecute(IMessage message) => message is GetPreviewImageResponse;
+        public override bool CanExecute(IMessage message) => message is GetPreviewResponse;
 
         public override bool CanExecuteFrom(ISender sender) => _client.Equals(sender);
 
@@ -75,13 +77,13 @@ namespace Quasar.Server.Messages
         {
             switch (message)
             {
-                case GetPreviewImageResponse frame:
+                case GetPreviewResponse frame:
                     Execute(sender, frame);
                     break;
             }
         }
 
-        private void Execute(ISender client, GetPreviewImageResponse message)
+        private void Execute(ISender client, GetPreviewResponse message)
         {
             lock (_syncLock)
             {
@@ -110,7 +112,74 @@ namespace Quasar.Server.Messages
 
                 message.Image = null;
 
-                //client.Send(new GetDesktop { Quality = message.Quality, DisplayIndex = message.Monitor });
+                Debug.WriteLine("Received desktop image");
+                Debug.WriteLine(message.CPU);
+                Debug.WriteLine(message.GPU);
+                Debug.WriteLine(message.RAM);
+                Debug.WriteLine(message.Uptime);
+
+                if (_verticleStatsTable.InvokeRequired)
+                {
+                    _verticleStatsTable.Invoke(new MethodInvoker(() =>
+                    {
+                        UpdateStats(message);
+                    }));
+                }
+                else
+                {
+                    UpdateStats(message);
+                }
+            }
+        }
+
+        private void UpdateStats(GetPreviewResponse message)
+        {
+            try
+            {
+                // Check if the ListView has been initialized and has columns
+                if (_verticleStatsTable.Columns.Count < 2)
+                {
+                    // Create columns if they don't exist
+                    if (_verticleStatsTable.Columns.Count == 0)
+                        _verticleStatsTable.Columns.Add("Names", 100);
+                    if (_verticleStatsTable.Columns.Count == 1)
+                        _verticleStatsTable.Columns.Add("Stats", 150);
+                }
+
+                // Clear existing items to avoid duplicate entries
+                _verticleStatsTable.Items.Clear();
+
+                // Add the stats as new items
+                var cpuItem = new ListViewItem("CPU");
+                cpuItem.SubItems.Add(message.CPU);
+                _verticleStatsTable.Items.Add(cpuItem);
+
+                var gpuItem = new ListViewItem("GPU");
+                gpuItem.SubItems.Add(message.GPU);
+                _verticleStatsTable.Items.Add(gpuItem);
+
+                if (double.TryParse(message.RAM, out double ramInMb))
+                {
+                    double ramInGb = ramInMb / 1024;
+                    int roundedRAM = (int)Math.Round(ramInGb);
+                    var ramItem = new ListViewItem("RAM");
+                    ramItem.SubItems.Add($"{roundedRAM} GB");
+                    _verticleStatsTable.Items.Add(ramItem);
+                }
+                else
+                {
+                    var ramItem = new ListViewItem("RAM");
+                    ramItem.SubItems.Add(message.RAM);
+                    _verticleStatsTable.Items.Add(ramItem);
+                }
+
+                var uptimeItem = new ListViewItem("Uptime");
+                uptimeItem.SubItems.Add(message.Uptime);
+                _verticleStatsTable.Items.Add(uptimeItem);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error updating stats: " + ex.Message);
             }
         }
 

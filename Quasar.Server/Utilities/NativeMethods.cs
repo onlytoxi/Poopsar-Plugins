@@ -29,6 +29,10 @@ namespace Quasar.Server.Utilities
             public int iGroup;
         };
 
+        public const int SB_HORZ = 0;
+        public const int SB_VERT = 1;
+        public const int SB_BOTH = 3;
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         internal static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
@@ -43,5 +47,8 @@ namespace Quasar.Server.Utilities
 
         [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
         internal static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
+
+        [DllImport("user32.dll")]
+        public static extern bool ShowScrollBar(IntPtr hWnd, int wBar, bool bShow);
     }
 }

