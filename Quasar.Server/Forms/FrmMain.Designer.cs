@@ -92,7 +92,7 @@ namespace Quasar.Server.Forms
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.gBoxClientInfo = new System.Windows.Forms.GroupBox();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.listView1 = new Quasar.Server.Controls.AeroListView();
             this.Names = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Stats = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pictureBoxMain = new System.Windows.Forms.PictureBox();
@@ -924,6 +924,7 @@ namespace Quasar.Server.Forms
             // hCurrentWindow
             // 
             this.hCurrentWindow.Text = "Current Window";
+            this.hCurrentWindow.Width = 200;
             // 
             // hUserStatus
             // 
@@ -1046,7 +1047,7 @@ namespace Quasar.Server.Forms
         private GroupBox gBoxClientInfo;
         private PictureBox pictureBoxMain;
         private ToolStripMenuItem hideTaskBarToolStripMenuItem;
-        private ListView listView1;
+        private AeroListView listView1;
         private ColumnHeader Names;
         private ColumnHeader Stats;
     }

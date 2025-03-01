@@ -2,6 +2,7 @@
 using Quasar.Server.Helper;
 using Quasar.Server.Utilities;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 namespace Quasar.Server.Controls
 {
@@ -30,6 +31,8 @@ namespace Quasar.Server.Controls
             this.ListViewItemSorter = LvwColumnSorter;
             this.View = View.Details;
             this.FullRowSelect = true;
+
+            Resize += AeroListView_Resize;
         }
 
         /// <summary>
@@ -42,6 +45,25 @@ namespace Quasar.Server.Controls
                 CreateParams cp = base.CreateParams;
                 cp.Style |= WS_VSCROLL | WS_HSCROLL;  // Always show both scrollbars
                 return cp;
+            }
+        }
+
+
+        private void AeroListView_Resize(object sender, EventArgs e)
+        {
+            if (Columns.Count == 0) return;
+
+            int totalWidth = 0;
+
+            for (int i = 0; i < Columns.Count - 1; i++)
+            {
+                totalWidth += Columns[i].Width;
+            }
+
+            int newWidth = ClientSize.Width - totalWidth;
+            if (newWidth > 0)
+            {
+                Columns[Columns.Count - 1].Width = newWidth;
             }
         }
 
