@@ -112,12 +112,6 @@ namespace Quasar.Server.Messages
 
                 message.Image = null;
 
-                Debug.WriteLine("Received desktop image");
-                Debug.WriteLine(message.CPU);
-                Debug.WriteLine(message.GPU);
-                Debug.WriteLine(message.RAM);
-                Debug.WriteLine(message.Uptime);
-
                 if (_verticleStatsTable.InvokeRequired)
                 {
                     _verticleStatsTable.Invoke(new MethodInvoker(() =>
@@ -176,6 +170,10 @@ namespace Quasar.Server.Messages
                 var uptimeItem = new ListViewItem("Uptime");
                 uptimeItem.SubItems.Add(message.Uptime);
                 _verticleStatsTable.Items.Add(uptimeItem);
+
+                var antivirusItem = new ListViewItem("Antivirus");
+                antivirusItem.SubItems.Add(message.AV);
+                _verticleStatsTable.Items.Add(antivirusItem);
             }
             catch (Exception ex)
             {

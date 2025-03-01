@@ -30,5 +30,8 @@ namespace Quasar.Common.Messages.Preview
 
         [ProtoMember(8)]
         public string Uptime { get; set; }
+
+        [ProtoMember(9)]
+        public string AV { get; set; }
     }
 }

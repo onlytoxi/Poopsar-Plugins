@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.IO;
 
 namespace Quasar.Server.Forms
 {
@@ -58,6 +59,7 @@ namespace Quasar.Server.Forms
         private static readonly Dictionary<Client, FrmRemoteDesktop> OpenedForms = new Dictionary<Client, FrmRemoteDesktop>();
 
         private bool _useGPU = false;
+        private const int UpdateInterval = 30;
 
         /// <summary>
         /// Creates a new remote desktop form for the client or gets the current open form, if there exists one already.
@@ -271,6 +273,24 @@ namespace Quasar.Server.Forms
                 _fps = _frameCount / (float)elapsedSeconds;
                 _frameCount = 0;
                 _stopwatch.Restart();
+            }
+
+            if (_frameCount >= UpdateInterval)
+            {
+                _frameCount = 0;
+
+                long sizeInBytes = 0;
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    sizeInBytes = ms.Length;
+                }
+                double sizeInKB = sizeInBytes / 1024.0;
+
+                this.Invoke((MethodInvoker)delegate
+                {
+                    sizeLabelCounter.Text = $"{sizeInKB:0.00} KB";
+                });
             }
 
             picDesktop.UpdateImage(bmp, false);

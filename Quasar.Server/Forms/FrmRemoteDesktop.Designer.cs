@@ -39,6 +39,7 @@ namespace Quasar.Server.Forms
             this.lblQualityShow = new System.Windows.Forms.Label();
             this.btnMouse = new System.Windows.Forms.Button();
             this.panelTop = new System.Windows.Forms.Panel();
+            this.sizeLabelCounter = new System.Windows.Forms.Label();
             this.enableGPU = new System.Windows.Forms.Button();
             this.btnKeyboard = new System.Windows.Forms.Button();
             this.cbMonitors = new System.Windows.Forms.ComboBox();
@@ -76,7 +77,7 @@ namespace Quasar.Server.Forms
             // 
             // barQuality
             // 
-            this.barQuality.Location = new System.Drawing.Point(598, 3);
+            this.barQuality.Location = new System.Drawing.Point(515, 3);
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
             this.barQuality.Name = "barQuality";
@@ -89,7 +90,7 @@ namespace Quasar.Server.Forms
             // lblQuality
             // 
             this.lblQuality.AutoSize = true;
-            this.lblQuality.Location = new System.Drawing.Point(546, 5);
+            this.lblQuality.Location = new System.Drawing.Point(463, 5);
             this.lblQuality.Name = "lblQuality";
             this.lblQuality.Size = new System.Drawing.Size(46, 13);
             this.lblQuality.TabIndex = 4;
@@ -98,7 +99,7 @@ namespace Quasar.Server.Forms
             // lblQualityShow
             // 
             this.lblQualityShow.AutoSize = true;
-            this.lblQualityShow.Location = new System.Drawing.Point(546, 18);
+            this.lblQualityShow.Location = new System.Drawing.Point(463, 18);
             this.lblQualityShow.Name = "lblQualityShow";
             this.lblQualityShow.Size = new System.Drawing.Size(52, 13);
             this.lblQualityShow.TabIndex = 5;
@@ -107,7 +108,7 @@ namespace Quasar.Server.Forms
             // btnMouse
             // 
             this.btnMouse.Image = global::Quasar.Server.Properties.Resources.mouse_delete;
-            this.btnMouse.Location = new System.Drawing.Point(709, 3);
+            this.btnMouse.Location = new System.Drawing.Point(626, 3);
             this.btnMouse.Name = "btnMouse";
             this.btnMouse.Size = new System.Drawing.Size(28, 28);
             this.btnMouse.TabIndex = 6;
@@ -119,6 +120,7 @@ namespace Quasar.Server.Forms
             // panelTop
             // 
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelTop.Controls.Add(this.sizeLabelCounter);
             this.panelTop.Controls.Add(this.enableGPU);
             this.panelTop.Controls.Add(this.btnKeyboard);
             this.panelTop.Controls.Add(this.cbMonitors);
@@ -134,10 +136,18 @@ namespace Quasar.Server.Forms
             this.panelTop.Size = new System.Drawing.Size(784, 37);
             this.panelTop.TabIndex = 7;
             // 
+            // sizeLabelCounter
+            // 
+            this.sizeLabelCounter.Location = new System.Drawing.Point(694, 11);
+            this.sizeLabelCounter.Name = "sizeLabelCounter";
+            this.sizeLabelCounter.Size = new System.Drawing.Size(77, 15);
+            this.sizeLabelCounter.TabIndex = 11;
+            this.sizeLabelCounter.Text = "Size: ";
+            // 
             // enableGPU
             // 
             this.enableGPU.Image = global::Quasar.Server.Properties.Resources.computer_error;
-            this.enableGPU.Location = new System.Drawing.Point(675, 4);
+            this.enableGPU.Location = new System.Drawing.Point(592, 4);
             this.enableGPU.Name = "enableGPU";
             this.enableGPU.Size = new System.Drawing.Size(28, 28);
             this.enableGPU.TabIndex = 10;
@@ -149,7 +159,7 @@ namespace Quasar.Server.Forms
             // btnKeyboard
             // 
             this.btnKeyboard.Image = global::Quasar.Server.Properties.Resources.keyboard_delete;
-            this.btnKeyboard.Location = new System.Drawing.Point(743, 3);
+            this.btnKeyboard.Location = new System.Drawing.Point(660, 3);
             this.btnKeyboard.Name = "btnKeyboard";
             this.btnKeyboard.Size = new System.Drawing.Size(28, 28);
             this.btnKeyboard.TabIndex = 9;
@@ -164,13 +174,13 @@ namespace Quasar.Server.Forms
             this.cbMonitors.FormattingEnabled = true;
             this.cbMonitors.Location = new System.Drawing.Point(159, 5);
             this.cbMonitors.Name = "cbMonitors";
-            this.cbMonitors.Size = new System.Drawing.Size(323, 21);
+            this.cbMonitors.Size = new System.Drawing.Size(241, 21);
             this.cbMonitors.TabIndex = 8;
             this.cbMonitors.TabStop = false;
             // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(486, 3);
+            this.btnHide.Location = new System.Drawing.Point(403, 3);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(54, 28);
             this.btnHide.TabIndex = 7;
@@ -251,5 +261,6 @@ namespace Quasar.Server.Forms
         private System.Windows.Forms.ToolTip toolTipButtons;
         private Controls.RapidPictureBox picDesktop;
         private System.Windows.Forms.Button enableGPU;
+        private System.Windows.Forms.Label sizeLabelCounter;
     }
 }
