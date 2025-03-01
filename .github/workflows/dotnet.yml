@@ -69,7 +69,7 @@ jobs:
           prerelease: false
 
       # upload
-      - name: Upload Release Asset
+      - name: Upload Release Asset (build_output.zip)
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -78,4 +78,26 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: build_output.zip
           asset_name: build_output.zip
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (Quasar.exe (Server))
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: D:\a\Quasar-Modded\Quasar-Modded\bin\Release\net48\Quasar.exe
+          asset_name: DONT_DOWNLOAD_SERVER.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (client.bin (Client))
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: D:\a\Quasar-Modded\Quasar-Modded\bin\Release\net48\client.bin
+          asset_name: DONT_DOWNLOAD_CLIENT.bin
           asset_content_type: application/octet-stream
