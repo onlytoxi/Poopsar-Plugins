@@ -44,6 +44,7 @@
             this.hClient = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.hStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chkUpdate = new System.Windows.Forms.CheckBox();
+            this.chkBoxReflectionExecute = new System.Windows.Forms.CheckBox();
             this.groupLocalFile.SuspendLayout();
             this.groupURL.SuspendLayout();
             this.SuspendLayout();
@@ -188,12 +189,22 @@
             this.chkUpdate.Text = "Update clients with this file";
             this.chkUpdate.UseVisualStyleBackColor = true;
             // 
+            // chkBoxReflectionExecute
+            // 
+            this.chkBoxReflectionExecute.Location = new System.Drawing.Point(128, 12);
+            this.chkBoxReflectionExecute.Name = "chkBoxReflectionExecute";
+            this.chkBoxReflectionExecute.Size = new System.Drawing.Size(177, 19);
+            this.chkBoxReflectionExecute.TabIndex = 7;
+            this.chkBoxReflectionExecute.Text = "Memory Execution (.NET only)";
+            this.chkBoxReflectionExecute.UseVisualStyleBackColor = true;
+            // 
             // FrmRemoteExecution
             // 
             this.AcceptButton = this.btnExecute;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(503, 494);
+            this.Controls.Add(this.chkBoxReflectionExecute);
             this.Controls.Add(this.chkUpdate);
             this.Controls.Add(this.lstTransfers);
             this.Controls.Add(this.radioURL);
@@ -233,5 +244,6 @@
         private System.Windows.Forms.ColumnHeader hClient;
         private System.Windows.Forms.ColumnHeader hStatus;
         private System.Windows.Forms.CheckBox chkUpdate;
+        private System.Windows.Forms.CheckBox chkBoxReflectionExecute;
     }
 }

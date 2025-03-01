@@ -29,9 +29,15 @@
 		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
 	<ItemGroup>
-		<Reference Include="System.Configuration" />
-		<Reference Include="System.ServiceModel" />
-		<Reference Include="System.Windows.Forms" />
+		<Reference Include="System.Configuration">
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="System.ServiceModel">
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="System.Windows.Forms">
+		  <Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="Controls\DotNetBarTabControl.cs">
@@ -303,9 +309,19 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Quasar.Common\Quasar.Common.csproj" />
+		<ProjectReference Include="..\Quasar.Common\Quasar.Common.csproj">
+		  <Private>False</Private>
+		</ProjectReference>
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Costura.Fody" Version="6.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Fody" Version="6.9.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Mono.Cecil">
 			<Version>0.11.4</Version>
 		</PackageReference>
@@ -322,4 +338,54 @@
 		</PackageReference>
 	</ItemGroup>
 	<PropertyGroup />
+	<ItemGroup>
+	  <Reference Update="mscorlib">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.Core">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.Data">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.Drawing">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.IO.Compression.FileSystem">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.Numerics">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.Runtime.Serialization">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.Xml">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Update="System.Xml.Linq">
+	    <Private>False</Private>
+	  </Reference>
+	</ItemGroup>
 </Project>

