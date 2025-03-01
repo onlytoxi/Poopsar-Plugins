@@ -73,4 +73,32 @@ namespace Quasar.Client.Helper
             return Screen.AllScreens[screenNumber].Bounds;
         }
     }
+    public class DisplayManager
+    {
+        [DllImport("user32.dll")]
+        public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumProc lpfnEnum, IntPtr dwData);
+
+        public delegate bool MonitorEnumProc(IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Rect
+        {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
+
+        public static int GetDisplayCount()
+        {
+            int count = 0;
+            EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero,
+                (IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData) =>
+                {
+                    count++;
+                    return true;
+                }, IntPtr.Zero);
+            return count;
+        }
+    }
 }
