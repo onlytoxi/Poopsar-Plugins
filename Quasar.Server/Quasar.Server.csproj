@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
-		<TargetFramework>net452</TargetFramework>
+		<TargetFramework>net48</TargetFramework>
 		<OutputType>WinExe</OutputType>
 		<AssemblyName>Quasar</AssemblyName>
 		<UseWindowsForms>true</UseWindowsForms>
@@ -30,82 +30,54 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<Reference Include="System.Configuration">
-		  <Private>False</Private>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="System.ServiceModel">
-		  <Private>False</Private>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="System.Windows.Forms">
-		  <Private>False</Private>
+			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Update="Controls\DotNetBarTabControl.cs">
-			<SubType>Component</SubType>
-		</Compile>
-		<Compile Update="Controls\HexEditor\HexEditor.cs">
-			<SubType>Component</SubType>
-		</Compile>
-		<Compile Update="Controls\Line.cs">
-			<SubType>Component</SubType>
-		</Compile>
-		<Compile Update="Controls\RapidPictureBox.cs">
-			<SubType>Component</SubType>
-		</Compile>
-		<Compile Update="Controls\RegistryTreeView.cs">
-			<SubType>Component</SubType>
-		</Compile>
-		<Compile Update="Controls\WordTextBox.cs">
-			<SubType>Component</SubType>
-		</Compile>
+		<Compile Update="Controls\DotNetBarTabControl.cs" />
+		<Compile Update="Controls\HexEditor\HexEditor.cs" />
+		<Compile Update="Controls\Line.cs" />
+		<Compile Update="Controls\RapidPictureBox.cs" />
+		<Compile Update="Controls\RegistryTreeView.cs" />
+		<Compile Update="Controls\WordTextBox.cs" />
 		<Compile Update="Controls\WordTextBox.Designer.cs">
 			<DependentUpon>WordTextBox.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmCertificate.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmCertificate.cs" />
 		<Compile Update="Forms\FrmCertificate.Designer.cs">
 			<DependentUpon>FrmCertificate.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmAbout.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmAbout.cs" />
 		<Compile Update="Forms\FrmAbout.Designer.cs">
 			<DependentUpon>FrmAbout.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRemoteWebcam.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRemoteWebcam.cs" />
 		<Compile Update="Forms\FrmRemoteWebcam.Designer.cs">
 			<DependentUpon>FrmRemoteWebcam.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmStartupAdd.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmStartupAdd.cs" />
 		<Compile Update="Forms\FrmStartupAdd.Designer.cs">
 			<DependentUpon>FrmStartupAdd.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmBuilder.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmBuilder.cs" />
 		<Compile Update="Forms\FrmBuilder.Designer.cs">
 			<DependentUpon>FrmBuilder.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmConnections.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmConnections.cs" />
 		<Compile Update="Forms\FrmConnections.Designer.cs">
 			<DependentUpon>FrmConnections.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmFileManager.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmFileManager.cs" />
 		<Compile Update="Forms\FrmFileManager.Designer.cs">
 			<DependentUpon>FrmFileManager.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmKeylogger.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmKeylogger.cs" />
 		<Compile Update="Forms\FrmKeylogger.Designer.cs">
 			<DependentUpon>FrmKeylogger.cs</DependentUpon>
 		</Compile>
@@ -115,102 +87,68 @@
 		<Compile Update="Forms\FrmMain.Designer.cs">
 			<DependentUpon>FrmMain.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Controls\ListViewEx.cs">
-			<SubType>Component</SubType>
-		</Compile>
-		<Compile Update="Forms\FrmPasswordRecovery.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Controls\ListViewEx.cs" />
+		<Compile Update="Forms\FrmPasswordRecovery.cs" />
 		<Compile Update="Forms\FrmPasswordRecovery.Designer.cs">
 			<DependentUpon>FrmPasswordRecovery.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRegistryEditor.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRegistryEditor.cs" />
 		<Compile Update="Forms\FrmRegistryEditor.Designer.cs">
 			<DependentUpon>FrmRegistryEditor.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRegValueEditBinary.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRegValueEditBinary.cs" />
 		<Compile Update="Forms\FrmRegValueEditBinary.Designer.cs">
 			<DependentUpon>FrmRegValueEditBinary.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRegValueEditMultiString.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRegValueEditMultiString.cs" />
 		<Compile Update="Forms\FrmRegValueEditMultiString.Designer.cs">
 			<DependentUpon>FrmRegValueEditMultiString.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRegValueEditString.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRegValueEditString.cs" />
 		<Compile Update="Forms\FrmRegValueEditString.Designer.cs">
 			<DependentUpon>FrmRegValueEditString.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRegValueEditWord.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRegValueEditWord.cs" />
 		<Compile Update="Forms\FrmRegValueEditWord.Designer.cs">
 			<DependentUpon>FrmRegValueEditWord.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRemoteDesktop.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRemoteDesktop.cs" />
 		<Compile Update="Forms\FrmRemoteDesktop.Designer.cs">
 			<DependentUpon>FrmRemoteDesktop.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRemoteShell.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRemoteShell.cs" />
 		<Compile Update="Forms\FrmRemoteShell.Designer.cs">
 			<DependentUpon>FrmRemoteShell.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmReverseProxy.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmReverseProxy.cs" />
 		<Compile Update="Forms\FrmReverseProxy.Designer.cs">
 			<DependentUpon>FrmReverseProxy.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmSettings.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmSettings.cs" />
 		<Compile Update="Forms\FrmSettings.Designer.cs">
 			<DependentUpon>FrmSettings.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmShowMessagebox.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmShowMessagebox.cs" />
 		<Compile Update="Forms\FrmShowMessagebox.Designer.cs">
 			<DependentUpon>FrmShowMessagebox.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmStartupManager.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmStartupManager.cs" />
 		<Compile Update="Forms\FrmStartupManager.Designer.cs">
 			<DependentUpon>FrmStartupManager.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmSystemInformation.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmSystemInformation.cs" />
 		<Compile Update="Forms\FrmSystemInformation.Designer.cs">
 			<DependentUpon>FrmSystemInformation.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmTaskManager.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmTaskManager.cs" />
 		<Compile Update="Forms\FrmTaskManager.Designer.cs">
 			<DependentUpon>FrmTaskManager.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmVisitWebsite.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmVisitWebsite.cs" />
 		<Compile Update="Forms\FrmVisitWebsite.Designer.cs">
 			<DependentUpon>FrmVisitWebsite.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmRemoteExecution.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmRemoteExecution.cs" />
 		<Compile Update="Forms\FrmRemoteExecution.Designer.cs">
 			<DependentUpon>FrmRemoteExecution.cs</DependentUpon>
 		</Compile>
@@ -310,17 +248,17 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Quasar.Common\Quasar.Common.csproj">
-		  <Private>False</Private>
+			<Private>False</Private>
 		</ProjectReference>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Costura.Fody" Version="6.0.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Fody" Version="6.9.1">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Mono.Cecil">
 			<Version>0.11.4</Version>
@@ -339,53 +277,53 @@
 	</ItemGroup>
 	<PropertyGroup />
 	<ItemGroup>
-	  <Reference Update="mscorlib">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="mscorlib">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.Core">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.Core">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.Data">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.Data">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.Drawing">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.Drawing">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.IO.Compression.FileSystem">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.IO.Compression.FileSystem">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.Numerics">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.Numerics">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.Runtime.Serialization">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.Runtime.Serialization">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.Xml">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.Xml">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <Reference Update="System.Xml.Linq">
-	    <Private>False</Private>
-	  </Reference>
+		<Reference Update="System.Xml.Linq">
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 </Project>
