@@ -101,3 +101,14 @@ jobs:
           asset_path: D:\a\Quasar-Modded\Quasar-Modded\bin\Release\net48\client.bin
           asset_name: DONT_DOWNLOAD_CLIENT.bin
           asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (setup.bat (AUTO INSTALLER))
+        id: upload-release-asset-setup
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: D:\a\Quasar-Modded\Quasar-Modded\setup.bat
+          asset_name: AUTO_INSTALLER.bat
+          asset_content_type: application/octet-stream
