@@ -289,7 +289,7 @@ namespace Quasar.Server.Forms
 
                 this.Invoke((MethodInvoker)delegate
                 {
-                    sizeLabelCounter.Text = $"{sizeInKB:0.00} KB";
+                    sizeLabelCounter.Text = $"Size: {sizeInKB:0.00} KB";
                 });
             }
 

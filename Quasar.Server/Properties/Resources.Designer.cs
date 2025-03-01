@@ -263,6 +263,16 @@ namespace Quasar.Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap gd1515 {
+            get {
+                object obj = ResourceManager.GetObject("gd1515", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap gd2020 {
             get {
                 object obj = ResourceManager.GetObject("gd2020", resourceCulture);

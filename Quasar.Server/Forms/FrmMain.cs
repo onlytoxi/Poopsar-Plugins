@@ -268,6 +268,8 @@ namespace Quasar.Server.Forms
                     ThreadPool.QueueUserWorkItem(ProcessClientConnections);
                 }
             }
+
+            UpdateConnectedClientsCount();
         }
 
         private void ClientDisconnected(Client client)
@@ -286,6 +288,16 @@ namespace Quasar.Server.Forms
                     ThreadPool.QueueUserWorkItem(ProcessClientConnections);
                 }
             }
+
+            UpdateConnectedClientsCount();
+        }
+
+        private void UpdateConnectedClientsCount()
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                connectedToolStripStatusLabel.Text = $"Connected: {ListenServer.ConnectedClients.Length}";
+            });
         }
 
         private void ProcessClientConnections(object state)

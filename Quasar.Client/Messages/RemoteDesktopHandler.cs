@@ -284,7 +284,21 @@ namespace Quasar.Client.Messages
 
         private void Execute(ISender client, GetMonitors message)
         {
-            client.Send(new GetMonitorsResponse { Number = Screen.AllScreens.Length });
+            int screenCountTotal = 0;
+            var screenCount = SystemInformation.MonitorCount;
+            if (screenCount > Screen.AllScreens.Length)
+            {
+                screenCountTotal = screenCount;
+            }
+            else
+            {
+                screenCountTotal = Screen.AllScreens.Length;
+            }
+
+            Debug.WriteLine(screenCount);
+            Debug.WriteLine(Screen.AllScreens.Length);
+
+            client.Send(new GetMonitorsResponse { Number = screenCountTotal });
         }
 
         /// <summary>
