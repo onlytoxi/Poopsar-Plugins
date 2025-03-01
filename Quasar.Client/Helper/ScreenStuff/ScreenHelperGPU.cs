@@ -11,15 +11,15 @@ using Device = SharpDX.Direct3D11.Device;
 
 namespace Quasar.Client.Helper.ScreenStuff
 {
-    public static class ScreenHelperGPU
+    public class ScreenHelperGPU : IDisposable
     {
-        private static Device _device;
-        private static OutputDuplication _outputDuplication;
-        private static Texture2D _stagingTexture;
-        private static int _currentScreenIndex = -1;
-        private static string _currentDeviceName = string.Empty;
+        private Device _device;
+        private OutputDuplication _outputDuplication;
+        private Texture2D _stagingTexture;
+        private int _currentScreenIndex;
+        private string _currentDeviceName;
+        private bool _isInitialized;
 
-        private const int SRCCOPY = 0x00CC0020;
         private const int CURSOR_SHOWING = 0x00000001;
 
         [StructLayout(LayoutKind.Sequential)]
@@ -45,25 +45,48 @@ namespace Quasar.Client.Helper.ScreenStuff
         [DllImport("user32.dll")]
         private static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
 
-        public static Bitmap CaptureScreen(int screenIndex)
+        // Constructor initializes with a specific screen index
+        public ScreenHelperGPU(int screenIndex)
+        {
+            if (screenIndex < 0 || screenIndex >= Screen.AllScreens.Length)
+                throw new ArgumentOutOfRangeException(nameof(screenIndex), "Invalid screen index.");
+
+            _currentScreenIndex = screenIndex;
+            _currentDeviceName = Screen.AllScreens[screenIndex].DeviceName;
+            InitializeDirectX(Screen.AllScreens[screenIndex]);
+            _isInitialized = true;
+        }
+
+        public Bitmap CaptureScreen()
+        {
+            if (!_isInitialized)
+                throw new InvalidOperationException("ScreenHelperGPU is not initialized.");
+
+            return TryCapture(Screen.AllScreens[_currentScreenIndex].Bounds);
+        }
+
+        // Method to capture a different screen if needed
+        public Bitmap CaptureScreen(int screenIndex)
         {
             if (screenIndex < 0 || screenIndex >= Screen.AllScreens.Length)
                 throw new ArgumentOutOfRangeException(nameof(screenIndex), "Invalid screen index.");
 
             var screen = Screen.AllScreens[screenIndex];
 
-            if (screenIndex != _currentScreenIndex || _device == null || _currentDeviceName != screen.DeviceName)
+            // If screen index changed, reinitialize DirectX resources
+            if (screenIndex != _currentScreenIndex || _currentDeviceName != screen.DeviceName)
             {
                 Cleanup();
                 InitializeDirectX(screen);
                 _currentScreenIndex = screenIndex;
                 _currentDeviceName = screen.DeviceName;
+                _isInitialized = true;
             }
 
             return TryCapture(screen.Bounds);
         }
 
-        private static Bitmap TryCapture(Rectangle screenBounds)
+        private Bitmap TryCapture(Rectangle screenBounds)
         {
             SharpDX.DXGI.Resource screenResource = null;
             try
@@ -86,7 +109,7 @@ namespace Quasar.Client.Helper.ScreenStuff
             }
         }
 
-        private static void InitializeDirectX(Screen screen)
+        private void InitializeDirectX(Screen screen)
         {
             var flags = DeviceCreationFlags.BgraSupport;
             _device = new Device(SharpDX.Direct3D.DriverType.Hardware, flags);
@@ -131,7 +154,7 @@ namespace Quasar.Client.Helper.ScreenStuff
             }
         }
 
-        private static Bitmap ConvertTextureToBitmap(Texture2D texture, Rectangle screenBounds)
+        private Bitmap ConvertTextureToBitmap(Texture2D texture, Rectangle screenBounds)
         {
             var deviceContext = _device.ImmediateContext;
             var dataBox = deviceContext.MapSubresource(texture, 0, MapMode.Read, SharpDX.Direct3D11.MapFlags.None);
@@ -189,11 +212,12 @@ namespace Quasar.Client.Helper.ScreenStuff
             }
         }
 
-        private static void Cleanup()
+        private void Cleanup()
         {
             SafeDispose(ref _stagingTexture);
             SafeDispose(ref _outputDuplication);
             SafeDispose(ref _device);
+            _isInitialized = false;
         }
 
         private static void SafeDispose<T>(ref T disposable) where T : class, IDisposable
@@ -206,6 +230,38 @@ namespace Quasar.Client.Helper.ScreenStuff
             }
         }
 
-        public static Rectangle GetBounds(int screenIndex) => Screen.AllScreens[screenIndex].Bounds;
+        public static Rectangle GetBounds(int screenIndex)
+        {
+            if (screenIndex < 0 || screenIndex >= Screen.AllScreens.Length)
+                throw new ArgumentOutOfRangeException(nameof(screenIndex), "Invalid screen index.");
+
+            return Screen.AllScreens[screenIndex].Bounds;
+        }
+
+        // IDisposable implementation
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    Cleanup();
+                }
+                _disposed = true;
+            }
+        }
+
+        ~ScreenHelperGPU()
+        {
+            Dispose(false);
+        }
     }
 }

