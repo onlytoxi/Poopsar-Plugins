@@ -70,7 +70,7 @@ jobs:
 
       # upload
       - name: Upload Release Asset (build_output.zip)
-        id: upload-release-asset
+        id: upload-release-asset-zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload Release Asset (Quasar.exe (Server))
-        id: upload-release-asset
+        id: upload-release-asset-server
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload Release Asset (client.bin (Client))
-        id: upload-release-asset
+        id: upload-release-asset-client
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
