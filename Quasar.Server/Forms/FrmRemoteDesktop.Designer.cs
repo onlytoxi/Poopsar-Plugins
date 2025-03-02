@@ -131,9 +131,10 @@ namespace Quasar.Server.Forms
             this.panelTop.Controls.Add(this.btnStop);
             this.panelTop.Controls.Add(this.lblQuality);
             this.panelTop.Controls.Add(this.barQuality);
-            this.panelTop.Location = new System.Drawing.Point(0, -1);
+            this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(784, 37);
+            this.panelTop.Size = new System.Drawing.Size(784, 36);
             this.panelTop.TabIndex = 7;
             // 
             // sizeLabelCounter

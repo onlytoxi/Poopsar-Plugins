@@ -173,25 +173,6 @@ namespace Quasar.Server.Forms
             notifyIcon.Visible = false;
         }
 
-        private void SetEqualColumnWidths()
-        {
-            int totalWidth = lstClients.ClientSize.Width;
-            int columnCount = lstClients.Columns.Count;
-
-            if (columnCount > 0)
-            {
-                int columnWidth = totalWidth / columnCount;
-
-                foreach (ColumnHeader column in lstClients.Columns)
-                {
-                    column.Width = columnWidth;
-                }
-            }
-
-            // add 4 pixels to the last column to prevent horizontal scrollbar
-            lstClients.Columns[columnCount - 1].Width += 4;
-        }
-
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             ListenServer.Disconnect();
@@ -207,7 +188,6 @@ namespace Quasar.Server.Forms
 
         private void lstClients_SelectedIndexChanged(object sender, EventArgs e)
         {
-
             UpdateWindowTitle();
 
             var selectedClients = GetSelectedClients();
@@ -231,6 +211,32 @@ namespace Quasar.Server.Forms
                 Debug.WriteLine("sending message!!!!!!!!!!!!!!!!!!!!");
 
                 selectedClients[0].Send(image);
+            }
+            else if (selectedClients.Length == 0)
+            {
+                pictureBoxMain.Image = Properties.Resources.no_previewbmp;
+
+                listView1.Items.Clear();
+
+                var cpuItem = new ListViewItem("CPU");
+                cpuItem.SubItems.Add("N/A");
+                listView1.Items.Add(cpuItem);
+
+                var gpuItem = new ListViewItem("GPU");
+                gpuItem.SubItems.Add("N/A");
+                listView1.Items.Add(gpuItem);
+
+                var ramItem = new ListViewItem("RAM");
+                ramItem.SubItems.Add("0 GB");
+                listView1.Items.Add(ramItem);
+
+                var uptimeItem = new ListViewItem("Uptime");
+                uptimeItem.SubItems.Add("N/A");
+                listView1.Items.Add(uptimeItem);
+
+                var antivirusItem = new ListViewItem("Antivirus");
+                antivirusItem.SubItems.Add("N/A");
+                listView1.Items.Add(antivirusItem);
             }
         }
 

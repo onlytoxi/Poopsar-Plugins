@@ -59,7 +59,7 @@ namespace Quasar.Server.Forms
         private static readonly Dictionary<Client, FrmRemoteDesktop> OpenedForms = new Dictionary<Client, FrmRemoteDesktop>();
 
         private bool _useGPU = false;
-        private const int UpdateInterval = 30;
+        private const int UpdateInterval = 10;
 
         /// <summary>
         /// Creates a new remote desktop form for the client or gets the current open form, if there exists one already.
@@ -331,6 +331,7 @@ namespace Quasar.Server.Forms
 
             _remoteDesktopHandler.LocalResolution = picDesktop.Size;
             btnShow.Left = (this.Width - btnShow.Width) / 2;
+            btnShow.Top = this.Height - btnShow.Height - 40;
         }
 
         private void btnStart_Click(object sender, EventArgs e)
