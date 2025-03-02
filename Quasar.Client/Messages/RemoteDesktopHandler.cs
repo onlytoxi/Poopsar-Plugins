@@ -14,6 +14,7 @@ using System.Diagnostics;
 using Quasar.Common.Messages.Monitoring.RemoteDesktop;
 using Quasar.Common.Messages.other;
 using Quasar.Client.Helper.ScreenStuff;
+using System.Collections.Concurrent;
 
 namespace Quasar.Client.Messages
 {
@@ -24,12 +25,20 @@ namespace Quasar.Client.Messages
         private Bitmap _desktop = null;
         private int _displayIndex = 0;
         private ISender _clientMain;
-        private Thread _sendFramesThread;
+        private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
 
         private ScreenHelperGPU _screenHelper;
 
         private bool _useGpu = false;
+
+        // frame control variables
+        private readonly ConcurrentQueue<byte[]> _frameBuffer = new ConcurrentQueue<byte[]>();
+        private readonly AutoResetEvent _frameRequestEvent = new AutoResetEvent(false);
+        private int _pendingFrameRequests = 0;
+
+        // max buffer size to prevent memory issues
+        private const int MAX_BUFFER_SIZE = 10;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private int _frameCount = 0;
@@ -70,6 +79,14 @@ namespace Quasar.Client.Messages
             {
                 StartScreenStreaming(client, message);
             }
+            else if (message.Status == RemoteDesktopStatus.Continue)
+            {
+                // server is requesting more frames
+                Interlocked.Add(ref _pendingFrameRequests, message.FramesRequested);
+                _frameRequestEvent.Set();
+
+                Debug.WriteLine($"Server requested {message.FramesRequested} more frames. Total pending: {_pendingFrameRequests}");
+            }
         }
 
         private void StartScreenStreaming(ISender client, GetDesktop message)
@@ -100,11 +117,15 @@ namespace Quasar.Client.Messages
             _displayIndex = message.DisplayIndex;
             _clientMain = client;
 
-            if (_sendFramesThread == null || !_sendFramesThread.IsAlive)
+            // clear any pending frame requests and existing frames
+            ClearFrameBuffer();
+            Interlocked.Exchange(ref _pendingFrameRequests, message.FramesRequested);
+
+            if (_captureThread == null || !_captureThread.IsAlive)
             {
                 _cancellationTokenSource = new CancellationTokenSource();
-                _sendFramesThread = new Thread(() => SendFrames(_cancellationTokenSource.Token));
-                _sendFramesThread.Start();
+                _captureThread = new Thread(() => BufferedCaptureLoop(_cancellationTokenSource.Token));
+                _captureThread.Start();
             }
         }
 
@@ -114,10 +135,11 @@ namespace Quasar.Client.Messages
 
             _cancellationTokenSource?.Cancel();
 
-            if (_sendFramesThread != null && _sendFramesThread.IsAlive)
+            if (_captureThread != null && _captureThread.IsAlive)
             {
-                _sendFramesThread.Join();
-                _sendFramesThread = null;
+                _frameRequestEvent.Set(); // wake up thread
+                _captureThread.Join();
+                _captureThread = null;
             }
 
             if (_desktop != null)
@@ -148,18 +170,67 @@ namespace Quasar.Client.Messages
                 _streamCodec.Dispose();
                 _streamCodec = null;
             }
+
+            // clear the buff
+            ClearFrameBuffer();
+            Interlocked.Exchange(ref _pendingFrameRequests, 0);
         }
 
-        private void SendFrames(CancellationToken cancellationToken)
+        private void BufferedCaptureLoop(CancellationToken cancellationToken)
         {
+            Debug.WriteLine("Starting buffered capture loop");
             _stopwatch.Start();
+
             while (!cancellationToken.IsCancellationRequested)
             {
-                CaptureScreen();
+                try
+                {
+                    // wait for frame requests if the buffer is full or no frames are requested
+                    if (_frameBuffer.Count >= MAX_BUFFER_SIZE || _pendingFrameRequests <= 0)
+                    {
+                        Debug.WriteLine($"Waiting for frame requests. Buffer size: {_frameBuffer.Count}, Pending requests: {_pendingFrameRequests}");
+                        _frameRequestEvent.WaitOne(500);
+
+                        // if cancellation was requested during the wait
+                        if (cancellationToken.IsCancellationRequested)
+                            break;
+
+                        continue;
+                    }
+
+                    // capture frame and add to buffer
+                    byte[] frameData = CaptureFrame();
+                    if (frameData != null)
+                    {
+                        _frameBuffer.Enqueue(frameData);
+
+                        // increment frame counter for statistics
+                        _frameCount++;
+                        if (_stopwatch.ElapsedMilliseconds >= 1000)
+                        {
+                            Debug.WriteLine($"Capture FPS: {_frameCount}, Buffer size: {_frameBuffer.Count}, Pending requests: {_pendingFrameRequests}");
+                            _frameCount = 0;
+                            _stopwatch.Restart();
+                        }
+                    }
+
+                    // send frames if we have pending requests
+                    while (_pendingFrameRequests > 0 && _frameBuffer.TryDequeue(out byte[] frameToSend))
+                    {
+                        SendFrameToServer(frameToSend, Interlocked.Decrement(ref _pendingFrameRequests) == 0);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error in buffered capture loop: {ex.Message}");
+                    Thread.Sleep(100); // Avoid tight loop in case of repeated errors
+                }
             }
+
+            Debug.WriteLine("Buffered capture loop ended");
         }
 
-        private void CaptureScreen()
+        private byte[] CaptureFrame()
         {
             try
             {
@@ -180,7 +251,7 @@ namespace Quasar.Client.Messages
                 if (_desktop == null)
                 {
                     Debug.WriteLine("Error capturing screen: Bitmap is null");
-                    return;
+                    return null;
                 }
 
                 _desktopData = _desktop.LockBits(new Rectangle(0, 0, _desktop.Width, _desktop.Height),
@@ -193,27 +264,14 @@ namespace Quasar.Client.Messages
                         new Rectangle(0, 0, _desktop.Width, _desktop.Height),
                         new Size(_desktop.Width, _desktop.Height),
                         _desktop.PixelFormat, stream);
-                    _clientMain.Send(new GetDesktopResponse
-                    {
-                        Image = stream.ToArray(),
-                        Quality = _streamCodec.ImageQuality,
-                        Monitor = _streamCodec.Monitor,
-                        Resolution = _streamCodec.Resolution
-                    });
-                }
 
-                _frameCount++;
-                if (_stopwatch.ElapsedMilliseconds >= 1000)
-                {
-                    Debug.WriteLine($"FPS: {_frameCount}");
-                    Console.WriteLine($"FPS: {_frameCount}");
-                    _frameCount = 0;
-                    _stopwatch.Restart();
+                    return stream.ToArray();
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error capturing screen: {ex.Message}");
+                Debug.WriteLine($"Error capturing frame: {ex.Message}");
+                return null;
             }
             finally
             {
@@ -225,6 +283,33 @@ namespace Quasar.Client.Messages
                 _desktop?.Dispose();
                 _desktop = null;
             }
+        }
+
+        private void SendFrameToServer(byte[] frameData, bool isLastRequestedFrame)
+        {
+            if (frameData == null || _clientMain == null) return;
+
+            try
+            {
+                _clientMain.Send(new GetDesktopResponse
+                {
+                    Image = frameData,
+                    Quality = _streamCodec.ImageQuality,
+                    Monitor = _streamCodec.Monitor,
+                    Resolution = _streamCodec.Resolution,
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    IsLastRequestedFrame = isLastRequestedFrame
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error sending frame to server: {ex.Message}");
+            }
+        }
+
+        private void ClearFrameBuffer()
+        {
+            while (_frameBuffer.TryDequeue(out _)) { }
         }
 
         private void Execute(ISender sender, DoMouseEvent message)
@@ -302,6 +387,7 @@ namespace Quasar.Client.Messages
             _streamCodec?.Dispose();
             _cancellationTokenSource?.Dispose();
             _screenHelper?.Dispose();
+            _frameRequestEvent?.Dispose();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -312,6 +398,7 @@ namespace Quasar.Client.Messages
                 _streamCodec?.Dispose();
                 _cancellationTokenSource?.Dispose();
                 _screenHelper?.Dispose();
+                _frameRequestEvent?.Dispose();
             }
         }
     }

@@ -9,6 +9,9 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Quasar.Server.Messages
 {
@@ -21,6 +24,11 @@ namespace Quasar.Server.Messages
         /// States if the client is currently streaming desktop frames.
         /// </summary>
         public bool IsStarted { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the remote desktop is using buffered mode.
+        /// </summary>
+        public bool IsBufferedMode { get; set; } = true;
 
         /// <summary>
         /// Used in lock statements to synchronize access to <see cref="_codec"/> between UI thread and thread pool.
@@ -100,6 +108,19 @@ namespace Quasar.Server.Messages
         /// </summary>
         private UnsafeStreamCodec _codec;
 
+        // buffer parameters
+        private readonly int _initialFramesRequested = 5; // request 5 frames initially
+        private readonly int _defaultFrameRequestBatch = 3; // request 3 frames at a time now on
+        private int _pendingFrames = 0;
+        private readonly SemaphoreSlim _frameRequestSemaphore = new SemaphoreSlim(1, 1);
+        private readonly Stopwatch _frameReceiptStopwatch = new Stopwatch();
+        private readonly ConcurrentQueue<long> _frameTimestamps = new ConcurrentQueue<long>();
+        private readonly int _fpsCalculationWindow = 10; // calculate FPS based on last 10 frames
+
+        private readonly Stopwatch _performanceMonitor = new Stopwatch();
+        private int _framesReceived = 0;
+        private double _estimatedFps = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RemoteDesktopHandler"/> class using the given client.
         /// </summary>
@@ -107,6 +128,7 @@ namespace Quasar.Server.Messages
         public RemoteDesktopHandler(Client client) : base(true)
         {
             _client = client;
+            _performanceMonitor.Start();
         }
 
         /// <inheritdoc />
@@ -129,11 +151,17 @@ namespace Quasar.Server.Messages
             }
         }
 
+        private void ClearTimeStamps()
+        {
+            while (_frameTimestamps.TryDequeue(out _)) { }
+        }
+
         /// <summary>
         /// Begins receiving frames from the client using the specified quality and display.
         /// </summary>
         /// <param name="quality">The quality of the remote desktop frames.</param>
         /// <param name="display">The display to receive frames from.</param>
+        /// <param name="useGPU">Whether to use GPU for screen capture.</param>
         public void BeginReceiveFrames(int quality, int display, bool useGPU)
         {
             lock (_syncLock)
@@ -141,7 +169,24 @@ namespace Quasar.Server.Messages
                 IsStarted = true;
                 _codec?.Dispose();
                 _codec = null;
-                _client.Send(new GetDesktop { CreateNew = true, Quality = quality, DisplayIndex = display, Status = RemoteDesktopStatus.Start, UseGPU = useGPU });
+
+                // Reset buffering counters
+                _pendingFrames = _initialFramesRequested;
+                ClearTimeStamps();
+                _framesReceived = 0;
+                _frameReceiptStopwatch.Restart();
+
+                // Start in buffered mode
+                _client.Send(new GetDesktop
+                {
+                    CreateNew = true,
+                    Quality = quality,
+                    DisplayIndex = display,
+                    Status = RemoteDesktopStatus.Start,
+                    UseGPU = useGPU,
+                    IsBufferedMode = IsBufferedMode,
+                    FramesRequested = _initialFramesRequested
+                });
             }
         }
 
@@ -155,7 +200,7 @@ namespace Quasar.Server.Messages
                 IsStarted = false;
             }
 
-            Debug.WriteLine("we done here");
+            Debug.WriteLine("Remote desktop session stopped");
 
             _client.Send(new GetDesktop { Status = RemoteDesktopStatus.Stop });
         }
@@ -165,7 +210,7 @@ namespace Quasar.Server.Messages
         /// </summary>
         public void RefreshDisplays()
         {
-            Debug.WriteLine("refreshing displays");
+            Debug.WriteLine("Refreshing displays");
             _client.Send(new GetMonitors());
         }
 
@@ -181,6 +226,8 @@ namespace Quasar.Server.Messages
         {
             lock (_syncLock)
             {
+                if (_codec == null) return;
+
                 _client.Send(new DoMouseEvent
                 {
                     Action = mouseAction,
@@ -203,8 +250,18 @@ namespace Quasar.Server.Messages
             _client.Send(new DoKeyboardEvent { Key = keyCode, KeyDown = keyDown });
         }
 
-        private void Execute(ISender client, GetDesktopResponse message)
+        private async void Execute(ISender client, GetDesktopResponse message)
         {
+            _framesReceived++;
+
+            if (_performanceMonitor.ElapsedMilliseconds >= 1000)
+            {
+                _estimatedFps = _framesReceived / (_performanceMonitor.ElapsedMilliseconds / 1000.0);
+                Debug.WriteLine($"Estimated FPS: {_estimatedFps:F1}, Frames received: {_framesReceived}");
+                _framesReceived = 0;
+                _performanceMonitor.Restart();
+            }
+
             lock (_syncLock)
             {
                 if (!IsStarted)
@@ -223,13 +280,57 @@ namespace Quasar.Server.Messages
                         // create deep copy & resize bitmap to local resolution
                         OnReport(new Bitmap(_codec.DecodeData(ms), LocalResolution));
                     }
-                    catch { }
-
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error decoding frame: {ex.Message}");
+                    }
                 }
 
                 message.Image = null;
 
-                //client.Send(new GetDesktop { Quality = message.Quality, DisplayIndex = message.Monitor });
+                long timestamp = message.Timestamp;
+                _frameTimestamps.Enqueue(timestamp);
+                while (_frameTimestamps.Count > _fpsCalculationWindow && _frameTimestamps.TryDequeue(out _)) { }
+
+                Interlocked.Decrement(ref _pendingFrames);
+            }
+
+            if (IsBufferedMode && (message.IsLastRequestedFrame || _pendingFrames <= 1))
+            {
+                await RequestMoreFramesAsync();
+            }
+        }
+
+        private async Task RequestMoreFramesAsync()
+        {
+            if (!await _frameRequestSemaphore.WaitAsync(0))
+                return;
+
+            try
+            {
+                int batchSize = _defaultFrameRequestBatch;
+
+                if (_estimatedFps > 25)
+                    batchSize = 5;
+                else if (_estimatedFps < 10)
+                    batchSize = 2;
+
+                Debug.WriteLine($"Requesting {batchSize} more frames");
+                Interlocked.Add(ref _pendingFrames, batchSize);
+
+                _client.Send(new GetDesktop
+                {
+                    CreateNew = false,
+                    Quality = _codec?.ImageQuality ?? 75,
+                    DisplayIndex = _codec?.Monitor ?? 0,
+                    Status = RemoteDesktopStatus.Continue,
+                    IsBufferedMode = true,
+                    FramesRequested = batchSize
+                });
+            }
+            finally
+            {
+                _frameRequestSemaphore.Release();
             }
         }
 
@@ -254,6 +355,7 @@ namespace Quasar.Server.Messages
                 lock (_syncLock)
                 {
                     _codec?.Dispose();
+                    _frameRequestSemaphore?.Dispose();
                     IsStarted = false;
                 }
             }

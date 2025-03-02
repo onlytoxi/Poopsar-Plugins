@@ -21,20 +21,11 @@ namespace Quasar.Common.Messages.Monitoring.RemoteDesktop
 
         [ProtoMember(5)]
         public bool UseGPU { get; set; }
-    }
 
-    public class GetDesktopHVNC : IMessage
-    {
-        [ProtoMember(1)]
-        public bool CreateNew { get; set; }
+        [ProtoMember(6)]
+        public int FramesRequested { get; set; } = 1;
 
-        [ProtoMember(2)]
-        public int Quality { get; set; }
-
-        [ProtoMember(3)]
-        public int DisplayIndex { get; set; }
-
-        [ProtoMember(4)]
-        public HVNCStatus Status { get; set; }
+        [ProtoMember(7)]
+        public bool IsBufferedMode { get; set; } = true;
     }
 }

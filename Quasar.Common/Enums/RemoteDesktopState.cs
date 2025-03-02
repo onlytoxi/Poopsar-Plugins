@@ -4,17 +4,13 @@
     {
         Start,
         Stop,
-    }
-
-    public enum HVNCStatus
-    {
-        Start,
-        Stop,
+        Continue,
     }
 
     public enum RemoteWebcamStatus
     {
         Start,
         Stop,
+        Continue,
     }
 }
