@@ -15,13 +15,13 @@ Please check out the [Getting Started](https://github.com/Quasar-Continuation/Qu
 ## 📸 Screenshots
 
 ### Remote Shell
-![remote-shell](Images/remote-shell.png)
+![remote-shell](Images/remote_shell.png)
 
 ### Remote Desktop
-![remote-desktop](Images/remote-desktop.png)
+![remote-desktop](Images/remote_desktop.png)
 
 ### Remote Files
-![remote-files](Images/remote-files.png)
+![remote-files](Images/remote_files.png)
 
 ---
 
