@@ -14,9 +14,14 @@ Please check out the [Getting Started](https://github.com/Quasar-Continuation/Qu
 
 ## 📸 Screenshots
 
-| **Remote Shell** | **Remote Desktop** | **Remote Files** |
-|------------------|--------------------|------------------|
-| ![remote-shell](Images/remote-shell.png) | ![remote-desktop](Images/remote-desktop.png) | ![remote-files](Images/remote-files.png) |
+### Remote Shell
+![remote-shell](Images/remote-shell.png)
+
+### Remote Desktop
+![remote-desktop](Images/remote-desktop.png)
+
+### Remote Files
+![remote-files](Images/remote-files.png)
 
 ---
 
@@ -88,7 +93,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to Quasa
 
 ---
 
-## �️ Roadmap
+## 🗺️ Roadmap
 
 Check out our [ROADMAP.md](ROADMAP.md) to see what's planned for future releases.
 
