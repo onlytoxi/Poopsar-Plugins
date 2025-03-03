@@ -18,5 +18,14 @@ namespace Quasar.Common.Messages.Webcam
 
         [ProtoMember(4)]
         public RemoteWebcamStatus Status { get; set; }
+
+        [ProtoMember(5)]
+        public bool UseGPU { get; set; }
+
+        [ProtoMember(6)]
+        public int FramesRequested { get; set; } = 1;
+
+        [ProtoMember(7)]
+        public bool IsBufferedMode { get; set; } = true;
     }
 }

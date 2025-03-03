@@ -18,5 +18,11 @@ namespace Quasar.Common.Messages.Webcam
 
         [ProtoMember(4)]
         public Resolution Resolution { get; set; }
+
+        [ProtoMember(5)]
+        public long Timestamp { get; set; }
+
+        [ProtoMember(6)]
+        public bool IsLastRequestedFrame { get; set; }
     }
 }

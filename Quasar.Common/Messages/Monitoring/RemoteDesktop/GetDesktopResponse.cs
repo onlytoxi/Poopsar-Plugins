@@ -20,12 +20,9 @@ namespace Quasar.Common.Messages.Monitoring.RemoteDesktop
         public Resolution Resolution { get; set; }
 
         [ProtoMember(5)]
-        public bool Renew { get; set; }
-
-        [ProtoMember(6)]
         public long Timestamp { get; set; }
 
-        [ProtoMember(7)]
+        [ProtoMember(6)]
         public bool IsLastRequestedFrame { get; set; }
     }
 }

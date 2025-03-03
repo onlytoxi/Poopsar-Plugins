@@ -11,7 +11,6 @@ using System.IO;
 using System.Diagnostics;
 using Quasar.Common.Messages.Preview;
 using Quasar.Common.Messages.other;
-using Quasar.Client.Helper.ScreenStuff;
 using Quasar.Client.IO;
 
 namespace Quasar.Client.Messages
@@ -45,7 +44,7 @@ namespace Quasar.Client.Messages
             _displayIndex = message.DisplayIndex;
             _clientMain = client;
 
-            var monitorBounds = ScreenHelperGPU.GetBounds(message.DisplayIndex);
+            var monitorBounds = ScreenHelperCPU.GetBounds(message.DisplayIndex);
             var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
 
             if (_streamCodec == null)

