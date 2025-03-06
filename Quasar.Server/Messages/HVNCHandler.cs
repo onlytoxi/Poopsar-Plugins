@@ -241,15 +241,6 @@ namespace Quasar.Server.Messages
             _client.Send(new GetHVNCDesktop { Status = RemoteDesktopStatus.Stop });
         }
 
-        /// <summary>
-        /// Refreshes the available displays of the client.
-        /// </summary>
-        public void RefreshDisplays()
-        {
-            Debug.WriteLine("Refreshing displays");
-            _client.Send(new GetMonitors());
-        }
-
         private async Task RequestMoreFramesAsync()
         {
             if (!await _frameRequestSemaphore.WaitAsync(0))

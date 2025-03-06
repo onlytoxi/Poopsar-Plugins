@@ -267,7 +267,7 @@ namespace Quasar.Server.Forms
 
             OnResize(EventArgs.Empty); // trigger resize event to align controls 
 
-            _hVNCHandler.RefreshDisplays();
+            cbMonitors.SelectedIndex = 0;
         }
 
         /// <summary>

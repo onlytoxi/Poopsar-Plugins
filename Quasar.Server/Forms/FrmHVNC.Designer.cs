@@ -156,13 +156,13 @@ namespace Quasar.Server.Forms
             this.startCmdToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
             this.contextMenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 136);
+            this.contextMenuStrip.Size = new System.Drawing.Size(145, 114);
             // 
             // menuItem1
             // 
             this.menuItem1.ForeColor = System.Drawing.SystemColors.Control;
             this.menuItem1.Name = "menuItem1";
-            this.menuItem1.Size = new System.Drawing.Size(180, 22);
+            this.menuItem1.Size = new System.Drawing.Size(144, 22);
             this.menuItem1.Text = "Start Explorer";
             this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
             // 
@@ -170,7 +170,7 @@ namespace Quasar.Server.Forms
             // 
             this.menuItem2.ForeColor = System.Drawing.SystemColors.Control;
             this.menuItem2.Name = "menuItem2";
-            this.menuItem2.Size = new System.Drawing.Size(180, 22);
+            this.menuItem2.Size = new System.Drawing.Size(144, 22);
             this.menuItem2.Text = "Start Chrome";
             this.menuItem2.Click += new System.EventHandler(this.menuItem2_Click);
             // 
@@ -199,7 +199,7 @@ namespace Quasar.Server.Forms
             this.cbMonitors.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbMonitors.FormattingEnabled = true;
             this.cbMonitors.Items.AddRange(new object[] {
-            "display 0"});
+            "Display 0"});
             this.cbMonitors.Location = new System.Drawing.Point(159, 5);
             this.cbMonitors.Name = "cbMonitors";
             this.cbMonitors.Size = new System.Drawing.Size(180, 21);
@@ -233,7 +233,7 @@ namespace Quasar.Server.Forms
             // 
             this.startEdgeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.startEdgeToolStripMenuItem.Name = "startEdgeToolStripMenuItem";
-            this.startEdgeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.startEdgeToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.startEdgeToolStripMenuItem.Text = "Start Edge";
             this.startEdgeToolStripMenuItem.Click += new System.EventHandler(this.startEdgeToolStripMenuItem_Click);
             // 
@@ -241,7 +241,7 @@ namespace Quasar.Server.Forms
             // 
             this.startFirefoxToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.startFirefoxToolStripMenuItem.Name = "startFirefoxToolStripMenuItem";
-            this.startFirefoxToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.startFirefoxToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.startFirefoxToolStripMenuItem.Text = "Start Firefox";
             this.startFirefoxToolStripMenuItem.Click += new System.EventHandler(this.startFirefoxToolStripMenuItem_Click);
             // 
@@ -250,16 +250,16 @@ namespace Quasar.Server.Forms
             this.startCmdToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.startCmdToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.startCmdToolStripMenuItem.Name = "startCmdToolStripMenuItem";
-            this.startCmdToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.startCmdToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.startCmdToolStripMenuItem.Text = "Start Cmd";
             this.startCmdToolStripMenuItem.Click += new System.EventHandler(this.startCmdToolStripMenuItem_Click);
             // 
             // dropDownMenuButton
             // 
-            this.dropDownMenuButton.Location = new System.Drawing.Point(538, 6);
+            this.dropDownMenuButton.Location = new System.Drawing.Point(538, 3);
             this.dropDownMenuButton.Menu = this.contextMenuStrip;
             this.dropDownMenuButton.Name = "dropDownMenuButton";
-            this.dropDownMenuButton.Size = new System.Drawing.Size(67, 22);
+            this.dropDownMenuButton.Size = new System.Drawing.Size(82, 28);
             this.dropDownMenuButton.TabIndex = 12;
             this.dropDownMenuButton.Text = "Menu";
             this.dropDownMenuButton.UseVisualStyleBackColor = true;
