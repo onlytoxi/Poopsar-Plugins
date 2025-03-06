@@ -43,6 +43,9 @@
 		<Compile Update="Controls\DotNetBarTabControl.cs" />
 		<Compile Update="Controls\HexEditor\HexEditor.cs" />
 		<Compile Update="Controls\Line.cs" />
+		<Compile Update="Controls\HVNCRapidPictureBox.cs">
+		  <SubType>Component</SubType>
+		</Compile>
 		<Compile Update="Controls\RapidPictureBox.cs" />
 		<Compile Update="Controls\RegistryTreeView.cs" />
 		<Compile Update="Controls\WordTextBox.cs" />

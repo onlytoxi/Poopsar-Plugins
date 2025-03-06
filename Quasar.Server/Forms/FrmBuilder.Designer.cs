@@ -1111,6 +1111,7 @@ namespace Quasar.Server.Forms
             this.chkVM.TabIndex = 24;
             this.chkVM.Text = "Anti VM";
             this.chkVM.UseVisualStyleBackColor = true;
+            this.chkVM.CheckedChanged += new System.EventHandler(this.chkVM_CheckedChanged);
             // 
             // chkAntiDebug
             // 
@@ -1121,6 +1122,7 @@ namespace Quasar.Server.Forms
             this.chkAntiDebug.TabIndex = 25;
             this.chkAntiDebug.Text = "Anti Debug";
             this.chkAntiDebug.UseVisualStyleBackColor = true;
+            this.chkAntiDebug.CheckedChanged += new System.EventHandler(this.chkAntiDebug_CheckedChanged);
             // 
             // FrmBuilder
             // 

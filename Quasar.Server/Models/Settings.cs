@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
+using Microsoft.Win32;
 
 namespace Quasar.Server.Models
 {
@@ -11,11 +12,36 @@ namespace Quasar.Server.Models
 
         public static readonly string CertificatePath = Path.Combine(Application.StartupPath, "quasar.p12");
 
+        private static readonly string isDarkMode = _isDarkMode().ToString();
+
+        private static bool _isDarkMode()
+        {
+            int res = -1;
+            try
+            {
+                res = (int)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme", -1);
+            }
+            catch { }
+
+            if (res == 0)
+            {
+                return true;
+            }
+            else if (res == 1)
+            {
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public static bool DarkMode
         {
             get
             {
-                return bool.Parse(ReadValueSafe("DarkMode", "False"));
+                return bool.Parse(ReadValueSafe("DarkMode", isDarkMode));
             }
             set
             {

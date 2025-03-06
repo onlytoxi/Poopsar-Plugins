@@ -1,7 +1,9 @@
-﻿using Quasar.Client.IO;
+﻿using Quasar.Client.Config;
+using Quasar.Client.IO;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -27,10 +29,21 @@ namespace Quasar.Client
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            //Handler.GetData();
-            //Console.WriteLine("Done");
+            SaveOriginalDesktop();
 
             Application.Run(new QuasarApplication());
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr GetThreadDesktop(uint dwThreadId);
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+
+        private static void SaveOriginalDesktop()
+        {
+            Settings.OriginalDesktopPointer = GetThreadDesktop(GetCurrentThreadId());
         }
 
         private static void HandleThreadException(object sender, ThreadExceptionEventArgs e)

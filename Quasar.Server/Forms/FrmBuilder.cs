@@ -216,6 +216,16 @@ namespace Quasar.Server.Forms
             UpdateKeyloggerControlStates();
         }
 
+        private void chkAntiDebug_CheckedChanged(object sender, EventArgs e)
+        {
+            HasChanged();
+        }
+
+        private void chkVM_CheckedChanged(object sender, EventArgs e)
+        {
+            HasChanged();
+        }
+
         private void btnBrowseIcon_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())

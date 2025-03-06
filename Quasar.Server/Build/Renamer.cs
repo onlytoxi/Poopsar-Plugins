@@ -19,6 +19,9 @@ namespace Quasar.Server.Build
         private Dictionary<TypeDefinition, MemberOverloader> _methodOverloaders;
         private Dictionary<TypeDefinition, MemberOverloader> _fieldOverloaders;
         private Dictionary<TypeDefinition, MemberOverloader> _eventOverloaders;
+        private Dictionary<string, string> _namespaceRenames;
+
+        private readonly SafeRandom _random = new SafeRandom();
 
         public Renamer(AssemblyDefinition asmDef)
             : this(asmDef, 20)
@@ -33,6 +36,7 @@ namespace Quasar.Server.Build
             _methodOverloaders = new Dictionary<TypeDefinition, MemberOverloader>();
             _fieldOverloaders = new Dictionary<TypeDefinition, MemberOverloader>();
             _eventOverloaders = new Dictionary<TypeDefinition, MemberOverloader>();
+            _namespaceRenames = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -62,7 +66,7 @@ namespace Quasar.Server.Build
 
             _typeOverloader.GiveName(typeDef);
 
-            typeDef.Namespace = string.Empty;
+            typeDef.Namespace = RenameNamespace(typeDef.Namespace);
 
             MemberOverloader methodOverloader = GetMethodOverloader(typeDef);
             MemberOverloader fieldOverloader = GetFieldOverloader(typeDef);
@@ -86,6 +90,30 @@ namespace Quasar.Server.Build
             if (typeDef.HasEvents)
                 foreach (EventDefinition eventDef in typeDef.Events)
                     eventOverloader.GiveName(eventDef);
+        }
+
+        private string RenameNamespace(string originalNamespace)
+        {
+            if (string.IsNullOrEmpty(originalNamespace))
+                return originalNamespace;
+
+            if (!_namespaceRenames.TryGetValue(originalNamespace, out string newNamespace))
+            {
+                newNamespace = GenerateRandomNamespace();
+                _namespaceRenames[originalNamespace] = newNamespace;
+            }
+
+            return newNamespace;
+        }
+
+        private string GenerateRandomNamespace()
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < Length; i++)
+            {
+                builder.Append((char)_random.Next('a', 'z' + 1));
+            }
+            return builder.ToString();
         }
 
         private MemberOverloader GetMethodOverloader(TypeDefinition typeDef)
