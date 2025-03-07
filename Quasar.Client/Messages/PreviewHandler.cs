@@ -63,7 +63,7 @@ namespace Quasar.Client.Messages
         {
             try
             {
-                _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
+                _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex, true);
 
                 if (_desktop == null)
                 {
