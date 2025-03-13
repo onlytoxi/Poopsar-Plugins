@@ -235,10 +235,6 @@ namespace Quasar.Server.Controls
         {
             return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '1' && c <= '9');
         }
-        public void TriggerWndProc(ref Message m)
-        {
-            WndProc(ref m);
-        }
 
         public static char GetModifiedKey(char c)
         {

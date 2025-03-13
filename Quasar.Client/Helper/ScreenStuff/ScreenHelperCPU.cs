@@ -11,6 +11,7 @@ namespace Quasar.Client.Helper
     {
         private const int SRCCOPY = 0x00CC0020;
         private const int CURSOR_SHOWING = 0x00000001;
+        private static readonly int CursorInfoSize = Marshal.SizeOf(typeof(CURSORINFO));
 
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT
@@ -60,26 +61,44 @@ namespace Quasar.Client.Helper
             using (Graphics g = Graphics.FromImage(screen))
             {
                 IntPtr destDeviceContext = g.GetHdc();
-                IntPtr srcDeviceContext = CreateDC("DISPLAY", null, null, IntPtr.Zero);
-
-                BitBlt(destDeviceContext, 0, 0, bounds.Width, bounds.Height, srcDeviceContext, bounds.X, bounds.Y, SRCCOPY);
-
-                var cursorInfo = new CURSORINFO { cbSize = Marshal.SizeOf(typeof(CURSORINFO)) };
-                if (GetCursorInfo(out cursorInfo) && cursorInfo.flags == CURSOR_SHOWING)
+                using (var srcDeviceContext = new DeviceContext("DISPLAY"))
                 {
-                    DrawIcon(destDeviceContext, cursorInfo.ScreenPosition.X - bounds.X, cursorInfo.ScreenPosition.Y - bounds.Y, cursorInfo.hCursor);
+                    BitBlt(destDeviceContext, 0, 0, bounds.Width, bounds.Height, srcDeviceContext.Handle, bounds.X, bounds.Y, SRCCOPY);
+                    DrawCursor(destDeviceContext, bounds);
                 }
-
-                DeleteDC(srcDeviceContext);
                 g.ReleaseHdc(destDeviceContext);
             }
 
             return screen;
         }
 
+        private static void DrawCursor(IntPtr destDeviceContext, Rectangle bounds)
+        {
+            var cursorInfo = new CURSORINFO { cbSize = CursorInfoSize };
+            if (GetCursorInfo(out cursorInfo) && cursorInfo.flags == CURSOR_SHOWING)
+            {
+                DrawIcon(destDeviceContext, cursorInfo.ScreenPosition.X - bounds.X, cursorInfo.ScreenPosition.Y - bounds.Y, cursorInfo.hCursor);
+            }
+        }
+
         public static Rectangle GetBounds(int screenNumber)
         {
             return Screen.AllScreens[screenNumber].Bounds;
+        }
+
+        private class DeviceContext : IDisposable
+        {
+            public IntPtr Handle { get; }
+
+            public DeviceContext(string deviceName)
+            {
+                Handle = CreateDC(deviceName, null, null, IntPtr.Zero);
+            }
+
+            public void Dispose()
+            {
+                DeleteDC(Handle);
+            }
         }
     }
     public class DisplayManager
