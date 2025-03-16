@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Quasar.Client.FunStuff
 {
-    public static class SwapMouseButtons
+    public class SwapMouseButtons
     {
         [DllImport("user32.dll")]
         public static extern bool SwapMouseButton(bool swap);
@@ -19,8 +19,7 @@ namespace Quasar.Client.FunStuff
 
         public static void SwapMouse()
         {
-            bool isSwapped = GetSystemMetrics(SM_SWAPBUTTON) != 0;
-
+            bool isSwapped = (GetSystemMetrics(SM_SWAPBUTTON) != 0);
             SwapMouseButton(!isSwapped);
         }
     }
