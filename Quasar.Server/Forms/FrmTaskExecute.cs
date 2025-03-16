@@ -24,7 +24,7 @@ namespace Quasar.Server.Forms
         {
 
         }
-
+        // Add task
         private void button2_Click(object sender, EventArgs e)
         {
             FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
@@ -34,6 +34,7 @@ namespace Quasar.Server.Forms
             }
         }
 
+        //browse for file
         private void button1_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())

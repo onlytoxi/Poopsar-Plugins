@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 
 namespace Quasar.Client.User
 {
+    //changed it so its not longer that trash thing u did where it checks every 5 secds
+    // now it sends new window titled whenever a focus is chagned 
     public class ActiveWindowChecker : IDisposable
     {
         private readonly QuasarClient _client;

