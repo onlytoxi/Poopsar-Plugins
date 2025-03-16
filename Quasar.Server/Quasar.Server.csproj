@@ -84,9 +84,7 @@
 		<Compile Update="Forms\FrmKeylogger.Designer.cs">
 			<DependentUpon>FrmKeylogger.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmMain.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmMain.cs" />
 		<Compile Update="Forms\FrmMain.Designer.cs">
 			<DependentUpon>FrmMain.cs</DependentUpon>
 		</Compile>

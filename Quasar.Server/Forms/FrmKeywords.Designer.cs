@@ -43,7 +43,7 @@
             this.NotiRichTextBox.Name = "NotiRichTextBox";
             this.NotiRichTextBox.Size = new System.Drawing.Size(445, 261);
             this.NotiRichTextBox.TabIndex = 0;
-            this.NotiRichTextBox.Text = "Exodus, Pay, Notepad, Login\n";
+            this.NotiRichTextBox.Text = "";
             // 
             // label1
             // 
@@ -73,7 +73,9 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.NotiRichTextBox);
             this.Name = "FrmKeywords";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Notification Centre | Key-words";
+            this.Load += new System.EventHandler(this.FrmKeywords_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

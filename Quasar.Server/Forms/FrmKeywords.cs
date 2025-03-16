@@ -34,5 +34,22 @@ namespace Quasar.Server.Forms
             File.WriteAllText(filePath, json, Encoding.UTF8);
             MessageBox.Show("Keywords saved successfully!");
         }
+
+        private void FrmKeywords_Load(object sender, EventArgs e)
+        {
+            string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+            string filePath = Path.Combine(exeDir, "keywords.json");
+
+            if (File.Exists(filePath))
+            {
+                string json = File.ReadAllText(filePath, Encoding.UTF8);
+                var keywords = JsonSerializer.Deserialize<List<string>>(json);
+
+                if (keywords != null && keywords.Any())
+                {
+                    NotiRichTextBox.Text = string.Join(", ", keywords);
+                }
+            }
+        }
     }
 }

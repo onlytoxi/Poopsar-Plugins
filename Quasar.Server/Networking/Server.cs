@@ -1,6 +1,7 @@
 ﻿using Quasar.Common.Extensions;
 using Quasar.Common.Messages;
 using Quasar.Common.Messages.other;
+using Quasar.Server.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Networking
 {
@@ -257,6 +259,12 @@ namespace Quasar.Server.Networking
 
             if (!_handle.AcceptAsync(_item))
                 AcceptClient(this, _item);
+
+            FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
+            if (mainForm != null)
+            {
+                mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "normal");
+            }
         }
 
         /// <summary>
@@ -408,6 +416,7 @@ namespace Quasar.Server.Networking
                     }
                     catch
                     {
+
                     }
                 }
             }

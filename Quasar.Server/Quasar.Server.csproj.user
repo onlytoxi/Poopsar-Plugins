@@ -53,6 +53,9 @@
     <Compile Update="Forms\FrmKeywords.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FrmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FrmPasswordRecovery.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -101,7 +104,16 @@
     <Compile Update="Forms\FrmSystemInformation.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FrmTaskCommand.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FrmTaskExecute.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FrmTaskManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FrmTaskMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\FrmVisitWebsite.cs">

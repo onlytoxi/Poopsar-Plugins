@@ -6,5 +6,6 @@ namespace Quasar.Common.Messages.Monitoring.Passwords
     [ProtoContract]
     public class GetPasswords : IMessage
     {
+     
     }
 }

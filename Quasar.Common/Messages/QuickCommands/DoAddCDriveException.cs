@@ -8,5 +8,7 @@ namespace Quasar.Common.Messages.QuickCommands
     {
         [ProtoMember(1)]
         public string Command { get; set; }
+        [ProtoMember(2)]
+        public string Host { get; set; }
     }
 }

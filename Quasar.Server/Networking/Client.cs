@@ -1,10 +1,12 @@
 ﻿using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
+using Quasar.Server.Forms;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Networking
 {
@@ -34,7 +36,14 @@ namespace Quasar.Server.Networking
 
             var handler = ClientState;
             handler?.Invoke(this, connected);
+
+            if (connected)
+            {
+               
+            }
         }
+
+        
 
         /// <summary>
         /// Occurs when a message is received from the client.
@@ -585,6 +594,11 @@ namespace Quasar.Server.Networking
             }
 
             OnClientState(false);
+        }
+
+        public string GetClientIdentifier(FrmMain frmMain)
+        {
+            return FrmMain.GetClientsUsername(EndPoint.Address.ToString(), frmMain);
         }
     }
 }
