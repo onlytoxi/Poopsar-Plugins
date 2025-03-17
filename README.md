@@ -110,6 +110,14 @@ Visit the [wiki](https://github.com/Quasar-Continuation/Quasar-Modded/wiki) for 
 Quasar is distributed under the **[Apache 2.0 License](LICENSE)**.  
 Third-party licenses are located [here](Licenses).
 
+___
+
+# 😎 Contributors
+
+- [KingKDot](https://github.com/KingKDot) (Me, very cool)
+- [Twobit](https://github.com/officialtwobit) (Helped on too much stuff to list (check prs))
+- [Lucky](https://t.me/V_Lucky_V) (Helped fix major issues with the hvnc)
+
 ---
 
 ## 🙏 Thank You!
