@@ -73,6 +73,8 @@ namespace Quasar.Server.Forms
             // 
             // barQuality
             // 
+            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.barQuality.Location = new System.Drawing.Point(700, 1);
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
@@ -111,7 +113,8 @@ namespace Quasar.Server.Forms
             this.panelTop.Controls.Add(this.btnStop);
             this.panelTop.Controls.Add(this.lblQuality);
             this.panelTop.Controls.Add(this.barQuality);
-            this.panelTop.Location = new System.Drawing.Point(0, -1);
+            this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
             this.panelTop.Size = new System.Drawing.Size(784, 37);
             this.panelTop.TabIndex = 7;
@@ -156,10 +159,10 @@ namespace Quasar.Server.Forms
             this.picWebcam.Cursor = System.Windows.Forms.Cursors.Default;
             this.picWebcam.Dock = System.Windows.Forms.DockStyle.Fill;
             this.picWebcam.GetImageSafe = null;
-            this.picWebcam.Location = new System.Drawing.Point(0, 0);
+            this.picWebcam.Location = new System.Drawing.Point(0, 37);
             this.picWebcam.Name = "picWebcam";
             this.picWebcam.Running = false;
-            this.picWebcam.Size = new System.Drawing.Size(784, 562);
+            this.picWebcam.Size = new System.Drawing.Size(784, 525);
             this.picWebcam.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picWebcam.TabIndex = 0;
             this.picWebcam.TabStop = false;
@@ -170,8 +173,8 @@ namespace Quasar.Server.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(784, 562);
             this.Controls.Add(this.btnShow);
-            this.Controls.Add(this.panelTop);
             this.Controls.Add(this.picWebcam);
+            this.Controls.Add(this.panelTop);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;

@@ -77,6 +77,8 @@ namespace Quasar.Server.Forms
             // 
             // barQuality
             // 
+            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.barQuality.Location = new System.Drawing.Point(515, 3);
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
@@ -107,6 +109,7 @@ namespace Quasar.Server.Forms
             // 
             // btnMouse
             // 
+            this.btnMouse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnMouse.Image = global::Quasar.Server.Properties.Resources.mouse_delete;
             this.btnMouse.Location = new System.Drawing.Point(626, 3);
             this.btnMouse.Name = "btnMouse";
@@ -139,6 +142,7 @@ namespace Quasar.Server.Forms
             // 
             // sizeLabelCounter
             // 
+            this.sizeLabelCounter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sizeLabelCounter.Location = new System.Drawing.Point(694, 11);
             this.sizeLabelCounter.Name = "sizeLabelCounter";
             this.sizeLabelCounter.Size = new System.Drawing.Size(77, 15);
@@ -147,6 +151,7 @@ namespace Quasar.Server.Forms
             // 
             // enableGPU
             // 
+            this.enableGPU.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.enableGPU.Image = global::Quasar.Server.Properties.Resources.computer_error;
             this.enableGPU.Location = new System.Drawing.Point(592, 4);
             this.enableGPU.Name = "enableGPU";
@@ -159,6 +164,7 @@ namespace Quasar.Server.Forms
             // 
             // btnKeyboard
             // 
+            this.btnKeyboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnKeyboard.Image = global::Quasar.Server.Properties.Resources.keyboard_delete;
             this.btnKeyboard.Location = new System.Drawing.Point(660, 3);
             this.btnKeyboard.Name = "btnKeyboard";
@@ -192,6 +198,7 @@ namespace Quasar.Server.Forms
             // 
             // btnShow
             // 
+            this.btnShow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnShow.Location = new System.Drawing.Point(730, 534);
             this.btnShow.Name = "btnShow";
             this.btnShow.Size = new System.Drawing.Size(54, 28);

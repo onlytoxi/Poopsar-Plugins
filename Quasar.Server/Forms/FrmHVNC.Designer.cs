@@ -42,15 +42,15 @@ namespace Quasar.Server.Forms
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.startEdgeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startFirefoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startCmdToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sizeLabelCounter = new System.Windows.Forms.Label();
             this.btnKeyboard = new System.Windows.Forms.Button();
             this.cbMonitors = new System.Windows.Forms.ComboBox();
             this.btnHide = new System.Windows.Forms.Button();
             this.btnShow = new System.Windows.Forms.Button();
             this.toolTipButtons = new System.Windows.Forms.ToolTip(this.components);
-            this.startEdgeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.startFirefoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.startCmdToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dropDownMenuButton = new Quasar.Server.Controls.MenuButton();
             this.picDesktop = new Quasar.Server.Controls.HVNCRapidPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).BeginInit();
@@ -84,6 +84,8 @@ namespace Quasar.Server.Forms
             // 
             // barQuality
             // 
+            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.barQuality.Location = new System.Drawing.Point(456, 3);
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
@@ -114,6 +116,7 @@ namespace Quasar.Server.Forms
             // 
             // btnMouse
             // 
+            this.btnMouse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnMouse.Image = global::Quasar.Server.Properties.Resources.mouse_delete;
             this.btnMouse.Location = new System.Drawing.Point(626, 3);
             this.btnMouse.Name = "btnMouse";
@@ -174,8 +177,34 @@ namespace Quasar.Server.Forms
             this.menuItem2.Text = "Start Chrome";
             this.menuItem2.Click += new System.EventHandler(this.menuItem2_Click);
             // 
+            // startEdgeToolStripMenuItem
+            // 
+            this.startEdgeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.startEdgeToolStripMenuItem.Name = "startEdgeToolStripMenuItem";
+            this.startEdgeToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.startEdgeToolStripMenuItem.Text = "Start Edge";
+            this.startEdgeToolStripMenuItem.Click += new System.EventHandler(this.startEdgeToolStripMenuItem_Click);
+            // 
+            // startFirefoxToolStripMenuItem
+            // 
+            this.startFirefoxToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.startFirefoxToolStripMenuItem.Name = "startFirefoxToolStripMenuItem";
+            this.startFirefoxToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.startFirefoxToolStripMenuItem.Text = "Start Firefox";
+            this.startFirefoxToolStripMenuItem.Click += new System.EventHandler(this.startFirefoxToolStripMenuItem_Click);
+            // 
+            // startCmdToolStripMenuItem
+            // 
+            this.startCmdToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.startCmdToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.startCmdToolStripMenuItem.Name = "startCmdToolStripMenuItem";
+            this.startCmdToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.startCmdToolStripMenuItem.Text = "Start Cmd";
+            this.startCmdToolStripMenuItem.Click += new System.EventHandler(this.startCmdToolStripMenuItem_Click);
+            // 
             // sizeLabelCounter
             // 
+            this.sizeLabelCounter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sizeLabelCounter.Location = new System.Drawing.Point(694, 11);
             this.sizeLabelCounter.Name = "sizeLabelCounter";
             this.sizeLabelCounter.Size = new System.Drawing.Size(77, 15);
@@ -184,6 +213,7 @@ namespace Quasar.Server.Forms
             // 
             // btnKeyboard
             // 
+            this.btnKeyboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnKeyboard.Image = global::Quasar.Server.Properties.Resources.keyboard_delete;
             this.btnKeyboard.Location = new System.Drawing.Point(660, 3);
             this.btnKeyboard.Name = "btnKeyboard";
@@ -219,6 +249,7 @@ namespace Quasar.Server.Forms
             // 
             // btnShow
             // 
+            this.btnShow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnShow.Location = new System.Drawing.Point(730, 534);
             this.btnShow.Name = "btnShow";
             this.btnShow.Size = new System.Drawing.Size(54, 28);
@@ -229,33 +260,9 @@ namespace Quasar.Server.Forms
             this.btnShow.Visible = false;
             this.btnShow.Click += new System.EventHandler(this.btnShow_Click);
             // 
-            // startEdgeToolStripMenuItem
-            // 
-            this.startEdgeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.startEdgeToolStripMenuItem.Name = "startEdgeToolStripMenuItem";
-            this.startEdgeToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.startEdgeToolStripMenuItem.Text = "Start Edge";
-            this.startEdgeToolStripMenuItem.Click += new System.EventHandler(this.startEdgeToolStripMenuItem_Click);
-            // 
-            // startFirefoxToolStripMenuItem
-            // 
-            this.startFirefoxToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.startFirefoxToolStripMenuItem.Name = "startFirefoxToolStripMenuItem";
-            this.startFirefoxToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.startFirefoxToolStripMenuItem.Text = "Start Firefox";
-            this.startFirefoxToolStripMenuItem.Click += new System.EventHandler(this.startFirefoxToolStripMenuItem_Click);
-            // 
-            // startCmdToolStripMenuItem
-            // 
-            this.startCmdToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.startCmdToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.startCmdToolStripMenuItem.Name = "startCmdToolStripMenuItem";
-            this.startCmdToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.startCmdToolStripMenuItem.Text = "Start Cmd";
-            this.startCmdToolStripMenuItem.Click += new System.EventHandler(this.startCmdToolStripMenuItem_Click);
-            // 
             // dropDownMenuButton
             // 
+            this.dropDownMenuButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.dropDownMenuButton.Location = new System.Drawing.Point(538, 3);
             this.dropDownMenuButton.Menu = this.contextMenuStrip;
             this.dropDownMenuButton.Name = "dropDownMenuButton";

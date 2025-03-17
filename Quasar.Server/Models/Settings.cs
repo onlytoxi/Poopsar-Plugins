@@ -85,6 +85,18 @@ namespace Quasar.Server.Models
             }
         }
 
+        public static bool EventLog
+        {
+            get
+            {
+                return bool.Parse(ReadValueSafe("EventLog", "False"));
+            }
+            set
+            {
+                WriteValue("EventLog", value.ToString());
+            }
+        }
+
         public static bool ShowPopup
         {
             get

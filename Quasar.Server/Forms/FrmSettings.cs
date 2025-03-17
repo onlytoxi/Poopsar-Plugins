@@ -4,6 +4,7 @@ using Quasar.Server.Networking;
 using Quasar.Server.Utilities;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Net.Sockets;
 using System.Windows.Forms;
 
@@ -36,6 +37,7 @@ namespace Quasar.Server.Forms
             chkUseUpnp.Checked = Settings.UseUPnP;
             chkShowTooltip.Checked = Settings.ShowToolTip;
             chkNoIPIntegration.Checked = Settings.EnableNoIPUpdater;
+            chkEventLog.Checked = Settings.EventLog;
             txtNoIPHost.Text = Settings.NoIPHost;
             txtNoIPUser.Text = Settings.NoIPUsername;
             txtNoIPPass.Text = Settings.NoIPPassword;
@@ -89,6 +91,11 @@ namespace Quasar.Server.Forms
             {
                 _listenServer.Disconnect();
                 ToggleListenerSettings(true);
+                FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
+                if (mainForm != null)
+                {
+                    mainForm.EventLog("Server stopped listening for connections.", "normal");
+                }
             }
         }
 
@@ -111,9 +118,17 @@ namespace Quasar.Server.Forms
             Settings.UseUPnP = chkUseUpnp.Checked;
             Settings.ShowToolTip = chkShowTooltip.Checked;
             Settings.EnableNoIPUpdater = chkNoIPIntegration.Checked;
+            Settings.EventLog = chkEventLog.Checked;
             Settings.NoIPHost = txtNoIPHost.Text;
             Settings.NoIPUsername = txtNoIPUser.Text;
             Settings.NoIPPassword = txtNoIPPass.Text;
+
+            FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
+            if (mainForm != null)
+            {
+                mainForm.EventLogVisability();
+            }
+
             this.Close();
         }
 

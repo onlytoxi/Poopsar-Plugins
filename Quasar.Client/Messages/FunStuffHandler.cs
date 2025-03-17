@@ -1,4 +1,4 @@
-﻿using Quasar.Common.Messages;
+using Quasar.Common.Messages;
 using Quasar.Common.Networking;
 using Quasar.Common.Messages.FunStuff;
 using Quasar.Common.Messages.other;

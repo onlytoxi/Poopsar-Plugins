@@ -73,6 +73,16 @@ namespace Quasar.Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap add {
+            get {
+                object obj = ResourceManager.GetObject("add", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap application_add {
             get {
                 object obj = ResourceManager.GetObject("application_add", resourceCulture);
@@ -156,6 +166,16 @@ namespace Quasar.Server.Properties {
         internal static System.Drawing.Bitmap arrow_up {
             get {
                 object obj = ResourceManager.GetObject("arrow_up", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap bell {
+            get {
+                object obj = ResourceManager.GetObject("bell", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -372,7 +392,7 @@ namespace Quasar.Server.Properties {
         ///copies of the Software, and to permit persons to whom the Software is
         ///furnished to do so, subject to the following conditions:
         ///
-        ///The above copyright notice  [rest of string was truncated]&quot;;.
+        ///The above copyright notice and this pe [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string License {
             get {
@@ -676,6 +696,16 @@ namespace Quasar.Server.Properties {
         internal static System.Drawing.Bitmap user_thief {
             get {
                 object obj = ResourceManager.GetObject("user_thief", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap webcam {
+            get {
+                object obj = ResourceManager.GetObject("webcam", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

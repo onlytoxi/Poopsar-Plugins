@@ -84,9 +84,7 @@
 		<Compile Update="Forms\FrmKeylogger.Designer.cs">
 			<DependentUpon>FrmKeylogger.cs</DependentUpon>
 		</Compile>
-		<Compile Update="Forms\FrmMain.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="Forms\FrmMain.cs" />
 		<Compile Update="Forms\FrmMain.Designer.cs">
 			<DependentUpon>FrmMain.cs</DependentUpon>
 		</Compile>
@@ -274,6 +272,7 @@
 		<PackageReference Include="protobuf-net">
 			<Version>2.4.9</Version>
 		</PackageReference>
+		<PackageReference Include="System.Text.Json" Version="9.0.3" />
 		<PackageReference Include="Vestris.ResourceLib">
 			<Version>2.2.0</Version>
 		</PackageReference>
