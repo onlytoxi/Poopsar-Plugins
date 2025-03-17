@@ -1,9 +1,14 @@
-$currentWorkingDir = Get-Location
-$quasarPath = "$currentWorkingDir\Quasar.exe"
-$clientPath = "$currentWorkingDir\client.bin"
+# Quasar-Modded Installer
+$installDir = "$env:APPDATA\Quasar-Modded"
+$quasarPath = "$installDir\Quasar.exe"
+$clientPath = "$installDir\client.bin"
+$shortcutPath = "$env:USERPROFILE\Desktop\Quasar-Modded.lnk"
 
 $server = "https://github.com/Quasar-Continuation/Quasar-Modded/releases/download/AutoBuild/DONT_DOWNLOAD_SERVER.exe"
 $client = "https://github.com/Quasar-Continuation/Quasar-Modded/releases/download/AutoBuild/DONT_DOWNLOAD_CLIENT.bin"
+
+Write-Host "Quasar-Modded Installer" -ForegroundColor Cyan
+Write-Host "======================" -ForegroundColor Cyan
 
 function Get-FileSize($url) {
     try {
@@ -28,6 +33,12 @@ function Download-File($url, $destination, $expectedSize) {
         $webClient = New-Object System.Net.WebClient
         Write-Host "Downloading: $url -> $destination"
 
+        # Create directory if it doesn't exist
+        $directory = Split-Path -Parent $destination
+        if (!(Test-Path $directory)) {
+            New-Item -ItemType Directory -Path $directory -Force | Out-Null
+        }
+
         $tempPath = "$destination.tmp"
         $downloadTimer = [System.Diagnostics.Stopwatch]::StartNew()
 
@@ -37,23 +48,51 @@ function Download-File($url, $destination, $expectedSize) {
         if ((Test-Path $tempPath) -and ((Get-Item $tempPath).Length -eq $expectedSize)) {
             Move-Item -Force $tempPath $destination
             Write-Host "Download complete: $destination ($($expectedSize) bytes) in $([math]::Round($downloadTimer.Elapsed.TotalSeconds, 2))s"
+            return $true
         } else {
             Write-Host "Download failed or file size mismatch for $destination" -ForegroundColor Red
+            return $false
         }
     } catch {
         Write-Host "Error downloading: $url" -ForegroundColor Red
+        return $false
     }
 }
 
+function Create-Shortcut($targetPath, $shortcutPath) {
+    try {
+        $WScriptObj = New-Object -ComObject ("WScript.Shell")
+        $shortcut = $WScriptObj.CreateShortcut($shortcutPath)
+        $shortcut.TargetPath = $targetPath
+        $shortcut.WorkingDirectory = Split-Path -Parent $targetPath
+        $shortcut.Save()
+        Write-Host "Created desktop shortcut" -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Host "Error creating shortcut: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Ensure installation directory exists
+if (!(Test-Path $installDir)) {
+    Write-Host "Creating installation directory: $installDir"
+    New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+}
+
+# Terminate running instance if exists
+Terminate-Process "Quasar"
+
+# Get file sizes from server
 $quasarBytes = Get-FileSize $server
 $clientBytes = Get-FileSize $client
 
 if ($quasarBytes -and $clientBytes) {
     Write-Host "Quasar Size: $quasarBytes bytes"
     Write-Host "Client Size: $clientBytes bytes"
-
-    Terminate-Process "Quasar"
-
+    
+    # Check if Quasar needs update
+    $updateQuasar = $false
     if (!(Test-Path $quasarPath) -or ((Get-Item $quasarPath).Length -ne $quasarBytes)) {
         $updateQuasar = $true
         if (Test-Path $quasarPath) {
@@ -63,33 +102,55 @@ if ($quasarBytes -and $clientBytes) {
             
             Write-Host "Local Quasar.exe size: $localSize bytes"
             Write-Host "Server Quasar.exe size: $quasarBytes bytes"
-            Write-Host "Quasar requires an update ($diffText)"
-            
-            $response = Read-Host "Update? (y/n)"
-            if ($response -eq "y") { Download-File $server $quasarPath $quasarBytes }
+            Write-Host "Updating Quasar ($diffText)"
+        } else {
+            Write-Host "Installing Quasar.exe"
         }
-        if ($updateQuasar) { Download-File $server $quasarPath $quasarBytes }
+        
+        if (!(Download-File $server $quasarPath $quasarBytes)) {
+            Write-Host "Failed to download Quasar.exe" -ForegroundColor Red
+            exit 1
+        }
+    } else {
+        Write-Host "Quasar.exe is up to date" -ForegroundColor Green
     }
 
+    # Check if client needs update
+    $updateClient = $false
     if (!(Test-Path $clientPath) -or ((Get-Item $clientPath).Length -ne $clientBytes)) {
         $updateClient = $true
         if (Test-Path $clientPath) {
             $localSize = (Get-Item $clientPath).Length
             $diff = $clientBytes - $localSize
             $diffText = if ($diff -gt 0) { "+$diff bytes" } else { "$diff bytes" }
-            Write-Host "Client requires an update ($diffText)"
-            $response = Read-Host "Update? (y/n)"
-            if ($response -ne "y") { $updateClient = $false }
+            Write-Host "Updating client.bin ($diffText)"
+        } else {
+            Write-Host "Installing client.bin"
         }
-        if ($updateClient) { Download-File $client $clientPath $clientBytes }
+        
+        if (!(Download-File $client $clientPath $clientBytes)) {
+            Write-Host "Failed to download client.bin" -ForegroundColor Red
+            exit 1
+        }
+    } else {
+        Write-Host "client.bin is up to date" -ForegroundColor Green
     }
 
+    # Create desktop shortcut if it doesn't exist
+    if (!(Test-Path $shortcutPath) -and (Test-Path $quasarPath)) {
+        Create-Shortcut $quasarPath $shortcutPath
+    }
+
+    # Start Quasar if installed successfully
     if (Test-Path $quasarPath) {
-        Write-Host "Starting Quasar..."
+        Write-Host "Installation complete!" -ForegroundColor Green
         Start-Process $quasarPath
     } else {
-        Write-Host "Quasar executable not found after download attempt." -ForegroundColor Red
+        Write-Host "Quasar-Modded installation failed." -ForegroundColor Red
     }
 } else {
     Write-Host "Failed to retrieve file sizes. Check your internet connection or the URLs." -ForegroundColor Red
 }
+
+Write-Host "Press any key to exit..."
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
