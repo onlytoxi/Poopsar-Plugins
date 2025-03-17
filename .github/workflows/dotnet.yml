@@ -52,8 +52,7 @@ jobs:
         with:
           tag_name: AutoBuild
           delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # we need release
       - name: Create Release
