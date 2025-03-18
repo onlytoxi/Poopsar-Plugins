@@ -159,7 +159,6 @@
             this.chkUseUpnp.TabIndex = 8;
             this.chkUseUpnp.Text = "Try to automatically forward the port (UPnP)";
             this.chkUseUpnp.UseVisualStyleBackColor = true;
-            this.chkUseUpnp.CheckedChanged += new System.EventHandler(this.chkUseUpnp_CheckedChanged);
             // 
             // chkShowTooltip
             // 
@@ -303,7 +302,6 @@
             this.chkEventLog.TabIndex = 21;
             this.chkEventLog.Text = "Show event log and debug log";
             this.chkEventLog.UseVisualStyleBackColor = true;
-            this.chkEventLog.CheckedChanged += new System.EventHandler(this.chkEventLog_CheckedChanged);
             // 
             // chkDiscordRPC
             // 

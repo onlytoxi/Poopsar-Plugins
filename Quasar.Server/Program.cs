@@ -1,5 +1,5 @@
-﻿using Quasar.Server.Forms;
-using Quasar.Server.Forms.DiscordRPC;
+﻿using Quasar.Server.DiscordRPC;
+using Quasar.Server.Forms;
 using System;
 using System.Windows.Forms;
 

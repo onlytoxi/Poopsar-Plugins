@@ -2,12 +2,12 @@
 using Quasar.Server.Models;
 using Quasar.Server.Networking;
 using Quasar.Server.Utilities;
-using Quasar.Server.Forms.DiscordRPC;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Windows.Forms;
+using Quasar.Server.DiscordRPC;
 
 namespace Quasar.Server.Forms
 {
@@ -199,15 +199,6 @@ namespace Quasar.Server.Forms
         private void chkShowPassword_CheckedChanged(object sender, EventArgs e)
         {
             ShowPassword(chkShowPassword.Checked);
-        }
-
-        private void chkEventLog_CheckedChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void chkUseUpnp_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

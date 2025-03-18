@@ -1,7 +1,7 @@
 ﻿using Quasar.Server.Models;
 using System.Windows.Forms;
 
-namespace Quasar.Server.Forms.DiscordRPC
+namespace Quasar.Server.DiscordRPC
 {
     internal class DiscordRPCManager
     {

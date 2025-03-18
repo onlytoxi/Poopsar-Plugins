@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using DiscordRPC;
 
-namespace Quasar.Server.Forms.DiscordRPC
+namespace Quasar.Server.DiscordRPC
 {
     internal class DiscordRPC
     {
