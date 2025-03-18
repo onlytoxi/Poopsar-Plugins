@@ -10,6 +10,8 @@
 		  protobuf-net
 		  Vestris.ResourceLib
 		  System.Text.Json
+		  DiscordRPC
+		  Newtonsoft.Json
 	  </IncludeAssemblies>
   </Costura>
 </Weavers>
