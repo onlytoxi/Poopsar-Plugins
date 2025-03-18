@@ -109,12 +109,11 @@ namespace Quasar.Server.DiscordRPC
             int connectedClients = GetConnectedClientsCount();
             _client.SetPresence(new RichPresence
             {
-                Details = "Modded by KDot227",
                 State = $"Connected Clients: {connectedClients}",
                 Assets = new Assets
                 {
                     LargeImageKey = "default",
-                    LargeImageText = "Quasar RAT - Modded by Kdot227"
+                    LargeImageText = "Quasar RAT - Modded by KDot227"
                 },
                 Timestamps = new Timestamps { Start = DateTime.UtcNow }
             });
