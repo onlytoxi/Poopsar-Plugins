@@ -9,6 +9,7 @@
 		  BouncyCastle.Crypto
 		  protobuf-net
 		  Vestris.ResourceLib
+		  System.Text.Json
 	  </IncludeAssemblies>
   </Costura>
 </Weavers>
