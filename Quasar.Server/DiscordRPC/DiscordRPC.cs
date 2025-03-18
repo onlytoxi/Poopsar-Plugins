@@ -10,7 +10,7 @@ namespace Quasar.Server.DiscordRPC
         private bool _enabled;
         private DiscordRpcClient _client;
         private Timer _updateTimer; // Made timer a field for proper cleanup
-        private readonly string _applicationId = "1349912775698153562";
+        private readonly string _applicationId = "1351391347491344445";
 
         public DiscordRPC(Form form)
         {
