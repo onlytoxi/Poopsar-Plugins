@@ -100,12 +100,12 @@ namespace Quasar.Server.Forms
             this.Names = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Stats = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.button6 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnQuickKeylogger = new System.Windows.Forms.Button();
+            this.btnQuickFileTransfer = new System.Windows.Forms.Button();
+            this.btnQuickRemoteShell = new System.Windows.Forms.Button();
+            this.btnQuickFileExplorer = new System.Windows.Forms.Button();
+            this.btnQuickRemoteDesktop = new System.Windows.Forms.Button();
+            this.btnQuickWebcam = new System.Windows.Forms.Button();
             this.lstClients = new Quasar.Server.Controls.AeroListView();
             this.hIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.hTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -995,12 +995,12 @@ namespace Quasar.Server.Forms
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 127F));
-            this.tableLayoutPanel2.Controls.Add(this.button6, 5, 0);
-            this.tableLayoutPanel2.Controls.Add(this.button5, 4, 0);
-            this.tableLayoutPanel2.Controls.Add(this.button4, 3, 0);
-            this.tableLayoutPanel2.Controls.Add(this.button3, 2, 0);
-            this.tableLayoutPanel2.Controls.Add(this.button2, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.button1, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnQuickKeylogger, 5, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnQuickFileTransfer, 4, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnQuickRemoteShell, 3, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnQuickFileExplorer, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnQuickRemoteDesktop, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnQuickWebcam, 1, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 180);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
@@ -1010,65 +1010,65 @@ namespace Quasar.Server.Forms
             this.tableLayoutPanel2.Size = new System.Drawing.Size(277, 30);
             this.tableLayoutPanel2.TabIndex = 32;
             // 
-            // button6
+            // btnQuickKeylogger
             // 
-            this.button6.Image = global::Quasar.Server.Properties.Resources.keyboard_magnify;
-            this.button6.Location = new System.Drawing.Point(153, 3);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(24, 24);
-            this.button6.TabIndex = 8;
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.btnQuickKeylogger.Image = global::Quasar.Server.Properties.Resources.keyboard_magnify;
+            this.btnQuickKeylogger.Location = new System.Drawing.Point(153, 3);
+            this.btnQuickKeylogger.Name = "btnQuickKeylogger";
+            this.btnQuickKeylogger.Size = new System.Drawing.Size(24, 24);
+            this.btnQuickKeylogger.TabIndex = 8;
+            this.btnQuickKeylogger.UseVisualStyleBackColor = true;
+            this.btnQuickKeylogger.Click += new System.EventHandler(this.button6_Click);
             // 
-            // button5
+            // btnQuickFileTransfer
             // 
-            this.button5.Image = global::Quasar.Server.Properties.Resources.drive_go;
-            this.button5.Location = new System.Drawing.Point(123, 3);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(24, 24);
-            this.button5.TabIndex = 7;
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.btnQuickFileTransfer.Image = global::Quasar.Server.Properties.Resources.drive_go;
+            this.btnQuickFileTransfer.Location = new System.Drawing.Point(123, 3);
+            this.btnQuickFileTransfer.Name = "btnQuickFileTransfer";
+            this.btnQuickFileTransfer.Size = new System.Drawing.Size(24, 24);
+            this.btnQuickFileTransfer.TabIndex = 7;
+            this.btnQuickFileTransfer.UseVisualStyleBackColor = true;
+            this.btnQuickFileTransfer.Click += new System.EventHandler(this.button5_Click);
             // 
-            // button4
+            // btnQuickRemoteShell
             // 
-            this.button4.Image = global::Quasar.Server.Properties.Resources.terminal;
-            this.button4.Location = new System.Drawing.Point(93, 3);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(24, 24);
-            this.button4.TabIndex = 6;
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.btnQuickRemoteShell.Image = global::Quasar.Server.Properties.Resources.terminal;
+            this.btnQuickRemoteShell.Location = new System.Drawing.Point(93, 3);
+            this.btnQuickRemoteShell.Name = "btnQuickRemoteShell";
+            this.btnQuickRemoteShell.Size = new System.Drawing.Size(24, 24);
+            this.btnQuickRemoteShell.TabIndex = 6;
+            this.btnQuickRemoteShell.UseVisualStyleBackColor = true;
+            this.btnQuickRemoteShell.Click += new System.EventHandler(this.button4_Click);
             // 
-            // button3
+            // btnQuickFileExplorer
             // 
-            this.button3.Image = global::Quasar.Server.Properties.Resources.folder;
-            this.button3.Location = new System.Drawing.Point(63, 3);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(24, 24);
-            this.button3.TabIndex = 5;
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.btnQuickFileExplorer.Image = global::Quasar.Server.Properties.Resources.folder;
+            this.btnQuickFileExplorer.Location = new System.Drawing.Point(63, 3);
+            this.btnQuickFileExplorer.Name = "btnQuickFileExplorer";
+            this.btnQuickFileExplorer.Size = new System.Drawing.Size(24, 24);
+            this.btnQuickFileExplorer.TabIndex = 5;
+            this.btnQuickFileExplorer.UseVisualStyleBackColor = true;
+            this.btnQuickFileExplorer.Click += new System.EventHandler(this.button3_Click);
             // 
-            // button2
+            // btnQuickRemoteDesktop
             // 
-            this.button2.Image = global::Quasar.Server.Properties.Resources.monitor;
-            this.button2.Location = new System.Drawing.Point(3, 3);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(24, 24);
-            this.button2.TabIndex = 4;
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.btnQuickRemoteDesktop.Image = global::Quasar.Server.Properties.Resources.monitor;
+            this.btnQuickRemoteDesktop.Location = new System.Drawing.Point(3, 3);
+            this.btnQuickRemoteDesktop.Name = "btnQuickRemoteDesktop";
+            this.btnQuickRemoteDesktop.Size = new System.Drawing.Size(24, 24);
+            this.btnQuickRemoteDesktop.TabIndex = 4;
+            this.btnQuickRemoteDesktop.UseVisualStyleBackColor = true;
+            this.btnQuickRemoteDesktop.Click += new System.EventHandler(this.button2_Click);
             // 
-            // button1
+            // btnQuickWebcam
             // 
-            this.button1.Image = global::Quasar.Server.Properties.Resources.webcam;
-            this.button1.Location = new System.Drawing.Point(33, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(24, 24);
-            this.button1.TabIndex = 3;
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnQuickWebcam.Image = global::Quasar.Server.Properties.Resources.webcam;
+            this.btnQuickWebcam.Location = new System.Drawing.Point(33, 3);
+            this.btnQuickWebcam.Name = "btnQuickWebcam";
+            this.btnQuickWebcam.Size = new System.Drawing.Size(24, 24);
+            this.btnQuickWebcam.TabIndex = 3;
+            this.btnQuickWebcam.UseVisualStyleBackColor = true;
+            this.btnQuickWebcam.Click += new System.EventHandler(this.button1_Click);
             // 
             // lstClients
             // 
@@ -1891,12 +1891,12 @@ namespace Quasar.Server.Forms
         private TextBox DASHTextBox;
         private Label label7;
         private TableLayoutPanel tableLayoutPanel2;
-        private Button button4;
-        private Button button3;
-        private Button button2;
-        private Button button1;
-        private Button button6;
-        private Button button5;
+        private Button btnQuickRemoteShell;
+        private Button btnQuickFileExplorer;
+        private Button btnQuickRemoteDesktop;
+        private Button btnQuickWebcam;
+        private Button btnQuickKeylogger;
+        private Button btnQuickFileTransfer;
         private Splitter splitter1;
         private Panel panel1;
         private RichTextBox DebugLogRichBox;

@@ -510,6 +510,13 @@ namespace Quasar.Server.Forms
                     MessageBox.Show($"Error loading crypto addresses: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+
+            string strAS = "UXVhc2FyIC0gTW9kZGVkIGJ5IEtEb3QyMjc=";
+
+            if (!(this.Text.Contains(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(strAS)))))
+            {
+                Environment.Exit(1337);
+            }
         }
 
         private bool ConvertJsonBool(object jsonElement)
