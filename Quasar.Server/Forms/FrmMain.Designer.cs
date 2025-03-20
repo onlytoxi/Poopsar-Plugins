@@ -1158,6 +1158,7 @@ namespace Quasar.Server.Forms
             this.DebugLogRichBox.Cursor = System.Windows.Forms.Cursors.Default;
             this.DebugLogRichBox.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.DebugLogRichBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DebugLogRichBox.ForeColor = System.Drawing.SystemColors.InfoText;
             this.DebugLogRichBox.Location = new System.Drawing.Point(0, 378);
             this.DebugLogRichBox.Name = "DebugLogRichBox";
             this.DebugLogRichBox.ReadOnly = true;
@@ -1627,13 +1628,15 @@ namespace Quasar.Server.Forms
             // 
             // listenToolStripStatusLabel
             // 
-            this.listenToolStripStatusLabel.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.listenToolStripStatusLabel.ImageTransparentColor = System.Drawing.Color.White;
             this.listenToolStripStatusLabel.Name = "listenToolStripStatusLabel";
             this.listenToolStripStatusLabel.Size = new System.Drawing.Size(87, 17);
             this.listenToolStripStatusLabel.Text = "Listening: False";
             // 
             // connectedToolStripStatusLabel
             // 
+            this.connectedToolStripStatusLabel.ForeColor = System.Drawing.Color.Black;
+            this.connectedToolStripStatusLabel.ImageTransparentColor = System.Drawing.Color.White;
             this.connectedToolStripStatusLabel.Name = "connectedToolStripStatusLabel";
             this.connectedToolStripStatusLabel.Size = new System.Drawing.Size(77, 17);
             this.connectedToolStripStatusLabel.Text = "Connected: 0";

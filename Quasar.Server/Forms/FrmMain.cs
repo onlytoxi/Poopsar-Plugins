@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using Quasar.Common.Messages.QuickCommands;
 using System.IO;
 using System.Text.Json;
+using System.Drawing;
 
 namespace Quasar.Server.Forms
 {
@@ -244,27 +245,37 @@ namespace Quasar.Server.Forms
             {
                 string timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
                 string formattedMessage = $"[{timestamp}] {message}";
-                System.Drawing.Color logColor = System.Drawing.Color.White;
+                Color logColor = Color.DodgerBlue;
 
                 switch (level.ToLower())
                 {
                     case "normal":
-                        logColor = System.Drawing.Color.White;
+                        logColor = Color.White;
                         break;
                     case "info":
-                        logColor = System.Drawing.Color.DodgerBlue;
+                        logColor = Color.DodgerBlue;
                         break;
                     case "error":
-                        logColor = System.Drawing.Color.Red;
+                        logColor = Color.Red;
                         break;
                     default:
-                        logColor = System.Drawing.Color.White;
+                        logColor = Color.DodgerBlue;
                         break;
                 }
-                DebugLogRichBox.AppendText(formattedMessage + Environment.NewLine);
+
+                int originalSelectionStart = DebugLogRichBox.SelectionStart;
+                Color originalSelectionColor = DebugLogRichBox.SelectionColor;
+
                 DebugLogRichBox.SelectionStart = DebugLogRichBox.TextLength;
                 DebugLogRichBox.SelectionLength = 0;
+
                 DebugLogRichBox.SelectionColor = logColor;
+
+                DebugLogRichBox.AppendText(formattedMessage + Environment.NewLine);
+
+                DebugLogRichBox.SelectionStart = originalSelectionStart;
+                DebugLogRichBox.SelectionColor = originalSelectionColor;
+
                 DebugLogRichBox.ScrollToCaret();
             }
             catch (Exception ex)

@@ -98,7 +98,7 @@ namespace Quasar.Server.Forms
                 FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
                 if (mainForm != null)
                 {
-                    mainForm.EventLog("Server stopped listening for connections.", "normal");
+                    mainForm.EventLog("Server stopped listening for connections.", "info");
                 }
             }
         }
