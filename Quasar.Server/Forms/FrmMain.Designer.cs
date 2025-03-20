@@ -1,4 +1,4 @@
-﻿using Quasar.Server.Controls;
+using Quasar.Server.Controls;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -859,6 +859,7 @@ namespace Quasar.Server.Forms
             this.MainTabControl.SelectedIndex = 0;
             this.MainTabControl.Size = new System.Drawing.Size(1230, 547);
             this.MainTabControl.TabIndex = 7;
+            this.MainTabControl.SelectedIndexChanged += new System.EventHandler(this.MainTabControl_SelectedIndexChanged);
             // 
             // tabPage1
             // 
@@ -1101,6 +1102,10 @@ namespace Quasar.Server.Forms
             this.lstClients.UseCompatibleStateImageBehavior = false;
             this.lstClients.View = System.Windows.Forms.View.Details;
             this.lstClients.SelectedIndexChanged += new System.EventHandler(this.lstClients_SelectedIndexChanged);
+            this.lstClients.Resize += new System.EventHandler(this.lstClients_Resize);
+            this.lstClients.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.lstClients_MouseWheel);
+            this.lstClients.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.lstClients_ColumnWidthChanged);
+            this.lstClients.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.lstClients_DrawItem);
             // 
             // hIP
             // 
@@ -1910,4 +1915,3 @@ namespace Quasar.Server.Forms
         private ToolStripMenuItem clearLogsToolStripMenuItem;
     }
 }
-
