@@ -472,7 +472,7 @@ namespace DarkModeForms
 
             // check the forecolor for the bs
             var currentForeColor = (Color)control.GetType().GetProperty("ForeColor")?.GetValue(control);
-            Debug.WriteLine(currentForeColor);
+            //Debug.WriteLine(currentForeColor);
             if (currentForeColor == Color.Black || currentForeColor == Color.White || currentForeColor == SystemColors.ControlText || currentForeColor == Color.FromArgb(255, 176, 176, 176) || currentForeColor == SystemColors.WindowText || currentForeColor == SystemColors.GrayText)
             {
                 control.GetType().GetProperty("ForeColor")?.SetValue(control, OScolors.TextActive);

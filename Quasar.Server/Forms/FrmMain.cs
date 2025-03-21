@@ -311,8 +311,6 @@ namespace Quasar.Server.Forms
                     DisplayIndex = 0
                 };
 
-                Debug.WriteLine("sending message!!!!!!!!!!!!!!!!!!!!");
-
                 selectedClients[0].Send(image);
                 tableLayoutPanel1.Visible = true;
             }
