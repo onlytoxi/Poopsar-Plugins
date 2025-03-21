@@ -252,7 +252,10 @@ namespace Quasar.Server.Forms
                 switch (level.ToLower())
                 {
                     case "normal":
-                        logColor = Color.White;
+                        if (Settings.DarkMode)
+                            logColor = Color.White;
+                        else
+                            logColor = Color.Black;
                         break;
                     case "info":
                         logColor = Color.DodgerBlue;
