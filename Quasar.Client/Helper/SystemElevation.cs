@@ -46,7 +46,7 @@ namespace Quasar.Client.Helper
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetCurrentProcess();
 
-        public static void Start(ISender client)
+        public static void Elevate(ISender client)
         {
             if (!IsAdministrator())
             {
@@ -142,5 +142,64 @@ namespace Quasar.Client.Helper
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CloseHandle(IntPtr hObject);
+        public static void DeElevate(ISender client)
+        {
+            if (!IsAdministrator())
+            {
+                Debug.WriteLine("Run the Command as an Administrator");
+                client.Send(new SetStatus { Message = "Run the Command as an Administrator" });
+                return;
+            }
+
+            if (!DisablePrivilege("SeDebugPrivilege"))
+            {
+                Debug.WriteLine("Failed to disable SeDebugPrivilege.");
+                client.Send(new SetStatus { Message = "Failed to disable SeDebugPrivilege." });
+                return;
+            }
+
+            if (!RevertToSelf())
+            {
+                Debug.WriteLine("Failed to revert to self.");
+                client.Send(new SetStatus { Message = "Failed to revert to self." });
+            }
+            else
+            {
+                Debug.WriteLine("Reverted to self successfully.");
+                client.Send(new SetStatus { Message = "Reverted to self successfully." });
+            }
+        }
+
+        private static bool DisablePrivilege(string privilege)
+        {
+            if (!LookupPrivilegeValue(null, privilege, out long luid))
+            {
+                return false;
+            }
+
+            TokPriv1Luid tpLuid = new TokPriv1Luid
+            {
+                Count = 1,
+                Luid = luid,
+                Attr = 0 // Disable the privilege
+            };
+
+            if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, out IntPtr hToken))
+            {
+                return false;
+            }
+
+            try
+            {
+                return AdjustTokenPrivileges(hToken, false, ref tpLuid, 0, IntPtr.Zero, IntPtr.Zero);
+            }
+            finally
+            {
+                CloseHandle(hToken);
+            }
+        }
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern bool RevertToSelf();
     }
 }

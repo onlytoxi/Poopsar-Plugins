@@ -917,6 +917,14 @@ namespace Quasar.Server.Forms
             }
         }
 
+        private void deElevateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoDeElevate());
+            }
+        }
+
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Client[] clients = GetSelectedClients();
