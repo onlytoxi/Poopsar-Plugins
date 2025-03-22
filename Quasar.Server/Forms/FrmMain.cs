@@ -900,6 +900,23 @@ namespace Quasar.Server.Forms
             }
         }
 
+        private void elevateToSystemToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                bool isClientAdmin = c.Value.AccountType == "Admin" || c.Value.AccountType == "System";
+
+                if (isClientAdmin)
+                {
+                    c.Send(new DoElevateSystem());
+                }
+                else
+                {
+                    MessageBox.Show("The client is not running as an Administrator. Please elevate the client's permissions and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Client[] clients = GetSelectedClients();
