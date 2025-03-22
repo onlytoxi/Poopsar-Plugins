@@ -80,11 +80,11 @@ namespace Quasar.Server.Forms
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.elevateClientPermissionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.elevateToSystemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deElevateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uninstallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deElevateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lineToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imgFlags = new System.Windows.Forms.ImageList(this.components);
@@ -212,7 +212,7 @@ namespace Quasar.Server.Forms
             this.lineToolStripMenuItem,
             this.selectAllToolStripMenuItem});
             this.contextMenuStrip.Name = "ctxtMenu";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 186);
+            this.contextMenuStrip.Size = new System.Drawing.Size(180, 164);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
             // systemToolStripMenuItem
@@ -231,7 +231,7 @@ namespace Quasar.Server.Forms
             this.actionsToolStripMenuItem});
             this.systemToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.cog;
             this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
-            this.systemToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.systemToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.systemToolStripMenuItem.Text = "Administration";
             this.systemToolStripMenuItem.Click += new System.EventHandler(this.systemToolStripMenuItem_Click);
             // 
@@ -376,7 +376,7 @@ namespace Quasar.Server.Forms
             this.kematianGrabbingToolStripMenuItem});
             this.surveillanceToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.monitoring;
             this.surveillanceToolStripMenuItem.Name = "surveillanceToolStripMenuItem";
-            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.surveillanceToolStripMenuItem.Text = "Monitoring";
             // 
             // passwordRecoveryToolStripMenuItem
@@ -434,7 +434,7 @@ namespace Quasar.Server.Forms
             this.visitWebsiteToolStripMenuItem});
             this.userSupportToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.user;
             this.userSupportToolStripMenuItem.Name = "userSupportToolStripMenuItem";
-            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.userSupportToolStripMenuItem.Text = "User Support";
             // 
             // showMessageboxToolStripMenuItem
@@ -459,7 +459,7 @@ namespace Quasar.Server.Forms
             this.addCDriveExceptionToolStripMenuItem});
             this.quickCommandsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.application_osx_terminal;
             this.quickCommandsToolStripMenuItem.Name = "quickCommandsToolStripMenuItem";
-            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.quickCommandsToolStripMenuItem.Text = "Quick Commands";
             // 
             // addCDriveExceptionToolStripMenuItem
@@ -478,7 +478,7 @@ namespace Quasar.Server.Forms
             this.hideTaskBarToolStripMenuItem});
             this.funMethodsToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.emoticon_evilgrin;
             this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
-            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
             // 
             // bSODToolStripMenuItem
@@ -517,7 +517,7 @@ namespace Quasar.Server.Forms
             this.uninstallToolStripMenuItem});
             this.connectionToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("connectionToolStripMenuItem.Image")));
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.connectionToolStripMenuItem.Text = "Client Management";
             // 
             // elevateClientPermissionsToolStripMenuItem
@@ -535,6 +535,14 @@ namespace Quasar.Server.Forms
             this.elevateToSystemToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.elevateToSystemToolStripMenuItem.Text = "Elevate To System";
             this.elevateToSystemToolStripMenuItem.Click += new System.EventHandler(this.elevateToSystemToolStripMenuItem_Click);
+            // 
+            // deElevateToolStripMenuItem
+            // 
+            this.deElevateToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.uac_shield;
+            this.deElevateToolStripMenuItem.Name = "deElevateToolStripMenuItem";
+            this.deElevateToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.deElevateToolStripMenuItem.Text = "DeElevate From System";
+            this.deElevateToolStripMenuItem.Click += new System.EventHandler(this.deElevateToolStripMenuItem_Click);
             // 
             // updateToolStripMenuItem
             // 
@@ -568,23 +576,15 @@ namespace Quasar.Server.Forms
             this.uninstallToolStripMenuItem.Text = "Uninstall";
             this.uninstallToolStripMenuItem.Click += new System.EventHandler(this.uninstallToolStripMenuItem_Click);
             // 
-            // deElevateToolStripMenuItem
-            // 
-            this.deElevateToolStripMenuItem.Image = global::Quasar.Server.Properties.Resources.uac_shield;
-            this.deElevateToolStripMenuItem.Name = "deElevateToolStripMenuItem";
-            this.deElevateToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.deElevateToolStripMenuItem.Text = "DeElevate From System";
-            this.deElevateToolStripMenuItem.Click += new System.EventHandler(this.deElevateToolStripMenuItem_Click);
-            // 
             // lineToolStripMenuItem
             // 
             this.lineToolStripMenuItem.Name = "lineToolStripMenuItem";
-            this.lineToolStripMenuItem.Size = new System.Drawing.Size(177, 6);
+            this.lineToolStripMenuItem.Size = new System.Drawing.Size(176, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
