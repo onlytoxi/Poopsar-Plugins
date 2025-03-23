@@ -768,8 +768,8 @@ namespace Quasar.Server.Forms
                         AddStarButton(lvi, client);
                         SortClientsByFavoriteStatus();
                     }
-                    lvi.UseItemStyleForSubItems = false;
-                    lvi.SubItems[4].ForeColor = Color.Green; // Set "Connected" text color to green
+                    //lvi.UseItemStyleForSubItems = false;
+                    //lvi.SubItems[4].ForeColor = Color.Green;
                 });
                 EventLog(client.Value.UserAtPc + " Has connected.", "normal");
                 UpdateWindowTitle();
