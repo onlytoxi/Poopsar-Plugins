@@ -55,6 +55,8 @@ namespace Quasar.Server.Forms
             DarkModeManager.ApplyDarkMode(this);
             _discordRpc = new DiscordRPC.DiscordRPC(this);  // Initialize Discord RPC
             _discordRpc.Enabled = Settings.DiscordRPC;     // Sync with settings on startup
+
+            tableLayoutPanel1.VisibleChanged += TableLayoutPanel1_VisibleChanged;
         }
 
         private void OnAddressReceived(object sender, Client client, string addressType)
@@ -96,9 +98,9 @@ namespace Quasar.Server.Forms
                 {
                     int selected = lstClients.SelectedItems.Count;
                     this.Text = (selected > 0)
-                        ? string.Format("Quasar - Modded by KDot227 - Connected: {0} [Selected: {1}]", ListenServer.ConnectedClients.Length,
+                        ? string.Format("Quasar Continued - Connected: {0} [Selected: {1}]", ListenServer.ConnectedClients.Length,
                             selected)
-                        : string.Format("Quasar - Modded by KDot227 - Connected: {0}", ListenServer.ConnectedClients.Length);
+                        : string.Format("Quasar Continued - Connected: {0}", ListenServer.ConnectedClients.Length);
                 });
             }
             catch (Exception)
@@ -311,6 +313,25 @@ namespace Quasar.Server.Forms
             catch (Exception ex)
             {
                 MessageBox.Show($"Error in LogMessage: {ex.Message}");
+            }
+        }
+
+        private void TableLayoutPanel1_VisibleChanged(object sender, EventArgs e)
+        {
+            AdjustClientListViewSize();
+        }
+
+        private void AdjustClientListViewSize()
+        {
+            if (tableLayoutPanel1.Visible)
+            {
+                // Adjust the size of lstClients when tableLayoutPanel1 is visible
+                lstClients.Width = this.ClientSize.Width - tableLayoutPanel1.Width;
+            }
+            else
+            {
+                // Adjust the size of lstClients when tableLayoutPanel1 is hidden
+                lstClients.Width = this.ClientSize.Width;
             }
         }
 
@@ -611,9 +632,9 @@ namespace Quasar.Server.Forms
                 }
             }
 
-            string strAS = "UXVhc2FyIC0gTW9kZGVkIGJ5IEtEb3QyMjc=";
+            string strAS = "UXVhc2FyIENvbnRpbnVlZA==";
 
-            if (!(this.Text.Contains(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(strAS)))))
+            if (!(this.Text.StartsWith(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(strAS)))))
             {
                 Environment.Exit(1337);
             }

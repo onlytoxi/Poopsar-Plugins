@@ -140,7 +140,7 @@
             this.MinimizeBox = false;
             this.Name = "FrmCertificate";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Quasar - Modded by KDot227 - Certificate Wizard";
+            this.Text = "Quasar Continued - Certificate Wizard";
             this.ResumeLayout(false);
             this.PerformLayout();
 

