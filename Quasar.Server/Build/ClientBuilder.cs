@@ -37,17 +37,13 @@ namespace Quasar.Server.Build
                 WriteSettings(asmDef);
 
                 // PHASE 2 - Obfuscation
-                
-                MemoryStream stream = new MemoryStream();
-                asmDef.Write(stream);
-                byte[] data = new byte[stream.Length];
-                stream.Position = 0;
-                stream.Read(data, 0, (int)stream.Length);
-                stream.Close();
 
-                Obfuscator.Core.Obfuscator obfuscator = new Obfuscator.Core.Obfuscator(data);
-                obfuscator.Obfuscate();
-                obfuscator.Save(_options.OutputPath);
+                Renamer r = new Renamer(asmDef);
+
+                if (!r.Perform())
+                    throw new Exception("renaming failed");
+
+                r.AsmDef.Write(_options.OutputPath);
             }
 
             // PHASE 4 - Assembly Information changing

