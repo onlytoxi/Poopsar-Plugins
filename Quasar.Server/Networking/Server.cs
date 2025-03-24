@@ -4,6 +4,7 @@ using Quasar.Common.Messages.other;
 using Quasar.Server.Forms;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
@@ -260,11 +261,18 @@ namespace Quasar.Server.Networking
             if (!_handle.AcceptAsync(_item))
                 AcceptClient(this, _item);
 
+
             FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
             if (mainForm != null)
             {
-                mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
-                mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Quasar.Server.Properties.Resources.bullet_green;
+                try
+                {
+                    mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
+                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Quasar.Server.Properties.Resources.bullet_green;
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
@@ -425,10 +433,16 @@ namespace Quasar.Server.Networking
             ProcessingDisconnect = false;
             OnServerState(false);
             FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
-            if (mainForm != null)
+            if (mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
             {
-                mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Quasar.Server.Properties.Resources.bullet_red;
+                try
+                {
+                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Quasar.Server.Properties.Resources.bullet_red;
+                } catch (System.ComponentModel.Win32Exception)
+                {
+                }
             }
         }
     }
 }
+
