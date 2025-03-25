@@ -19,7 +19,10 @@ namespace Quasar.Server.Forms
         {
             if (disposing && (components != null))
             {
-                components.Dispose();
+                if (this.IsHandleCreated)
+                {
+                    components.Dispose();
+                }
             }
             base.Dispose(disposing);
         }

