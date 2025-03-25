@@ -54,11 +54,25 @@ namespace Quasar.Server.Forms
             portSetDelayTimer.Tick += PortSetDelayTimer_Tick;
         }
 
+        private bool IsValidHostPortFormat(string text)
+        {
+            string[] protocolPrefixes = { "http://", "https://", "ftp://", "sftp://" };
+            if (protocolPrefixes.Any(p => text.Trim().StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            string[] parts = text.Split(':');
+            return parts.Length == 2 &&
+                   !string.IsNullOrWhiteSpace(parts[0]) &&
+                   ushort.TryParse(parts[1].Trim(), out _);
+        }
+
         private void PortSetDelayTimer_Tick(object sender, EventArgs e)
         {
             portSetDelayTimer.Stop();
 
-            if (pendingHostText != null && pendingHostText.Contains(":"))
+            if (pendingHostText != null && IsValidHostPortFormat(pendingHostText))
             {
                 string[] parts = pendingHostText.Split(':');
                 if (parts.Length == 2)
@@ -83,7 +97,7 @@ namespace Quasar.Server.Forms
                         }
                         catch (ArgumentOutOfRangeException)
                         {
-
+                            // Silently handle out of range port
                         }
                     }
 
@@ -122,21 +136,25 @@ namespace Quasar.Server.Forms
 
                 if (clipboardText.Contains(":"))
                 {
-                    e.SuppressKeyPress = true;
-                    e.Handled = true;
-
-                    string[] parts = clipboardText.Split(':');
-                    if (parts.Length == 2 && ushort.TryParse(parts[1], out ushort port))
+                    // Check if the clipboard text is a valid host:port format
+                    if (IsValidHostPortFormat(clipboardText))
                     {
-                        txtHost.Text = parts[0];
-                        numericUpDownPort.Value = port;
+                        e.SuppressKeyPress = true;
+                        e.Handled = true;
 
-                        lblPortNotification.Visible = true;
-                        if (portNotificationTimer.Enabled)
+                        string[] parts = clipboardText.Split(':');
+                        if (ushort.TryParse(parts[1], out ushort port))
                         {
-                            portNotificationTimer.Stop();
+                            txtHost.Text = parts[0];
+                            numericUpDownPort.Value = port;
+
+                            lblPortNotification.Visible = true;
+                            if (portNotificationTimer.Enabled)
+                            {
+                                portNotificationTimer.Stop();
+                            }
+                            portNotificationTimer.Start();
                         }
-                        portNotificationTimer.Start();
                     }
                 }
             }

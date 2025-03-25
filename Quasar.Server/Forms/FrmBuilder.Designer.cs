@@ -485,6 +485,7 @@ namespace Quasar.Server.Forms
             // 
             this.lstHosts.ContextMenuStrip = this.contextMenuStrip;
             this.lstHosts.FormattingEnabled = true;
+            this.lstHosts.HorizontalScrollbar = true;
             this.lstHosts.Location = new System.Drawing.Point(20, 21);
             this.lstHosts.Name = "lstHosts";
             this.lstHosts.Size = new System.Drawing.Size(149, 121);
