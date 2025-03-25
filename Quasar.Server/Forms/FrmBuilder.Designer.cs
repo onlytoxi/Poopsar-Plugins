@@ -18,6 +18,18 @@ namespace Quasar.Server.Forms
             if (disposing && (components != null))
             {
                 components.Dispose();
+
+                if (portNotificationTimer != null)
+                {
+                    portNotificationTimer.Stop();
+                    portNotificationTimer.Dispose();
+                }
+
+                if (portSetDelayTimer != null)
+                {
+                    portSetDelayTimer.Stop();
+                    portSetDelayTimer.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
