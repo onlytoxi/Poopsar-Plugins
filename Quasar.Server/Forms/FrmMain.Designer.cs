@@ -24,7 +24,13 @@ namespace Quasar.Server.Forms
                     components.Dispose();
                 }
             }
-            base.Dispose(disposing);
+            try
+            {
+                base.Dispose(disposing);
+            } catch
+            {
+            }
+            
         }
 
         #region Vom Windows Form-Designer generierter Code

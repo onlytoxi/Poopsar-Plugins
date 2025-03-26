@@ -103,6 +103,7 @@ namespace Quasar.Client.Helper
                     if (key != null)
                     {
                         var browserProgId = key.GetValue("ProgId")?.ToString();
+                        browserProgId = browserProgId.Replace("HTM", "");
                         return browserProgId ?? "-";
                     }
                 }
