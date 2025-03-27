@@ -833,27 +833,51 @@ namespace Quasar.Server.Forms
 
         private string GetClientNickname(Client client)
         {
+            if (client?.Value?.DownloadDirectory == null)
+                return string.Empty;
+
             string jsonFilePath = Path.Combine(client.Value.DownloadDirectory, "client_info.json");
 
             try
             {
                 ClientInfo clientInfo = LoadClientInfo(jsonFilePath);
-                return clientInfo.Nickname;
+                return clientInfo?.Nickname ?? string.Empty;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error loading client nickname: {ex.Message}");
                 return string.Empty;
             }
         }
 
         private ClientInfo LoadClientInfo(string filePath)
         {
-            if (!File.Exists(filePath))
-                return null; 
+            try
+            {
+                if (!File.Exists(filePath))
+                    return null;
 
-            string json = File.ReadAllText(filePath);
-            return JsonConvert.DeserializeObject<ClientInfo>(json);
+                string json = File.ReadAllText(filePath);
+
+                if (string.IsNullOrWhiteSpace(json))
+                    return null;
+
+                ClientInfo clientInfo = JsonConvert.DeserializeObject<ClientInfo>(json);
+
+                return clientInfo ?? null;
+            }
+            catch (Newtonsoft.Json.JsonException ex)
+            {
+                Console.WriteLine($"JSON parsing error: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading client info: {ex.Message}");
+                return null;
+            }
         }
+
 
         private void RemoveClientFromListview(Client client)
         {
