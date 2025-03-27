@@ -845,7 +845,7 @@ namespace Quasar.Server.Forms
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading client nickname: {ex.Message}");
+                Debug.WriteLine($"Error loading client nickname: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -868,12 +868,12 @@ namespace Quasar.Server.Forms
             }
             catch (Newtonsoft.Json.JsonException ex)
             {
-                Console.WriteLine($"JSON parsing error: {ex.Message}");
+                Debug.WriteLine($"JSON parsing error: {ex.Message}");
                 return null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error reading client info: {ex.Message}");
+                Debug.WriteLine($"Error reading client info: {ex.Message}");
                 return null;
             }
         }
