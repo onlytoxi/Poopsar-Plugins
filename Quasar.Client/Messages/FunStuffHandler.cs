@@ -7,7 +7,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Quasar.Client.Messages
 {
@@ -78,7 +77,7 @@ namespace Quasar.Client.Messages
             try
             {
                 string imagePath = SaveImageToFile(message.ImageData, message.ImageFormat);
-                Quasar.Client.FunStuff.ChangeWallpaper.SetWallpaper(imagePath);
+                ChangeWallpaper.SetWallpaper(imagePath);
                 client.Send(new SetStatus { Message = "Successfull Wallpaper Change" });
             }
             catch

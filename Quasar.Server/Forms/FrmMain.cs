@@ -46,6 +46,7 @@ namespace Quasar.Server.Forms
         private bool _processingClientConnections;
         private readonly ClientStatusHandler _clientStatusHandler;
         private readonly GetCryptoAddressHandler _getCryptoAddressHander;
+        private readonly ClientDebugLog _clientDebugLogHandler;
         private readonly Queue<KeyValuePair<Client, bool>> _clientConnections = new Queue<KeyValuePair<Client, bool>>();
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object();
@@ -55,6 +56,7 @@ namespace Quasar.Server.Forms
         {
             _clientStatusHandler = new ClientStatusHandler();
             _getCryptoAddressHander = new GetCryptoAddressHandler();
+            _clientDebugLogHandler = new ClientDebugLog();
             RegisterMessageHandler();
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
@@ -73,8 +75,19 @@ namespace Quasar.Server.Forms
             }
         }
 
+        private void OnLogReceived(object sender, Client client, string log)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => OnLogReceived(sender, client, log)));
+                return;
+            }
+        }
+
         private void RegisterMessageHandler()
         {
+            MessageHandler.Register(_clientDebugLogHandler);
+            _clientDebugLogHandler.DebugLogReceived += OnLogReceived;
             MessageHandler.Register(_clientStatusHandler);
             _clientStatusHandler.StatusUpdated += SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated += SetUserStatusByClient;
@@ -85,6 +98,8 @@ namespace Quasar.Server.Forms
 
         private void UnregisterMessageHandler()
         {
+            MessageHandler.Unregister(_clientDebugLogHandler);
+            _clientDebugLogHandler.DebugLogReceived -= OnLogReceived;
             MessageHandler.Unregister(_clientStatusHandler);
             _clientStatusHandler.StatusUpdated -= SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated -= SetUserStatusByClient;
@@ -1895,16 +1910,5 @@ namespace Quasar.Server.Forms
                 frmAudio.Focus();
             }
         }
-
-        private void elevateClientPermissionsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void elevateToSystemToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
-
 }
