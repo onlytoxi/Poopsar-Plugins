@@ -1895,6 +1895,16 @@ namespace Quasar.Server.Forms
                 frmAudio.Focus();
             }
         }
+
+        private void elevateClientPermissionsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void elevateToSystemToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
 }
