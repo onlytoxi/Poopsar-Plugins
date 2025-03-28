@@ -38,9 +38,9 @@ namespace Quasar.Server.Forms
         public QuasarServer ListenServer { get; set; }
         private DiscordRPC.DiscordRPC _discordRpc;  // Added Discord RPC
 
-        private const int STATUS_ID = 4;
-        private const int CURRENTWINDOW_ID = 5;
-        private const int USERSTATUS_ID = 6;
+        private const int STATUS_ID = 5;
+        private const int CURRENTWINDOW_ID = 6;
+        private const int USERSTATUS_ID = 7;
 
         private bool _titleUpdateRunning;
         private bool _processingClientConnections;
