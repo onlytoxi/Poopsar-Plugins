@@ -1,5 +1,6 @@
 ﻿using Quasar.Common.Enums;
 using Quasar.Common.Messages;
+using Quasar.Common.Messages.Administration.TaskManager;
 using Quasar.Common.Models;
 using Quasar.Server.Controls;
 using Quasar.Server.Forms.DarkMode;
@@ -28,6 +29,8 @@ namespace Quasar.Server.Forms
         /// Holds the opened task manager form for each client.
         /// </summary>
         private static readonly Dictionary<Client, FrmTaskManager> OpenedForms = new Dictionary<Client, FrmTaskManager>();
+
+        private List<FrmMemoryDump> _memoryDumps = new List<FrmMemoryDump>();
 
         /// <summary>
         /// Creates a new task manager form for the client or gets the current open form, if there exists one already.
@@ -71,6 +74,7 @@ namespace Quasar.Server.Forms
             _connectClient.ClientState += ClientDisconnected;
             _taskManagerHandler.ProgressChanged += TasksChanged;
             _taskManagerHandler.ProcessActionPerformed += ProcessActionPerformed;
+            _taskManagerHandler.OnResponseReceived += CreateMemoryDump;
             MessageHandler.Register(_taskManagerHandler);
         }
 
@@ -80,6 +84,7 @@ namespace Quasar.Server.Forms
         private void UnregisterMessageHandler()
         {
             MessageHandler.Unregister(_taskManagerHandler);
+            _taskManagerHandler.OnResponseReceived -= CreateMemoryDump;
             _taskManagerHandler.ProcessActionPerformed -= ProcessActionPerformed;
             _taskManagerHandler.ProgressChanged -= TasksChanged;
             _connectClient.ClientState -= ClientDisconnected;
@@ -164,6 +169,24 @@ namespace Quasar.Server.Forms
         private void lstTasks_ColumnClick(object sender, ColumnClickEventArgs e)
         {
             lstTasks.LvwColumnSorter.NeedNumberCompare = (e.Column == 1);
+        }
+
+        private void dumpMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem lvi in lstTasks.SelectedItems)
+            {
+                _taskManagerHandler.DumpProcess(int.Parse(lvi.SubItems[1].Text));
+            }
+        }
+
+        public void CreateMemoryDump(object sender, DoProcessDumpResponse response)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                FrmMemoryDump dumpFrm = FrmMemoryDump.CreateNewOrGetExisting(_connectClient, response);
+                _memoryDumps.Add(dumpFrm);
+                dumpFrm.Show();
+            });
         }
     }
 }

