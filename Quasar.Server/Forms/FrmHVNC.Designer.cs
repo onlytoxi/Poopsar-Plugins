@@ -48,6 +48,7 @@ namespace Quasar.Server.Forms
             this.startOperaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startFirefoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startCmdToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startPowershellToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sizeLabelCounter = new System.Windows.Forms.Label();
             this.btnKeyboard = new System.Windows.Forms.Button();
             this.cbMonitors = new System.Windows.Forms.ComboBox();
@@ -55,7 +56,7 @@ namespace Quasar.Server.Forms
             this.btnShow = new System.Windows.Forms.Button();
             this.toolTipButtons = new System.Windows.Forms.ToolTip(this.components);
             this.picDesktop = new Quasar.Server.Controls.HVNCRapidPictureBox();
-            this.startPowershellToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startCustomPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).BeginInit();
             this.panelTop.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
@@ -173,10 +174,11 @@ namespace Quasar.Server.Forms
             this.startOperaToolStripMenuItem,
             this.startFirefoxToolStripMenuItem,
             this.startCmdToolStripMenuItem,
-            this.startPowershellToolStripMenuItem});
+            this.startPowershellToolStripMenuItem,
+            this.startCustomPathToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
             this.contextMenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 202);
+            this.contextMenuStrip.Size = new System.Drawing.Size(181, 224);
             // 
             // menuItem1
             // 
@@ -234,6 +236,14 @@ namespace Quasar.Server.Forms
             this.startCmdToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.startCmdToolStripMenuItem.Text = "Start Cmd";
             this.startCmdToolStripMenuItem.Click += new System.EventHandler(this.startCmdToolStripMenuItem_Click);
+            // 
+            // startPowershellToolStripMenuItem
+            // 
+            this.startPowershellToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.startPowershellToolStripMenuItem.Name = "startPowershellToolStripMenuItem";
+            this.startPowershellToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.startPowershellToolStripMenuItem.Text = "Start Powershell";
+            this.startPowershellToolStripMenuItem.Click += new System.EventHandler(this.startPowershellToolStripMenuItem_Click);
             // 
             // sizeLabelCounter
             // 
@@ -308,13 +318,13 @@ namespace Quasar.Server.Forms
             this.picDesktop.TabIndex = 0;
             this.picDesktop.TabStop = false;
             // 
-            // startPowershellToolStripMenuItem
+            // startCustomPathToolStripMenuItem
             // 
-            this.startPowershellToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.startPowershellToolStripMenuItem.Name = "startPowershellToolStripMenuItem";
-            this.startPowershellToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.startPowershellToolStripMenuItem.Text = "Start Powershell";
-            this.startPowershellToolStripMenuItem.Click += new System.EventHandler(this.startPowershellToolStripMenuItem_Click);
+            this.startCustomPathToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.startCustomPathToolStripMenuItem.Name = "startCustomPathToolStripMenuItem";
+            this.startCustomPathToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.startCustomPathToolStripMenuItem.Text = "Start Custom Path";
+            this.startCustomPathToolStripMenuItem.Click += new System.EventHandler(this.startCustomPathToolStripMenuItem_Click);
             // 
             // FrmHVNC
             // 
@@ -369,5 +379,6 @@ namespace Quasar.Server.Forms
         private System.Windows.Forms.ToolStripMenuItem startFirefoxToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startCmdToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startPowershellToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem startCustomPathToolStripMenuItem;
     }
 }

