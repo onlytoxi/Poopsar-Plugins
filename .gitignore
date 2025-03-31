@@ -204,5 +204,5 @@ FakesAssemblies/
 *.opt
 
 #so I don't leak everything
-/Quasar.Client/Config/Settings.cs
-/Quasar.Client/Config/Settings.cs
+/Pulsar.Client/Config/Settings.cs
+/Pulsar.Client/Config/Settings.cs

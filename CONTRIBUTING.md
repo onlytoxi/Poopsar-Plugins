@@ -8,7 +8,7 @@
 
 ## Guidelines for pull requests:
 
-1. Respect the coding style of Quasar.
+1. Respect the coding style of Pulsar.
 2. Create a new branch for each PR.
 3. Single feature or bug-fix per PR.
 4. Make single commit per PR.

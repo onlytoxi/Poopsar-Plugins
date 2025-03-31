@@ -4,7 +4,7 @@ labels: ["bug"]
 body:
   - type: input
     attributes:
-      label: Quasar version
+      label: Pulsar version
       placeholder: 1.4.0 or commit-id
     validations:
       required: true

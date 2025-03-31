@@ -9,14 +9,14 @@ goto :eof
 #>
 
 function main {
-# Quasar-Modded Installer
-$installDir = "$env:APPDATA\Quasar-Modded"
-$quasarPath = "$installDir\Quasar.exe"
+# Pulsar Installer
+$installDir = "$env:APPDATA\Pulsar"
+$pulsarPath = "$installDir\Pulsar.exe"
 $clientPath = "$installDir\client.bin"
-$shortcutPath = "$env:USERPROFILE\Desktop\Quasar-Modded.lnk"
+$shortcutPath = "$env:USERPROFILE\Desktop\Pulsar.lnk"
 
-$server = "https://github.com/Quasar-Continuation/Quasar-Modded/releases/download/AutoBuild/DONT_DOWNLOAD_SERVER.exe"
-$client = "https://github.com/Quasar-Continuation/Quasar-Modded/releases/download/AutoBuild/DONT_DOWNLOAD_CLIENT.bin"
+$server = "https://github.com/Quasar-Continuation/Pulsar/releases/download/AutoBuild/DONT_DOWNLOAD_SERVER.exe"
+$client = "https://github.com/Quasar-Continuation/Pulsar/releases/download/AutoBuild/DONT_DOWNLOAD_CLIENT.bin"
 
 function Print-Center($text, $addEquals = $true) {
     $toAdd = if ($addEquals) { "=" } else { " " }
@@ -30,7 +30,7 @@ function Print-Center($text, $addEquals = $true) {
 }
 
 Print-Center "="
-Print-Center "Quasar-Modded Installer" $false
+Print-Center "Pulsar Installer" $false
 Print-Center "="
 
 function Get-FileSize($url) {
@@ -92,38 +92,38 @@ if (!(Test-Path $installDir)) {
 Set-Location $installDir
 
 # Terminate running instance if exists
-Terminate-Process "Quasar"
+Terminate-Process "Pulsar"
 
 # Get file sizes from server
-$quasarBytes = Get-FileSize $server
+$pulsarBytes = Get-FileSize $server
 $clientBytes = Get-FileSize $client
 
-if ($quasarBytes -and $clientBytes) {
-    Write-Host "Quasar Size: $quasarBytes bytes"
+if ($pulsarBytes -and $clientBytes) {
+    Write-Host "Pulsar Size: $pulsarBytes bytes"
     Write-Host "Client Size: $clientBytes bytes"
     
-    # Check if Quasar needs update
-    $updateQuasar = $false
-    if (!(Test-Path $quasarPath) -or ((Get-Item $quasarPath).Length -ne $quasarBytes)) {
-        $updateQuasar = $true
-        if (Test-Path $quasarPath) {
-            $localSize = (Get-Item $quasarPath).Length
-            $diff = $quasarBytes - $localSize
+    # Check if Pulsar needs update
+    $updatePulsar = $false
+    if (!(Test-Path $pulsarPath) -or ((Get-Item $pulsarPath).Length -ne $pulsarBytes)) {
+        $updatePulsar = $true
+        if (Test-Path $pulsarPath) {
+            $localSize = (Get-Item $pulsarPath).Length
+            $diff = $pulsarBytes - $localSize
             $diffText = if ($diff -gt 0) { "+$diff bytes" } else { "$diff bytes" }
             
-            Write-Host "Local Quasar.exe size: $localSize bytes"
-            Write-Host "Server Quasar.exe size: $quasarBytes bytes"
-            Write-Host "Updating Quasar ($diffText)"
+            Write-Host "Local Pulsar.exe size: $localSize bytes"
+            Write-Host "Server Pulsar.exe size: $pulsarBytes bytes"
+            Write-Host "Updating Pulsar ($diffText)"
         } else {
-            Write-Host "Installing Quasar.exe"
+            Write-Host "Installing Pulsar.exe"
         }
         
-        if (!(Download-File $server $quasarPath $quasarBytes)) {
-            Write-Host "Failed to download Quasar.exe" -ForegroundColor Red
+        if (!(Download-File $server $pulsarPath $pulsarBytes)) {
+            Write-Host "Failed to download Pulsar.exe" -ForegroundColor Red
             exit 1
         }
     } else {
-        Write-Host "Quasar.exe is up to date" -ForegroundColor Green
+        Write-Host "Pulsar.exe is up to date" -ForegroundColor Green
     }
 
     # Check if client needs update
@@ -147,12 +147,12 @@ if ($quasarBytes -and $clientBytes) {
         Write-Host "client.bin is up to date" -ForegroundColor Green
     }
 
-    # Start Quasar if installed successfully
-    if (Test-Path $quasarPath) {
+    # Start Pulsar if installed successfully
+    if (Test-Path $pulsarPath) {
         Write-Host "Installation complete!" -ForegroundColor Green
-        Start-Process $quasarPath
+        Start-Process $pulsarPath
     } else {
-        Write-Host "Quasar-Modded installation failed." -ForegroundColor Red
+        Write-Host "Pulsar installation failed." -ForegroundColor Red
     }
 } else {
     Write-Host "Failed to retrieve file sizes. Check your internet connection or the URLs." -ForegroundColor Red

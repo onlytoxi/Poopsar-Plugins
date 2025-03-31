@@ -1,14 +1,14 @@
-# Quasar
+# Pulsar
 
-[![Build Status](https://ci.appveyor.com/api/projects/status/5857hfy6r1ltb5f2?svg=true)](https://ci.appveyor.com/project/MaxXor/quasar)
-[![Downloads](https://img.shields.io/github/downloads/Quasar-Continuation/Quasar-Modded/total.svg)](https://github.com/Quasar-Continuation/Quasar-Modded/releases)
-[![License](https://img.shields.io/github/license/Quasar-Continuation/Quasar-Modded.svg)](LICENSE)
+[![Build Status](https://ci.appveyor.com/api/projects/status/5857hfy6r1ltb5f2?svg=true)](https://ci.appveyor.com/project/MaxXor/pulsar)
+[![Downloads](https://img.shields.io/github/downloads/Quasar-Continuation/Pulsar/total.svg)](https://github.com/Quasar-Continuation/Pulsar/releases)
+[![License](https://img.shields.io/github/license/Quasar-Continuation/Pulsar.svg)](LICENSE)
 
 **A Free, Open-Source Remote Administration Tool for Windows**
 
-Quasar is a lightweight, fast, and powerful remote administration tool written in C#. Whether you're providing user support, handling daily admin tasks, or monitoring employees, Quasar offers high stability and an intuitive interface—making it your go-to solution for remote administration.
+Pulsar is a lightweight, fast, and powerful remote administration tool written in C#. Whether you're providing user support, handling daily admin tasks, or monitoring employees, Pulsar offers high stability and an intuitive interface—making it your go-to solution for remote administration.
 
-🚀 **New to Quasar?** Then have fun figuring it out on your own 😎.
+🚀 **New to Pulsar?** Then have fun figuring it out on your own 😎.
 
 ---
 
@@ -46,8 +46,8 @@ Quasar is a lightweight, fast, and powerful remote administration tool written i
 
 ## 📥 Download
 
-- **[Latest Stable Release](https://github.com/Quasar-Continuation/Quasar-Modded/releases)**  
-<!-- - **[Latest Development Snapshot](https://ci.appveyor.com/project/MaxXor/quasar)** -->
+- **[Latest Stable Release](https://github.com/Quasar-Continuation/Pulsar/releases)**  
+<!-- - **[Latest Development Snapshot](https://ci.appveyor.com/project/MaxXor/pulsar)** -->
 
 ---
 
@@ -64,13 +64,13 @@ Quasar is a lightweight, fast, and powerful remote administration tool written i
   - Windows Server 2012  
   - Windows 7  
   - Windows Server 2008 R2  
-- **Legacy Systems:** Use [Quasar v1.3.0](https://github.com/Quasar-Continuation/Quasar-Modded/releases/tag/v1.3.0.0).
+- **Legacy Systems:** Use [Pulsar v1.3.0](https://github.com/Quasar-Continuation/Pulsar/releases/tag/v1.3.0.0).
 
 ---
 
 ## 🛠️ How to Compile
 
-1. Open `Quasar.sln` in **Visual Studio 2019+** with **.NET Desktop Development** installed.  
+1. Open `Pulsar.sln` in **Visual Studio 2019+** with **.NET Desktop Development** installed.  
 2. [Restore NuGet Packages](https://docs.microsoft.com/en-us/nuget/consume-packages/package-restore).  
 3. Build the project (`Build` > `F6`).  
 4. Find executables in the `Bin` directory.  
@@ -79,8 +79,8 @@ Quasar is a lightweight, fast, and powerful remote administration tool written i
 
 | **Configuration** | **Use Case**    | **Details**                                                                 |
 |-------------------|-----------------|-----------------------------------------------------------------------------|
-| **Debug**         | Testing         | Uses pre-defined [Settings.cs](/Quasar.Client/Config/Settings.cs). Edit before compiling. |
-| **Release**       | Production      | Run `Quasar.exe` and use the client builder for custom settings.           |
+| **Debug**         | Testing         | Uses pre-defined [Settings.cs](/Pulsar.Client/Config/Settings.cs). Edit before compiling. |
+| **Release**       | Production      | Run `Pulsar.exe` and use the client builder for custom settings.           |
 
 ---
 
@@ -98,13 +98,13 @@ Curious about the future? Check out [ROADMAP.md](ROADMAP.md).
 
 ## 📚 Documentation
 
-Explore the [Wiki](https://github.com/Quasar-Continuation/Quasar-Modded/wiki) for detailed usage instructions.
+Explore the [Wiki](https://github.com/Quasar-Continuation/Pulsar/wiki) for detailed usage instructions.
 
 ---
 
 ## 📜 License
 
-Quasar is licensed under the **[Apache 2.0 License](LICENSE)**.  
+Pulsar is licensed under the **[Apache 2.0 License](LICENSE)**.  
 Third-party licenses are available [here](Licenses).
 
 ---
@@ -123,4 +123,4 @@ Third-party licenses are available [here](Licenses).
 
 ## 🙏 Thank You!
 
-I really appreciate all kinds of feedback and contributions. Thanks for using and supporting Quasar!
+I really appreciate all kinds of feedback and contributions. Thanks for using and supporting Pulsar!

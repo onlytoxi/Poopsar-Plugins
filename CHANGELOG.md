@@ -1,6 +1,6 @@
-# Quasar Changelog
+# Pulsar Changelog
 
-## Quasar v1.4.1 [12.03.2023]
+## Pulsar v1.4.1 [12.03.2023]
 * Added missing WOW64 subsystem autostart locations
 * Fixed file transfers of files larger than 2 GB
 * Fixed file transfers of empty files
@@ -12,7 +12,7 @@
 * Fixed sorting of listview columns with numbers
 * Updated dependencies
 
-## Quasar v1.4.0 [05.06.2020]
+## Pulsar v1.4.0 [05.06.2020]
 * **Changed target framework to .NET Framework 4.5.2**
 * **Changed license to MIT**
 * Changed message serializer to Protobuf
@@ -24,10 +24,10 @@
 * Updated dependencies
 * Updated message processing in client and server
 * Updated mouse and keyboard input to SendInput API
-* Fixed file transfer vulnerbilities ([#623](https://github.com/quasar/Quasar/issues/623))
+* Fixed file transfer vulnerbilities ([#623](https://github.com/Pulsar/Pulsar/issues/623))
 * Lots of under the hood changes for an upcoming plugin system
 
-## Quasar v1.3.0.0 [28.09.2016]
+## Pulsar v1.3.0.0 [28.09.2016]
 * Added Registry Editor
 * Added Remote Webcam
 * Added Windows DPI scaling support
@@ -45,7 +45,7 @@
 * Fixed Client loses Administrator privileges on restart
 * Some minor improvements
 
-## Quasar v1.2.0.0 [12.10.2015]
+## Pulsar v1.2.0.0 [12.10.2015]
 * Added Client restart on unhandled exceptions
 * Added additional settings to Keylogger (set/hide log-directory)
 * Added encrypted Keylogger logs
@@ -59,7 +59,7 @@
 * Fixed Remote Desktop lagging with mouse input and maximized window
 * Some minor improvements
 
-## Quasar v1.1.0.0 [30.08.2015]
+## Pulsar v1.1.0.0 [30.08.2015]
 * **Changed Target Framework to .NET Framework 4.0 Client Profile**
 * Added deletion of ZoneIdentifier file when installing
 * Improved Client installation error handling
@@ -82,8 +82,8 @@
 * Fixed Client registry access
 * Removed Statistics window, will be remade in a later version
 
-## Quasar v1.0.0.0 [22.08.2015]
-* **xRAT is now Quasar**
+## Pulsar v1.0.0.0 [22.08.2015]
+* **xRAT is now Pulsar**
 * Added Password Recovery (Common Browsers and FTP Clients)
 * Added Server compatiblity with Mono (Server now runs on Linux with Mono installed)
   * Client Builder works also on Linux/Mono
