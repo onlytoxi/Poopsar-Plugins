@@ -119,7 +119,7 @@ Third-party licenses are available [here](Licenses).
 - **[Java](https://github.com/JavaRenamed-dev)** - Adding some features
 - **[Rishie](https://github.com/rishieissocool)** - Adding Stealer Options + More
 - **[Body](https://body.sh)** - Added obfuscation (very cool asw trust)
-
+- **[jungsuxx](https://github.com/jungsuxx)** - Fixed a ton of input within HVNC and simplified a lot of the code.
 - **[MOOM aka my lebron](https://github.com/moom825/)** - He didn't directly contribute (making a pr, etc) but his projects are fantastic and we wouldn't have HVNC or force read without him (he deserves all the glaze. He also sort of got me into Batch Obfuscation lol)
 ---
 
