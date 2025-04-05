@@ -23,7 +23,7 @@ namespace Pulsar.Client.User
             _ignoredExceptionTypes = new HashSet<Type>
                 {
                     typeof(CryptographicException),
-                    typeof(IOException),
+                    //typeof(IOException),
                     typeof(UnauthorizedAccessException)
                 };
 
