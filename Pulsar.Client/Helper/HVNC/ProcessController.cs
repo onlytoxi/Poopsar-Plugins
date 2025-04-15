@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Pulsar.Client.Helper.HVNC.Patches;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
