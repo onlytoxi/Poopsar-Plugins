@@ -40,6 +40,12 @@ Pulsar is a lightweight, fast, and powerful remote administration tool written i
 - ⌨️ **Keylogger** (Unicode Support)  
 - 🌉 **Reverse Proxy** (SOCKS5)  
 - 🔑 **Password Recovery** (Browsers & FTP Clients)  
+- 🔐 **Escalate / De-escalate Permissions**  
+- 🚫 **Block IPs**  
+- 📩 **Telegram Notifications**  
+- 🛡️ **Built-in Obfuscator & Packer**  
+- 🛑 **Anti-VM / Anti-Debug**  
+- 🖼️ **Screen Corrupter / Illuminati**  
 - **…and much more!**
 
 ---
@@ -64,7 +70,6 @@ Pulsar is a lightweight, fast, and powerful remote administration tool written i
   - Windows Server 2012  
   - Windows 7  
   - Windows Server 2008 R2  
-- **Legacy Systems:** Use [Pulsar v1.3.0](https://github.com/Quasar-Continuation/Pulsar/releases/tag/v1.3.0.0).
 
 ---
 
