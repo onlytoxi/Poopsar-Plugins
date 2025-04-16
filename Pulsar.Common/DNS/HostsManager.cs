@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
@@ -38,13 +39,11 @@ namespace Pulsar.Common.DNS
         {
             if (string.IsNullOrEmpty(host.Hostname)) return null;
 
-            IPAddress ip;
-            if (IPAddress.TryParse(host.Hostname, out ip))
+            if (IPAddress.TryParse(host.Hostname, out IPAddress ip))
             {
-                if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-                {
-                    if (!Socket.OSSupportsIPv6) return null;
-                }
+                if (ip.AddressFamily == AddressFamily.InterNetworkV6 && !Socket.OSSupportsIPv6)
+                    return null;
+
                 return ip;
             }
 
@@ -58,21 +57,19 @@ namespace Pulsar.Common.DNS
                         case AddressFamily.InterNetwork:
                             return ipAddress;
                         case AddressFamily.InterNetworkV6:
-                            // Only use resolved IPv6 if no IPv4 address available,
-                            // otherwise it could be possible that the router the client
-                            // is using to connect to the internet doesn't support IPv6.
                             if (ipAddresses.Length == 1)
                                 return ipAddress;
                             break;
                     }
                 }
             }
-            catch (SocketException)
+            catch (Exception)
             {
                 return null;
             }
 
-            return null; 
+            return null;
         }
+
     }
 }

