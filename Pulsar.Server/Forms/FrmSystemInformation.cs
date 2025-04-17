@@ -1,4 +1,5 @@
-﻿using Pulsar.Common.Messages;
+﻿using Pulsar.Common.Helpers;
+using Pulsar.Common.Messages;
 using Pulsar.Server.Extensions;
 using Pulsar.Server.Forms.DarkMode;
 using Pulsar.Server.Helper;
