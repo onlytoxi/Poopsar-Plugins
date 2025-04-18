@@ -3,6 +3,7 @@ using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.other;
 using Pulsar.Server.Forms;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -156,8 +157,9 @@ namespace Pulsar.Server.Networking
 
         /// <summary>
         /// The buffer pool to hold the receive-buffers for the clients.
+        /// Increased pool size for high concurrency.
         /// </summary>
-        private readonly BufferPool _bufferPool = new BufferPool(BufferSize, 1) { ClearOnReturn = false };
+        private readonly BufferPool _bufferPool = new BufferPool(BufferSize, Environment.ProcessorCount * 2) { ClearOnReturn = false };
 
         /// <summary>
         /// The listening state of the server. True if listening, else False.
@@ -167,16 +169,7 @@ namespace Pulsar.Server.Networking
         /// <summary>
         /// Gets the clients currently connected to the server.
         /// </summary>
-        protected Client[] Clients
-        {
-            get
-            {
-                lock (_clientsLock)
-                {
-                    return _clients.ToArray();
-                }
-            }
-        }
+        protected Client[] Clients => _clients.Values.ToArray();
 
         /// <summary>
         /// Handle of the Server Socket.
@@ -194,19 +187,14 @@ namespace Pulsar.Server.Networking
         private SocketAsyncEventArgs _item;
 
         /// <summary>
-        /// List of the clients connected to the server.
+        /// Clients currently connected to the server.
         /// </summary>
-        private readonly List<Client> _clients = new List<Client>();
+        private readonly ConcurrentDictionary<int, Client> _clients = new ConcurrentDictionary<int, Client>();
 
         /// <summary>
         /// The UPnP service used to discover, create and delete port mappings.
         /// </summary>
         private UPnPService _UPnPService;
-
-        /// <summary>
-        /// Lock object for the list of clients.
-        /// </summary>
-        private readonly object _clientsLock = new object();
 
         /// <summary>
         /// Determines if the server is currently processing Disconnect method. 
@@ -251,7 +239,8 @@ namespace Pulsar.Server.Networking
                 _handle = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _handle.Bind(new IPEndPoint(IPAddress.Any, port));
             }
-            _handle.Listen(1000);
+            // increase backlog for large numbers of incoming connections
+            _handle.Listen(10000);
 
             OnServerState(true);
 
@@ -265,14 +254,13 @@ namespace Pulsar.Server.Networking
             FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
             if (mainForm != null)
             {
-                try
+                // offload UI update to UI thread to avoid blocking accept loop
+                mainForm.BeginInvoke((Action)(() =>
                 {
-                    mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
-                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_green;
-                }
-                catch (Exception)
-                {
-                }
+                    mainForm.EventLog($"Started listening for connections on port: {port}", "info");
+                    if (mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+                        mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_green;
+                }));
             }
         }
 
@@ -294,11 +282,13 @@ namespace Pulsar.Server.Networking
                             try
                             {
                                 Socket clientSocket = e.AcceptSocket;
+                                // disable Nagle algorithm for low-latency communication
+                                clientSocket.NoDelay = true;
                                 clientSocket.SetKeepAliveEx(KeepAliveInterval, KeepAliveTime);
                                 sslStream = new SslStream(new NetworkStream(clientSocket, true), false);
                                 // the SslStream owns the socket and on disposing also disposes the NetworkStream and Socket
                                 sslStream.BeginAuthenticateAsServer(ServerCertificate, false, SslProtocols.Tls12, false, EndAuthenticateClient,
-                                    new PendingClient {Stream = sslStream, EndPoint = (IPEndPoint) clientSocket.RemoteEndPoint});
+                                    new PendingClient { Stream = sslStream, EndPoint = (IPEndPoint)clientSocket.RemoteEndPoint });
                             }
                             catch (Exception)
                             {
@@ -308,7 +298,7 @@ namespace Pulsar.Server.Networking
                         case SocketError.ConnectionReset:
                             break;
                         default:
-                            throw new SocketException((int) e.SocketError);
+                            throw new SocketException((int)e.SocketError);
                     }
 
                     e.AcceptSocket = null; // enable reuse
@@ -335,7 +325,7 @@ namespace Pulsar.Server.Networking
         /// <param name="ar">The status of the asynchronous operation.</param>
         private void EndAuthenticateClient(IAsyncResult ar)
         {
-            var con = (PendingClient) ar.AsyncState;
+            var con = (PendingClient)ar.AsyncState;
             try
             {
                 con.Stream.EndAuthenticateAsServer(ar);
@@ -357,12 +347,12 @@ namespace Pulsar.Server.Networking
         /// <param name="client">The client to add.</param>
         private void AddClient(Client client)
         {
-            lock (_clientsLock)
+            int key = client.EndPoint.GetHashCode();
+            if (_clients.TryAdd(key, client))
             {
                 client.ClientState += OnClientState;
                 client.ClientRead += OnClientRead;
                 client.ClientWrite += OnClientWrite;
-                _clients.Add(client);
             }
         }
 
@@ -374,13 +364,12 @@ namespace Pulsar.Server.Networking
         private void RemoveClient(Client client)
         {
             if (ProcessingDisconnect) return;
-
-            lock (_clientsLock)
+            int key = client.EndPoint.GetHashCode();
+            if (_clients.TryRemove(key, out _))
             {
                 client.ClientState -= OnClientState;
                 client.ClientRead -= OnClientRead;
                 client.ClientWrite -= OnClientWrite;
-                _clients.Remove(client);
             }
         }
 
@@ -411,22 +400,19 @@ namespace Pulsar.Server.Networking
                 _UPnPService = null;
             }
 
-            lock (_clientsLock)
+            foreach (var client in _clients.Values.ToArray())
             {
-                while (_clients.Count != 0)
+                try
                 {
-                    try
-                    {
-                        _clients[0].Disconnect();
-                        _clients[0].ClientState -= OnClientState;
-                        _clients[0].ClientRead -= OnClientRead;
-                        _clients[0].ClientWrite -= OnClientWrite;
-                        _clients.RemoveAt(0);
-                    }
-                    catch
-                    {
+                    client.Disconnect();
+                    client.ClientState -= OnClientState;
+                    client.ClientRead -= OnClientRead;
+                    client.ClientWrite -= OnClientWrite;
+                    _clients.TryRemove(client.EndPoint.GetHashCode(), out _);
+                }
+                catch
+                {
 
-                    }
                 }
             }
 
@@ -435,16 +421,13 @@ namespace Pulsar.Server.Networking
             FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
             if (mainForm != null)
             {
-                if (mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+                mainForm.BeginInvoke((Action)(() =>
                 {
-                    try
+                    if (mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
                     {
                         mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_red;
                     }
-                    catch (System.ComponentModel.Win32Exception)
-                    {
-                    }
-                }
+                }));
             }
         }
     }
