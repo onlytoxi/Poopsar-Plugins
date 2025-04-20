@@ -2,7 +2,6 @@
 using Pulsar.Common.Networking;
 using Pulsar.Server.Forms;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
@@ -164,22 +163,32 @@ namespace Pulsar.Server.Networking
         /// <summary>
         /// The queue which holds messages to send.
         /// </summary>
-        private readonly ConcurrentQueue<IMessage> _sendBuffers = new ConcurrentQueue<IMessage>();
+        private readonly Queue<IMessage> _sendBuffers = new Queue<IMessage>();
 
         /// <summary>
         /// Determines if the client is currently sending messages.
         /// </summary>
-        private int _sendingMessages;
+        private bool _sendingMessages;
+
+        /// <summary>
+        /// Lock object for the sending messages boolean.
+        /// </summary>
+        private readonly object _sendingMessagesLock = new object();
 
         /// <summary>
         /// The queue which holds buffers to read.
         /// </summary>
-        private readonly ConcurrentQueue<byte[]> _readBuffers = new ConcurrentQueue<byte[]>();
+        private readonly Queue<byte[]> _readBuffers = new Queue<byte[]>();
 
         /// <summary>
         /// Determines if the client is currently reading messages.
         /// </summary>
-        private int _readingMessages;
+        private bool _readingMessages;
+
+        /// <summary>
+        /// Lock object for the reading messages boolean.
+        /// </summary>
+        private readonly object _readingMessagesLock = new object();
 
         // receive info
         private int _readOffset;
@@ -261,14 +270,13 @@ namespace Pulsar.Server.Networking
         private void AsyncReceive(IAsyncResult result)
         {
             int bytesTransferred;
+
             try
             {
                 bytesTransferred = _stream.EndRead(result);
+
                 if (bytesTransferred <= 0)
-                {
-                    Disconnect();
-                    return;
-                }
+                    throw new Exception("no bytes transferred");
             }
             catch (NullReferenceException)
             {
@@ -296,11 +304,18 @@ namespace Pulsar.Server.Networking
                 return;
             }
 
-            _readBuffers.Enqueue(received);
-
-            if (Interlocked.Exchange(ref _readingMessages, 1) == 0)
+            lock (_readBuffers)
             {
-                ThreadPool.QueueUserWorkItem(AsyncReceive);
+                _readBuffers.Enqueue(received);
+            }
+
+            lock (_readingMessagesLock)
+            {
+                if (!_readingMessages)
+                {
+                    _readingMessages = true;
+                    ThreadPool.QueueUserWorkItem(AsyncReceive);
+                }
             }
 
             try
@@ -320,10 +335,19 @@ namespace Pulsar.Server.Networking
         {
             while (true)
             {
-                if (!_readBuffers.TryDequeue(out var readBuffer))
+                byte[] readBuffer;
+                lock (_readBuffers)
                 {
-                    Interlocked.Exchange(ref _readingMessages, 0);
-                    return;
+                    if (_readBuffers.Count == 0)
+                    {
+                        lock (_readingMessagesLock)
+                        {
+                            _readingMessages = false;
+                        }
+                        return;
+                    }
+
+                    readBuffer = _readBuffers.Dequeue();
                 }
 
                 _readableDataLen += readBuffer.Length;
@@ -453,10 +477,17 @@ namespace Pulsar.Server.Networking
         {
             if (!Connected || message == null) return;
 
-            _sendBuffers.Enqueue(message);
-            if (Interlocked.Exchange(ref _sendingMessages, 1) == 0)
+            lock (_sendBuffers)
             {
-                ThreadPool.QueueUserWorkItem(ProcessSendBuffers);
+                _sendBuffers.Enqueue(message);
+
+                lock (_sendingMessagesLock)
+                {
+                    if (_sendingMessages) return;
+
+                    _sendingMessages = true;
+                    ThreadPool.QueueUserWorkItem(ProcessSendBuffers);
+                }
             }
         }
 
@@ -509,10 +540,16 @@ namespace Pulsar.Server.Networking
                     return;
                 }
 
-                if (!_sendBuffers.TryDequeue(out var message))
+                IMessage message;
+                lock (_sendBuffers)
                 {
-                    SendCleanup();
-                    return;
+                    if (_sendBuffers.Count == 0)
+                    {
+                        SendCleanup();
+                        return;
+                    }
+
+                    message = _sendBuffers.Dequeue();
                 }
 
                 SafeSendMessage(message);
@@ -521,11 +558,17 @@ namespace Pulsar.Server.Networking
 
         private void SendCleanup(bool clear = false)
         {
-            Interlocked.Exchange(ref _sendingMessages, 0);
+            lock (_sendingMessagesLock)
+            {
+                _sendingMessages = false;
+            }
 
             if (!clear) return;
 
-            while (_sendBuffers.TryDequeue(out _)) { }
+            lock (_sendBuffers)
+            {
+                _sendBuffers.Clear();
+            }
         }
 
         /// <summary>
