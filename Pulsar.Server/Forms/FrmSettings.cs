@@ -28,6 +28,7 @@ namespace Pulsar.Server.Forms
             InitializeComponent();
 
             DarkModeManager.ApplyDarkMode(this);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
 
             ToggleListenerSettings(!listenServer.Listening);
 
@@ -307,6 +308,12 @@ namespace Pulsar.Server.Forms
         private void txtNoIPHost_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void hideFromScreenCapture_CheckedChanged(object sender, EventArgs e)
+        {
+            ScreenCaptureHider.ScreenCaptureHider.FormsHiddenFromScreenCapture = hideFromScreenCapture.Checked;
+            ScreenCaptureHider.ScreenCaptureHider.Refresh();
         }
     }
 }

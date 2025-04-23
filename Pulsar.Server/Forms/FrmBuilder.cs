@@ -31,6 +31,7 @@ namespace Pulsar.Server.Forms
         {
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
+			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
 
             txtHost.TextChanged += txtHost_TextChanged;
             txtHost.KeyDown += TxtHost_KeyDown;
