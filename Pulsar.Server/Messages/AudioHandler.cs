@@ -112,12 +112,37 @@ namespace Pulsar.Server.Messages
         {
             lock (_syncLock)
             {
-                IsStarted = true;
-                _provider = new BufferedWaveProvider(new WaveFormat());
-                _audioStream = new WaveOut();
-                _audioStream.Init(_provider);
-                _audioStream.Play();
-                _client.Send(new GetMicrophone { CreateNew = true, DeviceIndex = device, Bitrate = _bitrate });
+                try
+                {
+                    IsStarted = true;
+                    _provider = new BufferedWaveProvider(new WaveFormat());
+                    _audioStream = new WaveOut();
+                    _audioStream.Init(_provider);
+                    _audioStream.Play();
+                    _client.Send(new GetMicrophone { CreateNew = true, DeviceIndex = device, Bitrate = _bitrate });
+                }
+                catch (NAudio.MmException ex)
+                {
+                    // Handle the exception gracefully
+                    IsStarted = false;
+                    _provider = null;
+                    _audioStream = null;
+                    System.Windows.Forms.MessageBox.Show($"Error initializing audio device: {ex.Message}", 
+                        "Audio Error", 
+                        System.Windows.Forms.MessageBoxButtons.OK, 
+                        System.Windows.Forms.MessageBoxIcon.Error);
+                }
+                catch (Exception ex)
+                {
+                    // Handle any other unexpected exceptions
+                    IsStarted = false;
+                    _provider = null;
+                    _audioStream = null;
+                    System.Windows.Forms.MessageBox.Show($"An unexpected error occurred: {ex.Message}",
+                        "Audio Error",
+                        System.Windows.Forms.MessageBoxButtons.OK,
+                        System.Windows.Forms.MessageBoxIcon.Error);
+                }
             }
         }
 
