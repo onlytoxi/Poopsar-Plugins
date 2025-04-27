@@ -115,7 +115,8 @@ namespace Pulsar.Server.Messages
                 try
                 {
                     IsStarted = true;
-                    _provider = new BufferedWaveProvider(new WaveFormat());
+                    WaveFormat waveFormat = new WaveFormat(_bitrate, 2); // 2 channels (stereo) as default
+                    _provider = new BufferedWaveProvider(waveFormat);
                     _audioStream = new WaveOut();
                     _audioStream.Init(_provider);
                     _audioStream.Play();
