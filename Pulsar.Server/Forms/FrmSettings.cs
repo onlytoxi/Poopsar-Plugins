@@ -39,6 +39,7 @@ namespace Pulsar.Server.Forms
         {
             ncPort.Value = Settings.ListenPort;
             chkDarkMode.Checked = Settings.DarkMode;
+            chkHideFromScreenCapture.Checked = Settings.HideFromScreenCapture;
             chkIPv6Support.Checked = Settings.IPv6Support;
             chkAutoListen.Checked = Settings.AutoListen;
             chkPopup.Checked = Settings.ShowPopup;
@@ -144,6 +145,7 @@ namespace Pulsar.Server.Forms
 
             Settings.ListenPort = port;
             Settings.DarkMode = chkDarkMode.Checked;
+            Settings.HideFromScreenCapture = chkHideFromScreenCapture.Checked;
             Settings.IPv6Support = chkIPv6Support.Checked;
             Settings.AutoListen = chkAutoListen.Checked;
             Settings.ShowPopup = chkPopup.Checked;
@@ -312,7 +314,7 @@ namespace Pulsar.Server.Forms
 
         private void hideFromScreenCapture_CheckedChanged(object sender, EventArgs e)
         {
-            ScreenCaptureHider.ScreenCaptureHider.FormsHiddenFromScreenCapture = hideFromScreenCapture.Checked;
+            ScreenCaptureHider.ScreenCaptureHider.FormsHiddenFromScreenCapture = chkHideFromScreenCapture.Checked;
             ScreenCaptureHider.ScreenCaptureHider.Refresh();
         }
     }

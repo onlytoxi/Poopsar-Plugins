@@ -58,7 +58,7 @@ namespace Pulsar.Server.Forms
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.BlockedRichTB = new System.Windows.Forms.RichTextBox();
-            this.hideFromScreenCapture = new System.Windows.Forms.CheckBox();
+            this.chkHideFromScreenCapture = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.ncPort)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -165,7 +165,7 @@ namespace Pulsar.Server.Forms
             this.chkUseUpnp.AutoSize = true;
             this.chkUseUpnp.Location = new System.Drawing.Point(12, 174);
             this.chkUseUpnp.Name = "chkUseUpnp";
-            this.chkUseUpnp.Size = new System.Drawing.Size(249, 17);
+            this.chkUseUpnp.Size = new System.Drawing.Size(250, 17);
             this.chkUseUpnp.TabIndex = 8;
             this.chkUseUpnp.Text = "Try to automatically forward the port (UPnP)";
             this.chkUseUpnp.UseVisualStyleBackColor = true;
@@ -336,7 +336,7 @@ namespace Pulsar.Server.Forms
             this.chkTelegramNotis.AutoSize = true;
             this.chkTelegramNotis.Location = new System.Drawing.Point(12, 251);
             this.chkTelegramNotis.Name = "chkTelegramNotis";
-            this.chkTelegramNotis.Size = new System.Drawing.Size(178, 17);
+            this.chkTelegramNotis.Size = new System.Drawing.Size(179, 17);
             this.chkTelegramNotis.TabIndex = 23;
             this.chkTelegramNotis.Text = "Enable Telegram Notifications";
             this.chkTelegramNotis.UseVisualStyleBackColor = true;
@@ -361,7 +361,7 @@ namespace Pulsar.Server.Forms
             this.label1.Enabled = false;
             this.label1.Location = new System.Drawing.Point(20, 277);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(43, 13);
+            this.label1.Size = new System.Drawing.Size(44, 13);
             this.label1.TabIndex = 25;
             this.label1.Text = "Token: ";
             // 
@@ -420,25 +420,25 @@ namespace Pulsar.Server.Forms
             this.BlockedRichTB.TabIndex = 0;
             this.BlockedRichTB.Text = "";
             // 
-            // checkBox1
+            // chkHideFromScreenCapture
             // 
-            this.hideFromScreenCapture.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.chkHideFromScreenCapture.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.hideFromScreenCapture.AutoSize = true;
-            this.hideFromScreenCapture.Location = new System.Drawing.Point(12, 82);
-            this.hideFromScreenCapture.Name = "checkBox1";
-            this.hideFromScreenCapture.Size = new System.Drawing.Size(189, 17);
-            this.hideFromScreenCapture.TabIndex = 31;
-            this.hideFromScreenCapture.Text = "Hide Pulsar from screen capture";
-            this.hideFromScreenCapture.UseVisualStyleBackColor = true;
-            this.hideFromScreenCapture.CheckedChanged += new System.EventHandler(this.hideFromScreenCapture_CheckedChanged);
+            this.chkHideFromScreenCapture.AutoSize = true;
+            this.chkHideFromScreenCapture.Location = new System.Drawing.Point(12, 82);
+            this.chkHideFromScreenCapture.Name = "chkHideFromScreenCapture";
+            this.chkHideFromScreenCapture.Size = new System.Drawing.Size(189, 17);
+            this.chkHideFromScreenCapture.TabIndex = 31;
+            this.chkHideFromScreenCapture.Text = "Hide Pulsar from screen capture";
+            this.chkHideFromScreenCapture.UseVisualStyleBackColor = true;
+            this.chkHideFromScreenCapture.CheckedChanged += new System.EventHandler(this.hideFromScreenCapture_CheckedChanged);
             // 
             // FrmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(314, 652);
-            this.Controls.Add(this.hideFromScreenCapture);
+            this.Controls.Add(this.chkHideFromScreenCapture);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label2);
@@ -514,6 +514,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RichTextBox BlockedRichTB;
-        private System.Windows.Forms.CheckBox hideFromScreenCapture;
+        private System.Windows.Forms.CheckBox chkHideFromScreenCapture;
     }
 }
