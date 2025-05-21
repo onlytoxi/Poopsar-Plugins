@@ -1,6 +1,6 @@
 ﻿using Pulsar.Common.Extensions;
 using Pulsar.Common.Messages;
-using Pulsar.Common.Messages.other;
+using Pulsar.Common.Messages.Other;
 using Pulsar.Server.Forms;
 using System;
 using System.Collections.Generic;

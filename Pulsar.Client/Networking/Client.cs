@@ -3,7 +3,7 @@ using Pulsar.Common.Messages.ReverseProxy;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Networking;
 using Pulsar.Common.Extensions;
-using Pulsar.Common.Messages.other;
+using Pulsar.Common.Messages.Other;
 using System;
 using System.Collections.Generic;
 using System.Linq;

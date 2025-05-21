@@ -5,7 +5,7 @@ using Pulsar.Client.IpGeoLocation;
 using Pulsar.Client.User;
 using Pulsar.Common.DNS;
 using Pulsar.Common.Helpers;
-using Pulsar.Common.Messages.other;
+using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Utilities;
 using Pulsar.Client.Config;

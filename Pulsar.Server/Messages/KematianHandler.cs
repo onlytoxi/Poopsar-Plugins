@@ -6,7 +6,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Diagnostics;
 using Pulsar.Common.Messages.Monitoring.Kematian;
-using Pulsar.Common.Messages.other;
+using Pulsar.Common.Messages.Other;
 using Pulsar.Server.Forms;
 using System.Threading.Tasks;
 

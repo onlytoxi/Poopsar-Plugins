@@ -54,6 +54,7 @@ namespace Pulsar.Server.Forms
             this.btnClearDrawing = new System.Windows.Forms.Button();
             this.btnShow = new System.Windows.Forms.Button();
             this.toolTipButtons = new System.Windows.Forms.ToolTip(this.components);
+            this.btnStartProgramOnDisplay = new System.Windows.Forms.Button();
             this.picDesktop = new Pulsar.Server.Controls.RapidPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).BeginInit();
             this.panelTop.SuspendLayout();
@@ -133,6 +134,7 @@ namespace Pulsar.Server.Forms
             // panelTop
             // 
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelTop.Controls.Add(this.btnStartProgramOnDisplay);
             this.panelTop.Controls.Add(this.btnShowDrawingTools);
             this.panelTop.Controls.Add(this.sizeLabelCounter);
             this.panelTop.Controls.Add(this.enableGPU);
@@ -205,7 +207,7 @@ namespace Pulsar.Server.Forms
             this.cbMonitors.FormattingEnabled = true;
             this.cbMonitors.Location = new System.Drawing.Point(159, 5);
             this.cbMonitors.Name = "cbMonitors";
-            this.cbMonitors.Size = new System.Drawing.Size(241, 21);
+            this.cbMonitors.Size = new System.Drawing.Size(185, 21);
             this.cbMonitors.TabIndex = 8;
             this.cbMonitors.TabStop = false;
             // 
@@ -309,6 +311,15 @@ namespace Pulsar.Server.Forms
             this.btnShow.Visible = false;
             this.btnShow.Click += new System.EventHandler(this.btnShow_Click);
             // 
+            // btnStartProgramOnDisplay
+            // 
+            this.btnStartProgramOnDisplay.Location = new System.Drawing.Point(350, 3);
+            this.btnStartProgramOnDisplay.Name = "btnStartProgramOnDisplay";
+            this.btnStartProgramOnDisplay.Size = new System.Drawing.Size(47, 28);
+            this.btnStartProgramOnDisplay.TabIndex = 18;
+            this.btnStartProgramOnDisplay.UseVisualStyleBackColor = true;
+            this.btnStartProgramOnDisplay.Click += new System.EventHandler(this.btnStartProgramOnDisplay_Click);
+            // 
             // picDesktop
             // 
             this.picDesktop.BackColor = System.Drawing.Color.Black;
@@ -381,5 +392,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.Button btnClearDrawing;
         private System.Windows.Forms.Button btnShowDrawingTools;
         private System.Windows.Forms.Panel panelDrawingTools;
+        private System.Windows.Forms.Button btnStartProgramOnDisplay;
     }
 }

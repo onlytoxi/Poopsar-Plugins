@@ -235,6 +235,7 @@ namespace Pulsar.Server.Forms
             txtNoIPPass.Enabled = enable;
             chkShowPassword.Enabled = enable;
         }
+
         private void TelegramControlHandler(bool enable)
         {
             txtTelegramToken.Enabled = enable;

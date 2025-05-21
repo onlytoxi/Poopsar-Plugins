@@ -2,7 +2,7 @@
 using Pulsar.Common.Networking;
 using Pulsar.Client.Kematian;
 using Pulsar.Common.Messages.Monitoring.Kematian;
-using Pulsar.Common.Messages.other;
+using Pulsar.Common.Messages.Other;
 using System.Threading;
 using Pulsar.Common.Enums;
 using System;

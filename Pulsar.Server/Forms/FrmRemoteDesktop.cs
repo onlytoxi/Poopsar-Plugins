@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
+using Pulsar.Server.Forms.RemoteDesktopPopUp;
 
 namespace Pulsar.Server.Forms
 {
@@ -812,6 +813,13 @@ namespace Pulsar.Server.Forms
         private void btnShow_Click(object sender, EventArgs e)
         {
             TogglePanelVisibility(true);
+        }
+
+        private void btnStartProgramOnDisplay_Click(object sender, EventArgs e)
+        {
+            int currentDisplayIndex = cbMonitors.SelectedIndex;
+            FrmOpenApplicationOnMonitor frm = new FrmOpenApplicationOnMonitor(_connectClient, currentDisplayIndex);
+            frm.ShowDialog(this);
         }
     }
 }

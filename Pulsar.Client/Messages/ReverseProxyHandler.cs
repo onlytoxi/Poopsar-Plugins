@@ -1,7 +1,7 @@
 ﻿using Pulsar.Client.Networking;
 using Pulsar.Client.ReverseProxy;
 using Pulsar.Common.Messages;
-using Pulsar.Common.Messages.other;
+using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Messages.ReverseProxy;
 using Pulsar.Common.Networking;
 
