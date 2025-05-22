@@ -418,7 +418,7 @@ namespace Pulsar.Server.Controls
             
             base.OnKeyDown(e);
         }
-          protected override void OnKeyUp(KeyEventArgs e)
+        protected override void OnKeyUp(KeyEventArgs e)
         {
             if (EnableKeyboardInput && client != null)
             {

@@ -627,6 +627,7 @@ namespace Pulsar.Server.Forms
                 _enableMouseInput = true;
             }
 
+            UpdateInputButtonsVisualState();
             this.ActiveControl = picDesktop;
         }
 
@@ -647,6 +648,7 @@ namespace Pulsar.Server.Forms
                 _enableKeyboardInput = true;
             }
 
+            UpdateInputButtonsVisualState();
             this.ActiveControl = picDesktop;
         }
 
@@ -804,6 +806,34 @@ namespace Pulsar.Server.Forms
         }
 
         #endregion
+
+        /// <summary>
+        /// Updates the visual state of the input buttons based on current input settings
+        /// </summary>
+        private void UpdateInputButtonsVisualState()
+        {
+            if (_enableMouseInput)
+            {
+                btnMouse.BackColor = System.Drawing.Color.FromArgb(0, 120, 0); // Dark green
+                btnMouse.FlatAppearance.BorderColor = System.Drawing.Color.LimeGreen;
+            }
+            else
+            {
+                btnMouse.BackColor = System.Drawing.Color.FromArgb(40, 40, 40); // Default dark
+                btnMouse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            }
+
+            if (_enableKeyboardInput)
+            {
+                btnKeyboard.BackColor = System.Drawing.Color.FromArgb(0, 120, 0); // Dark green
+                btnKeyboard.FlatAppearance.BorderColor = System.Drawing.Color.LimeGreen;
+            }
+            else
+            {
+                btnKeyboard.BackColor = System.Drawing.Color.FromArgb(40, 40, 40); // Default dark
+                btnKeyboard.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            }
+        }
 
         private void btnHide_Click(object sender, EventArgs e)
         {

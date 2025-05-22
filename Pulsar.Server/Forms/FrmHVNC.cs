@@ -166,8 +166,6 @@ namespace Pulsar.Server.Forms
             this.ActiveControl = picDesktop;
 
             _hVNCHandler.BeginReceiveFrames(barQuality.Value, cbMonitors.SelectedIndex, useGPU);
-            
-            UpdateTitleWithInputStatus();
         }
 
         /// <summary>
@@ -377,9 +375,6 @@ namespace Pulsar.Server.Forms
                 toolTipButtons.SetToolTip(btnMouse, "Enable mouse input.");
                 _enableMouseInput = false;
                 picDesktop.EnableMouseInput = false;
-                UpdateTitleWithInputStatus();
-                
-                UpdateInputButtonsVisualState();
             }
             else
             {
@@ -393,9 +388,6 @@ namespace Pulsar.Server.Forms
                 toolTipButtons.SetToolTip(btnMouse, "Disable mouse input.");
                 _enableMouseInput = true;
                 picDesktop.EnableMouseInput = true;
-                UpdateTitleWithInputStatus();
-                
-                UpdateInputButtonsVisualState();
             }
 
             UpdateInputButtonsVisualState();
@@ -413,10 +405,6 @@ namespace Pulsar.Server.Forms
                 picDesktop.EnableKeyboardInput = false;
                 
                 picDesktop.ClearKeyboardState();
-                
-                UpdateTitleWithInputStatus();
-                
-                UpdateInputButtonsVisualState();
             }
             else
             {
@@ -430,9 +418,6 @@ namespace Pulsar.Server.Forms
                 toolTipButtons.SetToolTip(btnKeyboard, "Disable keyboard input.");
                 _enableKeyboardInput = true;
                 picDesktop.EnableKeyboardInput = true;
-                
-                UpdateTitleWithInputStatus();
-                UpdateInputButtonsVisualState();
                 
                 picDesktop.Focus();
             }
