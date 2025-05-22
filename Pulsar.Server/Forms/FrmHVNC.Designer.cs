@@ -360,7 +360,7 @@ namespace Pulsar.Server.Forms
             this.MinimumSize = new System.Drawing.Size(640, 480);
             this.Name = "FrmHVNC";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Remote Desktop []";
+            this.Text = "HVNC []";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmRemoteDesktop_FormClosing);
             this.Load += new System.EventHandler(this.FrmRemoteDesktop_Load);
             this.Resize += new System.EventHandler(this.FrmRemoteDesktop_Resize);
