@@ -8,7 +8,12 @@
 
 Pulsar is a lightweight, fast, and powerful remote administration tool written in C#. Whether you're providing user support, handling daily admin tasks, or monitoring employees, Pulsar offers high stability and an intuitive interface—making it your go-to solution for remote administration.
 
-🚀 **New to Pulsar?** Then have fun figuring it out on your own 😎.
+---
+
+
+## 📚 Need Help or Want to Offer Suggestions?
+
+Check out our [telegram channel](https://t.me/SomaliDevs) that contains all current updates of what the devs are working on + the discussion channel!
 
 ---
 
@@ -101,11 +106,6 @@ Curious about the future? Check out [ROADMAP.md](ROADMAP.md).
 
 ---
 
-## 📚 Documentation
-
-Explore the [Wiki](https://github.com/Quasar-Continuation/Pulsar/wiki) for detailed usage instructions.
-
----
 
 ## 📜 License
 
