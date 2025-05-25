@@ -14,7 +14,6 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using Pulsar.Common.Messages.Monitoring.HVNC;
-using Pulsar.Server.Forms.HVNC;
 
 namespace Pulsar.Server.Forms
 {

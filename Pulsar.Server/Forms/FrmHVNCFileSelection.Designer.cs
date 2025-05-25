@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Server.Forms.HVNC
+﻿namespace Pulsar.Server.Forms
 {
     partial class FrmHVNCFileSelection
     {
