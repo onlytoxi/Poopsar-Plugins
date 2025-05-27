@@ -35,7 +35,7 @@ namespace Pulsar.Server.Forms
         private readonly List<Keys> _keysPressed;
 
         /// <summary>
-        /// The client which can be used for the remote desktop.
+        /// The client which can be used for the HVNC.
         /// </summary>
         private readonly Client _connectClient;
 
@@ -45,7 +45,7 @@ namespace Pulsar.Server.Forms
         private readonly HVNCHandler _hVNCHandler;
 
         /// <summary>
-        /// Holds the opened remote desktop form for each client.
+        /// Holds the opened HVNC form for each client.
         /// </summary>
         private static readonly Dictionary<Client, FrmHVNC> OpenedForms = new Dictionary<Client, FrmHVNC>();
 
@@ -53,11 +53,11 @@ namespace Pulsar.Server.Forms
         private const int UpdateInterval = 10;
 
         /// <summary>
-        /// Creates a new remote desktop form for the client or gets the current open form, if there exists one already.
+        /// Creates a new HVNC form for the client or gets the current open form, if there exists one already.
         /// </summary>
-        /// <param name="client">The client used for the remote desktop form.</param>
+        /// <param name="client">The client used for the HVNC form.</param>
         /// <returns>
-        /// Returns a new remote desktop form for the client if there is none currently open, otherwise creates a new one.
+        /// Returns a new HVNC form for the client if there is none currently open, otherwise creates a new one.
         /// </returns>
         public static FrmHVNC CreateNewOrGetExisting(Client client)
         {
@@ -74,7 +74,7 @@ namespace Pulsar.Server.Forms
         /// <summary>
         /// Initializes a new instance of the <see cref="FrmHVNC"/> class using the given client.
         /// </summary>
-        /// <param name="client">The client used for the remote desktop form.</param>
+        /// <param name="client">The client used for the HVNC form.</param>
         public FrmHVNC(Client client)
         {
             _connectClient = client;
@@ -102,7 +102,7 @@ namespace Pulsar.Server.Forms
         }
 
         /// <summary>
-        /// Registers the remote desktop message handler for client communication.
+        /// Registers the HVNC message handler for client communication.
         /// </summary>
         private void RegisterMessageHandler()
         {
@@ -112,7 +112,7 @@ namespace Pulsar.Server.Forms
         }
 
         /// <summary>
-        /// Unregisters the remote desktop message handler.
+        /// Unregisters the HVNC message handler.
         /// </summary>
         private void UnregisterMessageHandler()
         {
@@ -122,7 +122,7 @@ namespace Pulsar.Server.Forms
         }
 
         /// <summary>
-        /// Subscribes to local mouse and keyboard events for remote desktop input.
+        /// Subscribes to local mouse and keyboard events for HVNC input.
         /// </summary>
         private void SubscribeEvents()
         {
@@ -136,7 +136,7 @@ namespace Pulsar.Server.Forms
         }
 
         /// <summary>
-        /// Starts the remote desktop stream and begin to receive desktop frames.
+        /// Starts the HVNC stream and begin to receive desktop frames.
         /// </summary>
         private void StartStream(bool useGPU)
         {
@@ -153,7 +153,7 @@ namespace Pulsar.Server.Forms
         }
 
         /// <summary>
-        /// Stops the remote desktop stream.
+        /// Stops the HVNC stream.
         /// </summary>
         private void StopStream()
         {
@@ -252,7 +252,7 @@ namespace Pulsar.Server.Forms
 
         private void FrmHVNC_Load(object sender, EventArgs e)
         {
-            this.Text = WindowHelper.GetWindowTitle("Remote Desktop", _connectClient);
+            this.Text = WindowHelper.GetWindowTitle("HVNC", _connectClient);
 
             OnResize(EventArgs.Empty); // trigger resize event to align controls 
 
@@ -265,7 +265,7 @@ namespace Pulsar.Server.Forms
         /// <param name="e">The new frames per second.</param>
         private void frameCounter_FrameUpdated(FrameUpdatedEventArgs e)
         {
-            this.Text = string.Format("{0} - FPS: {1}", WindowHelper.GetWindowTitle("Remote Desktop", _connectClient), e.CurrentFramesPerSecond.ToString("0.00"));
+            this.Text = string.Format("{0} - FPS: {1}", WindowHelper.GetWindowTitle("HVNC", _connectClient), e.CurrentFramesPerSecond.ToString("0.00"));
         }
 
         private void FrmHVNC_FormClosing(object sender, FormClosingEventArgs e)
@@ -307,7 +307,7 @@ namespace Pulsar.Server.Forms
             StopStream();
         }
 
-        #region Remote Desktop Configuration
+        #region HVNC Configuration
 
         private void barQuality_Scroll(object sender, EventArgs e)
         {

