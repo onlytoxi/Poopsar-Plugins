@@ -231,7 +231,7 @@ namespace Pulsar.Server.Messages
                 IsStarted = false;
             }
 
-            Debug.WriteLine("Remote desktop session stopped");
+            Debug.WriteLine("HVNC session stopped");
 
             _client.Send(new GetHVNCDesktop { Status = RemoteDesktopStatus.Stop });
         }
@@ -245,10 +245,7 @@ namespace Pulsar.Server.Messages
             {
                 int batchSize = _defaultFrameRequestBatch;
 
-                if (_estimatedFps > 25)
-                    batchSize = 5;
-                else if (_estimatedFps < 10)
-                    batchSize = 2;
+                batchSize = 5;
 
                 Debug.WriteLine($"Requesting {batchSize} more frames");
                 Interlocked.Add(ref _pendingFrames, batchSize);
