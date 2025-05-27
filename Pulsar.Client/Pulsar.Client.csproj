@@ -75,7 +75,7 @@
 		<PackageReference Include="NAudio.WinForms" Version="2.2.1" />
 		<PackageReference Include="NAudio.WinMM" Version="2.2.1" />
 		<PackageReference Include="protobuf-net">
-			<Version>3.2.52</Version>
+			<Version>2.4.9</Version>
 		</PackageReference>
 		<PackageReference Include="SharpDX" Version="4.2.0" />
 		<PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
