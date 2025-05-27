@@ -90,7 +90,7 @@ namespace Pulsar.Server.Forms
             // 
             // barQuality
             // 
-            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.barQuality.Location = new System.Drawing.Point(456, 3);
             this.barQuality.Maximum = 100;
@@ -361,9 +361,9 @@ namespace Pulsar.Server.Forms
             this.Name = "FrmHVNC";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "HVNC []";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmRemoteDesktop_FormClosing);
-            this.Load += new System.EventHandler(this.FrmRemoteDesktop_Load);
-            this.Resize += new System.EventHandler(this.FrmRemoteDesktop_Resize);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmHVNC_FormClosing);
+            this.Load += new System.EventHandler(this.FrmHVNC_Load);
+            this.Resize += new System.EventHandler(this.FrmHVNC_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).EndInit();
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();

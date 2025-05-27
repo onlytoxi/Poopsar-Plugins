@@ -2,6 +2,7 @@
 using Pulsar.Client.Helper;
 using Pulsar.Common.Enums;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace Pulsar.Client.Setup
 {
