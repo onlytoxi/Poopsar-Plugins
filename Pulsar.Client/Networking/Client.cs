@@ -1,5 +1,4 @@
 ﻿using Pulsar.Client.ReverseProxy;
-using Pulsar.Common.Messages.ReverseProxy;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Networking;
 using Pulsar.Common.Extensions;
@@ -14,6 +13,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using Pulsar.Common.Messages.Administration.ReverseProxy;
 
 namespace Pulsar.Client.Networking
 {

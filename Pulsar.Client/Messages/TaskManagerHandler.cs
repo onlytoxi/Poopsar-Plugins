@@ -180,6 +180,7 @@ namespace Pulsar.Client.Messages
                             }
                             catch (Exception ex)
                             {
+                                Debug.WriteLine(ex.Message);
                                 _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                             }
                         }).Start();

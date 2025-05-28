@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using Pulsar.Client.Networking;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Monitoring.Clipboard;
+using System.Diagnostics;
 
 namespace Pulsar.Client.User
 {
@@ -79,7 +80,7 @@ namespace Pulsar.Client.User
             }
             catch (Exception ex)
             {
-               
+                Debug.WriteLine(ex.Message);
             }
         }
 

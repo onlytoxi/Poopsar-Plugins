@@ -167,10 +167,6 @@ namespace Pulsar.Client.Helper.HVNC
         #region Fields and Properties
 
         private readonly string desktopName;
-        private POINT lastPoint = new POINT { x = 0, y = 0 };
-        private IntPtr resizeWindowHandle = IntPtr.Zero;
-        private IntPtr resizeMoveType = IntPtr.Zero;
-        private bool leftMouseDown;
         private bool isMovingWindow = false;
         private POINT lastClickCoords = new POINT { x = 0, y = 0 };
         private POINT lastWindowDimensions = new POINT { x = 0, y = 0 };
@@ -277,12 +273,6 @@ namespace Pulsar.Client.Helper.HVNC
                     int x = GetXCoordinate(lParam);
                     int y = GetYCoordinate(lParam);
                     POINT cursorPosition = new POINT { x = x, y = y };
-                    
-                    // Update last position for tracking
-                    if (msg != WM_MOUSEMOVE) 
-                    {
-                        lastPoint = cursorPosition;
-                    }
                     
                     bool isLeft = (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP);
                     bool isUp = (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP);

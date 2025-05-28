@@ -302,10 +302,10 @@ VS_OUTPUT main(VS_INPUT input)
             private readonly object _timeLock = new object();
 
 
-            private RenderTargetView _renderTargetView;
+            //private readonly RenderTargetView _renderTargetView;
             private ShaderResourceView _screenTextureView;
             private Texture2D _screenCapture;
-            private Texture2D _renderTarget;
+            //private readonly Texture2D _renderTarget;
             private VertexShader _fullscreenVS;
             private InputLayout _inputLayout;
             private Buffer _vertexBuffer;
@@ -654,8 +654,8 @@ VS_OUTPUT main(VS_INPUT input)
                 _inputLayout?.Dispose();
                 _vertexBuffer?.Dispose();
                 _screenCapture?.Dispose();
-                _renderTarget?.Dispose();
-                _renderTargetView?.Dispose();
+                //_renderTarget?.Dispose();
+                //_renderTargetView?.Dispose();
                 _screenTextureView?.Dispose();
             }
             /// <summary>
