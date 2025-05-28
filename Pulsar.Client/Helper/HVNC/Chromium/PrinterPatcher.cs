@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pulsar.Client.Helper.HVNC.Chrome
+namespace Pulsar.Client.Helper.HVNC.Chromium
 {
     //Massive credits to resist (printer) for coming up with this solution for me. I can confidently say I did little to nothing to help besides wait 30 minutes to open chrome in IDA.
     //If you steal this solution/patch please give credits lol. (To any cybersec professional reading this, I'm in desperate need of a job or internship I will do anything. Please.)

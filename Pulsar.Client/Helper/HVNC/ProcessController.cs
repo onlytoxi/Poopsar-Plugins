@@ -1,13 +1,10 @@
 ﻿using Microsoft.Win32;
-using Pulsar.Client.Helper.HVNC.Chrome;
+using Pulsar.Client.Helper.HVNC.Chromium;
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pulsar.Client.Helper.HVNC
 {
