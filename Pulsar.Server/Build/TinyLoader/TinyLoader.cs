@@ -72,7 +72,7 @@ namespace a
                     c.CopyTo(b);
                 }
               
-                Assembly.Load(b.ToArray()).EntryPoint.Invoke(null, new object[] { new string[]{} });
+                Assembly.Load(b.ToArray()).EntryPoint.Invoke(null, null);
             }
         }
     }

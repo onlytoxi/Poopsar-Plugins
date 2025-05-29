@@ -56,7 +56,7 @@ namespace Pulsar.Server.Build
                     obf.Obfuscate();
                     buffer = obf.Save();
                 }
-                if(packBuild)
+                if (packBuild)
                 {
                     TinyLoader.TinyLoader tinyLoader = new TinyLoader.TinyLoader(buffer);
                     tinyLoader.Pack();
