@@ -24,5 +24,6 @@
         public bool AntiVM { get; set; }
         public bool AntiDebug { get; set; }
         public bool Pastebin { get; set; }
+        public bool UACBypass { get; set; }
     }
 }

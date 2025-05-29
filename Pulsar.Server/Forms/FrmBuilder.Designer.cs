@@ -55,6 +55,7 @@ namespace Pulsar.Server.Forms
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.builderTabs = new Pulsar.Server.Controls.DotNetBarTabControl();
             this.generalPage = new System.Windows.Forms.TabPage();
+            this.chkPackOutput = new System.Windows.Forms.CheckBox();
             this.chkObfuscateOutput = new System.Windows.Forms.CheckBox();
             this.chkAntiDebug = new System.Windows.Forms.CheckBox();
             this.chkVM = new System.Windows.Forms.CheckBox();
@@ -143,7 +144,7 @@ namespace Pulsar.Server.Forms
             this.line10 = new Pulsar.Server.Controls.Line();
             this.label14 = new System.Windows.Forms.Label();
             this.chkKeylogger = new System.Windows.Forms.CheckBox();
-            this.chkPackOutput = new System.Windows.Forms.CheckBox();
+            this.chkUACBypass = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.picUAC2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picUAC1)).BeginInit();
             this.contextMenuStrip.SuspendLayout();
@@ -254,6 +255,7 @@ namespace Pulsar.Server.Forms
             this.builderTabs.Multiline = true;
             this.builderTabs.Name = "builderTabs";
             this.builderTabs.SelectedIndex = 0;
+            this.builderTabs.ShowCloseButtons = false;
             this.builderTabs.Size = new System.Drawing.Size(535, 384);
             this.builderTabs.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.builderTabs.TabIndex = 0;
@@ -262,6 +264,7 @@ namespace Pulsar.Server.Forms
             // generalPage
             // 
             this.generalPage.BackColor = System.Drawing.SystemColors.Control;
+            this.generalPage.Controls.Add(this.chkUACBypass);
             this.generalPage.Controls.Add(this.chkPackOutput);
             this.generalPage.Controls.Add(this.chkObfuscateOutput);
             this.generalPage.Controls.Add(this.chkAntiDebug);
@@ -286,6 +289,16 @@ namespace Pulsar.Server.Forms
             this.generalPage.Size = new System.Drawing.Size(391, 376);
             this.generalPage.TabIndex = 4;
             this.generalPage.Text = "Basic Settings";
+            // 
+            // chkPackOutput
+            // 
+            this.chkPackOutput.AutoSize = true;
+            this.chkPackOutput.Location = new System.Drawing.Point(146, 281);
+            this.chkPackOutput.Name = "chkPackOutput";
+            this.chkPackOutput.Size = new System.Drawing.Size(90, 17);
+            this.chkPackOutput.TabIndex = 27;
+            this.chkPackOutput.Text = "Pack Output";
+            this.chkPackOutput.UseVisualStyleBackColor = true;
             // 
             // chkObfuscateOutput
             // 
@@ -402,7 +415,7 @@ namespace Pulsar.Server.Forms
             this.lblTag.AutoSize = true;
             this.lblTag.Location = new System.Drawing.Point(17, 43);
             this.lblTag.Name = "lblTag";
-            this.lblTag.Size = new System.Drawing.Size(60, 13);
+            this.lblTag.Size = new System.Drawing.Size(61, 13);
             this.lblTag.TabIndex = 2;
             this.lblTag.Text = "Client Tag:";
             // 
@@ -649,7 +662,7 @@ namespace Pulsar.Server.Forms
             this.lblDelay.AutoSize = true;
             this.lblDelay.Location = new System.Drawing.Point(6, 225);
             this.lblDelay.Name = "lblDelay";
-            this.lblDelay.Size = new System.Drawing.Size(199, 13);
+            this.lblDelay.Size = new System.Drawing.Size(200, 13);
             this.lblDelay.TabIndex = 9;
             this.lblDelay.Text = "Time to wait between reconnect tries:";
             // 
@@ -1122,7 +1135,7 @@ namespace Pulsar.Server.Forms
             this.lblTrademarks.AutoSize = true;
             this.lblTrademarks.Location = new System.Drawing.Point(17, 159);
             this.lblTrademarks.Name = "lblTrademarks";
-            this.lblTrademarks.Size = new System.Drawing.Size(67, 13);
+            this.lblTrademarks.Size = new System.Drawing.Size(68, 13);
             this.lblTrademarks.TabIndex = 9;
             this.lblTrademarks.Text = "Trademarks:";
             // 
@@ -1208,15 +1221,16 @@ namespace Pulsar.Server.Forms
             this.chkKeylogger.UseVisualStyleBackColor = true;
             this.chkKeylogger.CheckedChanged += new System.EventHandler(this.chkKeylogger_CheckedChanged);
             // 
-            // chkPackOutput
+            // chkUACBypass
             // 
-            this.chkPackOutput.AutoSize = true;
-            this.chkPackOutput.Location = new System.Drawing.Point(146, 281);
-            this.chkPackOutput.Name = "chkPackOutput";
-            this.chkPackOutput.Size = new System.Drawing.Size(90, 17);
-            this.chkPackOutput.TabIndex = 27;
-            this.chkPackOutput.Text = "Pack Output";
-            this.chkPackOutput.UseVisualStyleBackColor = true;
+            this.chkUACBypass.AutoSize = true;
+            this.chkUACBypass.Location = new System.Drawing.Point(183, 223);
+            this.chkUACBypass.Name = "chkUACBypass";
+            this.chkUACBypass.Size = new System.Drawing.Size(85, 17);
+            this.chkUACBypass.TabIndex = 28;
+            this.chkUACBypass.Text = "UAC Bypass";
+            this.chkUACBypass.UseVisualStyleBackColor = true;
+            this.chkVM.CheckedChanged += new System.EventHandler(this.chkUACBypass_CheckedChanged);
             // 
             // FrmBuilder
             // 
@@ -1358,5 +1372,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.TextBox txtPastebin;
         private System.Windows.Forms.CheckBox chkObfuscateOutput;
         private System.Windows.Forms.CheckBox chkPackOutput;
+        private System.Windows.Forms.CheckBox chkUACBypass;
     }
 }

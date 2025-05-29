@@ -1,9 +1,11 @@
 ﻿using Pulsar.Common.Cryptography;
+using Pulsar.Common.Models;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Pulsar.Client.Config
 {
@@ -40,6 +42,9 @@ namespace Pulsar.Client.Config
         public static bool ANTIVM = false;
         public static bool ANTIDEBUG = false;
         public static bool PASTEBIN = false;
+        public static bool UACBYPASS = false;
+
+        // needed for hvnc
         public static IntPtr OriginalDesktopPointer = IntPtr.Zero;
 
         public static bool Initialize()
@@ -75,6 +80,9 @@ namespace Pulsar.Client.Config
         public static bool ANTIVM = false;
         public static bool ANTIDEBUG = false;
         public static bool PASTEBIN = false;
+        public static bool UACBYPASS = false;
+
+        // needed for hvnc
         public static IntPtr OriginalDesktopPointer = IntPtr.Zero;
 
         public static bool Initialize()

