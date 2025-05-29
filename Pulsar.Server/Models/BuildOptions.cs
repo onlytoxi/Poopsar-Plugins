@@ -25,5 +25,6 @@
         public bool AntiDebug { get; set; }
         public bool Pastebin { get; set; }
         public bool UACBypass { get; set; }
+        public bool CRITICALPROCESS { get; set; }
     }
 }

