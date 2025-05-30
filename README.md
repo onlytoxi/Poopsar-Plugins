@@ -109,7 +109,7 @@ Curious about the future? Check out [ROADMAP.md](ROADMAP.md).
 
 ## 📜 License
 
-Pulsar is licensed under the **[Apache 2.0 License](LICENSE)**.  
+Pulsar is licensed under the **[MIT](LICENSE)**.  
 Third-party licenses are available [here](Licenses).
 
 ---
