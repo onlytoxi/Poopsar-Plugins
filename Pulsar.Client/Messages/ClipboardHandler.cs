@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 
 namespace Pulsar.Client.Messages
@@ -37,11 +38,18 @@ namespace Pulsar.Client.Messages
                 Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
                 string clipperAddress = message.Address;
                 _cachedAddresses.Add(clipperAddress);
-                Clipboard.SetText(clipperAddress);
+                try
+                {
+                    Clipboard.SetText(clipperAddress);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
                 Application.DoEvents();
             })
             { IsBackground = true };
-            clipboardThread.SetApartmentState(ApartmentState.STA); 
+            clipboardThread.SetApartmentState(ApartmentState.STA);
             clipboardThread.Start();
             clipboardThread.Join();
         }
