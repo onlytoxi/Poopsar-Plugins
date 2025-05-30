@@ -7,62 +7,53 @@ namespace Pulsar.Common.Video.Compression
 {
     public class JpgCompression : IDisposable
     {
-        private readonly ImageCodecInfo _encoderInfo;
+        private static readonly ImageCodecInfo JpegEncoderInfo = GetEncoderInfoStatic();
         private readonly EncoderParameters _encoderParams;
 
         public JpgCompression(long quality)
         {
             EncoderParameter parameter = new EncoderParameter(Encoder.Quality, quality);
-            this._encoderInfo = GetEncoderInfo("image/jpeg");
-            this._encoderParams = new EncoderParameters(2);
-            this._encoderParams.Param[0] = parameter;
-            this._encoderParams.Param[1] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionRle);
+            _encoderParams = new EncoderParameters(1);
+            _encoderParams.Param[0] = parameter;
         }
 
         public void Dispose()
         {
-            Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
+            if (_encoderParams != null)
             {
-                if (_encoderParams != null)
-                {
-                    _encoderParams.Dispose();
-                }
+                _encoderParams.Dispose();
             }
+            GC.SuppressFinalize(this);
         }
 
         public byte[] Compress(Bitmap bmp)
         {
+            if (bmp == null) throw new ArgumentNullException(nameof(bmp));
             using (MemoryStream stream = new MemoryStream())
             {
-                bmp.Save(stream, _encoderInfo, _encoderParams);
+                bmp.Save(stream, JpegEncoderInfo, _encoderParams);
                 return stream.ToArray();
             }
         }
 
-        public void Compress(Bitmap bmp, ref Stream targetStream)
+        public void Compress(Bitmap bmp, Stream targetStream)
         {
-            bmp.Save(targetStream, _encoderInfo, _encoderParams);
+            if (bmp == null) throw new ArgumentNullException(nameof(bmp));
+            if (targetStream == null) throw new ArgumentNullException(nameof(targetStream));
+            bmp.Save(targetStream, JpegEncoderInfo, _encoderParams);
         }
 
-        private ImageCodecInfo GetEncoderInfo(string mimeType)
+        private static ImageCodecInfo GetEncoderInfoStatic()
         {
             ImageCodecInfo[] imageEncoders = ImageCodecInfo.GetImageEncoders();
-            int num2 = imageEncoders.Length - 1;
-            for (int i = 0; i <= num2; i++)
+            for (int i = 0; i < imageEncoders.Length; i++)
             {
-                if (imageEncoders[i].MimeType == mimeType)
+                if (imageEncoders[i].MimeType == "image/jpeg")
                 {
                     return imageEncoders[i];
                 }
             }
-            return null;
+            throw new InvalidOperationException("JPEG encoder not found");
         }
     }
 }

@@ -283,7 +283,7 @@ namespace Pulsar.Common.Video.Codecs
                         length = outStream.Length;
                         long old = outStream.Position;
 
-                        _jpgCompression.Compress(tmpBmp, ref outStream);
+                        _jpgCompression.Compress(tmpBmp, outStream);
 
                         length = outStream.Position - length;
 

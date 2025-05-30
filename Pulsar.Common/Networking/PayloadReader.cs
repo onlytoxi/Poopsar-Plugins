@@ -5,71 +5,60 @@ using System.IO;
 
 namespace Pulsar.Common.Networking
 {
-    public class PayloadReader : MemoryStream
+    public class PayloadReader : IDisposable
     {
         private readonly Stream _innerStream;
-        public bool LeaveInnerStreamOpen { get; }
+        private readonly bool _leaveInnerStreamOpen;
 
         public PayloadReader(byte[] payload, int length, bool leaveInnerStreamOpen)
         {
-            _innerStream = new MemoryStream(payload, 0, length, false, true);
-            LeaveInnerStreamOpen = leaveInnerStreamOpen;
+            _innerStream = new BufferedStream(new MemoryStream(payload, 0, length, false, true));
+            _leaveInnerStreamOpen = leaveInnerStreamOpen;
         }
 
         public PayloadReader(Stream stream, bool leaveInnerStreamOpen)
         {
-            _innerStream = stream;
-            LeaveInnerStreamOpen = leaveInnerStreamOpen;
+            _innerStream = stream is BufferedStream ? stream : new BufferedStream(stream);
+            _leaveInnerStreamOpen = leaveInnerStreamOpen;
         }
 
         public int ReadInteger()
         {
-            return BitConverter.ToInt32(ReadBytes(4), 0);
+            byte[] buffer = new byte[4];
+            ReadExactly(_innerStream, buffer, 0, 4);
+            return BitConverter.ToInt32(buffer, 0);
         }
 
         public byte[] ReadBytes(int length)
         {
-            if (_innerStream.Position + length <= _innerStream.Length)
-            {
-                byte[] result = new byte[length];
-                _innerStream.Read(result, 0, result.Length);
-                return result;
-            }
-            throw new OverflowException($"Unable to read {length} bytes from stream");
+            if (_innerStream.Position + length > _innerStream.Length)
+                throw new OverflowException("Unable to read " + length + " bytes from stream");
+            byte[] buffer = new byte[length];
+            ReadExactly(_innerStream, buffer, 0, length);
+            return buffer;
         }
 
-        /// <summary>
-        /// Reads the serialized message of the payload and deserializes it.
-        /// </summary>
-        /// <returns>The deserialized message of the payload.</returns>
         public IMessage ReadMessage()
         {
             ReadInteger();
-            /* Length prefix is ignored here and already handled in Client class,
-             * it would cause to much trouble to check here for split or not fully
-             * received packets.
-             */
-            IMessage message = Serializer.Deserialize<IMessage>(_innerStream);
-            return message;
+            return Serializer.Deserialize<IMessage>(_innerStream);
         }
 
-        protected override void Dispose(bool disposing)
+        private static void ReadExactly(Stream stream, byte[] buffer, int offset, int count)
         {
-            try
-            {
-                if (LeaveInnerStreamOpen)
-                {
-                    _innerStream.Flush();
-                }
-                else
-                {
-                    _innerStream.Close();
-                }
-            }
-            finally
-            {
-                base.Dispose(disposing);
-            }
+            int read, total = 0;
+            while (total < count && (read = stream.Read(buffer, offset + total, count - total)) > 0)
+                total += read;
+            if (total < count)
+                throw new EndOfStreamException();
+        }
+
+        public void Dispose()
+        {
+            if (!_leaveInnerStreamOpen)
+                _innerStream.Close();
+            else if (_innerStream is BufferedStream)
+                ((BufferedStream)_innerStream).Flush();
         }
     }
 }
