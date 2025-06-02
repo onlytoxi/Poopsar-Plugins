@@ -13,7 +13,6 @@ namespace Pulsar.Client.Messages
     public class RemoteChatHandler : IMessageProcessor
     {
         private static Thread _chatThread;
-        private static bool _chatThreadRunning;
 
         public bool CanExecute(IMessage message) => message is DoChat || message is DoKillChatForm || message is DoStartChatForm || message is DoChatAction;
 
@@ -42,8 +41,7 @@ namespace Pulsar.Client.Messages
         {
             if (_chatThread != null && _chatThread.IsAlive)
             {
-                _chatThreadRunning = false;
-                var frmChat = (Client.FrmRemoteChat)Application.OpenForms["FrmRemoteChat"];
+                var frmChat = (FrmRemoteChat)Application.OpenForms["FrmRemoteChat"];
                 if (frmChat != null)
                 {
                     frmChat.Invoke((MethodInvoker)delegate
@@ -62,10 +60,9 @@ namespace Pulsar.Client.Messages
             if (_chatThread != null && _chatThread.IsAlive)
                 return;
 
-            _chatThreadRunning = true;
             _chatThread = new Thread(() =>
             {
-                var frmChat = new Client.FrmRemoteChat(client);
+                var frmChat = new FrmRemoteChat(client);
                 frmChat.Text = getChat.Title;
                 frmChat.txtMessages.Text = getChat.WelcomeMessage;
                 if (getChat.DisableClose == true)
@@ -84,7 +81,7 @@ namespace Pulsar.Client.Messages
 
         public static void HandleDoChatMessage(ISender client, DoChat packet)
         {
-            var frmChat = (Client.FrmRemoteChat)Application.OpenForms["FrmRemoteChat"];
+            var frmChat = (FrmRemoteChat)Application.OpenForms["FrmRemoteChat"];
             if (frmChat != null)
             {
                 frmChat.Invoke((MethodInvoker)delegate
@@ -98,8 +95,7 @@ namespace Pulsar.Client.Messages
         {
             if (_chatThread != null && _chatThread.IsAlive)
             {
-                _chatThreadRunning = false;
-                var frmChat = (Client.FrmRemoteChat)Application.OpenForms["FrmRemoteChat"];
+                var frmChat = (FrmRemoteChat)Application.OpenForms["FrmRemoteChat"];
                 if (frmChat != null)
                 {
                     frmChat.Invoke((MethodInvoker)delegate

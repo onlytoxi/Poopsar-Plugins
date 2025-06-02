@@ -33,7 +33,7 @@ namespace Pulsar.Server.Forms
 
             if (ShellComboBox.SelectedIndex == 0)
             {
-                host = "conhost.exe";
+                host = "cmd.exe";
             }
             else
             {

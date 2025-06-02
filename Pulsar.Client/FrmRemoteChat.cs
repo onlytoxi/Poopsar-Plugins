@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -33,6 +34,11 @@ namespace Pulsar.Client
 
         private ISender _connectedClient;
         public bool Active;
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_SHOWWINDOW = 0x0040;
 
         public FrmRemoteChat(ISender client)
         {
@@ -117,7 +123,7 @@ namespace Pulsar.Client
             }
             catch (Exception ex)
             {
-            
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -129,7 +135,25 @@ namespace Pulsar.Client
             }
             catch (Exception ex)
             {
-            
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        }
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            const int WM_ACTIVATE = 0x0006;
+            const int WM_SHOWWINDOW = 0x0018;
+            if (m.Msg == WM_ACTIVATE || m.Msg == WM_SHOWWINDOW)
+            {
+                SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
             }
         }
     }

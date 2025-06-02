@@ -13,7 +13,9 @@ namespace Pulsar.Client.Setup
     {
         public void ApplySettings()
         {
-            if (Settings.STARTUP)
+            string clientPath = Application.ExecutablePath;
+
+            if (Settings.STARTUP && clientPath != null)
             {
                 var clientStartup = new ClientStartup();
                 if (Settings.INSTALL)

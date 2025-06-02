@@ -91,6 +91,8 @@ namespace Pulsar.Client.Messages
 
         private void Execute(ISender client, DoProcessStart message)
         {
+            Debug.WriteLine("Starting process: " + message.FilePath + " | DownloadUrl: " + message.DownloadUrl);
+
             if (string.IsNullOrEmpty(message.FilePath))
             {
                 // download and then execute

