@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmKeywords));
             this.NotiRichTextBox = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.SaveNoti = new System.Windows.Forms.Button();
@@ -72,6 +73,7 @@
             this.Controls.Add(this.SaveNoti);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.NotiRichTextBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmKeywords";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Notification Centre | Key-words";

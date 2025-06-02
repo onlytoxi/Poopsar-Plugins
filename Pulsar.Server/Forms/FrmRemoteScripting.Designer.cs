@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmRemoteScripting));
             this.ExecBtn = new System.Windows.Forms.Button();
             this.TestBtn = new System.Windows.Forms.Button();
             this.dotNetBarTabControl1 = new Pulsar.Server.Controls.DotNetBarTabControl();
@@ -84,10 +85,10 @@
             this.dotNetBarTabControl1.Multiline = true;
             this.dotNetBarTabControl1.Name = "dotNetBarTabControl1";
             this.dotNetBarTabControl1.SelectedIndex = 0;
+            this.dotNetBarTabControl1.ShowCloseButtons = false;
             this.dotNetBarTabControl1.Size = new System.Drawing.Size(684, 393);
             this.dotNetBarTabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.dotNetBarTabControl1.TabIndex = 0;
-            this.dotNetBarTabControl1.ShowCloseButtons = false;
             // 
             // tabPage1
             // 
@@ -193,6 +194,7 @@
             this.Controls.Add(this.TestBtn);
             this.Controls.Add(this.ExecBtn);
             this.Controls.Add(this.dotNetBarTabControl1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmRemoteScripting";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FrmRemoteScripting";

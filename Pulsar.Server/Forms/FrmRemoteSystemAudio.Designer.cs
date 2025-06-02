@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmRemoteSystemAudio));
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -127,6 +128,7 @@
             this.Controls.Add(this.lblQualityShow);
             this.Controls.Add(this.barQuality);
             this.Controls.Add(this.cbDevices);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmRemoteSystemAudio";
             this.Text = "FrmRemoteSystemAudio";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmRemoteSystemAudio_FormClosing);
