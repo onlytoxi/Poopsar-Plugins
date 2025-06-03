@@ -23,7 +23,8 @@
         #region Windows Form Designer generated code
 
         /// <summary>
-        /// Required method for Designer support - do not modify the contents of this method with the code editor.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
@@ -32,12 +33,11 @@
             this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.chkNewClientsOnly = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // FPTextBox
             // 
-            this.FPTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.FPTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FPTextBox.Location = new System.Drawing.Point(12, 28);
             this.FPTextBox.Name = "FPTextBox";
@@ -66,9 +66,9 @@
             // 
             // button2
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(12, 83);
+            this.button2.Location = new System.Drawing.Point(12, 53);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(427, 23);
             this.button2.TabIndex = 5;
@@ -76,22 +76,11 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // chkNewClientsOnly
-            // 
-            this.chkNewClientsOnly.AutoSize = true;
-            this.chkNewClientsOnly.Location = new System.Drawing.Point(12, 60);
-            this.chkNewClientsOnly.Name = "chkNewClientsOnly";
-            this.chkNewClientsOnly.Size = new System.Drawing.Size(170, 17);
-            this.chkNewClientsOnly.TabIndex = 6;
-            this.chkNewClientsOnly.Text = "Run this task for new clients only";
-            this.chkNewClientsOnly.UseVisualStyleBackColor = true;
-            // 
             // FrmTaskExecute
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(451, 118);
-            this.Controls.Add(this.chkNewClientsOnly);
+            this.ClientSize = new System.Drawing.Size(451, 88);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.FPTextBox);
@@ -111,6 +100,5 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.CheckBox chkNewClientsOnly;
     }
 }

