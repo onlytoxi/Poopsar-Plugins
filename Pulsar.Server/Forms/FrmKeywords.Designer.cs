@@ -76,7 +76,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmKeywords";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Notification Centre | Key-words";
+            this.Text = "Notification Center | Key-words";
             this.Load += new System.EventHandler(this.FrmKeywords_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

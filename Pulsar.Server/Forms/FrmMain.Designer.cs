@@ -2170,7 +2170,7 @@ namespace Pulsar.Server.Forms
             this.notificationCentreToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.notificationCentreToolStripMenuItem.Name = "notificationCentreToolStripMenuItem";
             this.notificationCentreToolStripMenuItem.Size = new System.Drawing.Size(136, 21);
-            this.notificationCentreToolStripMenuItem.Text = "Notification Centre";
+            this.notificationCentreToolStripMenuItem.Text = "Notification Center";
             this.notificationCentreToolStripMenuItem.Click += new System.EventHandler(this.notificationCentreToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
