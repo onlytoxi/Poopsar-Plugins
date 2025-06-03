@@ -41,6 +41,17 @@ namespace Pulsar.Server.Forms
             string exeDir = AppDomain.CurrentDomain.BaseDirectory;
             string filePath = Path.Combine(exeDir, "keywords.json");
 
+            if (!File.Exists(filePath))
+            {
+                // make a keywords.json file with a few examples of NSFW keywords or things you wouldn't want in a work environment (this can be changed at anytime in the UI)
+                // TRIGGER WARNING: This file is used to store keywords that will be used to filter out NSFW content.
+                #region BANNED WORDS
+                var exampleKeywords = new List<string> { "porn", "sex", "xxx", "hentai", "boobs", "tits", "cock", "dick", "pussy" };
+                #endregion
+                string exampleJson = JsonSerializer.Serialize(exampleKeywords, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(filePath, exampleJson, Encoding.UTF8);
+            }
+
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath, Encoding.UTF8);
