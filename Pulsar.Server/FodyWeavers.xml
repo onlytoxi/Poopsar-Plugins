@@ -19,6 +19,7 @@
 		  NAudio.Wasapi
 		  NAudio.WinForms
 		  NAudio.WinMM
+		  System.Data.SQLite
 	  </IncludeAssemblies>
   </Costura>
 </Weavers>

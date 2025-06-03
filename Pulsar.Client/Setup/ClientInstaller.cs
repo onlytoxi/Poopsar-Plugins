@@ -13,7 +13,16 @@ namespace Pulsar.Client.Setup
     {
         public void ApplySettings()
         {
-            string clientPath = Application.ExecutablePath;
+            string clientPath;
+            try
+            {
+                clientPath = Application.ExecutablePath;
+            }
+            catch
+            {
+                clientPath = null;
+            }
+            
 
             if (Settings.STARTUP && clientPath != null)
             {

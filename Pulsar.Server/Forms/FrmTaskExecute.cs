@@ -31,7 +31,8 @@ namespace Pulsar.Server.Forms
             FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
             if (frm != null)
             {
-                frm.AddTask("Remote Execute", FPTextBox.Text, "");
+                bool newClientsOnly = chkNewClientsOnly.Checked;
+                frm.AddTask("Remote Execute", FPTextBox.Text, "", newClientsOnly);
             }
         }
 
