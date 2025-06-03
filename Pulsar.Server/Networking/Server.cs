@@ -3,7 +3,6 @@ using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Server.Forms;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,7 +11,6 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Pulsar.Server.Networking
@@ -173,7 +171,10 @@ namespace Pulsar.Server.Networking
         {
             get
             {
-                return _clients.Keys.ToArray();
+                lock (_clientsLock)
+                {
+                    return _clients.ToArray();
+                }
             }
         }
 
@@ -188,14 +189,24 @@ namespace Pulsar.Server.Networking
         protected readonly X509Certificate2 ServerCertificate;
 
         /// <summary>
-        /// Concurrent dictionary of the clients connected to the server.
+        /// The event to accept new connections asynchronously.
         /// </summary>
-        private readonly ConcurrentDictionary<Client, byte> _clients = new ConcurrentDictionary<Client, byte>();
+        private SocketAsyncEventArgs _item;
+
+        /// <summary>
+        /// List of the clients connected to the server.
+        /// </summary>
+        private readonly List<Client> _clients = new List<Client>();
 
         /// <summary>
         /// The UPnP service used to discover, create and delete port mappings.
         /// </summary>
         private UPnPService _UPnPService;
+
+        /// <summary>
+        /// Lock object for the list of clients.
+        /// </summary>
+        private readonly object _clientsLock = new object();
 
         /// <summary>
         /// Determines if the server is currently processing Disconnect method. 
@@ -218,7 +229,7 @@ namespace Pulsar.Server.Networking
         /// <param name="port">Port to listen for clients on.</param>
         /// <param name="ipv6">If set to true, use a dual-stack socket to allow IPv4/6 connections. Otherwise use IPv4-only socket.</param>
         /// <param name="enableUPnP">Enables the automatic UPnP port forwarding.</param>
-        public void ListenAsync(ushort port, bool ipv6, bool enableUPnP)
+        public void Listen(ushort port, bool ipv6, bool enableUPnP)
         {
             if (Listening) return;
             this.Port = port;
@@ -244,7 +255,12 @@ namespace Pulsar.Server.Networking
 
             OnServerState(true);
 
-            _ = AcceptClientsLoopAsync();
+            _item = new SocketAsyncEventArgs();
+            _item.Completed += AcceptClient;
+
+            if (!_handle.AcceptAsync(_item))
+                AcceptClient(this, _item);
+
 
             FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
             if (mainForm != null)
@@ -261,53 +277,76 @@ namespace Pulsar.Server.Networking
         }
 
         /// <summary>
-        /// Synchronous method to begin listening for clients.
+        /// Accepts and begins authenticating an incoming client.
         /// </summary>
-        /// <param name="port">Port to listen for clients on.</param>
-        /// <param name="ipv6">If set to true, use a dual-stack socket to allow IPv4/6 connections. Otherwise use IPv4-only socket.</param>
-        /// <param name="enableUPnP">Enables the automatic UPnP port forwarding.</param>
-        public void Listen(ushort port, bool ipv6, bool enableUPnP)
+        /// <param name="s">The sender.</param>
+        /// <param name="e">Asynchronous socket event.</param>
+        private void AcceptClient(object s, SocketAsyncEventArgs e)
         {
-            ListenAsync(port, ipv6, enableUPnP);
+            try
+            {
+                do
+                {
+                    switch (e.SocketError)
+                    {
+                        case SocketError.Success:
+                            SslStream sslStream = null;
+                            try
+                            {
+                                Socket clientSocket = e.AcceptSocket;
+                                clientSocket.SetKeepAliveEx(KeepAliveInterval, KeepAliveTime);
+                                sslStream = new SslStream(new NetworkStream(clientSocket, true), false);
+                                // the SslStream owns the socket and on disposing also disposes the NetworkStream and Socket
+                                sslStream.BeginAuthenticateAsServer(ServerCertificate, false, SslProtocols.Tls12, false, EndAuthenticateClient,
+                                    new PendingClient { Stream = sslStream, EndPoint = (IPEndPoint)clientSocket.RemoteEndPoint });
+                            }
+                            catch (Exception)
+                            {
+                                sslStream?.Close();
+                            }
+                            break;
+                        case SocketError.ConnectionReset:
+                            break;
+                        default:
+                            throw new SocketException((int)e.SocketError);
+                    }
+
+                    e.AcceptSocket = null; // enable reuse
+                } while (!_handle.AcceptAsync(e));
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (Exception)
+            {
+                Disconnect();
+            }
+        }
+
+        private class PendingClient
+        {
+            public SslStream Stream { get; set; }
+            public IPEndPoint EndPoint { get; set; }
         }
 
         /// <summary>
-        /// Accepts and begins authenticating incoming clients asynchronously.
+        /// Ends the authentication process of a newly connected client.
         /// </summary>
-        private async Task AcceptClientsLoopAsync()
+        /// <param name="ar">The status of the asynchronous operation.</param>
+        private void EndAuthenticateClient(IAsyncResult ar)
         {
-            while (Listening && _handle != null)
+            var con = (PendingClient)ar.AsyncState;
+            try
             {
-                Socket clientSocket = null;
-                try
-                {
-                    clientSocket = await _handle.AcceptAsync();
-                    clientSocket.SetKeepAliveEx(KeepAliveInterval, KeepAliveTime);
-                    var networkStream = new NetworkStream(clientSocket, true);
-                    var sslStream = new SslStream(networkStream, false);
-                    try
-                    {
-                        await sslStream.AuthenticateAsServerAsync(ServerCertificate, false, SslProtocols.Tls12, false);
-                        var remoteEndPoint = (IPEndPoint)clientSocket.RemoteEndPoint;
-                        Client client = new Client(_bufferPool, sslStream, remoteEndPoint);
-                        AddClient(client);
-                        OnClientState(client, true);
-                    }
-                    catch (Exception)
-                    {
-                        sslStream.Close();
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    break;
-                }
-                catch (Exception)
-                {
-                    clientSocket?.Close();
-                    Disconnect();
-                    break;
-                }
+                con.Stream.EndAuthenticateAsServer(ar);
+
+                Client client = new Client(_bufferPool, con.Stream, con.EndPoint);
+                AddClient(client);
+                OnClientState(client, true);
+            }
+            catch (Exception)
+            {
+                con.Stream.Close();
             }
         }
 
@@ -318,10 +357,13 @@ namespace Pulsar.Server.Networking
         /// <param name="client">The client to add.</param>
         private void AddClient(Client client)
         {
-            client.ClientState += OnClientState;
-            client.ClientRead += OnClientRead;
-            client.ClientWrite += OnClientWrite;
-            _clients.TryAdd(client, 0);
+            lock (_clientsLock)
+            {
+                client.ClientState += OnClientState;
+                client.ClientRead += OnClientRead;
+                client.ClientWrite += OnClientWrite;
+                _clients.Add(client);
+            }
         }
 
         /// <summary>
@@ -332,10 +374,14 @@ namespace Pulsar.Server.Networking
         private void RemoveClient(Client client)
         {
             if (ProcessingDisconnect) return;
-            client.ClientState -= OnClientState;
-            client.ClientRead -= OnClientRead;
-            client.ClientWrite -= OnClientWrite;
-            _clients.TryRemove(client, out _);
+
+            lock (_clientsLock)
+            {
+                client.ClientState -= OnClientState;
+                client.ClientRead -= OnClientRead;
+                client.ClientWrite -= OnClientWrite;
+                _clients.Remove(client);
+            }
         }
 
         /// <summary>
@@ -353,23 +399,35 @@ namespace Pulsar.Server.Networking
                 _handle = null;
             }
 
+            if (_item != null)
+            {
+                _item.Dispose();
+                _item = null;
+            }
+
             if (_UPnPService != null)
             {
                 _UPnPService.DeletePortMapAsync(Port);
                 _UPnPService = null;
             }
 
-            foreach (var client in _clients.Keys.ToList())
+            lock (_clientsLock)
             {
-                try
+                while (_clients.Count != 0)
                 {
-                    client.Disconnect();
-                    client.ClientState -= OnClientState;
-                    client.ClientRead -= OnClientRead;
-                    client.ClientWrite -= OnClientWrite;
-                    _clients.TryRemove(client, out _);
+                    try
+                    {
+                        _clients[0].Disconnect();
+                        _clients[0].ClientState -= OnClientState;
+                        _clients[0].ClientRead -= OnClientRead;
+                        _clients[0].ClientWrite -= OnClientWrite;
+                        _clients.RemoveAt(0);
+                    }
+                    catch
+                    {
+
+                    }
                 }
-                catch { }
             }
 
             ProcessingDisconnect = false;
