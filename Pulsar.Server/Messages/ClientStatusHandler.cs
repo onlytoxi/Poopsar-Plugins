@@ -7,7 +7,7 @@ using Pulsar.Server.Networking;
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -149,7 +149,7 @@ namespace Pulsar.Server.Messages
                 if (File.Exists(keywordsFilePath))
                 {
                     string jsonContent = File.ReadAllText(keywordsFilePath);
-                    var keywords = JsonSerializer.Deserialize<string[]>(jsonContent);
+                    var keywords = JsonConvert.DeserializeObject<string[]>(jsonContent);
 
                     if (keywords != null)
                     {

@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Windows.Forms;
 using Pulsar.Server.DiscordRPC;
 using Pulsar.Server.TelegramSender;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
 
@@ -60,7 +60,7 @@ namespace Pulsar.Server.Forms
             try
             {
                 string json = File.ReadAllText(filePath);
-                var blockedIPs = JsonSerializer.Deserialize<List<string>>(json);
+                var blockedIPs = JsonConvert.DeserializeObject<List<string>>(json);
                 if (blockedIPs != null && blockedIPs.Count > 0)
                 {
                     BlockedRichTB.Text = string.Join(Environment.NewLine, blockedIPs);
@@ -173,7 +173,7 @@ namespace Pulsar.Server.Forms
             string filePath = "blocked.json";
             try
             {
-                string json = JsonSerializer.Serialize(blockedIPs, new JsonSerializerOptions { WriteIndented = true });
+                string json = JsonConvert.SerializeObject(blockedIPs, Formatting.Indented);
                 File.WriteAllText(filePath, json);
             }
             catch (Exception)

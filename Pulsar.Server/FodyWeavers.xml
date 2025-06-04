@@ -10,7 +10,6 @@
 		  BouncyCastle.Crypto
 		  protobuf-net
 		  Vestris.ResourceLib
-		  System.Text.Json
 		  DiscordRPC
 		  Newtonsoft.Json
 		  NAudio.Asio

