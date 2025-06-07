@@ -98,12 +98,15 @@ namespace Pulsar.Server.Messages
 
         private readonly Stopwatch _performanceMonitor = new Stopwatch();
         private int _framesReceived = 0;
-        private double _estimatedFps = 0;
-
-        /// <summary>
+        private double _estimatedFps = 0;        /// <summary>
         /// Stores the last FPS reported by the client.
         /// </summary>
         private float _lastReportedFps = -1f;
+
+        /// <summary>
+        /// Shows the last FPS reported by the client, or estimated FPS if not available.
+        /// </summary>
+        public float CurrentFps => _lastReportedFps > 0 ? _lastReportedFps : (float)_estimatedFps;
 
         /// <summary>
         /// Shows the estimated frames per second (FPS) based on the last second of received frames.

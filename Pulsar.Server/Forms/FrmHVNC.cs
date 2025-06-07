@@ -233,10 +233,10 @@ namespace Pulsar.Server.Forms
             _frameCount++;
 
             double elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
-
-            if (_hVNCHandler.LastReportedFps > 0)
+            
+            if (_hVNCHandler.CurrentFps > 0)
             {
-                _lastFps = _hVNCHandler.LastReportedFps;
+                _lastFps = _hVNCHandler.CurrentFps;
             }
 
             if (elapsedSeconds >= 1.0)
@@ -274,7 +274,7 @@ namespace Pulsar.Server.Forms
 
             cbMonitors.SelectedIndex = 0;
         }
-
+        
         /// <summary>
         /// Updates the title with the current frames per second.
         /// </summary>
@@ -290,7 +290,8 @@ namespace Pulsar.Server.Forms
             }
             else
             {
-                fpsToShow = (_lastFps > 0f) ? _lastFps : e.CurrentFramesPerSecond;
+                float clientFps = _hVNCHandler.CurrentFps;
+                fpsToShow = clientFps > 0f ? clientFps : ((_lastFps > 0f) ? _lastFps : e.CurrentFramesPerSecond);
             }
 
             this.Text = string.Format("{0} - FPS: {1:0.00}", WindowHelper.GetWindowTitle("HVNC", _connectClient), fpsToShow);
