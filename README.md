@@ -3,7 +3,7 @@
 ![GitHub Actions Build Status](https://img.shields.io/github/actions/workflow/status/Quasar-Continuation/Pulsar/dotnet.yml)
 [![Downloads](https://img.shields.io/github/downloads/Quasar-Continuation/Pulsar/total.svg)](https://github.com/Quasar-Continuation/Pulsar/releases)
 [![License](https://img.shields.io/github/license/Quasar-Continuation/Pulsar.svg)](LICENSE)
-![.NET](https://img.shields.io/badge/.NET-4.5.2%2B-blue)
+![.NET](https://img.shields.io/badge/.NET-4.7.2%2B-blue)
 ![Windows](https://img.shields.io/badge/OS-Windows-blue)
 
 > **A Free, Open-Source Remote Administration Tool for Windows**
