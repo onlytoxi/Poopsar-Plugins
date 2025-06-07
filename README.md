@@ -159,6 +159,7 @@ Pulsar is licensed under the **[MIT](LICENSE)**. Third-party licenses are availa
 - **[jungsuxx](https://github.com/jungsuxx)** – HVNC Input & Code Simplification
 - **[MOOM aka my lebron](https://github.com/moom825/)** – Inspiration & Batch Obfuscation
 - **[Poli](https://github.com/paulmaster59/)** - Discord Server & Custom Pulsar Crypter
+- **[Deadman](https://github.com/DeadmanLabs)** - Memory Dumping and Shellcode Builder
 
 ---
 
