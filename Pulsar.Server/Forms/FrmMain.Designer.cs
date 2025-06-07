@@ -43,22 +43,22 @@ namespace Pulsar.Server.Forms
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter1 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("CPU");
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("GPU");
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("RAM");
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Uptime");
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Antivirus");
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Default Browser");
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter2 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter3 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter4 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter5 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter6 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter7 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter8 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter9 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter10 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter25 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            System.Windows.Forms.ListViewItem listViewItem19 = new System.Windows.Forms.ListViewItem("CPU");
+            System.Windows.Forms.ListViewItem listViewItem20 = new System.Windows.Forms.ListViewItem("GPU");
+            System.Windows.Forms.ListViewItem listViewItem21 = new System.Windows.Forms.ListViewItem("RAM");
+            System.Windows.Forms.ListViewItem listViewItem22 = new System.Windows.Forms.ListViewItem("Uptime");
+            System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem("Antivirus");
+            System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem("Default Browser");
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter18 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter26 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter19 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter12 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter27 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter28 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter29 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter30 = new Pulsar.Server.Utilities.ListViewColumnSorter();
+            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter31 = new Pulsar.Server.Utilities.ListViewColumnSorter();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.systemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.systemInformationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -80,6 +80,7 @@ namespace Pulsar.Server.Forms
             this.surveillanceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.remoteDesktopToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.webcamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.remoteSystemAudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.audioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hVNCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keyloggerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -138,7 +139,7 @@ namespace Pulsar.Server.Forms
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBoxMain = new System.Windows.Forms.PictureBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.tblLayoutQuickButtons = new System.Windows.Forms.TableLayoutPanel();
             this.button1 = new System.Windows.Forms.Button();
             this.btnQuickRemoteDesktop = new System.Windows.Forms.Button();
             this.btnQuickWebcam = new System.Windows.Forms.Button();
@@ -146,6 +147,7 @@ namespace Pulsar.Server.Forms
             this.btnQuickFileTransfer = new System.Windows.Forms.Button();
             this.btnQuickRemoteShell = new System.Windows.Forms.Button();
             this.btnQuickFileExplorer = new System.Windows.Forms.Button();
+            this.chkDisablePreview = new System.Windows.Forms.CheckBox();
             this.gBoxClientInfo = new System.Windows.Forms.GroupBox();
             this.clientInfoListView = new Pulsar.Server.Controls.AeroListView();
             this.Names = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -237,14 +239,13 @@ namespace Pulsar.Server.Forms
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.builderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteSystemAudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip.SuspendLayout();
             this.tableLayoutPanel.SuspendLayout();
             this.MainTabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
-            this.tableLayoutPanel2.SuspendLayout();
+            this.tblLayoutQuickButtons.SuspendLayout();
             this.gBoxClientInfo.SuspendLayout();
             this.DebugContextMenuStrip.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -276,7 +277,7 @@ namespace Pulsar.Server.Forms
             this.lineToolStripMenuItem,
             this.selectAllToolStripMenuItem});
             this.contextMenuStrip.Name = "ctxtMenu";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 186);
+            this.contextMenuStrip.Size = new System.Drawing.Size(180, 164);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
             // systemToolStripMenuItem
@@ -295,7 +296,7 @@ namespace Pulsar.Server.Forms
             this.actionsToolStripMenuItem});
             this.systemToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog;
             this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
-            this.systemToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.systemToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.systemToolStripMenuItem.Text = "Administration";
             this.systemToolStripMenuItem.Click += new System.EventHandler(this.systemToolStripMenuItem_Click);
             // 
@@ -443,7 +444,7 @@ namespace Pulsar.Server.Forms
             this.installVirtualMonitorToolStripMenuItem});
             this.surveillanceToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.monitoring;
             this.surveillanceToolStripMenuItem.Name = "surveillanceToolStripMenuItem";
-            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.surveillanceToolStripMenuItem.Text = "Monitoring";
             // 
             // remoteDesktopToolStripMenuItem2
@@ -461,6 +462,14 @@ namespace Pulsar.Server.Forms
             this.webcamToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.webcamToolStripMenuItem.Text = "Webcam";
             this.webcamToolStripMenuItem.Click += new System.EventHandler(this.webcamToolStripMenuItem_Click);
+            // 
+            // remoteSystemAudioToolStripMenuItem
+            // 
+            this.remoteSystemAudioToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.sound;
+            this.remoteSystemAudioToolStripMenuItem.Name = "remoteSystemAudioToolStripMenuItem";
+            this.remoteSystemAudioToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.remoteSystemAudioToolStripMenuItem.Text = "Remote System Audio";
+            this.remoteSystemAudioToolStripMenuItem.Click += new System.EventHandler(this.remoteSystemAudioToolStripMenuItem_Click);
             // 
             // audioToolStripMenuItem
             // 
@@ -519,14 +528,14 @@ namespace Pulsar.Server.Forms
             this.visitWebsiteToolStripMenuItem});
             this.userSupportToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.user;
             this.userSupportToolStripMenuItem.Name = "userSupportToolStripMenuItem";
-            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.userSupportToolStripMenuItem.Text = "User Support";
             // 
             // remoteChatToolStripMenuItem
             // 
             this.remoteChatToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.phone;
             this.remoteChatToolStripMenuItem.Name = "remoteChatToolStripMenuItem";
-            this.remoteChatToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.remoteChatToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.remoteChatToolStripMenuItem.Text = "Remote Chat";
             this.remoteChatToolStripMenuItem.Click += new System.EventHandler(this.remoteChatToolStripMenuItem_Click);
             // 
@@ -534,7 +543,7 @@ namespace Pulsar.Server.Forms
             // 
             this.remoteScriptingToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.script_code;
             this.remoteScriptingToolStripMenuItem.Name = "remoteScriptingToolStripMenuItem";
-            this.remoteScriptingToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.remoteScriptingToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.remoteScriptingToolStripMenuItem.Text = "Remote Scripting";
             this.remoteScriptingToolStripMenuItem.Click += new System.EventHandler(this.remoteScriptingToolStripMenuItem_Click);
             // 
@@ -542,7 +551,7 @@ namespace Pulsar.Server.Forms
             // 
             this.showMessageboxToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("showMessageboxToolStripMenuItem.Image")));
             this.showMessageboxToolStripMenuItem.Name = "showMessageboxToolStripMenuItem";
-            this.showMessageboxToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.showMessageboxToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.showMessageboxToolStripMenuItem.Text = "Show Messagebox";
             this.showMessageboxToolStripMenuItem.Click += new System.EventHandler(this.showMessageboxToolStripMenuItem_Click);
             // 
@@ -550,7 +559,7 @@ namespace Pulsar.Server.Forms
             // 
             this.visitWebsiteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("visitWebsiteToolStripMenuItem.Image")));
             this.visitWebsiteToolStripMenuItem.Name = "visitWebsiteToolStripMenuItem";
-            this.visitWebsiteToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.visitWebsiteToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.visitWebsiteToolStripMenuItem.Text = "Send to Website";
             this.visitWebsiteToolStripMenuItem.Click += new System.EventHandler(this.visitWebsiteToolStripMenuItem_Click);
             // 
@@ -560,14 +569,14 @@ namespace Pulsar.Server.Forms
             this.addCDriveExceptionToolStripMenuItem});
             this.quickCommandsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.wrench;
             this.quickCommandsToolStripMenuItem.Name = "quickCommandsToolStripMenuItem";
-            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.quickCommandsToolStripMenuItem.Text = "Miscellaneous";
             // 
             // addCDriveExceptionToolStripMenuItem
             // 
             this.addCDriveExceptionToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.application_view_xp_terminal;
             this.addCDriveExceptionToolStripMenuItem.Name = "addCDriveExceptionToolStripMenuItem";
-            this.addCDriveExceptionToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.addCDriveExceptionToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
             this.addCDriveExceptionToolStripMenuItem.Text = "Add C: Drive Exception";
             this.addCDriveExceptionToolStripMenuItem.Click += new System.EventHandler(this.addCDriveExceptionToolStripMenuItem_Click);
             // 
@@ -581,7 +590,7 @@ namespace Pulsar.Server.Forms
             this.gdiToolStripMenuItem});
             this.funMethodsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.emoticon_evilgrin;
             this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
-            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
             // 
             // bSODToolStripMenuItem
@@ -655,7 +664,7 @@ namespace Pulsar.Server.Forms
             this.uninstallToolStripMenuItem});
             this.connectionToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("connectionToolStripMenuItem.Image")));
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.connectionToolStripMenuItem.Text = "Client Management";
             // 
             // elevatedToolStripMenuItem
@@ -777,12 +786,12 @@ namespace Pulsar.Server.Forms
             // lineToolStripMenuItem
             // 
             this.lineToolStripMenuItem.Name = "lineToolStripMenuItem";
-            this.lineToolStripMenuItem.Size = new System.Drawing.Size(177, 6);
+            this.lineToolStripMenuItem.Size = new System.Drawing.Size(176, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
@@ -1114,10 +1123,10 @@ namespace Pulsar.Server.Forms
             this.lstClients.FullRowSelect = true;
             this.lstClients.HideSelection = false;
             this.lstClients.Location = new System.Drawing.Point(0, 0);
-            listViewColumnSorter1.NeedNumberCompare = false;
-            listViewColumnSorter1.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter1.SortColumn = 0;
-            this.lstClients.LvwColumnSorter = listViewColumnSorter1;
+            listViewColumnSorter25.NeedNumberCompare = false;
+            listViewColumnSorter25.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter25.SortColumn = 0;
+            this.lstClients.LvwColumnSorter = listViewColumnSorter25;
             this.lstClients.Name = "lstClients";
             this.lstClients.ShowItemToolTips = true;
             this.lstClients.Size = new System.Drawing.Size(849, 351);
@@ -1191,7 +1200,7 @@ namespace Pulsar.Server.Forms
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.pictureBoxMain, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.tblLayoutQuickButtons, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.gBoxClientInfo, 0, 3);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(849, 0);
@@ -1227,32 +1236,33 @@ namespace Pulsar.Server.Forms
             this.pictureBoxMain.TabIndex = 31;
             this.pictureBoxMain.TabStop = false;
             // 
-            // tableLayoutPanel2
+            // tblLayoutQuickButtons
             // 
-            this.tableLayoutPanel2.ColumnCount = 8;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 77F));
-            this.tableLayoutPanel2.Controls.Add(this.button1, 2, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnQuickRemoteDesktop, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnQuickWebcam, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnQuickKeylogger, 6, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnQuickFileTransfer, 5, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnQuickRemoteShell, 4, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnQuickFileExplorer, 3, 0);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 180);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 1;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(287, 30);
-            this.tableLayoutPanel2.TabIndex = 32;
+            this.tblLayoutQuickButtons.ColumnCount = 8;
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 77F));
+            this.tblLayoutQuickButtons.Controls.Add(this.button1, 2, 0);
+            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickRemoteDesktop, 0, 0);
+            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickWebcam, 1, 0);
+            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickKeylogger, 6, 0);
+            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickFileTransfer, 5, 0);
+            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickRemoteShell, 4, 0);
+            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickFileExplorer, 3, 0);
+            this.tblLayoutQuickButtons.Controls.Add(this.chkDisablePreview, 7, 0);
+            this.tblLayoutQuickButtons.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblLayoutQuickButtons.Location = new System.Drawing.Point(0, 180);
+            this.tblLayoutQuickButtons.Margin = new System.Windows.Forms.Padding(0);
+            this.tblLayoutQuickButtons.Name = "tblLayoutQuickButtons";
+            this.tblLayoutQuickButtons.RowCount = 1;
+            this.tblLayoutQuickButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblLayoutQuickButtons.Size = new System.Drawing.Size(287, 30);
+            this.tblLayoutQuickButtons.TabIndex = 32;
             // 
             // button1
             // 
@@ -1324,6 +1334,18 @@ namespace Pulsar.Server.Forms
             this.btnQuickFileExplorer.UseVisualStyleBackColor = true;
             this.btnQuickFileExplorer.Click += new System.EventHandler(this.button3_Click);
             // 
+            // chkDisablePreview
+            // 
+            this.chkDisablePreview.AutoSize = true;
+            this.chkDisablePreview.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.chkDisablePreview.Dock = System.Windows.Forms.DockStyle.None;
+            this.chkDisablePreview.Location = new System.Drawing.Point(213, 3);
+            this.chkDisablePreview.Name = "chkDisablePreview";
+            this.chkDisablePreview.Size = new System.Drawing.Size(71, 17);
+            this.chkDisablePreview.TabIndex = 10;
+            this.chkDisablePreview.Text = "Disable Preview";
+            this.chkDisablePreview.UseVisualStyleBackColor = true;
+            // 
             // gBoxClientInfo
             // 
             this.gBoxClientInfo.Controls.Add(this.clientInfoListView);
@@ -1346,17 +1368,17 @@ namespace Pulsar.Server.Forms
             this.clientInfoListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.clientInfoListView.HideSelection = false;
             this.clientInfoListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3,
-            listViewItem4,
-            listViewItem5,
-            listViewItem6});
+            listViewItem19,
+            listViewItem20,
+            listViewItem21,
+            listViewItem22,
+            listViewItem23,
+            listViewItem24});
             this.clientInfoListView.Location = new System.Drawing.Point(3, 18);
-            listViewColumnSorter2.NeedNumberCompare = false;
-            listViewColumnSorter2.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter2.SortColumn = 0;
-            this.clientInfoListView.LvwColumnSorter = listViewColumnSorter2;
+            listViewColumnSorter18.NeedNumberCompare = false;
+            listViewColumnSorter18.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter18.SortColumn = 0;
+            this.clientInfoListView.LvwColumnSorter = listViewColumnSorter18;
             this.clientInfoListView.Name = "clientInfoListView";
             this.clientInfoListView.Size = new System.Drawing.Size(277, 116);
             this.clientInfoListView.TabIndex = 0;
@@ -1459,10 +1481,10 @@ namespace Pulsar.Server.Forms
             this.lstNoti.FullRowSelect = true;
             this.lstNoti.HideSelection = false;
             this.lstNoti.Location = new System.Drawing.Point(0, 0);
-            listViewColumnSorter3.NeedNumberCompare = false;
-            listViewColumnSorter3.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter3.SortColumn = 0;
-            this.lstNoti.LvwColumnSorter = listViewColumnSorter3;
+            listViewColumnSorter26.NeedNumberCompare = false;
+            listViewColumnSorter26.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter26.SortColumn = 0;
+            this.lstNoti.LvwColumnSorter = listViewColumnSorter26;
             this.lstNoti.Margin = new System.Windows.Forms.Padding(0);
             this.lstNoti.Name = "lstNoti";
             this.lstNoti.ShowItemToolTips = true;
@@ -1572,7 +1594,7 @@ namespace Pulsar.Server.Forms
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(6, 250);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(32, 13);
+            this.label10.Size = new System.Drawing.Size(31, 13);
             this.label10.TabIndex = 16;
             this.label10.Text = "BCH:";
             // 
@@ -1590,7 +1612,7 @@ namespace Pulsar.Server.Forms
             this.label9.AutoSize = true;
             this.label9.Location = new System.Drawing.Point(6, 222);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(28, 13);
+            this.label9.Size = new System.Drawing.Size(29, 13);
             this.label9.TabIndex = 14;
             this.label9.Text = "TRX:";
             // 
@@ -1680,7 +1702,7 @@ namespace Pulsar.Server.Forms
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(6, 82);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(25, 13);
+            this.label4.Size = new System.Drawing.Size(26, 13);
             this.label4.TabIndex = 4;
             this.label4.Text = "LTC:";
             // 
@@ -1698,7 +1720,7 @@ namespace Pulsar.Server.Forms
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(6, 54);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 13);
+            this.label3.Size = new System.Drawing.Size(30, 13);
             this.label3.TabIndex = 2;
             this.label3.Text = "ETH:";
             // 
@@ -1754,10 +1776,10 @@ namespace Pulsar.Server.Forms
             this.lstTasks.FullRowSelect = true;
             this.lstTasks.HideSelection = false;
             this.lstTasks.Location = new System.Drawing.Point(0, 0);
-            listViewColumnSorter4.NeedNumberCompare = false;
-            listViewColumnSorter4.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter4.SortColumn = 0;
-            this.lstTasks.LvwColumnSorter = listViewColumnSorter4;
+            listViewColumnSorter19.NeedNumberCompare = false;
+            listViewColumnSorter19.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter19.SortColumn = 0;
+            this.lstTasks.LvwColumnSorter = listViewColumnSorter19;
             this.lstTasks.Margin = new System.Windows.Forms.Padding(0);
             this.lstTasks.Name = "lstTasks";
             this.lstTasks.ShowItemToolTips = true;
@@ -1788,7 +1810,7 @@ namespace Pulsar.Server.Forms
             this.addTaskToolStripMenuItem,
             this.deleteTasksToolStripMenuItem});
             this.TasksContextMenuStrip.Name = "TasksContextMenuStrip";
-            this.TasksContextMenuStrip.Size = new System.Drawing.Size(139, 48);
+            this.TasksContextMenuStrip.Size = new System.Drawing.Size(138, 48);
             // 
             // addTaskToolStripMenuItem
             // 
@@ -1801,14 +1823,14 @@ namespace Pulsar.Server.Forms
             this.winREToolStripMenuItem1});
             this.addTaskToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.add;
             this.addTaskToolStripMenuItem.Name = "addTaskToolStripMenuItem";
-            this.addTaskToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.addTaskToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.addTaskToolStripMenuItem.Text = "Add Task";
             // 
             // remoteExecuteToolStripMenuItem1
             // 
             this.remoteExecuteToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.drive_go;
             this.remoteExecuteToolStripMenuItem1.Name = "remoteExecuteToolStripMenuItem1";
-            this.remoteExecuteToolStripMenuItem1.Size = new System.Drawing.Size(185, 22);
+            this.remoteExecuteToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
             this.remoteExecuteToolStripMenuItem1.Text = "Remote Execute";
             this.remoteExecuteToolStripMenuItem1.Click += new System.EventHandler(this.remoteExecuteToolStripMenuItem1_Click);
             // 
@@ -1816,7 +1838,7 @@ namespace Pulsar.Server.Forms
             // 
             this.shellCommandToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.terminal;
             this.shellCommandToolStripMenuItem.Name = "shellCommandToolStripMenuItem";
-            this.shellCommandToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.shellCommandToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.shellCommandToolStripMenuItem.Text = "Shell Command";
             this.shellCommandToolStripMenuItem.Click += new System.EventHandler(this.shellCommandToolStripMenuItem_Click);
             // 
@@ -1824,7 +1846,7 @@ namespace Pulsar.Server.Forms
             // 
             this.kematianToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.user_thief;
             this.kematianToolStripMenuItem.Name = "kematianToolStripMenuItem";
-            this.kematianToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.kematianToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.kematianToolStripMenuItem.Text = "Kematian Recovery";
             this.kematianToolStripMenuItem.Click += new System.EventHandler(this.kematianToolStripMenuItem_Click);
             // 
@@ -1832,7 +1854,7 @@ namespace Pulsar.Server.Forms
             // 
             this.showMessageBoxToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.information;
             this.showMessageBoxToolStripMenuItem1.Name = "showMessageBoxToolStripMenuItem1";
-            this.showMessageBoxToolStripMenuItem1.Size = new System.Drawing.Size(185, 22);
+            this.showMessageBoxToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
             this.showMessageBoxToolStripMenuItem1.Text = "Show Message Box";
             this.showMessageBoxToolStripMenuItem1.Click += new System.EventHandler(this.showMessageBoxToolStripMenuItem1_Click);
             // 
@@ -1840,7 +1862,7 @@ namespace Pulsar.Server.Forms
             // 
             this.excludeSystemDriveToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
             this.excludeSystemDriveToolStripMenuItem.Name = "excludeSystemDriveToolStripMenuItem";
-            this.excludeSystemDriveToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.excludeSystemDriveToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.excludeSystemDriveToolStripMenuItem.Text = "Exclude System Drive";
             this.excludeSystemDriveToolStripMenuItem.Click += new System.EventHandler(this.excludeSystemDriveToolStripMenuItem_Click);
             // 
@@ -1848,7 +1870,7 @@ namespace Pulsar.Server.Forms
             // 
             this.winREToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.anchor;
             this.winREToolStripMenuItem1.Name = "winREToolStripMenuItem1";
-            this.winREToolStripMenuItem1.Size = new System.Drawing.Size(185, 22);
+            this.winREToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
             this.winREToolStripMenuItem1.Text = "WinRE";
             this.winREToolStripMenuItem1.Click += new System.EventHandler(this.winREToolStripMenuItem1_Click);
             // 
@@ -1856,7 +1878,7 @@ namespace Pulsar.Server.Forms
             // 
             this.deleteTasksToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.delete;
             this.deleteTasksToolStripMenuItem.Name = "deleteTasksToolStripMenuItem";
-            this.deleteTasksToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.deleteTasksToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.deleteTasksToolStripMenuItem.Text = "Delete Task&s";
             this.deleteTasksToolStripMenuItem.Click += new System.EventHandler(this.deleteTasksToolStripMenuItem_Click);
             // 
@@ -1920,10 +1942,10 @@ namespace Pulsar.Server.Forms
             this.aeroListView2.FullRowSelect = true;
             this.aeroListView2.HideSelection = false;
             this.aeroListView2.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter5.NeedNumberCompare = false;
-            listViewColumnSorter5.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter5.SortColumn = 0;
-            this.aeroListView2.LvwColumnSorter = listViewColumnSorter5;
+            listViewColumnSorter12.NeedNumberCompare = false;
+            listViewColumnSorter12.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter12.SortColumn = 0;
+            this.aeroListView2.LvwColumnSorter = listViewColumnSorter12;
             this.aeroListView2.Name = "aeroListView2";
             this.aeroListView2.Size = new System.Drawing.Size(963, 423);
             this.aeroListView2.TabIndex = 0;
@@ -1965,10 +1987,10 @@ namespace Pulsar.Server.Forms
             this.aeroListView3.FullRowSelect = true;
             this.aeroListView3.HideSelection = false;
             this.aeroListView3.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter6.NeedNumberCompare = false;
-            listViewColumnSorter6.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter6.SortColumn = 0;
-            this.aeroListView3.LvwColumnSorter = listViewColumnSorter6;
+            listViewColumnSorter27.NeedNumberCompare = false;
+            listViewColumnSorter27.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter27.SortColumn = 0;
+            this.aeroListView3.LvwColumnSorter = listViewColumnSorter27;
             this.aeroListView3.Name = "aeroListView3";
             this.aeroListView3.Size = new System.Drawing.Size(963, 423);
             this.aeroListView3.TabIndex = 1;
@@ -2005,10 +2027,10 @@ namespace Pulsar.Server.Forms
             this.aeroListView4.FullRowSelect = true;
             this.aeroListView4.HideSelection = false;
             this.aeroListView4.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter7.NeedNumberCompare = false;
-            listViewColumnSorter7.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter7.SortColumn = 0;
-            this.aeroListView4.LvwColumnSorter = listViewColumnSorter7;
+            listViewColumnSorter28.NeedNumberCompare = false;
+            listViewColumnSorter28.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter28.SortColumn = 0;
+            this.aeroListView4.LvwColumnSorter = listViewColumnSorter28;
             this.aeroListView4.Name = "aeroListView4";
             this.aeroListView4.Size = new System.Drawing.Size(963, 423);
             this.aeroListView4.TabIndex = 2;
@@ -2044,10 +2066,10 @@ namespace Pulsar.Server.Forms
             this.aeroListView5.FullRowSelect = true;
             this.aeroListView5.HideSelection = false;
             this.aeroListView5.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter8.NeedNumberCompare = false;
-            listViewColumnSorter8.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter8.SortColumn = 0;
-            this.aeroListView5.LvwColumnSorter = listViewColumnSorter8;
+            listViewColumnSorter29.NeedNumberCompare = false;
+            listViewColumnSorter29.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter29.SortColumn = 0;
+            this.aeroListView5.LvwColumnSorter = listViewColumnSorter29;
             this.aeroListView5.Name = "aeroListView5";
             this.aeroListView5.Size = new System.Drawing.Size(963, 423);
             this.aeroListView5.TabIndex = 0;
@@ -2078,10 +2100,10 @@ namespace Pulsar.Server.Forms
             this.aeroListView6.FullRowSelect = true;
             this.aeroListView6.HideSelection = false;
             this.aeroListView6.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter9.NeedNumberCompare = false;
-            listViewColumnSorter9.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter9.SortColumn = 0;
-            this.aeroListView6.LvwColumnSorter = listViewColumnSorter9;
+            listViewColumnSorter30.NeedNumberCompare = false;
+            listViewColumnSorter30.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter30.SortColumn = 0;
+            this.aeroListView6.LvwColumnSorter = listViewColumnSorter30;
             this.aeroListView6.Name = "aeroListView6";
             this.aeroListView6.Size = new System.Drawing.Size(963, 423);
             this.aeroListView6.TabIndex = 1;
@@ -2111,10 +2133,10 @@ namespace Pulsar.Server.Forms
             this.aeroListView1.FullRowSelect = true;
             this.aeroListView1.HideSelection = false;
             this.aeroListView1.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter10.NeedNumberCompare = false;
-            listViewColumnSorter10.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter10.SortColumn = 0;
-            this.aeroListView1.LvwColumnSorter = listViewColumnSorter10;
+            listViewColumnSorter31.NeedNumberCompare = false;
+            listViewColumnSorter31.Order = System.Windows.Forms.SortOrder.None;
+            listViewColumnSorter31.SortColumn = 0;
+            this.aeroListView1.LvwColumnSorter = listViewColumnSorter31;
             this.aeroListView1.Name = "aeroListView1";
             this.aeroListView1.Size = new System.Drawing.Size(153, 459);
             this.aeroListView1.TabIndex = 0;
@@ -2192,7 +2214,7 @@ namespace Pulsar.Server.Forms
             this.autoTasksToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.server;
             this.autoTasksToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.autoTasksToolStripMenuItem.Name = "autoTasksToolStripMenuItem";
-            this.autoTasksToolStripMenuItem.Size = new System.Drawing.Size(92, 21);
+            this.autoTasksToolStripMenuItem.Size = new System.Drawing.Size(91, 21);
             this.autoTasksToolStripMenuItem.Text = "Auto Tasks";
             this.autoTasksToolStripMenuItem.Click += new System.EventHandler(this.autoTasksToolStripMenuItem_Click);
             // 
@@ -2247,14 +2269,6 @@ namespace Pulsar.Server.Forms
             this.builderToolStripMenuItem.Text = "Builder";
             this.builderToolStripMenuItem.Click += new System.EventHandler(this.builderToolStripMenuItem_Click);
             // 
-            // remoteSystemAudioToolStripMenuItem
-            // 
-            this.remoteSystemAudioToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.sound;
-            this.remoteSystemAudioToolStripMenuItem.Name = "remoteSystemAudioToolStripMenuItem";
-            this.remoteSystemAudioToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.remoteSystemAudioToolStripMenuItem.Text = "Remote System Audio";
-            this.remoteSystemAudioToolStripMenuItem.Click += new System.EventHandler(this.remoteSystemAudioToolStripMenuItem_Click);
-            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -2278,7 +2292,8 @@ namespace Pulsar.Server.Forms
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).EndInit();
-            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tblLayoutQuickButtons.ResumeLayout(false);
+            this.tblLayoutQuickButtons.PerformLayout();
             this.gBoxClientInfo.ResumeLayout(false);
             this.DebugContextMenuStrip.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
@@ -2443,7 +2458,7 @@ namespace Pulsar.Server.Forms
         private AeroListView clientInfoListView;
         private ColumnHeader Names;
         private ColumnHeader Stats;
-        private TableLayoutPanel tableLayoutPanel2;
+        private TableLayoutPanel tblLayoutQuickButtons;
         private Button button1;
         private Button btnQuickRemoteDesktop;
         private Button btnQuickWebcam;
@@ -2484,5 +2499,6 @@ namespace Pulsar.Server.Forms
         private ToolStripMenuItem removeWinresetSurvivalToolStripMenuItem;
         private ToolStripMenuItem winREToolStripMenuItem1;
         private ToolStripMenuItem remoteSystemAudioToolStripMenuItem;
+        public CheckBox chkDisablePreview;
     }
 }

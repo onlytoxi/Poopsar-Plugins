@@ -85,18 +85,6 @@ namespace Pulsar.Server.Forms
         private static readonly Dictionary<Client, FrmRemoteDesktop> OpenedForms = new Dictionary<Client, FrmRemoteDesktop>();
 
         private bool _useGPU = false;
-        private const int UpdateInterval = 10;
-
-        /// <summary>
-        /// Stopwatch used to suppress FPS display during the initial seconds of the stream,
-        /// preventing unstable or misleading values from being shown.
-        /// </summary>
-        private readonly Stopwatch _fpsDisplayStopwatch = Stopwatch.StartNew();
-
-        /// <summary>
-        /// Last frames per second value to show in the title bar.
-        /// </summary>
-        private float _lastFps = -1f;
 
         private int _framesReceived = 0;
 

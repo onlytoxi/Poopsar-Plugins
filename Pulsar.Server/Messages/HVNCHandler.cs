@@ -89,7 +89,6 @@ namespace Pulsar.Server.Messages
 
         // buffer parameters
         private readonly int _initialFramesRequested = 5; // request 5 frames initially
-        private readonly int _defaultFrameRequestBatch = 3; // request 3 frames at a time now on
         private int _pendingFrames = 0;
         private readonly SemaphoreSlim _frameRequestSemaphore = new SemaphoreSlim(1, 1);
         private readonly Stopwatch _frameReceiptStopwatch = new Stopwatch();

@@ -385,6 +385,11 @@ namespace Pulsar.Server.Forms
                     DisplayIndex = 0
                 };
 
+                if (chkDisablePreview.Checked)
+                {
+                    return;
+                }
+
                 selectedClients[0].Send(image);
             }
             else if (selectedClients.Length == 0)
