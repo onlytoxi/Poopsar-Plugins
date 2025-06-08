@@ -220,7 +220,7 @@ namespace Pulsar.Server.Forms
                 lstClients.StretchColumnByIndex(accountTypeIndex);
             }
 
-            EventLog("Welcome to Pulsar Continuation.", "info");
+            EventLog("Welcome to Pulsar.", "info");
             InitializeServer();
             AutostartListening();
             EventLogVisability();

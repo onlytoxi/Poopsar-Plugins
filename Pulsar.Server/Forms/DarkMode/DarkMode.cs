@@ -1628,17 +1628,17 @@ namespace DarkModeForms
 
         public override Color ImageMarginGradientBegin
         {
-            get { return Colors.Control; }
+            get { return Colors.Background; }
         }
 
         public override Color ImageMarginGradientMiddle
         {
-            get { return Colors.Control; }
+            get { return Colors.Background; }
         }
 
         public override Color ImageMarginGradientEnd
         {
-            get { return Colors.Control; }
+            get { return Colors.Background; }
         }
     }
 
