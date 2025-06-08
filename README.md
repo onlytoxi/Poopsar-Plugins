@@ -31,8 +31,8 @@ Pulsar is a lightweight, fast, and powerful remote administration tool written i
 
 ## 📚 Need Help or Want to Offer Suggestions?
 
-Join our [Telegram channel](https://t.me/SomaliDevs) for updates, discussions, and support from the development team and community.
-
+Join our [Telegram channel](https://t.me/SomaliDevs) for updates, discussions, and support from the development team and community. \
+Or our  [Discord Channel](https://discord.gg/rKDJ6A78Yu)
 ---
 
 ## 📸 Screenshots
@@ -69,6 +69,10 @@ Join our [Telegram channel](https://t.me/SomaliDevs) for updates, discussions, a
 - 🛡️ **Built-in Obfuscator & Packer** — Protect your builds
 - 🛑 **Anti-VM / Anti-Debug** — Evade analysis environments
 - 🖼️ **Screen Corrupter / Illuminati** — Fun/experimental features
+- 📷 **Webcam Capture** — Capture images from remote webcams
+- 🎤 **Microphone Capture** — Record audio from remote microphones
+- 💬 **Chat** — Real-time chat with remote users
+- 📝 **Remote Script Execution** — Execute PowerShell, Batch, or custom scripts
 - **…and much more!**
 
 ---
