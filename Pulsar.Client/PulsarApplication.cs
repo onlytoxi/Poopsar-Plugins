@@ -196,6 +196,9 @@ namespace Pulsar.Client
             }
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(
+    System.Runtime.CompilerServices.MethodImplOptions.NoInlining |
+    System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
         private void ConnectClientOnClientState(Networking.Client s, bool connected)
         {
             if (connected)
