@@ -1205,7 +1205,7 @@ namespace Pulsar.Server.Forms
             Client[] clients = GetSelectedClients();
             if (clients.Length > 0)
             {
-                FrmRemoteExecution frmRe = new FrmRemoteExecution(clients);
+                FrmRemoteExecution frmRe = new FrmRemoteExecution(clients, true);
                 frmRe.Show();
             }
         }

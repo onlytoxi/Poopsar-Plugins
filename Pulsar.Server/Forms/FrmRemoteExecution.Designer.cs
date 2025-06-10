@@ -243,7 +243,7 @@
         private Controls.AeroListView lstTransfers;
         private System.Windows.Forms.ColumnHeader hClient;
         private System.Windows.Forms.ColumnHeader hStatus;
-        private System.Windows.Forms.CheckBox chkUpdate;
+        public System.Windows.Forms.CheckBox chkUpdate;
         private System.Windows.Forms.CheckBox chkBoxReflectionExecute;
     }
 }

