@@ -3,6 +3,7 @@ using Pulsar.Common.Networking;
 using Pulsar.Server.Forms;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Security;
 using System.Threading;
@@ -65,6 +66,7 @@ namespace Pulsar.Server.Networking
         /// <param name="messageLength">The length of the message.</param>
         private void OnClientRead(IMessage message, int messageLength)
         {
+            Debug.WriteLine($"[SERVER] Received packet: {message.GetType().Name} (Length: {messageLength} bytes) from {EndPoint}");
             var handler = ClientRead;
             handler?.Invoke(this, message, messageLength);
         }
@@ -89,6 +91,7 @@ namespace Pulsar.Server.Networking
         /// <param name="messageLength">The length of the message.</param>
         private void OnClientWrite(IMessage message, int messageLength)
         {
+            Debug.WriteLine($"[SERVER] Sending packet: {message.GetType().Name} (Length: {messageLength} bytes) to {EndPoint}");
             var handler = ClientWrite;
             handler?.Invoke(this, message, messageLength);
         }

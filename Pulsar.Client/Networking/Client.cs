@@ -15,6 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Collections.Concurrent;
 using Pulsar.Common.Messages.Administration.ReverseProxy;
+using System.Diagnostics;
 
 namespace Pulsar.Client.Networking
 {
@@ -88,6 +89,7 @@ namespace Pulsar.Client.Networking
         /// <param name="messageLength">The length of the message.</param>
         private void OnClientRead(IMessage message, int messageLength)
         {
+            Debug.WriteLine($"[CLIENT] Received packet: {message.GetType().Name} (Length: {messageLength} bytes)");
             var handler = ClientRead;
             handler?.Invoke(this, message, messageLength);
         }
@@ -112,6 +114,7 @@ namespace Pulsar.Client.Networking
         /// <param name="messageLength">The length of the message.</param>
         private void OnClientWrite(IMessage message, int messageLength)
         {
+            Debug.WriteLine($"[CLIENT] Sending packet: {message.GetType().Name} (Length: {messageLength} bytes)");
             var handler = ClientWrite;
             handler?.Invoke(this, message, messageLength);
         }
