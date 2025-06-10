@@ -152,18 +152,19 @@ namespace Pulsar.Server.Networking
         /// <summary>
         /// The keep-alive interval in ms.
         /// </summary>
-        private const uint KeepAliveInterval = 25000; // 25 s
-
+        private const uint KeepAliveInterval = 25000; // 25 s        
+        
         /// <summary>
         /// The buffer pool to hold the receive-buffers for the clients.
+        /// Optimized with a reasonable initial buffer count to reduce allocations.
         /// </summary>
-        private readonly BufferPool _bufferPool = new BufferPool(BufferSize, 1) { ClearOnReturn = false };
+        private readonly BufferPool _bufferPool = new BufferPool(BufferSize, 8) { ClearOnReturn = false };
 
         /// <summary>
         /// The listening state of the server. True if listening, else False.
         /// </summary>
-        public bool Listening { get; private set; }
-
+        public bool Listening { get; private set; }        
+        
         /// <summary>
         /// Gets the clients currently connected to the server.
         /// </summary>
@@ -174,6 +175,20 @@ namespace Pulsar.Server.Networking
                 lock (_clientsLock)
                 {
                     return _clients.ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of clients currently connected to the server without array allocation.
+        /// </summary>
+        public int ClientCount
+        {
+            get
+            {
+                lock (_clientsLock)
+                {
+                    return _clients.Count;
                 }
             }
         }
@@ -224,6 +239,60 @@ namespace Pulsar.Server.Networking
         }
 
         /// <summary>
+        /// Updates the status strip icon for the server listening state.
+        /// </summary>
+        /// <param name="isListening">True if server is listening, false otherwise.</param>
+        private void UpdateServerStatusIcon(bool isListening)
+        {
+            var mainForm = GetMainFormSafe();
+            if (mainForm == null) return;
+
+            var iconResource = isListening 
+                ? Properties.Resources.bullet_green
+                : Properties.Resources.bullet_red;
+
+            try
+            {
+                if (mainForm.InvokeRequired)
+                {
+                    mainForm.BeginInvoke(new Action(() => SetStatusStripIcon(mainForm, iconResource)));
+                }
+                else
+                {
+                    SetStatusStripIcon(mainForm, iconResource);
+                }
+            }
+            catch (Exception)
+            {
+                // ChatGPT simplified ts
+            }
+        }
+
+        /// <summary>
+        /// Safely gets the main form instance if it exists and is valid.
+        /// </summary>
+        /// <returns>The main form instance or null if not available.</returns>
+        private static FrmMain GetMainFormSafe()
+        {
+            var mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
+            return (mainForm != null && !mainForm.IsDisposed && !mainForm.Disposing) ? mainForm : null;
+        }
+
+        /// <summary>
+        /// Sets the status strip icon if the control is valid.
+        /// </summary>
+        /// <param name="mainForm">The main form instance.</param>
+        /// <param name="icon">The icon to set.</param>
+        private static void SetStatusStripIcon(FrmMain mainForm, System.Drawing.Image icon)
+        {
+            if (mainForm.statusStrip?.IsDisposed == false && 
+                mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+            {
+                mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = icon;
+            }
+        }
+
+        /// <summary>
         /// Begins listening for clients.
         /// </summary>
         /// <param name="port">Port to listen for clients on.</param>
@@ -238,8 +307,8 @@ namespace Pulsar.Server.Networking
             {
                 _UPnPService = new UPnPService();
                 _UPnPService.CreatePortMapAsync(port);
-            }
-
+            }          
+            
             if (Socket.OSSupportsIPv6 && ipv6)
             {
                 _handle = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
@@ -251,6 +320,9 @@ namespace Pulsar.Server.Networking
                 _handle = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _handle.Bind(new IPEndPoint(IPAddress.Any, port));
             }
+            
+            _handle.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _handle.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             _handle.Listen(1000);
 
             OnServerState(true);
@@ -261,9 +333,8 @@ namespace Pulsar.Server.Networking
               if (!_handle.AcceptAsync(_item))
                 AcceptClient(this, _item);
 
-
-            FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
-            if (mainForm != null && !mainForm.IsDisposed && !mainForm.Disposing)
+            var mainForm = GetMainFormSafe();
+            if (mainForm != null)
             {
                 try
                 {
@@ -273,11 +344,8 @@ namespace Pulsar.Server.Networking
                         {
                             try
                             {
-                                mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
-                                if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
-                                {
-                                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_green;
-                                }
+                                mainForm.EventLog($"Started listening for connections on port: {port}", "info");
+                                UpdateServerStatusIcon(true);
                             }
                             catch (Exception)
                             {
@@ -286,11 +354,8 @@ namespace Pulsar.Server.Networking
                     }
                     else
                     {
-                        mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
-                        if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
-                        {
-                            mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_green;
-                        }
+                        mainForm.EventLog($"Started listening for connections on port: {port}", "info");
+                        UpdateServerStatusIcon(true);
                     }
                 }
                 catch (Exception)
@@ -432,62 +497,32 @@ namespace Pulsar.Server.Networking
             {
                 _UPnPService.DeletePortMapAsync(Port);
                 _UPnPService = null;
-            }
-
+            }            
+            
             lock (_clientsLock)
             {
-                while (_clients.Count != 0)
+                var clientsToDisconnect = _clients.ToList();
+                _clients.Clear();
+                
+                foreach (var client in clientsToDisconnect)
                 {
                     try
                     {
-                        _clients[0].Disconnect();
-                        _clients[0].ClientState -= OnClientState;
-                        _clients[0].ClientRead -= OnClientRead;
-                        _clients[0].ClientWrite -= OnClientWrite;
-                        _clients.RemoveAt(0);
+                        client.Disconnect();
+                        client.ClientState -= OnClientState;
+                        client.ClientRead -= OnClientRead;
+                        client.ClientWrite -= OnClientWrite;
                     }
                     catch
                     {
-
+                        // Silently continue with other clients
                     }
                 }
             }
 
             ProcessingDisconnect = false;
             OnServerState(false);
-            FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
-            if (mainForm != null && !mainForm.IsDisposed && !mainForm.Disposing)
-            {
-                try
-                {
-                    if (mainForm.InvokeRequired)
-                    {
-                        mainForm.BeginInvoke(new Action(() =>
-                        {
-                            try
-                            {
-                                if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
-                                {
-                                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_red;
-                                }
-                            }
-                            catch (Exception)
-                            {
-                            }
-                        }));
-                    }
-                    else
-                    {
-                        if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
-                        {
-                            mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_red;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
+            UpdateServerStatusIcon(false);
         }
     }
 }
