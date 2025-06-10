@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.Server.Forms
 {
-    partial class FrmHVNCFileSelection
+    partial class FrmCustomFileStarter
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmHVNCFileSelection));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmCustomFileStarter));
             this.txtBoxPathAndArgs = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btnStart = new System.Windows.Forms.Button();
@@ -65,7 +65,7 @@
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
-            // FrmHVNCFileSelection
+            // FrmCustomFileStarter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -75,9 +75,9 @@
             this.Controls.Add(this.txtBoxPathAndArgs);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(400, 150);
-            this.Name = "FrmHVNCFileSelection";
+            this.Name = "FrmCustomFileStarter";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "HVNC Custom File Selector";
+            this.Text = "Custom File Selector";
             this.ResumeLayout(false);
             this.PerformLayout();
 

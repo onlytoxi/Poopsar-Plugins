@@ -8,6 +8,8 @@ namespace Pulsar.Common.Messages.Monitoring.HVNC
     public class StartHVNCProcess : IMessage
     {
         [ProtoMember(1)]
-        public string Application { get; set; }
+        public string Path { get; set; }
+        [ProtoMember(2)]
+        public string Arguments { get; set; }
     }
 }
