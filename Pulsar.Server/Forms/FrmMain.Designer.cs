@@ -50,6 +50,7 @@ namespace Pulsar.Server.Forms
             System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Uptime");
             System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Antivirus");
             System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Default Browser");
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("Ping");
             Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter2 = new Pulsar.Server.Utilities.ListViewColumnSorter();
             Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter3 = new Pulsar.Server.Utilities.ListViewColumnSorter();
             Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter4 = new Pulsar.Server.Utilities.ListViewColumnSorter();
@@ -113,6 +114,7 @@ namespace Pulsar.Server.Forms
             this.winREToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.installWinresetSurvivalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeWinresetSurvivalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.winRECustomFileForSurvivalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nicknameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blockIPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -241,7 +243,6 @@ namespace Pulsar.Server.Forms
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.builderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.winRECustomFileForSurvivalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip.SuspendLayout();
             this.tableLayoutPanel.SuspendLayout();
             this.MainTabControl.SuspendLayout();
@@ -280,7 +281,7 @@ namespace Pulsar.Server.Forms
             this.lineToolStripMenuItem,
             this.selectAllToolStripMenuItem});
             this.contextMenuStrip.Name = "ctxtMenu";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 186);
+            this.contextMenuStrip.Size = new System.Drawing.Size(180, 164);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
             // systemToolStripMenuItem
@@ -299,7 +300,7 @@ namespace Pulsar.Server.Forms
             this.actionsToolStripMenuItem});
             this.systemToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog;
             this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
-            this.systemToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.systemToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.systemToolStripMenuItem.Text = "Administration";
             this.systemToolStripMenuItem.Click += new System.EventHandler(this.systemToolStripMenuItem_Click);
             // 
@@ -447,7 +448,7 @@ namespace Pulsar.Server.Forms
             this.virtualMonitorToolStripMenuItem});
             this.surveillanceToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.monitoring;
             this.surveillanceToolStripMenuItem.Name = "surveillanceToolStripMenuItem";
-            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.surveillanceToolStripMenuItem.Text = "Monitoring";
             // 
             // remoteDesktopToolStripMenuItem2
@@ -549,7 +550,7 @@ namespace Pulsar.Server.Forms
             this.visitWebsiteToolStripMenuItem});
             this.userSupportToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.user;
             this.userSupportToolStripMenuItem.Name = "userSupportToolStripMenuItem";
-            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.userSupportToolStripMenuItem.Text = "User Support";
             // 
             // remoteChatToolStripMenuItem
@@ -590,7 +591,7 @@ namespace Pulsar.Server.Forms
             this.addCDriveExceptionToolStripMenuItem});
             this.quickCommandsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.wrench;
             this.quickCommandsToolStripMenuItem.Name = "quickCommandsToolStripMenuItem";
-            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.quickCommandsToolStripMenuItem.Text = "Miscellaneous";
             // 
             // addCDriveExceptionToolStripMenuItem
@@ -611,7 +612,7 @@ namespace Pulsar.Server.Forms
             this.gdiToolStripMenuItem});
             this.funMethodsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.emoticon_evilgrin;
             this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
-            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
             // 
             // bSODToolStripMenuItem
@@ -685,7 +686,7 @@ namespace Pulsar.Server.Forms
             this.uninstallToolStripMenuItem});
             this.connectionToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("connectionToolStripMenuItem.Image")));
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.connectionToolStripMenuItem.Text = "Client Management";
             // 
             // elevatedToolStripMenuItem
@@ -697,7 +698,7 @@ namespace Pulsar.Server.Forms
             this.uACBypassToolStripMenuItem});
             this.elevatedToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
             this.elevatedToolStripMenuItem.Name = "elevatedToolStripMenuItem";
-            this.elevatedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.elevatedToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.elevatedToolStripMenuItem.Text = "Elevated";
             // 
             // elevateClientPermissionsToolStripMenuItem
@@ -740,7 +741,7 @@ namespace Pulsar.Server.Forms
             this.winRECustomFileForSurvivalToolStripMenuItem});
             this.winREToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.anchor;
             this.winREToolStripMenuItem.Name = "winREToolStripMenuItem";
-            this.winREToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.winREToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.winREToolStripMenuItem.Text = "WinRE";
             // 
             // installWinresetSurvivalToolStripMenuItem
@@ -759,11 +760,19 @@ namespace Pulsar.Server.Forms
             this.removeWinresetSurvivalToolStripMenuItem.Text = "Remove Winreset Survival";
             this.removeWinresetSurvivalToolStripMenuItem.Click += new System.EventHandler(this.removeWinresetSurvivalToolStripMenuItem_Click);
             // 
+            // winRECustomFileForSurvivalToolStripMenuItem
+            // 
+            this.winRECustomFileForSurvivalToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.folder;
+            this.winRECustomFileForSurvivalToolStripMenuItem.Name = "winRECustomFileForSurvivalToolStripMenuItem";
+            this.winRECustomFileForSurvivalToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
+            this.winRECustomFileForSurvivalToolStripMenuItem.Text = "Custom file WinRE Survival";
+            this.winRECustomFileForSurvivalToolStripMenuItem.Click += new System.EventHandler(this.winRECustomFileForSurvivalToolStripMenuItem_Click);
+            // 
             // nicknameToolStripMenuItem
             // 
             this.nicknameToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.textfield_rename;
             this.nicknameToolStripMenuItem.Name = "nicknameToolStripMenuItem";
-            this.nicknameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.nicknameToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.nicknameToolStripMenuItem.Text = "Nickname";
             this.nicknameToolStripMenuItem.Click += new System.EventHandler(this.nicknameToolStripMenuItem_Click);
             // 
@@ -771,7 +780,7 @@ namespace Pulsar.Server.Forms
             // 
             this.blockIPToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.delete;
             this.blockIPToolStripMenuItem.Name = "blockIPToolStripMenuItem";
-            this.blockIPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.blockIPToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.blockIPToolStripMenuItem.Text = "Block IP";
             this.blockIPToolStripMenuItem.Click += new System.EventHandler(this.blockIPToolStripMenuItem_Click);
             // 
@@ -779,7 +788,7 @@ namespace Pulsar.Server.Forms
             // 
             this.updateToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("updateToolStripMenuItem.Image")));
             this.updateToolStripMenuItem.Name = "updateToolStripMenuItem";
-            this.updateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.updateToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.updateToolStripMenuItem.Text = "Update";
             this.updateToolStripMenuItem.Click += new System.EventHandler(this.updateToolStripMenuItem_Click);
             // 
@@ -787,7 +796,7 @@ namespace Pulsar.Server.Forms
             // 
             this.reconnectToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("reconnectToolStripMenuItem.Image")));
             this.reconnectToolStripMenuItem.Name = "reconnectToolStripMenuItem";
-            this.reconnectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.reconnectToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.reconnectToolStripMenuItem.Text = "Reconnect";
             this.reconnectToolStripMenuItem.Click += new System.EventHandler(this.reconnectToolStripMenuItem_Click);
             // 
@@ -795,7 +804,7 @@ namespace Pulsar.Server.Forms
             // 
             this.disconnectToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("disconnectToolStripMenuItem.Image")));
             this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
-            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.disconnectToolStripMenuItem.Text = "Disconnect";
             this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
             // 
@@ -803,19 +812,19 @@ namespace Pulsar.Server.Forms
             // 
             this.uninstallToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("uninstallToolStripMenuItem.Image")));
             this.uninstallToolStripMenuItem.Name = "uninstallToolStripMenuItem";
-            this.uninstallToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.uninstallToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.uninstallToolStripMenuItem.Text = "Uninstall";
             this.uninstallToolStripMenuItem.Click += new System.EventHandler(this.uninstallToolStripMenuItem_Click);
             // 
             // lineToolStripMenuItem
             // 
             this.lineToolStripMenuItem.Name = "lineToolStripMenuItem";
-            this.lineToolStripMenuItem.Size = new System.Drawing.Size(177, 6);
+            this.lineToolStripMenuItem.Size = new System.Drawing.Size(176, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
@@ -1396,7 +1405,8 @@ namespace Pulsar.Server.Forms
             listViewItem3,
             listViewItem4,
             listViewItem5,
-            listViewItem6});
+            listViewItem6,
+            listViewItem7});
             this.clientInfoListView.Location = new System.Drawing.Point(3, 18);
             listViewColumnSorter2.NeedNumberCompare = false;
             listViewColumnSorter2.Order = System.Windows.Forms.SortOrder.None;
@@ -1416,7 +1426,7 @@ namespace Pulsar.Server.Forms
             // Stats
             // 
             this.Stats.Text = "Stats";
-            this.Stats.Width = 151;
+            this.Stats.Width = 134;
             // 
             // splitter1
             // 
@@ -2291,14 +2301,6 @@ namespace Pulsar.Server.Forms
             this.builderToolStripMenuItem.Size = new System.Drawing.Size(72, 21);
             this.builderToolStripMenuItem.Text = "Builder";
             this.builderToolStripMenuItem.Click += new System.EventHandler(this.builderToolStripMenuItem_Click);
-            // 
-            // winRECustomFileForSurvivalToolStripMenuItem
-            // 
-            this.winRECustomFileForSurvivalToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.folder;
-            this.winRECustomFileForSurvivalToolStripMenuItem.Name = "winRECustomFileForSurvivalToolStripMenuItem";
-            this.winRECustomFileForSurvivalToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
-            this.winRECustomFileForSurvivalToolStripMenuItem.Text = "Custom file WinRE Survival";
-            this.winRECustomFileForSurvivalToolStripMenuItem.Click += new System.EventHandler(this.winRECustomFileForSurvivalToolStripMenuItem_Click);
             // 
             // FrmMain
             // 

