@@ -258,17 +258,40 @@ namespace Pulsar.Server.Networking
             _item = new SocketAsyncEventArgs();
             _item.Completed += AcceptClient;
 
-            if (!_handle.AcceptAsync(_item))
+              if (!_handle.AcceptAsync(_item))
                 AcceptClient(this, _item);
 
 
             FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
-            if (mainForm != null)
+            if (mainForm != null && !mainForm.IsDisposed && !mainForm.Disposing)
             {
                 try
                 {
-                    mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
-                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_green;
+                    if (mainForm.InvokeRequired)
+                    {
+                        mainForm.BeginInvoke(new Action(() =>
+                        {
+                            try
+                            {
+                                mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
+                                if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+                                {
+                                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_green;
+                                }
+                            }
+                            catch (Exception)
+                            {
+                            }
+                        }));
+                    }
+                    else
+                    {
+                        mainForm.EventLog("Started listening for connections on port: " + port.ToString(), "info");
+                        if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+                        {
+                            mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_green;
+                        }
+                    }
                 }
                 catch (Exception)
                 {
@@ -433,17 +456,36 @@ namespace Pulsar.Server.Networking
             ProcessingDisconnect = false;
             OnServerState(false);
             FrmMain mainForm = Application.OpenForms.OfType<FrmMain>().FirstOrDefault();
-            if (mainForm != null)
+            if (mainForm != null && !mainForm.IsDisposed && !mainForm.Disposing)
             {
-                if (mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+                try
                 {
-                    try
+                    if (mainForm.InvokeRequired)
                     {
-                        mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_red;
+                        mainForm.BeginInvoke(new Action(() =>
+                        {
+                            try
+                            {
+                                if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+                                {
+                                    mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_red;
+                                }
+                            }
+                            catch (Exception)
+                            {
+                            }
+                        }));
                     }
-                    catch (System.ComponentModel.Win32Exception)
+                    else
                     {
+                        if (mainForm.statusStrip != null && !mainForm.statusStrip.IsDisposed && mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
+                        {
+                            mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = Pulsar.Server.Properties.Resources.bullet_red;
+                        }
                     }
+                }
+                catch (Exception)
+                {
                 }
             }
         }
