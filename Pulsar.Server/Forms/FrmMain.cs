@@ -51,7 +51,6 @@ namespace Pulsar.Server.Forms
         private readonly object _lockClients = new object();
         private PreviewHandler _previewImageHandler;
         private readonly string AutoTasksFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "autotasks.json");
-        private long _previewRequestTimestamp;
 
         public FrmMain()
         {
@@ -379,7 +378,7 @@ namespace Pulsar.Server.Forms
                     MessageHandler.Unregister(_previewImageHandler);
                     _previewImageHandler.Dispose();
                 }
-
+                
                 _previewImageHandler = new PreviewHandler(selectedClients[0], pictureBoxMain, clientInfoListView);
                 MessageHandler.Register(_previewImageHandler);
 
@@ -388,13 +387,12 @@ namespace Pulsar.Server.Forms
                     Quality = 20,
                     DisplayIndex = 0
                 };
-
+                
                 if (chkDisablePreview.Checked)
                 {
                     return;
                 }
 
-                _previewRequestTimestamp = Stopwatch.GetTimestamp();
                 selectedClients[0].Send(image);
             }
             else if (selectedClients.Length == 0)
@@ -430,22 +428,6 @@ namespace Pulsar.Server.Forms
                 var pingItem = new ListViewItem("Ping");
                 pingItem.SubItems.Add("N/A");
                 clientInfoListView.Items.Add(pingItem);
-            }
-        }
-
-        public void OnPreviewResponseReceived(GetPreviewResponse response)
-        {
-            double pingMs = 0;
-            if (_previewRequestTimestamp != 0)
-            {
-                long freq = Stopwatch.Frequency;
-                long now = Stopwatch.GetTimestamp();
-                pingMs = ((now - _previewRequestTimestamp) * 1000.0) / freq;
-                _previewRequestTimestamp = 0;
-            }
-            if (_previewImageHandler != null)
-            {
-                _previewImageHandler.SetLastPing((int)Math.Round(pingMs));
             }
         }
 

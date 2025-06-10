@@ -238,6 +238,7 @@ namespace Pulsar.Client
         {
             //preview stuff
             _messageProcessors.Add(new PreviewHandler());
+            _messageProcessors.Add(new PingHandler());
 
             _messageProcessors.Add(new QuickCommandHandler());
             _messageProcessors.Add(new HVNCHandler());
