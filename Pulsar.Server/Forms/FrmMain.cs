@@ -2092,13 +2092,13 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private void remoteSystemSoundToolStripMenuItem_Click(object sender, EventArgs e)
+        private void remoteSystemAudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
             {
-                var frmAudio = FrmRemoteSystemAudio.CreateNewOrGetExisting(c);
-                frmAudio.Show();
-                frmAudio.Focus();
+                var frmSysAudio = FrmRemoteSystemAudio.CreateNewOrGetExisting(c);
+                frmSysAudio.Show();
+                frmSysAudio.Focus();
             }
         }
 
@@ -2197,16 +2197,6 @@ namespace Pulsar.Server.Forms
         private void winREToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             AddTask("WinRE", "", "");
-        }
-
-        private void remoteSystemAudioToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                var frmSysAudio = FrmRemoteSystemAudio.CreateNewOrGetExisting(c);
-                frmSysAudio.Show();
-                frmSysAudio.Focus();
-            }
         }
     }
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Pulsar.Server.Properties;
 using Pulsar.Server.Forms.DarkMode;
+using System.Diagnostics;
 
 namespace Pulsar.Server.Forms
 {
@@ -59,7 +60,7 @@ namespace Pulsar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
         }
 
         /// <summary>
@@ -81,13 +82,25 @@ namespace Pulsar.Server.Forms
             _remoteAudioHandler.OutputChanged -= OutputChanged;
             _connectClient.ClientState -= ClientDisconnected;
         }
+
         /// <summary>
         /// Starts the remote audio stream and begin to receive audio frames.
         /// </summary>
         private void StartStream()
         {
-            ToggleConfigurationControls(true);
-            _remoteAudioHandler.BeginReceiveAudio(cbDevices.SelectedIndex);
+            try
+            {
+                ToggleConfigurationControls(true);
+                _remoteAudioHandler.BeginReceiveAudio(cbDevices.SelectedIndex);
+            }
+            catch (Exception ex)
+            {
+                ToggleConfigurationControls(false);
+                MessageBox.Show($"Failed to start audio stream: {ex.Message}",
+                    "Audio Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -95,9 +108,16 @@ namespace Pulsar.Server.Forms
         /// </summary>
         private void StopStream()
         {
-            ToggleConfigurationControls(false);
-
-            _remoteAudioHandler.EndReceiveAudio(cbDevices.SelectedIndex);
+            try
+            {
+                ToggleConfigurationControls(false);
+                _remoteAudioHandler.EndReceiveAudio(cbDevices.SelectedIndex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error stopping audio stream: {ex.Message}");
+                ToggleConfigurationControls(false);
+            }
         }
 
         /// <summary>
@@ -125,7 +145,6 @@ namespace Pulsar.Server.Forms
             cbDevices.SelectedIndex = 0;
         }
 
-
         /// <summary>
         /// Called whenever a client disconnects.
         /// </summary>
@@ -148,30 +167,84 @@ namespace Pulsar.Server.Forms
 
         private void FrmRemoteSystemAudio_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // all cleanup logic goes here
-            if (_remoteAudioHandler.IsStarted) StopStream();
-            UnregisterMessageHandler();
-            _remoteAudioHandler.Dispose();
+            try
+            {
+                // all cleanup logic goes here
+                if (_remoteAudioHandler.IsStarted)
+                {
+                    try
+                    {
+                        StopStream();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error stopping audio stream during form close: {ex.Message}");
+                    }
+                }
+
+                try
+                {
+                    UnregisterMessageHandler();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error unregistering message handler: {ex.Message}");
+                }
+
+                try
+                {
+                    _remoteAudioHandler.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error disposing audio handler: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in form closing handler: {ex.Message}");
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (cbDevices.Items.Count == 0)
+            try
             {
-                MessageBox.Show("No output detected.\nPlease wait till the client sends a list with outputs.",
-                    "Starting failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                if (cbDevices.Items.Count == 0)
+                {
+                    MessageBox.Show("No output detected.\nPlease wait till the client sends a list with outputs.",
+                        "Starting failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                StartStream();
+                button1.Enabled = false;
+                button2.Enabled = true;
             }
-            StartStream();
-            button1.Enabled = false;
-            button2.Enabled = true;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error starting audio: {ex.Message}",
+                    "Audio Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                button1.Enabled = true;
+                button2.Enabled = false;
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            StopStream();
-            button1.Enabled = true;
-            button2.Enabled = false;
+            try
+            {
+                StopStream();
+                button1.Enabled = true;
+                button2.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in stop button: {ex.Message}");
+                button1.Enabled = true;
+                button2.Enabled = false;
+            }
         }
 
         private void barQuality_Scroll_1(object sender, EventArgs e)

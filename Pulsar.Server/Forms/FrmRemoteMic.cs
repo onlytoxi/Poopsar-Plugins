@@ -59,7 +59,7 @@ namespace Pulsar.Server.Forms
             RegisterMessageHandler();
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
         }
 
         /// <summary>
@@ -100,8 +100,19 @@ namespace Pulsar.Server.Forms
         /// </summary>
         private void StartStream()
         {
-            ToggleConfigurationControls(true);
-            _remoteAudioHandler.BeginReceiveAudio(cbDevices.SelectedIndex);
+            try
+            {
+                ToggleConfigurationControls(true);
+                _remoteAudioHandler.BeginReceiveAudio(cbDevices.SelectedIndex);
+            }
+            catch (Exception ex)
+            {
+                ToggleConfigurationControls(false);
+                MessageBox.Show($"Failed to start microphone stream: {ex.Message}",
+                    "Microphone Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -109,9 +120,16 @@ namespace Pulsar.Server.Forms
         /// </summary>
         private void StopStream()
         {
-            ToggleConfigurationControls(false);
-
-            _remoteAudioHandler.EndReceiveAudio(cbDevices.SelectedIndex);
+            try
+            {
+                ToggleConfigurationControls(false);
+                _remoteAudioHandler.EndReceiveAudio(cbDevices.SelectedIndex);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error stopping microphone stream: {ex.Message}");
+                ToggleConfigurationControls(false);
+            }
         }
 
         /// <summary>
@@ -148,10 +166,43 @@ namespace Pulsar.Server.Forms
 
         private void FrmAudio_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // all cleanup logic goes here
-            if (_remoteAudioHandler.IsStarted) StopStream();
-            UnregisterMessageHandler();
-            _remoteAudioHandler.Dispose();
+            try
+            {
+                // all cleanup logic goes here
+                if (_remoteAudioHandler.IsStarted)
+                {
+                    try
+                    {
+                        StopStream();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error stopping microphone stream during form close: {ex.Message}");
+                    }
+                }
+
+                try
+                {
+                    UnregisterMessageHandler();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error unregistering microphone message handler: {ex.Message}");
+                }
+
+                try
+                {
+                    _remoteAudioHandler.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error disposing microphone handler: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in microphone form closing handler: {ex.Message}");
+            }
         }
 
         private void FrmAudio_Resize(object sender, EventArgs e)
@@ -160,7 +211,7 @@ namespace Pulsar.Server.Forms
                 return;
         }
 
-        #region  Audio Configuration
+        #region Audio Configuration
 
         private void barQuality_Scroll(object sender, EventArgs e)
         {
@@ -233,28 +284,48 @@ namespace Pulsar.Server.Forms
             else if (value >= 9)
                 lblQualityShow.Text += " (high)";
         }
-        #endregion
 
-   
+        #endregion Audio Configuration
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (cbDevices.Items.Count == 0)
+            try
             {
-                MessageBox.Show("No microphone detected.\nPlease wait till the client sends a list with micrphones.",
-                    "Starting failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                if (cbDevices.Items.Count == 0)
+                {
+                    MessageBox.Show("No microphone detected.\nPlease wait till the client sends a list with micrphones.",
+                        "Starting failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                StartStream();
+                button1.Enabled = false;
+                button2.Enabled = true;
             }
-            StartStream();
-            button1.Enabled = false;
-            button2.Enabled = true;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error starting microphone: {ex.Message}",
+                    "Microphone Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                button1.Enabled = true;
+                button2.Enabled = false;
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            StopStream();
-            button1.Enabled = true;
-            button2.Enabled = false;
+            try
+            {
+                StopStream();
+                button1.Enabled = true;
+                button2.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in microphone stop button: {ex.Message}");
+                button1.Enabled = true;
+                button2.Enabled = false;
+            }
         }
     }
 }

