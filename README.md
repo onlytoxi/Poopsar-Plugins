@@ -50,7 +50,7 @@ Or our  [Discord Channel](https://discord.gg/rKDJ6A78Yu)
 - 🔒 **Encrypted Communication** — Secure TLS encryption for all traffic
 - 📡 **UPnP Support** — Automatic port forwarding for easy setup
 - 🖥️ **HVNC** — Hidden Virtual Network Computing for stealthy remote access
-- 🕵️‍♂️ **Kematian Stealer Built-in** — Integrated credential recovery
+- 🕵️‍♂️ **Kematian Gatherer Built-in** — Integrated credential recovery
 - 📋 **Task Manager** — View and manage remote processes
 - 🗂️ **File Manager** — Browse, upload, and download files remotely
 - ⏳ **Startup Manager** — Control startup programs
@@ -159,7 +159,7 @@ Pulsar is licensed under the **[MIT](LICENSE)**. Third-party licenses are availa
 - **[Java](https://github.com/JavaRenamed-dev)** – Feature Additions
 - **[Body](https://body.sh)** – Obfuscation
 - **[cpores](https://github.com/vahrervert)** – VNC Drawing, Favorites, Overlays
-- **[Rishie](https://github.com/rishieissocool)** – Stealer Options
+- **[Rishie](https://github.com/rishieissocool)** – Gatherer Options
 - **[jungsuxx](https://github.com/jungsuxx)** – HVNC Input & Code Simplification
 - **[MOOM aka my lebron](https://github.com/moom825/)** – Inspiration & Batch Obfuscation
 - **[Poli](https://github.com/paulmaster59/)** - Discord Server & Custom Pulsar Crypter

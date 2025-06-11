@@ -1925,7 +1925,7 @@ namespace Pulsar.Server.Forms
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage5.Size = new System.Drawing.Size(1136, 465);
             this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "StealerSorter";
+            this.tabPage5.Text = "GathererSorter";
             this.tabPage5.UseVisualStyleBackColor = true;
             // 
             // splitter2
