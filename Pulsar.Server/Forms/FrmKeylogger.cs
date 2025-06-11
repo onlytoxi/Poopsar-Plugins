@@ -139,12 +139,28 @@ namespace Pulsar.Server.Forms
             stripLblStatus.Text = "Status: Retrieving logs...";
             _keyloggerHandler.RetrieveLogs();
         }
-
+        
         private void lstLogs_ItemActivate(object sender, EventArgs e)
         {
             if (lstLogs.SelectedItems.Count > 0)
             {
-                wLogViewer.Navigate(Path.Combine(_baseDownloadPath, lstLogs.SelectedItems[0].Text));
+                try
+                {
+                    string logFilePath = Path.Combine(_baseDownloadPath, lstLogs.SelectedItems[0].Text);
+                    if (File.Exists(logFilePath))
+                    {
+                        string logContent = File.ReadAllText(logFilePath);
+                        rtbLogViewer.Text = logContent;
+                    }
+                    else
+                    {
+                        rtbLogViewer.Text = "Log file not found.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    rtbLogViewer.Text = $"Error loading log file: {ex.Message}";
+                }
             }
         }
 

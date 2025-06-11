@@ -33,7 +33,7 @@
             this.hLogs = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.btnGetLogs = new System.Windows.Forms.Button();
-            this.wLogViewer = new System.Windows.Forms.WebBrowser();
+            this.rtbLogViewer = new System.Windows.Forms.RichTextBox();
             this.stripLblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -80,17 +80,16 @@
             this.btnGetLogs.UseVisualStyleBackColor = true;
             this.btnGetLogs.Click += new System.EventHandler(this.btnGetLogs_Click);
             // 
-            // wLogViewer
+            // rtbLogViewer
             // 
-            this.wLogViewer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.rtbLogViewer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.wLogViewer.Location = new System.Drawing.Point(154, 50);
-            this.wLogViewer.MinimumSize = new System.Drawing.Size(20, 20);
-            this.wLogViewer.Name = "wLogViewer";
-            this.wLogViewer.ScriptErrorsSuppressed = true;
-            this.wLogViewer.Size = new System.Drawing.Size(708, 409);
-            this.wLogViewer.TabIndex = 8;
+            this.rtbLogViewer.Location = new System.Drawing.Point(154, 50);
+            this.rtbLogViewer.Name = "rtbLogViewer";
+            this.rtbLogViewer.ReadOnly = true;
+            this.rtbLogViewer.Size = new System.Drawing.Size(708, 409);
+            this.rtbLogViewer.TabIndex = 8;
             // 
             // stripLblStatus
             // 
@@ -103,7 +102,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(862, 482);
-            this.Controls.Add(this.wLogViewer);
+            this.Controls.Add(this.rtbLogViewer);
             this.Controls.Add(this.btnGetLogs);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.lstLogs);
@@ -122,11 +121,11 @@
 
         }
 
-        #endregion
+        #endregion        
 
         private System.Windows.Forms.ColumnHeader hLogs;
         private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.WebBrowser wLogViewer;
+        private System.Windows.Forms.RichTextBox rtbLogViewer;
         private System.Windows.Forms.ListView lstLogs;
         private System.Windows.Forms.Button btnGetLogs;
         private System.Windows.Forms.ToolStripStatusLabel stripLblStatus;
