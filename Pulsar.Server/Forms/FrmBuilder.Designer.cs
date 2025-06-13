@@ -12,7 +12,7 @@ namespace Pulsar.Server.Forms
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>        
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -29,6 +29,12 @@ namespace Pulsar.Server.Forms
                 {
                     portSetDelayTimer.Stop();
                     portSetDelayTimer.Dispose();
+                }
+
+                if (iconPreview?.Image != null)
+                {
+                    iconPreview.Image.Dispose();
+                    iconPreview.Image = null;
                 }
             }
             base.Dispose(disposing);
@@ -114,6 +120,7 @@ namespace Pulsar.Server.Forms
             this.txtInstallSubDirectory = new System.Windows.Forms.TextBox();
             this.txtPreviewPath = new System.Windows.Forms.TextBox();
             this.assemblyPage = new System.Windows.Forms.TabPage();
+            this.btnClone = new System.Windows.Forms.Button();
             this.iconPreview = new System.Windows.Forms.PictureBox();
             this.btnBrowseIcon = new System.Windows.Forms.Button();
             this.txtIconPath = new System.Windows.Forms.TextBox();
@@ -919,6 +926,7 @@ namespace Pulsar.Server.Forms
             // assemblyPage
             // 
             this.assemblyPage.BackColor = System.Drawing.SystemColors.Control;
+            this.assemblyPage.Controls.Add(this.btnClone);
             this.assemblyPage.Controls.Add(this.iconPreview);
             this.assemblyPage.Controls.Add(this.btnBrowseIcon);
             this.assemblyPage.Controls.Add(this.txtIconPath);
@@ -950,12 +958,23 @@ namespace Pulsar.Server.Forms
             this.assemblyPage.TabIndex = 2;
             this.assemblyPage.Text = "Assembly Settings";
             // 
+            // btnClone
+            // 
+            this.btnClone.Location = new System.Drawing.Point(9, 343);
+            this.btnClone.Name = "btnClone";
+            this.btnClone.Size = new System.Drawing.Size(152, 23);
+            this.btnClone.TabIndex = 43;
+            this.btnClone.Text = "Copy Assembly from Exe";
+            this.btnClone.UseVisualStyleBackColor = true;
+            this.btnClone.Click += new System.EventHandler(this.btnClone_Click);
+            // 
             // iconPreview
             // 
+            this.iconPreview.BackColor = System.Drawing.Color.Transparent;
             this.iconPreview.Location = new System.Drawing.Point(319, 302);
             this.iconPreview.Name = "iconPreview";
             this.iconPreview.Size = new System.Drawing.Size(64, 64);
-            this.iconPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.iconPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.iconPreview.TabIndex = 42;
             this.iconPreview.TabStop = false;
             // 
@@ -1400,5 +1419,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.CheckBox chkUACBypass;
         private System.Windows.Forms.CheckBox chkCriticalProcess;
         private System.Windows.Forms.Button btnShellcode;
+        private System.Windows.Forms.Button btnClone;
     }
 }
