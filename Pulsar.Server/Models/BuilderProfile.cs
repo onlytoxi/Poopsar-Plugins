@@ -1,444 +1,405 @@
+using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.XPath;
 
 namespace Pulsar.Server.Models
 {
     public class BuilderProfile
     {
         private readonly string _profilePath;
+        private BuilderProfileModel _model;
 
         public string Hosts
         {
-            get
-            {
-                return ReadValueSafe("Hosts");
-            }
+            get => _model.Hosts;
             set
             {
-                WriteValue("Hosts", value);
+                _model.Hosts = value;
+                Save();
             }
         }
+
         public string Pastebin
         {
-            get
-            {
-                return ReadValueSafe("Pastebin");
-            }
+            get => _model.Pastebin;
             set
             {
-                WriteValue("Pastebin", value);
+                _model.Pastebin = value;
+                Save();
             }
         }
 
         public string Tag
         {
-            get
-            {
-                return ReadValueSafe("Tag", "Office04");
-            }
+            get => _model.Tag;
             set
             {
-                WriteValue("Tag", value);
+                _model.Tag = value;
+                Save();
             }
         }
 
         public int Delay
         {
-            get
-            {
-                return int.Parse(ReadValueSafe("Delay", "3000"));
-            }
+            get => _model.Delay;
             set
             {
-                WriteValue("Delay", value.ToString());
+                _model.Delay = value;
+                Save();
             }
         }
 
         public string Mutex
         {
-            get
-            {
-                return ReadValueSafe("Mutex", Guid.NewGuid().ToString());
-            }
+            get => _model.Mutex;
             set
             {
-                WriteValue("Mutex", value);
+                _model.Mutex = value;
+                Save();
             }
         }
 
         public bool InstallClient
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("InstallClient", "False"));
-            }
+            get => _model.InstallClient;
             set
             {
-                WriteValue("InstallClient", value.ToString());
+                _model.InstallClient = value;
+                Save();
             }
         }
 
         public string InstallName
         {
-            get
-            {
-                return ReadValueSafe("InstallName", "Client");
-            }
+            get => _model.InstallName;
             set
             {
-                WriteValue("InstallName", value);
+                _model.InstallName = value;
+                Save();
             }
         }
 
         public short InstallPath
         {
-            get
-            {
-                return short.Parse(ReadValueSafe("InstallPath", "1"));
-            }
+            get => _model.InstallPath;
             set
             {
-                WriteValue("InstallPath", value.ToString());
+                _model.InstallPath = value;
+                Save();
             }
         }
 
         public string InstallSub
         {
-            get
-            {
-                return ReadValueSafe("InstallSub", "SubDir");
-            }
+            get => _model.InstallSub;
             set
             {
-                WriteValue("InstallSub", value);
+                _model.InstallSub = value;
+                Save();
             }
         }
 
         public bool HideFile
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("HideFile", "False"));
-            }
+            get => _model.HideFile;
             set
             {
-                WriteValue("HideFile", value.ToString());
+                _model.HideFile = value;
+                Save();
             }
         }
 
         public bool HideSubDirectory
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("HideSubDirectory", "False"));
-            }
+            get => _model.HideSubDirectory;
             set
             {
-                WriteValue("HideSubDirectory", value.ToString());
+                _model.HideSubDirectory = value;
+                Save();
             }
         }
 
         public bool AddStartup
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("AddStartup", "False"));
-            }
+            get => _model.AddStartup;
             set
             {
-                WriteValue("AddStartup", value.ToString());
+                _model.AddStartup = value;
+                Save();
             }
         }
 
         public string RegistryName
         {
-            get
-            {
-                return ReadValueSafe("RegistryName", "Pulsar Client Startup");
-            }
+            get => _model.RegistryName;
             set
             {
-                WriteValue("RegistryName", value);
+                _model.RegistryName = value;
+                Save();
             }
         }
 
         public bool ChangeIcon
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("ChangeIcon", "False"));
-            }
+            get => _model.ChangeIcon;
             set
             {
-                WriteValue("ChangeIcon", value.ToString());
+                _model.ChangeIcon = value;
+                Save();
             }
         }
 
         public string IconPath
         {
-            get
-            {
-                return ReadValueSafe("IconPath");
-            }
+            get => _model.IconPath;
             set
             {
-                WriteValue("IconPath", value);
+                _model.IconPath = value;
+                Save();
             }
         }
 
         public bool ChangeAsmInfo
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("ChangeAsmInfo", "False"));
-            }
+            get => _model.ChangeAsmInfo;
             set
             {
-                WriteValue("ChangeAsmInfo", value.ToString());
+                _model.ChangeAsmInfo = value;
+                Save();
             }
         }
 
         public bool Keylogger
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("Keylogger", "False"));
-            }
+            get => _model.Keylogger;
             set
             {
-                WriteValue("Keylogger", value.ToString());
+                _model.Keylogger = value;
+                Save();
             }
         }
 
         public string LogDirectoryName
         {
-            get
-            {
-                return ReadValueSafe("LogDirectoryName", "Logs");
-            }
+            get => _model.LogDirectoryName;
             set
             {
-                WriteValue("LogDirectoryName", value);
+                _model.LogDirectoryName = value;
+                Save();
             }
         }
 
         public bool HideLogDirectory
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("HideLogDirectory", "False"));
-            }
+            get => _model.HideLogDirectory;
             set
             {
-                WriteValue("HideLogDirectory", value.ToString());
+                _model.HideLogDirectory = value;
+                Save();
             }
         }
 
         public bool EnablePastebin
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("EnablePastebin", "False"));
-            }
+            get => _model.EnablePastebin;
             set
             {
-                WriteValue("EnablePastebin", value.ToString());
+                _model.EnablePastebin = value;
+                Save();
             }
         }
 
         public bool EnableAntiVM
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("EnableAntiVM", "False"));
-            }
+            get => _model.EnableAntiVM;
             set
             {
-                WriteValue("EnableAntiVM", value.ToString());
+                _model.EnableAntiVM = value;
+                Save();
             }
         }
 
         public bool EnableAntiDebug
         {
-            get
-            {
-                return bool.Parse(ReadValueSafe("EnableAntiDebug", "False"));
-            }
+            get => _model.EnableAntiDebug;
             set
             {
-                WriteValue("EnableAntiDebug", value.ToString());
+                _model.EnableAntiDebug = value;
+                Save();
+            }
+        }
+
+        // New properties for the missing checkboxes
+        public bool EnableObfuscate
+        {
+            get => _model.EnableObfuscate;
+            set
+            {
+                _model.EnableObfuscate = value;
+                Save();
+            }
+        }
+
+        public bool EnablePack
+        {
+            get => _model.EnablePack;
+            set
+            {
+                _model.EnablePack = value;
+                Save();
+            }
+        }
+
+        public bool EnableCriticalProcess
+        {
+            get => _model.EnableCriticalProcess;
+            set
+            {
+                _model.EnableCriticalProcess = value;
+                Save();
+            }
+        }
+
+        public bool EnableUACBypass
+        {
+            get => _model.EnableUACBypass;
+            set
+            {
+                _model.EnableUACBypass = value;
+                Save();
             }
         }
 
         public string ProductName
         {
-            get
-            {
-                return ReadValueSafe("ProductName");
-            }
+            get => _model.ProductName;
             set
             {
-                WriteValue("ProductName", value);
+                _model.ProductName = value;
+                Save();
             }
         }
 
         public string Description
         {
-            get
-            {
-                return ReadValueSafe("Description");
-            }
+            get => _model.Description;
             set
             {
-                WriteValue("Description", value);
+                _model.Description = value;
+                Save();
             }
         }
 
         public string CompanyName
         {
-            get
-            {
-                return ReadValueSafe("CompanyName");
-            }
+            get => _model.CompanyName;
             set
             {
-                WriteValue("CompanyName", value);
+                _model.CompanyName = value;
+                Save();
             }
         }
 
         public string Copyright
         {
-            get
-            {
-                return ReadValueSafe("Copyright");
-            }
+            get => _model.Copyright;
             set
             {
-                WriteValue("Copyright", value);
+                _model.Copyright = value;
+                Save();
             }
         }
 
         public string Trademarks
         {
-            get
-            {
-                return ReadValueSafe("Trademarks");
-            }
+            get => _model.Trademarks;
             set
             {
-                WriteValue("Trademarks", value);
+                _model.Trademarks = value;
+                Save();
             }
         }
 
         public string OriginalFilename
         {
-            get
-            {
-                return ReadValueSafe("OriginalFilename");
-            }
+            get => _model.OriginalFilename;
             set
             {
-                WriteValue("OriginalFilename", value);
+                _model.OriginalFilename = value;
+                Save();
             }
         }
 
         public string ProductVersion
         {
-            get
-            {
-                return ReadValueSafe("ProductVersion");
-            }
+            get => _model.ProductVersion;
             set
             {
-                WriteValue("ProductVersion", value);
+                _model.ProductVersion = value;
+                Save();
             }
         }
 
         public string FileVersion
         {
-            get
-            {
-                return ReadValueSafe("FileVersion");
-            }
+            get => _model.FileVersion;
             set
             {
-                WriteValue("FileVersion", value);
+                _model.FileVersion = value;
+                Save();
             }
         }
 
         public BuilderProfile(string profileName)
         {
-            if (string.IsNullOrEmpty(profileName)) throw new ArgumentException("Invalid Profile Path");
-            _profilePath = Path.Combine(Application.StartupPath, "Profiles\\" + profileName + ".xml");
+            if (string.IsNullOrEmpty(profileName)) 
+                throw new ArgumentException("Invalid Profile Path");
+            
+            _profilePath = Path.Combine(Application.StartupPath, "Profiles", profileName + ".json");
+            Load();
         }
 
-        private string ReadValue(string pstrValueToRead)
+        private void Load()
         {
             try
             {
-                XPathDocument doc = new XPathDocument(_profilePath);
-                XPathNavigator nav = doc.CreateNavigator();
-                XPathExpression expr = nav.Compile(@"/settings/" + pstrValueToRead);
-                XPathNodeIterator iterator = nav.Select(expr);
-                while (iterator.MoveNext())
-                {
-                    return iterator.Current.Value;
-                }
-
-                return string.Empty;
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        private string ReadValueSafe(string pstrValueToRead, string defaultValue = "")
-        {
-            string value = ReadValue(pstrValueToRead);
-            return (!string.IsNullOrEmpty(value)) ? value : defaultValue;
-        }
-
-        private void WriteValue(string pstrValueToRead, string pstrValueToWrite)
-        {
-            try
-            {
-                XmlDocument doc = new XmlDocument();
-
                 if (File.Exists(_profilePath))
                 {
-                    using (var reader = new XmlTextReader(_profilePath))
-                    {
-                        doc.Load(reader);
-                    }
+                    string json = File.ReadAllText(_profilePath);
+                    _model = JsonConvert.DeserializeObject<BuilderProfileModel>(json) ?? new BuilderProfileModel();
                 }
                 else
                 {
-                    var dir = Path.GetDirectoryName(_profilePath);
-                    if (!Directory.Exists(dir))
-                    {
-                        Directory.CreateDirectory(dir);
-                    }
-                    doc.AppendChild(doc.CreateElement("settings"));
+                    _model = new BuilderProfileModel();
+                    _model.Mutex = Guid.NewGuid().ToString();
+                    Save();
                 }
-
-                XmlElement root = doc.DocumentElement;
-                XmlNode oldNode = root.SelectSingleNode(@"/settings/" + pstrValueToRead);
-                if (oldNode == null) // create if not exist
-                {
-                    oldNode = doc.SelectSingleNode("settings");
-                    oldNode.AppendChild(doc.CreateElement(pstrValueToRead)).InnerText = pstrValueToWrite;
-                    doc.Save(_profilePath);
-                    return;
-                }
-                oldNode.InnerText = pstrValueToWrite;
-                doc.Save(_profilePath);
             }
             catch
             {
+                _model = new BuilderProfileModel();
+                _model.Mutex = Guid.NewGuid().ToString();
+            }
+        }
+
+        private void Save()
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(_profilePath);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                string json = JsonConvert.SerializeObject(_model, Formatting.Indented);
+                File.WriteAllText(_profilePath, json);
+            }
+            catch
+            {
+                Debug.WriteLine("Failed to save");
             }
         }
     }
