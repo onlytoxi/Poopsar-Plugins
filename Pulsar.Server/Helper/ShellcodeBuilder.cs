@@ -127,6 +127,7 @@ namespace Pulsar.Server.Helper
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex.Message);
                 throw new InvalidOperationException(
                     $"Failed to read generated shellcode!"
                 );

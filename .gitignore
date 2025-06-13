@@ -205,7 +205,3 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
-
-#so I don't leak everything
-/Pulsar.Client/Config/Settings.cs
-/Pulsar.Client/Config/Settings.cs

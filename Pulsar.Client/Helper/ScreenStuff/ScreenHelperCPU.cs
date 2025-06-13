@@ -46,8 +46,8 @@ namespace Pulsar.Client.Helper
         private static extern bool DeleteDC(IntPtr hdc);
 
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool SetThreadDesktop(IntPtr hDesktop);
-
+        private static extern bool SetThreadDesktop(IntPtr hDesktop);        
+        
         public static Bitmap CaptureScreen(int screenNumber, bool setThreadPointer = false)
         {
             if (setThreadPointer)
@@ -56,7 +56,7 @@ namespace Pulsar.Client.Helper
             }
 
             Rectangle bounds = GetBounds(screenNumber);
-            Bitmap screen = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppPArgb);
+            Bitmap screen = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
 
             using (Graphics g = Graphics.FromImage(screen))
             {

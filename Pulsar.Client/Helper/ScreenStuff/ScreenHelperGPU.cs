@@ -14,14 +14,22 @@ using Rectangle = System.Drawing.Rectangle;
 using Pulsar.Client.Config;
 
 namespace Pulsar.Client.Helper
-{
+{    
     public static class ScreenHelperGPU
     {
         private static Device _device;
         private static OutputDuplication[] _duplicatedOutputs;
         private static Texture2D _stagingTexture;
         private static readonly object _lockObject = new object();
-        private static bool _initialized = false;
+        private static bool _initialized = false;        
+        private static Bitmap _cachedBitmap;
+        private static int _cachedWidth = 0;
+        private static int _cachedHeight = 0;
+        private static PixelFormat _cachedPixelFormat = PixelFormat.Format32bppArgb;
+        private static DateTime _cacheCreatedTime = DateTime.MinValue;
+        private static readonly TimeSpan CACHE_MAX_AGE = TimeSpan.FromMinutes(5);
+        private static bool _cachingDisabled = false;
+        private static bool _isFirstCapture = true;
 
         private const int CURSOR_SHOWING = 0x00000001;
         private static readonly int CursorInfoSize = Marshal.SizeOf(typeof(CURSORINFO));
@@ -115,8 +123,8 @@ namespace Pulsar.Client.Helper
                 CleanupResources();
                 throw;
             }
-        }
-
+        }        
+        
         /// <summary>
         /// Disposes and cleans up DirectX resources
         /// </summary>
@@ -140,9 +148,10 @@ namespace Pulsar.Client.Helper
                 _device = null;
 
                 _initialized = false;
+                _isFirstCapture = true;
             }
         }
-
+        
         /// <summary>
         /// Captures the screen using GPU acceleration
         /// </summary>
@@ -181,8 +190,114 @@ namespace Pulsar.Client.Helper
                         //Debug.WriteLine("Screen is in landscape mode, using CPU capture");
                         return ScreenHelperCPU.CaptureScreen(screenNumber, false);
                     }
-
-                    Bitmap resultBitmap = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+                    const PixelFormat targetPixelFormat = PixelFormat.Format32bppArgb;                    // Check if we can reuse the cached bitmap
+                    Bitmap resultBitmap = null;                    
+                    
+                    bool canReuseBitmap = !_cachingDisabled && 
+                                         !_isFirstCapture &&
+                                         _cachedBitmap != null && 
+                                         _cachedWidth == bounds.Width && 
+                                         _cachedHeight == bounds.Height &&
+                                         _cachedPixelFormat == targetPixelFormat &&
+                                         (DateTime.UtcNow - _cacheCreatedTime) < CACHE_MAX_AGE;
+                    
+                    if (canReuseBitmap)
+                    {
+                        try
+                        {
+                            if (_cachedBitmap != null)
+                            {
+                                int width = _cachedBitmap.Width;
+                                int height = _cachedBitmap.Height;
+                                PixelFormat format = _cachedBitmap.PixelFormat;
+                                
+                                if (width == bounds.Width && 
+                                    height == bounds.Height &&
+                                    format == targetPixelFormat)
+                                {
+                                    resultBitmap = _cachedBitmap;
+                                    Debug.WriteLine("Reusing cached bitmap");
+                                }
+                                else
+                                {
+                                    Debug.WriteLine($"Cached bitmap size/format mismatch: {width}x{height} {format} vs {bounds.Width}x{bounds.Height} {targetPixelFormat}");
+                                    canReuseBitmap = false;
+                                }
+                            }
+                            else
+                            {
+                                canReuseBitmap = false;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Cached bitmap validation failed: {ex.Message}");
+                            Debug.WriteLine("Disabling bitmap caching due to corruption");
+                            _cachingDisabled = true;
+                            canReuseBitmap = false;
+                            _cachedBitmap = null;
+                            _cachedWidth = 0;
+                            _cachedHeight = 0;
+                        }
+                    }
+                    else if (_cachedBitmap != null && (DateTime.UtcNow - _cacheCreatedTime) >= CACHE_MAX_AGE)
+                    {
+                        Debug.WriteLine("Cache expired, forcing cleanup");
+                        CleanupCache();
+                    }
+                    
+                    if (!canReuseBitmap)
+                    {
+                        if (_cachedBitmap != null)
+                        {
+                            try
+                            {
+                                _cachedBitmap.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error disposing cached bitmap: {ex.Message}");
+                            }
+                            finally
+                            {
+                                _cachedBitmap = null;
+                                _cachedWidth = 0;
+                                _cachedHeight = 0;
+                            }
+                        }                        
+                        
+                        try
+                        {
+                            resultBitmap = new Bitmap(bounds.Width, bounds.Height, targetPixelFormat);
+                            
+                            if (!_cachingDisabled && !_isFirstCapture)
+                            {
+                                _cachedBitmap = resultBitmap;
+                                _cachedWidth = bounds.Width;
+                                _cachedHeight = bounds.Height;
+                                _cachedPixelFormat = targetPixelFormat;
+                                _cacheCreatedTime = DateTime.UtcNow;
+                                Debug.WriteLine($"Created new cached bitmap: {bounds.Width}x{bounds.Height}, {targetPixelFormat}");
+                            }
+                            else
+                            {
+                                if (_isFirstCapture)
+                                {
+                                    Debug.WriteLine($"First capture - creating bitmap without caching: {bounds.Width}x{bounds.Height}, {targetPixelFormat}");
+                                    _isFirstCapture = false;
+                                }
+                                else
+                                {
+                                    Debug.WriteLine($"Created new bitmap (caching disabled): {bounds.Width}x{bounds.Height}, {targetPixelFormat}");
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Failed to create bitmap: {ex.Message}");
+                            throw;
+                        }
+                    }
 
                     OutputDuplication outputDuplication = _duplicatedOutputs[screenNumber];
 
@@ -261,21 +376,94 @@ namespace Pulsar.Client.Helper
                             // Unmap
                             _device.ImmediateContext.UnmapSubresource(_stagingTexture, 0);
                             resultBitmap.UnlockBits(bmpData);
-
-                            // Draw cursor manually (DXGI doesn't capture cursors automatically)
-                            using (Graphics g = Graphics.FromImage(resultBitmap))
+                            try
                             {
-                                IntPtr hdc = g.GetHdc();
-                                DrawCursor(hdc, bounds);
-                                g.ReleaseHdc(hdc);
+                                bool bitmapValid = false;
+                                try
+                                {
+                                    if (resultBitmap != null)
+                                    {
+                                        int width = resultBitmap.Width;
+                                        int height = resultBitmap.Height;
+                                        PixelFormat format = resultBitmap.PixelFormat;
+                                        
+                                        bitmapValid = width > 0 && height > 0 && format != PixelFormat.Undefined;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine($"Bitmap validation for cursor failed: {ex.Message}");
+                                    bitmapValid = false;
+                                }
+
+                                if (bitmapValid)
+                                {
+                                    using (Graphics g = Graphics.FromImage(resultBitmap))
+                                    {
+                                        IntPtr hdc = g.GetHdc();
+                                        try
+                                        {
+                                            DrawCursor(hdc, bounds);
+                                        }
+                                        finally
+                                        {
+                                            g.ReleaseHdc(hdc);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("Bitmap invalid for cursor drawing - skipping cursor");
+                                }
                             }
-                        }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Failed to draw cursor: {ex.Message}");
+                            }
+                        }                    
                     }
                     finally
                     {
                         // Always release frame and resource
                         desktopResource?.Dispose();
                         outputDuplication?.ReleaseFrame();
+                    }
+                    try
+                    {
+                        if (resultBitmap == null)
+                        {
+                            Debug.WriteLine("GPU capture produced null bitmap, falling back to CPU");
+                            return ScreenHelperCPU.CaptureScreen(screenNumber, false);
+                        }
+
+                        int bmpWidth, bmpHeight;
+                        PixelFormat bmpFormat;
+                        
+                        try
+                        {
+                            bmpWidth = resultBitmap.Width;
+                            bmpHeight = resultBitmap.Height;
+                            bmpFormat = resultBitmap.PixelFormat;
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"GPU capture bitmap properties invalid: {ex.Message}, falling back to CPU");
+                            resultBitmap?.Dispose();
+                            return ScreenHelperCPU.CaptureScreen(screenNumber, false);
+                        }
+
+                        if (bmpWidth <= 0 || bmpHeight <= 0 || bmpFormat == PixelFormat.Undefined)
+                        {
+                            Debug.WriteLine($"GPU capture produced invalid bitmap properties: {bmpWidth}x{bmpHeight} {bmpFormat}, falling back to CPU");
+                            resultBitmap?.Dispose();
+                            return ScreenHelperCPU.CaptureScreen(screenNumber, false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Final bitmap validation failed: {ex.Message}, falling back to CPU");
+                        resultBitmap?.Dispose();
+                        return ScreenHelperCPU.CaptureScreen(screenNumber, false);
                     }
 
                     return resultBitmap;
@@ -301,14 +489,45 @@ namespace Pulsar.Client.Helper
             {
                 DrawIcon(destDeviceContext, cursorInfo.ScreenPosition.X - bounds.X, cursorInfo.ScreenPosition.Y - bounds.Y, cursorInfo.hCursor);
             }
-        }
-
+        }        
+        
         /// <summary>
         /// Gets the bounds of the specified screen
         /// </summary>
         public static Rectangle GetBounds(int screenNumber)
         {
             return System.Windows.Forms.Screen.AllScreens[screenNumber].Bounds;
+        }        
+        
+        /// <summary>
+        /// Cleans up all cached resources to free memory
+        /// </summary>
+        public static void CleanupCache()
+        {
+            lock (_lockObject)
+            {
+                if (_cachedBitmap != null)
+                {
+                    try
+                    {
+                        _cachedBitmap.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error disposing cached bitmap: {ex.Message}");
+                    }
+                    finally
+                    {
+                        _cachedBitmap = null;
+                        _cachedWidth = 0;
+                        _cachedHeight = 0;
+                        _cachedPixelFormat = PixelFormat.Format32bppArgb;
+                        _cacheCreatedTime = DateTime.MinValue;
+                        _cachingDisabled = false;
+                        _isFirstCapture = true;
+                    }
+                }
+            }
         }
 
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
