@@ -1,6 +1,7 @@
-﻿using System;
+﻿using DiscordRPC;
+using System;
+using System.Diagnostics;
 using System.Windows.Forms;
-using DiscordRPC;
 
 namespace Pulsar.Server.DiscordRPC
 {
@@ -30,18 +31,18 @@ namespace Pulsar.Server.DiscordRPC
                     if (_client == null || _client.IsDisposed)
                     {
                         _client = new DiscordRpcClient(_applicationId);
-                        Console.WriteLine("Discord RPC Client recreated");
+                        Debug.WriteLine("Discord RPC Client recreated");
                     }
                     if (!_client.IsInitialized)
                     {
                         try
                         {
                             _client.Initialize();
-                            Console.WriteLine("Discord RPC Client Initialized");
+                            Debug.WriteLine("Discord RPC Client Initialized");
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("Failed to initialize Discord RPC: " + ex.Message);
+                            Debug.WriteLine("Failed to initialize Discord RPC: " + ex.Message);
                             return;
                         }
                     }
@@ -49,18 +50,18 @@ namespace Pulsar.Server.DiscordRPC
                     {
                         _client.OnReady += (sender, e) =>
                         {
-                            Console.WriteLine("Discord RPC Ready for " + _form.Text);
+                            Debug.WriteLine("Discord RPC Ready for " + _form.Text);
                         };
                         SetPresence();
                         _updateTimer = new Timer();
                         _updateTimer.Interval = 5000; // 5 seconds
                         _updateTimer.Tick += (s, e) => SetPresence();
                         _updateTimer.Start();
-                        Console.WriteLine("Discord RPC Enabled for " + _form.Text);
+                        Debug.WriteLine("Discord RPC Enabled for " + _form.Text);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Failed to set Discord presence: " + ex.Message);
+                        Debug.WriteLine("Failed to set Discord presence: " + ex.Message);
                     }
                 }
                 else
@@ -77,11 +78,11 @@ namespace Pulsar.Server.DiscordRPC
                                 _updateTimer.Dispose();
                                 _updateTimer = null;
                             }
-                            Console.WriteLine("Discord RPC Disabled for " + _form.Text);
+                            Debug.WriteLine("Discord RPC Disabled for " + _form.Text);
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("Failed to disable Discord RPC: " + ex.Message);
+                            Debug.WriteLine("Failed to disable Discord RPC: " + ex.Message);
                         }
                     }
                 }
@@ -93,8 +94,16 @@ namespace Pulsar.Server.DiscordRPC
             try
             {
                 string title = _form.Text;
-                int startIndex = title.IndexOf("Connected: ") + "Connected: ".Length;
-                int endIndex = title.IndexOf(" ", startIndex) > 0 ? title.IndexOf(" ", startIndex) : title.Length;
+                const string marker = "Connected: ";
+                int markerIndex = title.IndexOf(marker);
+                if (markerIndex == -1)
+                    return 0;
+
+                int startIndex = markerIndex + marker.Length;
+                int endIndex = title.IndexOf(" ", startIndex);
+                if (endIndex == -1)
+                    endIndex = title.Length;
+
                 string countStr = title.Substring(startIndex, endIndex - startIndex);
                 return int.Parse(countStr);
             }
@@ -113,7 +122,7 @@ namespace Pulsar.Server.DiscordRPC
                 Assets = new Assets
                 {
                     LargeImageKey = "default",
-                    LargeImageText = "Pulsar RAT - Modded by KDot227"
+                    LargeImageText = "Pulsar RAT"
                 },
                 Timestamps = new Timestamps { Start = DateTime.UtcNow }
             });

@@ -1,18 +1,17 @@
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.XPath;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 
 namespace Pulsar.Server.Models
 {
     public static class Settings
     {
-        private static readonly string SettingsPath = Path.Combine(Application.StartupPath, "settings.xml");
+        private static readonly string SettingsPath = Path.Combine(Application.StartupPath, "settings.json");
+        private static SettingsModel _settings;
+        private static readonly object _lockObject = new object();
 
         public static readonly string CertificatePath = Path.Combine(Application.StartupPath, "Pulsar.p12");
-
-        private static readonly string isDarkMode = _isDarkMode().ToString();
 
         private static bool _isDarkMode()
         {
@@ -37,15 +36,74 @@ namespace Pulsar.Server.Models
             }
         }
 
+        private static SettingsModel LoadSettings()
+        {
+            if (_settings != null)
+                return _settings;
+
+            lock (_lockObject)
+            {
+                if (_settings != null)
+                    return _settings;
+
+                try
+                {
+                    if (File.Exists(SettingsPath))
+                    {
+                        string json = File.ReadAllText(SettingsPath);
+                        _settings = JsonConvert.DeserializeObject<SettingsModel>(json) ?? new SettingsModel();
+                    }
+                    else
+                    {
+                        _settings = new SettingsModel();
+                        // Set system-detected dark mode as default
+                        _settings.DarkMode = _isDarkMode();
+                        SaveSettings();
+                    }
+                }
+                catch
+                {
+                    _settings = new SettingsModel();
+                    // Set system-detected dark mode as default
+                    _settings.DarkMode = _isDarkMode();
+                }
+
+                return _settings;
+            }
+        }
+
+        private static void SaveSettings()
+        {
+            lock (_lockObject)
+            {
+                try
+                {
+                    var dir = Path.GetDirectoryName(SettingsPath);
+                    if (!Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
+                    string json = JsonConvert.SerializeObject(_settings, Newtonsoft.Json.Formatting.Indented);
+                    File.WriteAllText(SettingsPath, json);
+                }
+                catch
+                {
+                    // Ignore save errors
+                }
+            }
+        }
+
         public static bool DarkMode
         {
             get
             {
-                return bool.Parse(ReadValueSafe("DarkMode", isDarkMode));
+                return LoadSettings().DarkMode;
             }
             set
             {
-                WriteValue("DarkMode", value.ToString());
+                LoadSettings().DarkMode = value;
+                SaveSettings();
             }
         }
 
@@ -53,29 +111,35 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("HideFromScreenCapture", "False"));
+                return LoadSettings().HideFromScreenCapture;
             }
             set
             {
-                WriteValue("HideFromScreenCapture", value.ToString());
+                LoadSettings().HideFromScreenCapture = value;
+                SaveSettings();
             }
         }
 
         public static bool DiscordRPC
         {
-            get { return bool.Parse(ReadValueSafe("DiscordRPC", "False")); } // Changed default from "True" to "False"
-            set { WriteValue("DiscordRPC", value.ToString()); }
+            get { return LoadSettings().DiscordRPC; }
+            set 
+            { 
+                LoadSettings().DiscordRPC = value;
+                SaveSettings();
+            }
         }
 
         public static ushort ListenPort
         {
             get
             {
-                return ushort.Parse(ReadValueSafe("ListenPort", "4782"));
+                return LoadSettings().ListenPort;
             }
             set
             {
-                WriteValue("ListenPort", value.ToString());
+                LoadSettings().ListenPort = value;
+                SaveSettings();
             }
         }
 
@@ -83,11 +147,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("IPv6Support", "False"));
+                return LoadSettings().IPv6Support;
             }
             set
             {
-                WriteValue("IPv6Support", value.ToString());
+                LoadSettings().IPv6Support = value;
+                SaveSettings();
             }
         }
 
@@ -95,11 +160,11 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("AutoListen", "False"));
+                return LoadSettings().AutoListen;
             }
-            set
-            {
-                WriteValue("AutoListen", value.ToString());
+            set            {
+                LoadSettings().AutoListen = value;
+                SaveSettings();
             }
         }
 
@@ -107,11 +172,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("EventLog", "False"));
+                return LoadSettings().EventLog;
             }
             set
             {
-                WriteValue("EventLog", value.ToString());
+                LoadSettings().EventLog = value;
+                SaveSettings();
             }
         }
 
@@ -119,24 +185,25 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("TelegramNotifications", "False"));
+                return LoadSettings().TelegramNotifications;
             }
             set
             {
-                WriteValue("TelegramNotifications", value.ToString());
+                LoadSettings().TelegramNotifications = value;
+                SaveSettings();
             }
         }
-
 
         public static bool ShowPopup
         {
             get
             {
-                return bool.Parse(ReadValueSafe("ShowPopup", "False"));
+                return LoadSettings().ShowPopup;
             }
             set
             {
-                WriteValue("ShowPopup", value.ToString());
+                LoadSettings().ShowPopup = value;
+                SaveSettings();
             }
         }
 
@@ -144,11 +211,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("UseUPnP", "False"));
+                return LoadSettings().UseUPnP;
             }
             set
             {
-                WriteValue("UseUPnP", value.ToString());
+                LoadSettings().UseUPnP = value;
+                SaveSettings();
             }
         }
 
@@ -156,11 +224,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("ShowToolTip", "False"));
+                return LoadSettings().ShowToolTip;
             }
             set
             {
-                WriteValue("ShowToolTip", value.ToString());
+                LoadSettings().ShowToolTip = value;
+                SaveSettings();
             }
         }
 
@@ -168,24 +237,25 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return bool.Parse(ReadValueSafe("EnableNoIPUpdater", "False"));
+                return LoadSettings().EnableNoIPUpdater;
             }
             set
             {
-                WriteValue("EnableNoIPUpdater", value.ToString());
+                LoadSettings().EnableNoIPUpdater = value;
+                SaveSettings();
             }
         }
-
 
         public static string TelegramChatID
         {
             get
             {
-                return ReadValueSafe("TelegramChatID");
+                return LoadSettings().TelegramChatID;
             }
             set
             {
-                WriteValue("TelegramChatID", value);
+                LoadSettings().TelegramChatID = value;
+                SaveSettings();
             }
         }
 
@@ -193,26 +263,25 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return ReadValueSafe("TelegramBotToken");
+                return LoadSettings().TelegramBotToken;
             }
             set
             {
-                WriteValue("TelegramBotToken", value);
+                LoadSettings().TelegramBotToken = value;
+                SaveSettings();
             }
         }
-
-
-
 
         public static string NoIPHost
         {
             get
             {
-                return ReadValueSafe("NoIPHost");
+                return LoadSettings().NoIPHost;
             }
             set
             {
-                WriteValue("NoIPHost", value);
+                LoadSettings().NoIPHost = value;
+                SaveSettings();
             }
         }
 
@@ -220,11 +289,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return ReadValueSafe("NoIPUsername");
+                return LoadSettings().NoIPUsername;
             }
             set
             {
-                WriteValue("NoIPUsername", value);
+                LoadSettings().NoIPUsername = value;
+                SaveSettings();
             }
         }
 
@@ -232,11 +302,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return ReadValueSafe("NoIPPassword");
+                return LoadSettings().NoIPPassword;
             }
             set
             {
-                WriteValue("NoIPPassword", value);
+                LoadSettings().NoIPPassword = value;
+                SaveSettings();
             }
         }
 
@@ -244,11 +315,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return ReadValueSafe("SaveFormat", "APP - URL - USER:PASS");
+                return LoadSettings().SaveFormat;
             }
             set
             {
-                WriteValue("SaveFormat", value);
+                LoadSettings().SaveFormat = value;
+                SaveSettings();
             }
         }
 
@@ -256,78 +328,12 @@ namespace Pulsar.Server.Models
         {
             get
             {
-                return ushort.Parse(ReadValueSafe("ReverseProxyPort", "3128"));
+                return LoadSettings().ReverseProxyPort;
             }
             set
             {
-                WriteValue("ReverseProxyPort", value.ToString());
-            }
-        }
-
-        private static string ReadValue(string pstrValueToRead)
-        {
-            try
-            {
-                XPathDocument doc = new XPathDocument(SettingsPath);
-                XPathNavigator nav = doc.CreateNavigator();
-                XPathExpression expr = nav.Compile(@"/settings/" + pstrValueToRead);
-                XPathNodeIterator iterator = nav.Select(expr);
-                while (iterator.MoveNext())
-                {
-                    return iterator.Current.Value;
-                }
-
-                return string.Empty;
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        private static string ReadValueSafe(string pstrValueToRead, string defaultValue = "")
-        {
-            string value = ReadValue(pstrValueToRead);
-            return (!string.IsNullOrEmpty(value)) ? value : defaultValue;
-        }
-
-        private static void WriteValue(string pstrValueToRead, string pstrValueToWrite)
-        {
-            try
-            {
-                XmlDocument doc = new XmlDocument();
-
-                if (File.Exists(SettingsPath))
-                {
-                    using (var reader = new XmlTextReader(SettingsPath))
-                    {
-                        doc.Load(reader);
-                    }
-                }
-                else
-                {
-                    var dir = Path.GetDirectoryName(SettingsPath);
-                    if (!Directory.Exists(dir))
-                    {
-                        Directory.CreateDirectory(dir);
-                    }
-                    doc.AppendChild(doc.CreateElement("settings"));
-                }
-
-                XmlElement root = doc.DocumentElement;
-                XmlNode oldNode = root.SelectSingleNode(@"/settings/" + pstrValueToRead);
-                if (oldNode == null) // create if not exist
-                {
-                    oldNode = doc.SelectSingleNode("settings");
-                    oldNode.AppendChild(doc.CreateElement(pstrValueToRead)).InnerText = pstrValueToWrite;
-                    doc.Save(SettingsPath);
-                    return;
-                }
-                oldNode.InnerText = pstrValueToWrite;
-                doc.Save(SettingsPath);
-            }
-            catch
-            {
+                LoadSettings().ReverseProxyPort = value;
+                SaveSettings();
             }
         }
     }
