@@ -19,6 +19,16 @@
 			protobuf-net
 			System.IO.Compression.ZipFile
 			Vestris.ResourceLib
+			protobuf-net.Core
+			System.Memory
+			System.Runtime.CompilerServices.Unsafe
+			System.Resources.Extensions
+			System.Collections.Immutable
+			System.Numerics.Vectors
+			Microsoft.Bcl.HashCode
+			System.Formats.Nrbf
+			System.Reflection.Metadata
+			System.Buffers
 		</IncludeAssemblies>
 	</Costura>
 </Weavers>

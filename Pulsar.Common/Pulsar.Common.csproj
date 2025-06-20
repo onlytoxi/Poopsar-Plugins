@@ -29,10 +29,13 @@
 		<Reference Include="System.Management" />
 		<Reference Include="System.ServiceModel" />
 		<Reference Include="System.Windows.Forms" />
-	</ItemGroup>
+	</ItemGroup>	
 	<ItemGroup>
 		<PackageReference Include="protobuf-net">
-			<Version>2.4.8</Version>
+			<Version>3.2.52</Version>
+		</PackageReference>
+		<PackageReference Include="System.Runtime.CompilerServices.Unsafe">
+			<Version>6.1.2</Version>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

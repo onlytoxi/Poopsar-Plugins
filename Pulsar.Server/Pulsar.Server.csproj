@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">	
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<OutputType>WinExe</OutputType>
@@ -6,6 +6,7 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<Configurations>Debug;Release;ReleaseWithDonut</Configurations>
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 	<PropertyGroup>
 		<StartupObject>Pulsar.Server.Program</StartupObject>
@@ -296,13 +297,17 @@
 		<PackageReference Include="NAudio.Midi" Version="2.2.1" />
 		<PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
 		<PackageReference Include="NAudio.WinForms" Version="2.2.1" />
-		<PackageReference Include="NAudio.WinMM" Version="2.2.1" />
+		<PackageReference Include="NAudio.WinMM" Version="2.2.1" />		
 		<PackageReference Include="Open.Nat" Version="2.1.0" />
 		<PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />		
 		<PackageReference Include="protobuf-net">
-			<Version>2.4.9</Version>
+			<Version>3.2.52</Version>
+		</PackageReference>		
+		<PackageReference Include="System.Resources.Extensions" Version="9.0.6" />
+		<PackageReference Include="System.Runtime.CompilerServices.Unsafe">
+			<Version>6.1.2</Version>
 		</PackageReference>
 		<PackageReference Include="Vestris.ResourceLib">
 			<Version>2.2.0</Version>
