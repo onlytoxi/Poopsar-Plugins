@@ -337,11 +337,12 @@ namespace Pulsar.Server.Forms
                 DebugLogRichBox.SelectionColor = logColor;
 
                 DebugLogRichBox.AppendText(formattedMessage + Environment.NewLine);
-
+                DebugLogRichBox.SelectionStart = DebugLogRichBox.TextLength;
+                DebugLogRichBox.SelectionLength = 0;
+                DebugLogRichBox.ScrollToCaret();
+                
                 DebugLogRichBox.SelectionStart = originalSelectionStart;
                 DebugLogRichBox.SelectionColor = originalSelectionColor;
-
-                DebugLogRichBox.ScrollToCaret();
             }
             catch (Exception ex)
             {
