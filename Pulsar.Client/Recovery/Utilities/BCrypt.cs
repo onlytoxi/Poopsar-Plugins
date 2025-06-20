@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Pulsar.Client.Kematian.HelpingMethods.Decryption
+namespace Pulsar.Client.Recovery.Utilities
 {
     public static class BCrypt
     {
