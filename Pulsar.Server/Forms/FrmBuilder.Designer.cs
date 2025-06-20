@@ -61,6 +61,7 @@ namespace Pulsar.Server.Forms
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.builderTabs = new Pulsar.Server.Controls.DotNetBarTabControl();
             this.generalPage = new System.Windows.Forms.TabPage();
+            this.chkCryptable = new System.Windows.Forms.CheckBox();
             this.chkCriticalProcess = new System.Windows.Forms.CheckBox();
             this.chkUACBypass = new System.Windows.Forms.CheckBox();
             this.chkPackOutput = new System.Windows.Forms.CheckBox();
@@ -273,6 +274,7 @@ namespace Pulsar.Server.Forms
             // generalPage
             // 
             this.generalPage.BackColor = System.Drawing.SystemColors.Control;
+            this.generalPage.Controls.Add(this.chkCryptable);
             this.generalPage.Controls.Add(this.chkCriticalProcess);
             this.generalPage.Controls.Add(this.chkUACBypass);
             this.generalPage.Controls.Add(this.chkPackOutput);
@@ -300,6 +302,16 @@ namespace Pulsar.Server.Forms
             this.generalPage.TabIndex = 4;
             this.generalPage.Text = "Basic Settings";
             // 
+            // chkCryptable
+            // 
+            this.chkCryptable.AutoSize = true;
+            this.chkCryptable.Location = new System.Drawing.Point(20, 286);
+            this.chkCryptable.Name = "chkCryptable";
+            this.chkCryptable.Size = new System.Drawing.Size(207, 17);
+            this.chkCryptable.TabIndex = 30;
+            this.chkCryptable.Text = "Cryptable / Ready to run in memory";
+            this.chkCryptable.UseVisualStyleBackColor = true;
+            // 
             // chkCriticalProcess
             // 
             this.chkCriticalProcess.AutoSize = true;
@@ -325,7 +337,7 @@ namespace Pulsar.Server.Forms
             // chkPackOutput
             // 
             this.chkPackOutput.AutoSize = true;
-            this.chkPackOutput.Location = new System.Drawing.Point(146, 281);
+            this.chkPackOutput.Location = new System.Drawing.Point(146, 254);
             this.chkPackOutput.Name = "chkPackOutput";
             this.chkPackOutput.Size = new System.Drawing.Size(90, 17);
             this.chkPackOutput.TabIndex = 27;
@@ -335,7 +347,7 @@ namespace Pulsar.Server.Forms
             // chkObfuscateOutput
             // 
             this.chkObfuscateOutput.AutoSize = true;
-            this.chkObfuscateOutput.Location = new System.Drawing.Point(20, 281);
+            this.chkObfuscateOutput.Location = new System.Drawing.Point(20, 254);
             this.chkObfuscateOutput.Name = "chkObfuscateOutput";
             this.chkObfuscateOutput.Size = new System.Drawing.Size(120, 17);
             this.chkObfuscateOutput.TabIndex = 26;
@@ -1420,5 +1432,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.CheckBox chkCriticalProcess;
         private System.Windows.Forms.Button btnShellcode;
         private System.Windows.Forms.Button btnClone;
+        private System.Windows.Forms.CheckBox chkCryptable;
     }
 }

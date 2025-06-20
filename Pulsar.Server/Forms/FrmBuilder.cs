@@ -58,14 +58,94 @@ namespace Pulsar.Server.Forms
             portSetDelayTimer.Tick += PortSetDelayTimer_Tick;
             
             checkBox1.CheckedChanged += CheckBox1_CheckedChanged;
-            UpdatePastebinUI();
-            btnShellcode.Enabled = File.Exists(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "donut.exe"));
+            chkCryptable.CheckedChanged += ChkCryptable_CheckedChanged;
         }
         
         private void CheckBox1_CheckedChanged(object sender, EventArgs e)
         {
             HasChanged();
             UpdatePastebinUI();
+        }
+
+        private void ChkCryptable_CheckedChanged(object sender, EventArgs e)
+        {
+            bool cryptable = chkCryptable.Checked;
+            txtTag.Enabled = true;
+            txtMutex.Enabled = true;
+            connectionPage.Enabled = true;
+            monitoringTab.Enabled = true;
+            chkKeylogger.Enabled = true;
+            installationPage.Enabled = !cryptable;
+            chkInstall.Enabled = !cryptable;
+            txtInstallName.Enabled = !cryptable;
+            rbAppdata.Enabled = !cryptable;
+            rbProgramFiles.Enabled = !cryptable;
+            rbSystem.Enabled = !cryptable;
+            txtInstallSubDirectory.Enabled = !cryptable;
+            chkHide.Enabled = !cryptable;
+            chkHideSubDirectory.Enabled = !cryptable;
+            chkStartup.Enabled = !cryptable;
+            txtRegistryKeyName.Enabled = !cryptable;
+            assemblyPage.Enabled = !cryptable;
+            chkChangeIcon.Enabled = !cryptable;
+            txtIconPath.Enabled = !cryptable;
+            btnBrowseIcon.Enabled = !cryptable;
+            chkChangeAsmInfo.Enabled = !cryptable;
+            txtProductName.Enabled = !cryptable;
+            txtDescription.Enabled = !cryptable;
+            txtCompanyName.Enabled = !cryptable;
+            txtCopyright.Enabled = !cryptable;
+            txtTrademarks.Enabled = !cryptable;
+            txtOriginalFilename.Enabled = !cryptable;
+            txtProductVersion.Enabled = !cryptable;
+            txtFileVersion.Enabled = !cryptable;
+            chkCriticalProcess.Enabled = !cryptable;
+            chkUACBypass.Enabled = !cryptable;
+            chkPackOutput.Enabled = !cryptable;
+            chkObfuscateOutput.Enabled = !cryptable;
+            chkAntiDebug.Enabled = !cryptable;
+            chkVM.Enabled = !cryptable;
+
+            txtLogDirectoryName.Enabled = chkKeylogger.Checked && monitoringTab.Enabled;
+            chkHideLogDirectory.Enabled = chkKeylogger.Checked && monitoringTab.Enabled;
+
+            if (cryptable)
+            {
+
+                chkInstall.Checked = false;
+                txtInstallName.Text = string.Empty;
+                rbAppdata.Checked = true;
+                txtInstallSubDirectory.Text = string.Empty;
+                chkHide.Checked = false;
+                chkHideSubDirectory.Checked = false;
+                chkStartup.Checked = false;
+                txtRegistryKeyName.Text = string.Empty;
+
+                chkChangeIcon.Checked = false;
+                txtIconPath.Text = string.Empty;
+                chkChangeAsmInfo.Checked = false;
+                txtProductName.Text = string.Empty;
+                txtDescription.Text = string.Empty;
+                txtCompanyName.Text = string.Empty;
+                txtCopyright.Text = string.Empty;
+                txtTrademarks.Text = string.Empty;
+                txtOriginalFilename.Text = string.Empty;
+                txtProductVersion.Text = string.Empty;
+                txtFileVersion.Text = string.Empty;
+
+                chkCriticalProcess.Checked = false;
+                chkUACBypass.Checked = false;
+                chkPackOutput.Checked = false;
+                chkObfuscateOutput.Checked = false;
+                chkAntiDebug.Checked = false;
+                chkVM.Checked = false;
+
+                if (!chkKeylogger.Checked)
+                {
+                    txtLogDirectoryName.Text = string.Empty;
+                    chkHideLogDirectory.Checked = false;
+                }
+            }
         }
         
         private void UpdatePastebinUI()
