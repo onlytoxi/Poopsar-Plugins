@@ -140,11 +140,6 @@ namespace Pulsar.Server.Networking
         public long BytesSent { get; set; }
 
         /// <summary>
-        /// The buffer size for receiving data in bytes.
-        /// </summary>
-        private const int BufferSize = 1024 * 16; // 16 KB
-
-        /// <summary>
         /// The keep-alive time in ms.
         /// </summary>
         private const uint KeepAliveTime = 25000; // 25 s
@@ -153,18 +148,13 @@ namespace Pulsar.Server.Networking
         /// The keep-alive interval in ms.
         /// </summary>
         private const uint KeepAliveInterval = 25000; // 25 s        
-        
-        /// <summary>
-        /// The buffer pool to hold the receive-buffers for the clients.
-        /// Optimized with a reasonable initial buffer count to reduce allocations.
-        /// </summary>
-        private readonly BufferPool _bufferPool = new BufferPool(BufferSize, 8) { ClearOnReturn = false };
+
 
         /// <summary>
         /// The listening state of the server. True if listening, else False.
         /// </summary>
-        public bool Listening { get; private set; }        
-        
+        public bool Listening { get; private set; }
+
         /// <summary>
         /// Gets the clients currently connected to the server.
         /// </summary>
@@ -247,7 +237,7 @@ namespace Pulsar.Server.Networking
             var mainForm = GetMainFormSafe();
             if (mainForm == null) return;
 
-            var iconResource = isListening 
+            var iconResource = isListening
                 ? Properties.Resources.bullet_green
                 : Properties.Resources.bullet_red;
 
@@ -285,7 +275,7 @@ namespace Pulsar.Server.Networking
         /// <param name="icon">The icon to set.</param>
         private static void SetStatusStripIcon(FrmMain mainForm, System.Drawing.Image icon)
         {
-            if (mainForm.statusStrip?.IsDisposed == false && 
+            if (mainForm.statusStrip?.IsDisposed == false &&
                 mainForm.statusStrip.Items.ContainsKey("listenToolStripStatusLabel"))
             {
                 mainForm.statusStrip.Items["listenToolStripStatusLabel"].Image = icon;
@@ -307,8 +297,8 @@ namespace Pulsar.Server.Networking
             {
                 _UPnPService = new UPnPService();
                 _UPnPService.CreatePortMapAsync(port);
-            }          
-            
+            }
+
             if (Socket.OSSupportsIPv6 && ipv6)
             {
                 _handle = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
@@ -320,7 +310,7 @@ namespace Pulsar.Server.Networking
                 _handle = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _handle.Bind(new IPEndPoint(IPAddress.Any, port));
             }
-            
+
             _handle.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _handle.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             _handle.Listen(1000);
@@ -330,7 +320,7 @@ namespace Pulsar.Server.Networking
             _item = new SocketAsyncEventArgs();
             _item.Completed += AcceptClient;
 
-              if (!_handle.AcceptAsync(_item))
+            if (!_handle.AcceptAsync(_item))
                 AcceptClient(this, _item);
 
             var mainForm = GetMainFormSafe();
@@ -428,7 +418,7 @@ namespace Pulsar.Server.Networking
             {
                 con.Stream.EndAuthenticateAsServer(ar);
 
-                Client client = new Client(_bufferPool, con.Stream, con.EndPoint);
+                Client client = new Client(con.Stream, con.EndPoint);
                 AddClient(client);
                 OnClientState(client, true);
             }
@@ -449,7 +439,7 @@ namespace Pulsar.Server.Networking
             {
                 client.ClientState += OnClientState;
                 client.ClientRead += OnClientRead;
-                client.ClientWrite += OnClientWrite;
+
                 _clients.Add(client);
             }
         }
@@ -467,7 +457,7 @@ namespace Pulsar.Server.Networking
             {
                 client.ClientState -= OnClientState;
                 client.ClientRead -= OnClientRead;
-                client.ClientWrite -= OnClientWrite;
+
                 _clients.Remove(client);
             }
         }
@@ -497,13 +487,13 @@ namespace Pulsar.Server.Networking
             {
                 _UPnPService.DeletePortMapAsync(Port);
                 _UPnPService = null;
-            }            
-            
+            }
+
             lock (_clientsLock)
             {
                 var clientsToDisconnect = _clients.ToList();
                 _clients.Clear();
-                
+
                 foreach (var client in clientsToDisconnect)
                 {
                     try
@@ -511,7 +501,6 @@ namespace Pulsar.Server.Networking
                         client.Disconnect();
                         client.ClientState -= OnClientState;
                         client.ClientRead -= OnClientRead;
-                        client.ClientWrite -= OnClientWrite;
                     }
                     catch
                     {

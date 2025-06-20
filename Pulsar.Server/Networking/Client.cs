@@ -1,9 +1,12 @@
-﻿using Pulsar.Common.Messages.Other;
+﻿using ProtoBuf;
+using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
 using Pulsar.Server.Forms;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Threading;
@@ -43,8 +46,6 @@ namespace Pulsar.Server.Networking
             }
         }
 
-
-
         /// <summary>
         /// Occurs when a message is received from the client.
         /// </summary>
@@ -68,31 +69,6 @@ namespace Pulsar.Server.Networking
         {
             Debug.WriteLine($"[SERVER] Received packet: {message.GetType().Name} (Length: {messageLength} bytes) from {EndPoint}");
             var handler = ClientRead;
-            handler?.Invoke(this, message, messageLength);
-        }
-
-        /// <summary>
-        /// Occurs when a message is sent by the client.
-        /// </summary>
-        public event ClientWriteEventHandler ClientWrite;
-
-        /// <summary>
-        /// Represents the method that will handle the sent message.
-        /// </summary>
-        /// <param name="s">The client that has sent the message.</param>
-        /// <param name="message">The message that has been sent by the client.</param>
-        /// <param name="messageLength">The length of the message.</param>
-        public delegate void ClientWriteEventHandler(Client s, IMessage message, int messageLength);
-
-        /// <summary>
-        /// Fires an event that informs subscribers that the client has sent a message.
-        /// </summary>
-        /// <param name="message">The message that has been sent by the client.</param>
-        /// <param name="messageLength">The length of the message.</param>
-        private void OnClientWrite(IMessage message, int messageLength)
-        {
-            Debug.WriteLine($"[SERVER] Sending packet: {message.GetType().Name} (Length: {messageLength} bytes) to {EndPoint}");
-            var handler = ClientWrite;
             handler?.Invoke(this, message, messageLength);
         }
 
@@ -145,60 +121,32 @@ namespace Pulsar.Server.Networking
         }
 
         /// <summary>
-        /// The type of the message received.
-        /// </summary>
-        public enum ReceiveType
-        {
-            Header,
-            Payload
-        }
-
-        /// <summary>
         /// The stream used for communication.
         /// </summary>
-        private readonly SslStream _stream;
+        private SslStream _stream;
+
+        readonly object _readMessageLock = new object();
+        readonly object _sendMessageLock = new object();
+        readonly object _proxyClientsLock = new object();
 
         /// <summary>
-        /// The buffer pool to hold the receive-buffers for the clients.
+        /// The buffer for the client's incoming payload.
         /// </summary>
-        private readonly BufferPool _bufferPool;
+        private byte[] _readBuffer;
 
         /// <summary>
         /// The queue which holds messages to send.
         /// </summary>
-        private readonly Queue<IMessage> _sendBuffers = new Queue<IMessage>();
+        private readonly ConcurrentQueue<IMessage> _sendBuffers = new ConcurrentQueue<IMessage>();
 
         /// <summary>
         /// Determines if the client is currently sending messages.
         /// </summary>
-        private bool _sendingMessages;
+        private int _sendingMessagesFlag;
 
-        /// <summary>
-        /// Lock object for the sending messages boolean.
-        /// </summary>
-        private readonly object _sendingMessagesLock = new object();
-
-        /// <summary>
-        /// The queue which holds buffers to read.
-        /// </summary>
-        private readonly Queue<byte[]> _readBuffers = new Queue<byte[]>();
-
-        /// <summary>
-        /// Determines if the client is currently reading messages.
-        /// </summary>
-        private bool _readingMessages;
-
-        /// <summary>
-        /// Lock object for the reading messages boolean.
-        /// </summary>
-        private readonly object _readingMessagesLock = new object();
-
-        // receive info
+        // Receive info
         private int _readOffset;
-        private int _writeOffset;
-        private int _readableDataLen;
-        private int _payloadLen;
-        private ReceiveType _receiveState = ReceiveType.Header;
+        private int _readLength;
 
         /// <summary>
         /// The time when the client connected.
@@ -226,31 +174,11 @@ namespace Pulsar.Server.Networking
         public IPEndPoint EndPoint { get; }
 
         /// <summary>
-        /// The buffer for the client's incoming messages.
-        /// </summary>
-        private readonly byte[] _readBuffer;
-
-        /// <summary>
-        /// The buffer for the client's incoming payload.
-        /// </summary>
-        private byte[] _payloadBuffer;
-
-        /// <summary>
         /// The header size in bytes.
         /// </summary>
-        private const int HeaderSize = 4;  // 4 B
+        private const int HEADER_SIZE = 4;  // 4 B
 
-        /// <summary>
-        /// The maximum size of a message in bytes.
-        /// </summary>
-        private const int MaxMessageSize = (1024 * 1024) * 5; // 5 MB
-
-        /// <summary>
-        /// The mutex prevents multiple simultaneous write operations on the <see cref="_stream"/>.
-        /// </summary>
-        private readonly Mutex _singleWriteMutex = new Mutex();
-
-        public Client(BufferPool bufferPool, SslStream stream, IPEndPoint endPoint)
+        public Client(SslStream stream, IPEndPoint endPoint)
         {
             try
             {
@@ -259,9 +187,11 @@ namespace Pulsar.Server.Networking
                 EndPoint = endPoint;
                 ConnectedTime = DateTime.UtcNow;
                 _stream = stream;
-                _bufferPool = bufferPool;
-                _readBuffer = _bufferPool.GetBuffer();
-                _stream.BeginRead(_readBuffer, 0, _readBuffer.Length, AsyncReceive, null);
+
+                _readBuffer = new byte[HEADER_SIZE];
+                _readOffset = 0;
+                _readLength = HEADER_SIZE;
+                _stream.BeginRead(_readBuffer, _readOffset, _readBuffer.Length, AsyncReceive, null);
                 OnClientState(true);
             }
             catch (Exception)
@@ -272,202 +202,55 @@ namespace Pulsar.Server.Networking
 
         private void AsyncReceive(IAsyncResult result)
         {
-            int bytesTransferred;
-
             try
             {
-                bytesTransferred = _stream.EndRead(result);
-
-                if (bytesTransferred <= 0)
+                var bytesRead = _stream.EndRead(result);
+                if (bytesRead <= 0)
                     throw new Exception("no bytes transferred");
-            }
-            catch (NullReferenceException)
-            {
-                return;
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-            catch (Exception)
-            {
-                Disconnect();
-                return;
-            }
 
-            byte[] received = new byte[bytesTransferred];
-
-            try
-            {
-                Array.Copy(_readBuffer, received, received.Length);
-            }
-            catch (Exception)
-            {
-                Disconnect();
-                return;
-            }
-
-            lock (_readBuffers)
-            {
-                _readBuffers.Enqueue(received);
-            }
-
-            lock (_readingMessagesLock)
-            {
-                if (!_readingMessages)
+                lock (_readMessageLock)
                 {
-                    _readingMessages = true;
-                    ThreadPool.QueueUserWorkItem(AsyncReceive);
-                }
-            }
+                    _readOffset += bytesRead;
+                    _readLength -= bytesRead;
 
-            try
-            {
-                _stream.BeginRead(_readBuffer, 0, _readBuffer.Length, AsyncReceive, null);
-            }
-            catch (ObjectDisposedException)
-            {
-            }
-            catch (Exception)
-            {
-                Disconnect();
-            }
-        }
-
-        private void AsyncReceive(object state)
-        {
-            while (true)
-            {
-                byte[] readBuffer;
-                lock (_readBuffers)
-                {
-                    if (_readBuffers.Count == 0)
+                    if (_readLength == 0)
                     {
-                        lock (_readingMessagesLock)
+                        if (_readBuffer.Length == HEADER_SIZE)
                         {
-                            _readingMessages = false;
+                            var length = BitConverter.ToInt32(_readBuffer, 0);
+                            if (length <= 0)
+                                throw new InvalidDataException("Invalid message length.");
+
+                            _readBuffer = new byte[length];
+                            _readOffset = 0;
+                            _readLength = length;
                         }
-                        return;
+                        else
+                        {
+                            try
+                            {
+                                using (var stream = new MemoryStream(_readBuffer))
+                                {
+                                    var message = Serializer.Deserialize<IMessage>(stream);
+                                    OnClientRead(message, _readBuffer.Length);
+                                }
+                            }
+                            finally
+                            {
+                                _readBuffer = new byte[HEADER_SIZE];
+                                _readOffset = 0;
+                                _readLength = HEADER_SIZE;
+                            }
+                        }
                     }
 
-                    readBuffer = _readBuffers.Dequeue();
                 }
 
-                _readableDataLen += readBuffer.Length;
-                bool process = true;
-                while (process)
-                {
-                    switch (_receiveState)
-                    {
-                        case ReceiveType.Header:
-                            {
-                                if (_payloadBuffer == null)
-                                    _payloadBuffer = new byte[HeaderSize];
-
-                                if (_readableDataLen + _writeOffset >= HeaderSize)
-                                {
-                                    // completely received header
-                                    int headerLength = HeaderSize - _writeOffset;
-
-                                    try
-                                    {
-                                        Array.Copy(readBuffer, _readOffset, _payloadBuffer, _writeOffset, headerLength);
-
-                                        _payloadLen = BitConverter.ToInt32(_payloadBuffer, _readOffset);
-
-                                        if (_payloadLen <= 0 || _payloadLen > MaxMessageSize)
-                                            throw new Exception("invalid header");
-
-                                        // try to re-use old payload buffers which fit
-                                        if (_payloadBuffer.Length <= _payloadLen + HeaderSize)
-                                            Array.Resize(ref _payloadBuffer, _payloadLen + HeaderSize);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        process = false;
-                                        Disconnect();
-                                        break;
-                                    }
-
-                                    _readableDataLen -= headerLength;
-                                    _writeOffset += headerLength;
-                                    _readOffset += headerLength;
-                                    _receiveState = ReceiveType.Payload;
-                                }
-                                else // _readableDataLen + _writeOffset < HeaderSize
-                                {
-                                    // received only a part of the header
-                                    try
-                                    {
-                                        Array.Copy(readBuffer, _readOffset, _payloadBuffer, _writeOffset, _readableDataLen);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        process = false;
-                                        Disconnect();
-                                        break;
-                                    }
-                                    _readOffset += _readableDataLen;
-                                    _writeOffset += _readableDataLen;
-                                    process = false;
-                                    // nothing left to process
-                                }
-                                break;
-                            }
-                        case ReceiveType.Payload:
-                            {
-                                int length = (_writeOffset - HeaderSize + _readableDataLen) >= _payloadLen
-                                    ? _payloadLen - (_writeOffset - HeaderSize)
-                                    : _readableDataLen;
-
-                                try
-                                {
-                                    Array.Copy(readBuffer, _readOffset, _payloadBuffer, _writeOffset, length);
-                                }
-                                catch (Exception)
-                                {
-                                    process = false;
-                                    Disconnect();
-                                    break;
-                                }
-
-                                _writeOffset += length;
-                                _readOffset += length;
-                                _readableDataLen -= length;
-
-                                if (_writeOffset - HeaderSize == _payloadLen)
-                                {
-                                    // completely received payload
-                                    try
-                                    {
-                                        using (PayloadReader pr = new PayloadReader(_payloadBuffer, _payloadLen + HeaderSize, false))
-                                        {
-                                            IMessage message = pr.ReadMessage();
-                                            OnClientRead(message, _payloadBuffer.Length);
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        process = false;
-                                        Disconnect();
-                                        break;
-                                    }
-
-                                    _receiveState = ReceiveType.Header;
-                                    _payloadLen = 0;
-                                    _writeOffset = 0;
-                                }
-
-                                if (_readableDataLen == 0)
-                                    process = false;
-
-                                break;
-                            }
-                    }
-                }
-
-                _readOffset = 0;
-                _readableDataLen = 0;
+                _stream.BeginRead(_readBuffer, _readOffset, _readLength, AsyncReceive, result.AsyncState);
+            }
+            catch
+            {
+                Disconnect();
             }
         }
 
@@ -480,17 +263,10 @@ namespace Pulsar.Server.Networking
         {
             if (!Connected || message == null) return;
 
-            lock (_sendBuffers)
+            _sendBuffers.Enqueue(message);
+            if (Interlocked.Exchange(ref _sendingMessagesFlag, 1) == 0)
             {
-                _sendBuffers.Enqueue(message);
-
-                lock (_sendingMessagesLock)
-                {
-                    if (_sendingMessages) return;
-
-                    _sendingMessages = true;
-                    ThreadPool.QueueUserWorkItem(ProcessSendBuffers);
-                }
+                ThreadPool.QueueUserWorkItem(ProcessSendBuffers);
             }
         }
 
@@ -516,20 +292,22 @@ namespace Pulsar.Server.Networking
         {
             try
             {
-                _singleWriteMutex.WaitOne();
-                using (PayloadWriter pw = new PayloadWriter(_stream, true))
+                lock (_sendMessageLock)
                 {
-                    OnClientWrite(message, pw.WriteMessage(message));
+                    using (var ms = new MemoryStream())
+                    {
+                        Serializer.Serialize(ms, message);
+
+                        var payload = ms.ToArray();
+                        _stream.Write(BitConverter.GetBytes(payload.Length), 0, HEADER_SIZE);
+                        _stream.Write(payload, 0, payload.Length);
+                        _stream.Flush();
+                    }
                 }
             }
-            catch (Exception)
+            catch
             {
                 Disconnect();
-                SendCleanup(true);
-            }
-            finally
-            {
-                _singleWriteMutex.ReleaseMutex();
             }
         }
 
@@ -543,16 +321,10 @@ namespace Pulsar.Server.Networking
                     return;
                 }
 
-                IMessage message;
-                lock (_sendBuffers)
+                if (!_sendBuffers.TryDequeue(out var message))
                 {
-                    if (_sendBuffers.Count == 0)
-                    {
-                        SendCleanup();
-                        return;
-                    }
-
-                    message = _sendBuffers.Dequeue();
+                    SendCleanup();
+                    return;
                 }
 
                 SafeSendMessage(message);
@@ -561,16 +333,10 @@ namespace Pulsar.Server.Networking
 
         private void SendCleanup(bool clear = false)
         {
-            lock (_sendingMessagesLock)
+            Interlocked.Exchange(ref _sendingMessagesFlag, 0);
+            if (clear)
             {
-                _sendingMessages = false;
-            }
-
-            if (!clear) return;
-
-            lock (_sendBuffers)
-            {
-                _sendBuffers.Clear();
+                while (_sendBuffers.TryDequeue(out _)) ;
             }
         }
 
@@ -582,18 +348,15 @@ namespace Pulsar.Server.Networking
         {
             if (_stream != null)
             {
-                _stream.Close();
-                _readOffset = 0;
-                _writeOffset = 0;
-                _readableDataLen = 0;
-                _payloadLen = 0;
-                _payloadBuffer = null;
-                _receiveState = ReceiveType.Header;
-                _singleWriteMutex.Dispose();
-
-                _bufferPool.ReturnBuffer(_readBuffer);
+                _stream.Dispose();
+                _stream = null;
             }
 
+            _readBuffer = new byte[HEADER_SIZE];
+            _readOffset = 0;
+            _readLength = HEADER_SIZE;
+
+            SendCleanup(true);
             OnClientState(false);
         }
     }
