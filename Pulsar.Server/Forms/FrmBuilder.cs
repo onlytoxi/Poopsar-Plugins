@@ -367,6 +367,8 @@ namespace Pulsar.Server.Forms
             UpdateIconControlStates();
             UpdateKeyloggerControlStates();
             UpdatePastebinUI();
+
+            btnShellcode.Enabled = File.Exists(Path.Combine(Environment.CurrentDirectory, "donut.exe"));
         }
 
         private void FrmBuilder_FormClosing(object sender, FormClosingEventArgs e)

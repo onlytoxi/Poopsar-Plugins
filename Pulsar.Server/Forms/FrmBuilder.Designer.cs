@@ -1279,7 +1279,7 @@ namespace Pulsar.Server.Forms
             // 
             // btnShellcode
             // 
-            this.btnShellcode.Location = new System.Drawing.Point(275, 389);
+            this.btnShellcode.Location = new System.Drawing.Point(275, 390);
             this.btnShellcode.Name = "btnShellcode";
             this.btnShellcode.Size = new System.Drawing.Size(121, 23);
             this.btnShellcode.TabIndex = 2;
