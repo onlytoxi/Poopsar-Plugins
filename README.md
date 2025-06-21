@@ -54,7 +54,7 @@ Or our  [Discord Channel](https://discord.gg/rKDJ6A78Yu)
 - 📋 **Task Manager** — View and manage remote processes
 - 🗂️ **File Manager** — Browse, upload, and download files remotely
 - ⏳ **Startup Manager** — Control startup programs
-- 🖧 **Remote Desktop** — Full-featured remote desktop control
+- 🖧 **Remote Desktop** — Full-featured remote desktop control with DirectX support
 - 💻 **Remote Shell** — Command-line access to remote systems
 - ⚙️ **Remote Execution** — Run commands and scripts remotely
 - ℹ️ **System Information** — Gather detailed system info
@@ -164,6 +164,7 @@ Pulsar is licensed under the **[MIT](LICENSE)**. Third-party licenses are availa
 - **[MOOM aka my lebron](https://github.com/moom825/)** – Inspiration & Batch Obfuscation
 - **[Poli](https://github.com/paulmaster59/)** - Discord Server & Custom Pulsar Crypter
 - **[Deadman](https://github.com/DeadmanLabs)** - Memory Dumping and Shellcode Builder
+- **[User76](https://github.com/user76-real)** - Networking Optimizations
 
 ---
 
