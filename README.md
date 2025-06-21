@@ -31,8 +31,7 @@ Pulsar is a lightweight, fast, and powerful remote administration tool written i
 
 ## 📚 Need Help or Want to Offer Suggestions?
 
-Join our [Telegram channel](https://t.me/SomaliDevs) for updates, discussions, and support from the development team and community. \
-Or our  [Discord Channel](https://discord.gg/rKDJ6A78Yu)
+Join our [Telegram channel](https://t.me/SomaliDevs) for updates, discussions, and support from the development team and community.
 ---
 
 ## 📸 Screenshots
