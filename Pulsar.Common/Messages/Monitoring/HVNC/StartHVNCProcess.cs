@@ -11,5 +11,7 @@ namespace Pulsar.Common.Messages.Monitoring.HVNC
         public string Path { get; set; }
         [ProtoMember(2)]
         public string Arguments { get; set; }
+        [ProtoMember(3)]
+        public bool DontCloneProfile { get; set; }
     }
 }

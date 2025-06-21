@@ -204,6 +204,11 @@ namespace Pulsar.Server.Networking
         {
             try
             {
+                if (_stream == null)
+                {
+                    return;
+                }
+
                 var bytesRead = _stream.EndRead(result);
                 if (bytesRead <= 0)
                     throw new Exception("no bytes transferred");
@@ -246,7 +251,10 @@ namespace Pulsar.Server.Networking
 
                 }
 
-                _stream.BeginRead(_readBuffer, _readOffset, _readLength, AsyncReceive, result.AsyncState);
+                if (_stream != null)
+                {
+                    _stream.BeginRead(_readBuffer, _readOffset, _readLength, AsyncReceive, result.AsyncState);
+                } 
             }
             catch
             {

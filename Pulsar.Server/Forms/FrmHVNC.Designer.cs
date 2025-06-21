@@ -39,7 +39,6 @@ namespace Pulsar.Server.Forms
             this.lblQualityShow = new System.Windows.Forms.Label();
             this.btnMouse = new System.Windows.Forms.Button();
             this.panelTop = new System.Windows.Forms.Panel();
-            this.dropDownMenuButton = new Pulsar.Server.Controls.MenuButton();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem2 = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,6 +57,8 @@ namespace Pulsar.Server.Forms
             this.btnHide = new System.Windows.Forms.Button();
             this.btnShow = new System.Windows.Forms.Button();
             this.toolTipButtons = new System.Windows.Forms.ToolTip(this.components);
+            this.cLONEBROWSERPROFILEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dropDownMenuButton = new Pulsar.Server.Controls.MenuButton();
             this.picDesktop = new Pulsar.Server.Controls.HVNCRapidPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).BeginInit();
             this.panelTop.SuspendLayout();
@@ -90,7 +91,7 @@ namespace Pulsar.Server.Forms
             // 
             // barQuality
             // 
-            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.barQuality.Location = new System.Drawing.Point(456, 3);
             this.barQuality.Maximum = 100;
@@ -153,17 +154,6 @@ namespace Pulsar.Server.Forms
             this.panelTop.Size = new System.Drawing.Size(784, 36);
             this.panelTop.TabIndex = 7;
             // 
-            // dropDownMenuButton
-            // 
-            this.dropDownMenuButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.dropDownMenuButton.Location = new System.Drawing.Point(538, 3);
-            this.dropDownMenuButton.Menu = this.contextMenuStrip;
-            this.dropDownMenuButton.Name = "dropDownMenuButton";
-            this.dropDownMenuButton.Size = new System.Drawing.Size(82, 28);
-            this.dropDownMenuButton.TabIndex = 12;
-            this.dropDownMenuButton.Text = "Menu";
-            this.dropDownMenuButton.UseVisualStyleBackColor = true;
-            // 
             // contextMenuStrip
             // 
             this.contextMenuStrip.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
@@ -179,7 +169,8 @@ namespace Pulsar.Server.Forms
             this.startCmdToolStripMenuItem,
             this.startPowershellToolStripMenuItem,
             this.startDiscordToolStripMenuItem,
-            this.startCustomPathToolStripMenuItem});
+            this.startCustomPathToolStripMenuItem,
+            this.cLONEBROWSERPROFILEToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
             this.contextMenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.contextMenuStrip.Size = new System.Drawing.Size(181, 268);
@@ -331,6 +322,27 @@ namespace Pulsar.Server.Forms
             this.btnShow.Visible = false;
             this.btnShow.Click += new System.EventHandler(this.btnShow_Click);
             // 
+            // cLONEBROWSERPROFILEToolStripMenuItem
+            // 
+            this.cLONEBROWSERPROFILEToolStripMenuItem.Checked = true;
+            this.cLONEBROWSERPROFILEToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cLONEBROWSERPROFILEToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.cLONEBROWSERPROFILEToolStripMenuItem.Name = "cLONEBROWSERPROFILEToolStripMenuItem";
+            this.cLONEBROWSERPROFILEToolStripMenuItem.Size = new System.Drawing.Size(215, 22);
+            this.cLONEBROWSERPROFILEToolStripMenuItem.Text = "CLONE BROWSER PROFILE";
+            this.cLONEBROWSERPROFILEToolStripMenuItem.Click += new System.EventHandler(this.cLONEBROWSERPROFILEToolStripMenuItem_Click);
+            // 
+            // dropDownMenuButton
+            // 
+            this.dropDownMenuButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.dropDownMenuButton.Location = new System.Drawing.Point(538, 3);
+            this.dropDownMenuButton.Menu = this.contextMenuStrip;
+            this.dropDownMenuButton.Name = "dropDownMenuButton";
+            this.dropDownMenuButton.Size = new System.Drawing.Size(82, 28);
+            this.dropDownMenuButton.TabIndex = 12;
+            this.dropDownMenuButton.Text = "Menu";
+            this.dropDownMenuButton.UseVisualStyleBackColor = true;
+            // 
             // picDesktop
             // 
             this.picDesktop.BackColor = System.Drawing.Color.Black;
@@ -402,5 +414,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.ToolStripMenuItem startCustomPathToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startDiscordToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startOperaGXToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cLONEBROWSERPROFILEToolStripMenuItem;
     }
 }

