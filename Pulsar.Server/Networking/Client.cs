@@ -7,7 +7,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Net;
 using System.Net.Security;
 using System.Threading;
@@ -259,9 +258,8 @@ namespace Pulsar.Server.Networking
                             try
                             {
                                 using (var stream = new MemoryStream(_readBuffer))
-                                using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress))
                                 {
-                                    var message = Serializer.Deserialize<IMessage>(deflateStream);
+                                    var message = Serializer.Deserialize<IMessage>(stream);
                                     OnClientRead(message, _readBuffer.Length);
                                 }
                             }
@@ -324,35 +322,24 @@ namespace Pulsar.Server.Networking
         /// <param name="message">The message to send.</param>
         private void SafeSendMessage(IMessage message)
         {
-            if (_stream == null)
-            {
-                return;
-            }
-
             try
             {
                 lock (_sendMessageLock)
                 {
                     using (var ms = new MemoryStream())
                     {
-                        using (var deflateStream = new DeflateStream(ms, CompressionMode.Compress, true))
-                        {
-                            Serializer.Serialize(deflateStream, message);
-                            ms.Seek(0, SeekOrigin.Begin);
-                        }
+                        Serializer.Serialize(ms, message);
 
-                        var payload = ms.GetBuffer();
-                        var length = (int)ms.Length;
-                        _stream.Write(BitConverter.GetBytes(length), 0, HEADER_SIZE);
-                        _stream.Write(payload, 0, length);
+                        var payload = ms.ToArray();
+                        _stream.Write(BitConverter.GetBytes(payload.Length), 0, HEADER_SIZE);
+                        _stream.Write(payload, 0, payload.Length);
                         _stream.Flush();
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 Disconnect();
-                OnClientFail(ex);
             }
         }
 
