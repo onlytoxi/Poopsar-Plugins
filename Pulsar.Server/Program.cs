@@ -16,7 +16,9 @@ namespace Pulsar.Server
             using (FrmMain mainForm = new FrmMain())
             {
                 DiscordRPCManager.Initialize(mainForm);
+
                 Application.Run(mainForm);
+                
                 DiscordRPCManager.Shutdown();
             }
         }
