@@ -85,26 +85,12 @@ jobs:
             echo "version-changed=false" >> $env:GITHUB_OUTPUT
             echo "Version unchanged: $currentVersion"
           }
-      
       - name: Set build branch
         id: set-branch
         shell: pwsh
         run: |
-          $versionChanged = "${{ steps.check-version.outputs.version-changed }}"
-          $currentBranch = "${{ github.ref_name }}"
-          
-          if ($currentBranch -eq "main") {
-            echo "build-branch=main" >> $env:GITHUB_OUTPUT
-            echo "Building from main branch (direct push to main)"
-          } 
-          elseif ($versionChanged -eq "true") {
-            echo "build-branch=$currentBranch" >> $env:GITHUB_OUTPUT
-            echo "Version changed - building from current branch: $currentBranch"
-          } 
-          else {
-            echo "build-branch=main" >> $env:GITHUB_OUTPUT
-            echo "Version unchanged - building from main branch"
-          }
+          echo "build-branch=main" >> $env:GITHUB_OUTPUT
+          echo "Building from main branch"
 
   build:
     needs: determine-branch
@@ -153,25 +139,18 @@ jobs:
           name: windows-build
           path: build_output.zip
 
-      # Determine which type of release to create based on branch and version changes
+          # Determine which type of release to create based on branch and version changes
       - name: Determine release type
         id: release-type
         shell: pwsh
         run: |
-          $buildBranch = "${{ needs.determine-branch.outputs.build-branch }}"
           $versionChanged = "${{ needs.determine-branch.outputs.version-changed }}"
-          $currentBranch = "${{ github.ref_name }}"
           
           # Set default values
           $createStable = "false"
           $createDev = "false"
           
-          if ($buildBranch -eq "main" -and $currentBranch -eq "main") {
-            # Always create a stable build from main
-            $createStable = "true"
-            Write-Host "Creating stable build from main branch"
-          }
-          elseif ($versionChanged -eq "true") {
+          if ($versionChanged -eq "true") {
             # Version change should create a stable build
             $createStable = "true"
             Write-Host "Creating stable build due to version change"
@@ -179,7 +158,7 @@ jobs:
           else {
             # Create dev build in all other cases
             $createDev = "true"
-            Write-Host "Creating dev build"
+            Write-Host "Creating dev build - no version change detected"
           }
           
           echo "create-stable=$createStable" >> $env:GITHUB_OUTPUT
