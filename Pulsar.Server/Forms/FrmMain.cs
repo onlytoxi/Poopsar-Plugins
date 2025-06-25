@@ -381,56 +381,43 @@ namespace Pulsar.Server.Forms
                     MessageHandler.Unregister(_previewImageHandler);
                     _previewImageHandler.Dispose();
                 }
-                
+
                 _previewImageHandler = new PreviewHandler(selectedClients[0], pictureBoxMain, clientInfoListView);
                 MessageHandler.Register(_previewImageHandler);
 
-                GetPreviewImage image = new GetPreviewImage
+                if (!chkDisablePreview.Checked)
                 {
-                    Quality = 20,
-                    DisplayIndex = 0
-                };
-                
-                if (chkDisablePreview.Checked)
-                {
-                    return;
+                    selectedClients[0].Send(new GetPreviewImage
+                    {
+                        Quality = 20,
+                        DisplayIndex = 0
+                    });
                 }
-
-                selectedClients[0].Send(image);
             }
             else if (selectedClients.Length == 0)
             {
                 pictureBoxMain.Image = Properties.Resources.no_previewbmp;
-
                 clientInfoListView.Items.Clear();
 
-                var cpuItem = new ListViewItem("CPU");
-                cpuItem.SubItems.Add("N/A");
-                clientInfoListView.Items.Add(cpuItem);
+                var defaultStats = new (string Label, string Value)[]
+                {
+                    ("CPU", "N/A"),
+                    ("GPU", "N/A"),
+                    ("RAM", "0 GB"),
+                    ("Uptime", "N/A"),
+                    ("Antivirus", "N/A"),
+                    ("Default Browser", "N/A"),
+                    ("Ping", "N/A"),
+                    ("Webcam", "N/A"),
+                    ("AFK Time", "N/A")
+                };
 
-                var gpuItem = new ListViewItem("GPU");
-                gpuItem.SubItems.Add("N/A");
-                clientInfoListView.Items.Add(gpuItem);
-
-                var ramItem = new ListViewItem("RAM");
-                ramItem.SubItems.Add("0 GB");
-                clientInfoListView.Items.Add(ramItem);
-
-                var uptimeItem = new ListViewItem("Uptime");
-                uptimeItem.SubItems.Add("N/A");
-                clientInfoListView.Items.Add(uptimeItem);
-
-                var antivirusItem = new ListViewItem("Antivirus");
-                antivirusItem.SubItems.Add("N/A");
-                clientInfoListView.Items.Add(antivirusItem);
-
-                var mainBrowserItem = new ListViewItem("Default Browser");
-                mainBrowserItem.SubItems.Add("N/A");
-                clientInfoListView.Items.Add(mainBrowserItem);
-
-                var pingItem = new ListViewItem("Ping");
-                pingItem.SubItems.Add("N/A");
-                clientInfoListView.Items.Add(pingItem);
+                foreach (var (label, value) in defaultStats)
+                {
+                    var item = new ListViewItem(label);
+                    item.SubItems.Add(value);
+                    clientInfoListView.Items.Add(item);
+                }
             }
         }
 

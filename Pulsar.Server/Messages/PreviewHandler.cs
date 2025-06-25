@@ -232,6 +232,14 @@ namespace Pulsar.Server.Messages
                 var pingItem = new ListViewItem("Ping");
                 pingItem.SubItems.Add(_lastPingMs >= 0 ? _lastPingMs + " ms" : "N/A");
                 _verticleStatsTable.Items.Add(pingItem);
+
+                var webcamItem = new ListViewItem("Webcam");
+                webcamItem.SubItems.Add(message.HasWebcam ? "Yes" : "No");
+                _verticleStatsTable.Items.Add(webcamItem);
+
+                var afkItem = new ListViewItem("AFK Time");
+                afkItem.SubItems.Add(message.AFKTime);
+                _verticleStatsTable.Items.Add(afkItem);
             }
             catch (Exception ex)
             {

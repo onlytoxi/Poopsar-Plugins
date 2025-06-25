@@ -384,7 +384,7 @@ namespace Pulsar.Client.Messages
 
         private void Execute(ISender client, GetAvailableWebcams message)
         {
-            client.Send(new GetAvailableWebcamsResponse { Webcams = _webcamHelper.GetWebcams() });
+            client.Send(new GetAvailableWebcamsResponse { Webcams = WebcamHelper.GetWebcams() });
         }
 
         /// <summary>

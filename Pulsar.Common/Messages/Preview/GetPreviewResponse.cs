@@ -33,7 +33,14 @@ namespace Pulsar.Common.Messages.Preview
 
         [ProtoMember(9)]
         public string AV { get; set; }
+
         [ProtoMember(10)]
         public string MainBrowser { get; set; }
+
+        [ProtoMember(11)]
+        public bool HasWebcam { get; set; }
+
+        [ProtoMember(12)]
+        public string AFKTime { get; set; }
     }
 }

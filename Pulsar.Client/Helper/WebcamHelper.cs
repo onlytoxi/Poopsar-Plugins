@@ -73,7 +73,7 @@ namespace Pulsar.Client.Helper
             }
         }
 
-        public string[] GetWebcams()
+        public static string[] GetWebcams()
         {
             try
             {

@@ -103,6 +103,14 @@ namespace Pulsar.Client.User
             return (idleTime > 600); // idle for 10 minutes
         }
 
+        public static string UserIdleTime()
+        {
+            var ticks = Environment.TickCount;
+            var idleTime = ticks - NativeMethodsHelper.GetLastInputInfoTickCount();
+            idleTime = ((idleTime > 0) ? (idleTime / 1000) : 0);
+            return TimeSpan.FromSeconds(idleTime).ToString(@"hh\:mm\:ss");
+        }
+
         /// <summary>
         /// Disposes all managed and unmanaged resources associated with this activity detection service.
         /// </summary>
