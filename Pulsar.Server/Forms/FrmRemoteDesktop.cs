@@ -2,6 +2,7 @@
 using Pulsar.Common.Enums;
 using Pulsar.Common.Helpers;
 using Pulsar.Common.Messages;
+using Pulsar.Common.Messages.Monitoring.Clipboard;
 using Pulsar.Server.Forms.DarkMode;
 using Pulsar.Server.Helper;
 using Pulsar.Server.Messages;
@@ -10,6 +11,7 @@ using Pulsar.Server.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
@@ -68,6 +70,16 @@ namespace Pulsar.Server.Forms
         /// A list of pressed keys for synchronization between key down & -up events.
         /// </summary>
         private readonly List<Keys> _keysPressed;
+        
+        /// <summary>
+        /// Monitors clipboard changes on the server to send to the client
+        /// </summary>
+        private ClipboardMonitor _clipboardMonitor;
+        
+        /// <summary>
+        /// States whether bidirectional clipboard sync is enabled
+        /// </summary>
+        private bool _enableBidirectionalClipboard;
 
         /// <summary>
         /// The client which can be used for the remote desktop.
@@ -116,6 +128,7 @@ namespace Pulsar.Server.Forms
             _connectClient = client;
             _remoteDesktopHandler = new RemoteDesktopHandler(client);
             _keysPressed = new List<Keys>();
+            _clipboardMonitor = new ClipboardMonitor(client);
 
             RegisterMessageHandler();
             InitializeComponent();
@@ -136,6 +149,9 @@ namespace Pulsar.Server.Forms
             strokeWidthTrackBar.Value = _strokeWidth;
             strokeWidthTrackBar.ValueChanged += strokeWidthTrackBar_ValueChanged;
             colorPicker.Click += colorPicker_Click;
+            
+            // Update tooltip text for bidirectional clipboard
+            toolTipButtons.SetToolTip(this.btnBiDirectionalClipboard, "Enable bidirectional clipboard sync");
         }
 
         /// <summary>
@@ -407,6 +423,7 @@ namespace Pulsar.Server.Forms
             if (_remoteDesktopHandler.IsStarted) StopStream();
             UnregisterMessageHandler();
             _remoteDesktopHandler.Dispose();
+            _clipboardMonitor?.Dispose();
             picDesktop.Image?.Dispose();
         }
 
@@ -644,6 +661,7 @@ namespace Pulsar.Server.Forms
                 enableGPU.Image = Properties.Resources.computer_error; // disable GPU
                 toolTipButtons.SetToolTip(enableGPU, "Enable GPU.");
             }
+            UpdateInputButtonsVisualState();
         }
 
         private void btnDrawing_Click(object sender, EventArgs e)
@@ -791,26 +809,23 @@ namespace Pulsar.Server.Forms
         /// </summary>
         private void UpdateInputButtonsVisualState()
         {
-            if (_enableMouseInput)
-            {
-                btnMouse.BackColor = System.Drawing.Color.FromArgb(0, 120, 0); // Dark green
-                btnMouse.FlatAppearance.BorderColor = System.Drawing.Color.LimeGreen;
-            }
-            else
-            {
-                btnMouse.BackColor = System.Drawing.Color.FromArgb(40, 40, 40); // Default dark
-                btnMouse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            }
+            UpdateButtonState(btnMouse, _enableMouseInput);
+            UpdateButtonState(btnKeyboard, _enableKeyboardInput);
+            UpdateButtonState(btnBiDirectionalClipboard, _enableBidirectionalClipboard);
+            UpdateButtonState(enableGPU, _useGPU);
+        }
 
-            if (_enableKeyboardInput)
+        private void UpdateButtonState(Button button, bool enabled)
+        {
+            if (enabled)
             {
-                btnKeyboard.BackColor = System.Drawing.Color.FromArgb(0, 120, 0); // Dark green
-                btnKeyboard.FlatAppearance.BorderColor = System.Drawing.Color.LimeGreen;
+                button.BackColor = Color.FromArgb(0, 120, 0); // Dark green
+                button.FlatAppearance.BorderColor = Color.LimeGreen;
             }
             else
             {
-                btnKeyboard.BackColor = System.Drawing.Color.FromArgb(40, 40, 40); // Default dark
-                btnKeyboard.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+                button.BackColor = Color.FromArgb(40, 40, 40); // Default dark
+                button.FlatAppearance.BorderColor = Color.Gray;
             }
         }
 
@@ -829,6 +844,43 @@ namespace Pulsar.Server.Forms
             int currentDisplayIndex = cbMonitors.SelectedIndex;
             FrmOpenApplicationOnMonitor frm = new FrmOpenApplicationOnMonitor(_connectClient, currentDisplayIndex);
             frm.ShowDialog(this);
+        }
+
+        private void btnBiDirectionalClipboard_Click(object sender, EventArgs e)
+        {
+            _enableBidirectionalClipboard = !_enableBidirectionalClipboard;
+            
+            UpdateInputButtonsVisualState();
+            
+            _clipboardMonitor.IsEnabled = _enableBidirectionalClipboard;
+            Debug.WriteLine(_clipboardMonitor.IsEnabled ? "Clipboard monitor enabled." : "Clipboard monitor disabled.");
+
+            if (_enableBidirectionalClipboard)
+            {
+                Thread clipboardThread = new Thread(() =>
+                {
+                    try
+                    {
+                        Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
+                        
+                        if (Clipboard.ContainsText())
+                        {
+                            string clipboardText = Clipboard.GetText();
+                            if (!string.IsNullOrEmpty(clipboardText))
+                            {
+                                Debug.WriteLine($"Sending initial clipboard: {clipboardText.Substring(0, Math.Min(20, clipboardText.Length))}...");
+                                _connectClient.Send(new SendClipboardData { ClipboardText = clipboardText });
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error sending initial clipboard: {ex.Message}");
+                    }
+                });
+                clipboardThread.SetApartmentState(ApartmentState.STA);
+                clipboardThread.Start();
+            }
         }
     }
 }

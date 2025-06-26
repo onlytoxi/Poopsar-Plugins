@@ -355,11 +355,6 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-		<Reference Update="System.Xml">
-			<Private>False</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup>
 		<Reference Update="System.Xml.Linq">
 			<Private>False</Private>
 		</Reference>

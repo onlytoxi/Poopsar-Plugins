@@ -3,10 +3,12 @@ using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
 using Pulsar.Server.Forms;
+using Pulsar.Server.Helper;
 using Pulsar.Server.Networking;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -194,6 +196,34 @@ namespace Pulsar.Server.Messages
             if (string.IsNullOrEmpty(message.ClipboardText))
             {
                 return;
+            }
+
+            try
+            {
+                Console.WriteLine($"Server: Setting server clipboard to: {message.ClipboardText.Substring(0, Math.Min(20, message.ClipboardText.Length))}...");
+                
+                ClipboardMonitor.NotifyReceivedFromClient(message.ClipboardText);
+                
+                Thread clipboardThread = new Thread(() =>
+                {
+                    try
+                    {
+                        Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
+                        Clipboard.SetText(message.ClipboardText);
+                        Console.WriteLine("Server: Successfully set server clipboard");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Server: Error setting clipboard: {ex.Message}");
+                    }
+                });
+                clipboardThread.SetApartmentState(ApartmentState.STA);
+                clipboardThread.Start();
+                clipboardThread.Join(1000);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Server: Error in clipboard thread creation: {ex.Message}");
             }
 
             Task.Run(() =>

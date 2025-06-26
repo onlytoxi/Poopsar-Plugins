@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace Pulsar.Client.Messages
 {

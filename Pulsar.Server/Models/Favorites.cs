@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Pulsar.Server.Models
 {
     public class Favorites
     {
-        private static readonly string FavoritesPath = Path.Combine(Application.StartupPath, "favorites.xml");
+        private static readonly string FavoritesPath = Path.Combine(Application.StartupPath, "favorites.json");
         private static List<string> _favoriteClients = new List<string>();
 
         public static void LoadFavorites()
@@ -17,11 +18,8 @@ namespace Pulsar.Server.Models
             {
                 if (File.Exists(FavoritesPath))
                 {
-                    using (var stream = File.OpenRead(FavoritesPath))
-                    {
-                        var serializer = new XmlSerializer(typeof(List<string>));
-                        _favoriteClients = (List<string>)serializer.Deserialize(stream);
-                    }
+                    var json = File.ReadAllText(FavoritesPath);
+                    _favoriteClients = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
                 }
             }
             catch
@@ -34,15 +32,12 @@ namespace Pulsar.Server.Models
         {
             try
             {
-                using (var stream = File.Create(FavoritesPath))
-                {
-                    var serializer = new XmlSerializer(typeof(List<string>));
-                    serializer.Serialize(stream, _favoriteClients);
-                }
+                var json = JsonConvert.SerializeObject(_favoriteClients, Formatting.Indented);
+                File.WriteAllText(FavoritesPath, json);
             }
-            catch
+            catch (Exception ex)
             {
-
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -64,4 +59,4 @@ namespace Pulsar.Server.Models
             SaveFavorites();
         }
     }
-} 
+}
