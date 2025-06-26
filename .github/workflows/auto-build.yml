@@ -15,8 +15,10 @@ jobs:
     outputs:
       build-branch: ${{ steps.set-branch.outputs.build-branch }}
       version-changed: ${{ steps.check-version.outputs.version-changed }}
+      is-stable: ${{ steps.check-version.outputs.is-stable }}
       version: ${{ steps.extract-version.outputs.version }}
       commit-hash: ${{ steps.get-commit-hash.outputs.commit-hash }}
+      commit-message: ${{ steps.get-commit-hash.outputs.commit-message }}
     
     steps:
       - name: Checkout repo (main)
@@ -62,28 +64,31 @@ jobs:
             echo "Could not find version in current branch"
           }
       
-      - name: Get commit hash
+      - name: Get commit hash and message
         id: get-commit-hash
         shell: pwsh
         run: |
           $commitHash = git -C current-branch rev-parse --short HEAD
+          $commitMessage = git -C current-branch log -1 --pretty=%B
           echo "commit-hash=$commitHash" >> $env:GITHUB_OUTPUT
+          echo "commit-message=$commitMessage" >> $env:GITHUB_OUTPUT
           echo "Commit hash: $commitHash"
+          echo "Commit message: $commitMessage"
       
-      - name: Determine build branch
+      - name: Check if stable release
         id: check-version
         shell: pwsh
         run: |
-          $mainVersion = "${{ steps.get-main-version.outputs.main-version }}"
-          $currentVersion = "${{ steps.extract-version.outputs.version }}"
-          $branchName = "${{ github.ref_name }}"
+          $commitMessage = "${{ steps.get-commit-hash.outputs.commit-message }}"
           
-          if ($mainVersion -ne $currentVersion) {
+          if ($commitMessage -match "^STABLE") {
             echo "version-changed=true" >> $env:GITHUB_OUTPUT
-            echo "Version changed from $mainVersion to $currentVersion"
+            echo "is-stable=true" >> $env:GITHUB_OUTPUT
+            echo "Stable release detected - commit message starts with 'STABLE'"
           } else {
             echo "version-changed=false" >> $env:GITHUB_OUTPUT
-            echo "Version unchanged: $currentVersion"
+            echo "is-stable=false" >> $env:GITHUB_OUTPUT
+            echo "Development build - commit message does not start with 'STABLE'"
           }
       - name: Set build branch
         id: set-branch
@@ -113,8 +118,9 @@ jobs:
         run: |
           Write-Host "Building from branch: ${{ needs.determine-branch.outputs.build-branch }}"
           Write-Host "Version: ${{ needs.determine-branch.outputs.version }}"
-          Write-Host "Version changed: ${{ needs.determine-branch.outputs.version-changed }}"
+          Write-Host "Is stable release: ${{ needs.determine-branch.outputs.is-stable }}"
           Write-Host "Commit: ${{ needs.determine-branch.outputs.commit-hash }}"
+          Write-Host "Commit message: ${{ needs.determine-branch.outputs.commit-message }}"
 
       - name: Setup NuGet
         uses: nuget/setup-nuget@v2
@@ -139,26 +145,26 @@ jobs:
           name: windows-build
           path: build_output.zip
 
-          # Determine which type of release to create based on branch and version changes
+          # Determine which type of release to create based on commit message
       - name: Determine release type
         id: release-type
         shell: pwsh
         run: |
-          $versionChanged = "${{ needs.determine-branch.outputs.version-changed }}"
+          $isStable = "${{ needs.determine-branch.outputs.is-stable }}"
           
           # Set default values
           $createStable = "false"
           $createDev = "false"
           
-          if ($versionChanged -eq "true") {
-            # Version change should create a stable build
+          if ($isStable -eq "true") {
+            # Commit message starts with STABLE - create stable build
             $createStable = "true"
-            Write-Host "Creating stable build due to version change"
+            Write-Host "Creating stable build - commit message starts with 'STABLE'"
           }
           else {
             # Create dev build in all other cases
             $createDev = "true"
-            Write-Host "Creating dev build - no version change detected"
+            Write-Host "Creating dev build - commit message does not start with 'STABLE'"
           }
           
           echo "create-stable=$createStable" >> $env:GITHUB_OUTPUT
@@ -187,8 +193,10 @@ jobs:
             **Version:** ${{ needs.determine-branch.outputs.version }}
             **Built from branch:** ${{ needs.determine-branch.outputs.build-branch }}
             **Build date:** ${{ github.event.repository.updated_at }}
+            **Commit:** ${{ needs.determine-branch.outputs.commit-hash }}
+            **Commit message:** ${{ needs.determine-branch.outputs.commit-message }}
             
-            This is the stable automated build.
+            This is the stable automated build triggered by a commit message starting with 'STABLE'.
           draft: false
           prerelease: false
 
