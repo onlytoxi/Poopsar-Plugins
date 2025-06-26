@@ -1,6 +1,6 @@
 # Pulsar
 
-![GitHub Actions Build Status](https://img.shields.io/github/actions/workflow/status/Quasar-Continuation/Pulsar/dotnet.yml)
+![GitHub Actions Build Status](https://img.shields.io/github/actions/workflow/status/Quasar-Continuation/Pulsar/auto-build.yml)
 [![Downloads](https://img.shields.io/github/downloads/Quasar-Continuation/Pulsar/total.svg)](https://github.com/Quasar-Continuation/Pulsar/releases)
 [![License](https://img.shields.io/github/license/Quasar-Continuation/Pulsar.svg)](LICENSE)
 ![.NET](https://img.shields.io/badge/.NET-4.7.2%2B-blue)
