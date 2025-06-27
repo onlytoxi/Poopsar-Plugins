@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -14,6 +16,7 @@ namespace Pulsar.Server.Forms
         private Button btnOk;
         private Button btnCancel;
         private readonly Client _client;
+        private static readonly string PulsarStuffDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PulsarStuff");
 
         public event EventHandler NicknameSaved;
 
@@ -100,8 +103,12 @@ namespace Pulsar.Server.Forms
 
             try
             {
-                string downloadDir = GetOrCreateDownloadDirectory();
-                string filePath = Path.Combine(downloadDir, "client_info.json");
+                string filePath = Path.Combine(PulsarStuffDir, "client_info.json");
+                
+                if (!Directory.Exists(PulsarStuffDir))
+                {
+                    Directory.CreateDirectory(PulsarStuffDir);
+                }
 
                 SaveOrUpdateClientInfo(filePath, txtNickname.Text);
 
@@ -121,26 +128,6 @@ namespace Pulsar.Server.Forms
             NicknameSaved?.Invoke(this, e);
         }
 
-        private string GetOrCreateDownloadDirectory()
-        {
-            string downloadDir = _client.Value.DownloadDirectory;
-
-            if (!Directory.Exists(downloadDir))
-            {
-                try
-                {
-                    Directory.CreateDirectory(downloadDir);
-                }
-                catch (Exception ex)
-                {
-                    ShowErrorMessage($"Failed to create download directory: {ex.Message}");
-                    throw;
-                }
-            }
-
-            return downloadDir;
-        }
-
         public Client GetClient()
         {
             return _client;
@@ -148,26 +135,34 @@ namespace Pulsar.Server.Forms
 
         private void SaveOrUpdateClientInfo(string filePath, string nickname)
         {
-            ClientInfo clientInfo;
+            Dictionary<string, ClientInfo> clientInfos = new Dictionary<string, ClientInfo>();
 
             if (File.Exists(filePath))
             {
-                string json = File.ReadAllText(filePath);
-                clientInfo = JsonConvert.DeserializeObject<ClientInfo>(json);
-                clientInfo.Nickname = nickname;
-            }
-            else
-            {
-                clientInfo = new ClientInfo
+                try
                 {
-                    ClientId = _client.Value.Id,
-                    Nickname = nickname
-                };
+                    string json = File.ReadAllText(filePath);
+                    if (!string.IsNullOrWhiteSpace(json))
+                    {
+                        clientInfos = JsonConvert.DeserializeObject<Dictionary<string, ClientInfo>>(json) ?? new Dictionary<string, ClientInfo>();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error loading existing client info: {ex.Message}");
+                }
             }
+
+            string clientId = _client.Value.Id;
+            clientInfos[clientId] = new ClientInfo
+            {
+                ClientId = clientId,
+                Nickname = nickname
+            };
 
             try
             {
-                string updatedJson = JsonConvert.SerializeObject(clientInfo, Formatting.Indented);
+                string updatedJson = JsonConvert.SerializeObject(clientInfos, Formatting.Indented);
                 File.WriteAllText(filePath, updatedJson);
             }
             catch (Exception ex)
@@ -189,11 +184,5 @@ namespace Pulsar.Server.Forms
 
         private void BtnCancel_Click(object sender, EventArgs e) => this.Close();
         private void FrmNickname_Load(object sender, EventArgs e) { }
-    }
-
-    public class ClientInfo
-    {
-        public string ClientId { get; set; }
-        public string Nickname { get; set; }
     }
 }

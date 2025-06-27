@@ -683,7 +683,7 @@ namespace Pulsar.Server.Forms
             data["Addresses"] = addresses;
             data["ClipperEnabled"] = ClipperCheckbox.Checked;
 
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
+            string json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
             string filePath = Path.Combine(PulsarStuffDir, "crypto_addresses.json");
             if (!Directory.Exists(PulsarStuffDir))
             {
@@ -694,7 +694,7 @@ namespace Pulsar.Server.Forms
 
         private void LoadCryptoAddresses()
         {
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "crypto_addresses.json");
+            string filePath = Path.Combine(PulsarStuffDir, "crypto_addresses.json");
             if (File.Exists(filePath))
             {
                 try
@@ -917,20 +917,55 @@ namespace Pulsar.Server.Forms
 
         private string GetClientNickname(Client client)
         {
-            if (client?.Value?.DownloadDirectory == null)
+            if (client?.Value?.Id == null)
                 return string.Empty;
 
-            string jsonFilePath = Path.Combine(client.Value.DownloadDirectory, "client_info.json");
+            string jsonFilePath = Path.Combine(PulsarStuffDir, "client_info.json");
 
             try
             {
-                ClientInfo clientInfo = LoadClientInfo(jsonFilePath);
-                return clientInfo?.Nickname ?? string.Empty;
+                var clientInfos = LoadClientInfos(jsonFilePath);
+                if (clientInfos != null && clientInfos.ContainsKey(client.Value.Id))
+                {
+                    return clientInfos[client.Value.Id]?.Nickname ?? string.Empty;
+                }
+                return string.Empty;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error loading client nickname: {ex.Message}");
                 return string.Empty;
+            }
+        }
+
+        private Dictionary<string, ClientInfo> LoadClientInfos(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                    return new Dictionary<string, ClientInfo>();
+
+                string json = File.ReadAllText(filePath);
+
+                if (string.IsNullOrWhiteSpace(json))
+                    return new Dictionary<string, ClientInfo>();
+
+                try
+                {
+                    var clientInfos = JsonConvert.DeserializeObject<Dictionary<string, ClientInfo>>(json);
+                    return clientInfos ?? new Dictionary<string, ClientInfo>();
+                }
+                catch (JsonException)
+                {
+                    Debug.WriteLine("Failed to parse");
+                }
+
+                return new Dictionary<string, ClientInfo>();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error reading client info: {ex.Message}");
+                return new Dictionary<string, ClientInfo>();
             }
         }
 
@@ -2270,6 +2305,12 @@ namespace Pulsar.Server.Forms
         public string Title { get; set; }
         public string Param1 { get; set; }
         public string Param2 { get; set; }
+    }
+
+    public class ClientInfo
+    {
+        public string ClientId { get; set; }
+        public string Nickname { get; set; }
     }
 
     #endregion AutoTaskStuff
