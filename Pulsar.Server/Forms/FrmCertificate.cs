@@ -58,6 +58,26 @@ namespace Pulsar.Server.Forms
                     try
                     {
                         SetCertificate(new X509Certificate2(ofd.FileName, "", X509KeyStorageFlags.Exportable));
+
+                        //btnSave.Select();
+
+                        btnSave.PerformClick();
+
+                        string importedDir = Path.GetDirectoryName(ofd.FileName);
+                        string sourcePulsarStuff = Path.Combine(importedDir, "PulsarStuff");
+                        string destPulsarStuff = Path.Combine(Application.StartupPath, "PulsarStuff");
+                        if (Directory.Exists(sourcePulsarStuff))
+                        {
+                            Directory.CreateDirectory(destPulsarStuff);
+
+                            foreach (string file in Directory.GetFiles(sourcePulsarStuff, "*", SearchOption.AllDirectories))
+                            {
+                                string relativePath = file.Substring(sourcePulsarStuff.Length + 1);
+                                string destFile = Path.Combine(destPulsarStuff, relativePath);
+                                Directory.CreateDirectory(Path.GetDirectoryName(destFile));
+                                File.Copy(file, destFile, true);
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {

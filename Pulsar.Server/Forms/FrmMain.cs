@@ -50,7 +50,8 @@ namespace Pulsar.Server.Forms
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object();
         private PreviewHandler _previewImageHandler;
-        private readonly string AutoTasksFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "autotasks.json");
+        private static readonly string PulsarStuffDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PulsarStuff");
+        private readonly string AutoTasksFilePath = Path.Combine(PulsarStuffDir, "autotasks.json");
 
         public FrmMain()
         {
@@ -440,7 +441,7 @@ namespace Pulsar.Server.Forms
 
         private bool IsClientBlocked(string clientAddress)
         {
-            string filePath = "blocked.json";
+            string filePath = Path.Combine(PulsarStuffDir, "blocked.json");
 
             try
             {
@@ -673,8 +674,11 @@ namespace Pulsar.Server.Forms
             data["ClipperEnabled"] = ClipperCheckbox.Checked;
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "crypto_addresses.json");
-
+            string filePath = Path.Combine(PulsarStuffDir, "crypto_addresses.json");
+            if (!Directory.Exists(PulsarStuffDir))
+            {
+                Directory.CreateDirectory(PulsarStuffDir);
+            }
             File.WriteAllText(filePath, json);
         }
 
@@ -2137,7 +2141,7 @@ namespace Pulsar.Server.Forms
                 foreach (Client c in GetSelectedClients())
                 {
                     string clientAddress = c.EndPoint.Address.ToString();
-                    string filePath = "blocked.json";
+                    string filePath = Path.Combine(PulsarStuffDir, "blocked.json");
                     List<string> blockedIPs = new List<string>();
                     try
                     {

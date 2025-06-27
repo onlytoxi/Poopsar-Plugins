@@ -9,7 +9,8 @@ namespace Pulsar.Server.Models
 {
     public class Favorites
     {
-        private static readonly string FavoritesPath = Path.Combine(Application.StartupPath, "favorites.json");
+        private static readonly string PulsarStuffDir = Path.Combine(Application.StartupPath, "PulsarStuff");
+        private static readonly string FavoritesPath = Path.Combine(PulsarStuffDir, "favorites.json");
         private static List<string> _favoriteClients = new List<string>();
 
         public static void LoadFavorites()
@@ -32,6 +33,10 @@ namespace Pulsar.Server.Models
         {
             try
             {
+                if (!Directory.Exists(PulsarStuffDir))
+                {
+                    Directory.CreateDirectory(PulsarStuffDir);
+                }
                 var json = JsonConvert.SerializeObject(_favoriteClients, Formatting.Indented);
                 File.WriteAllText(FavoritesPath, json);
             }

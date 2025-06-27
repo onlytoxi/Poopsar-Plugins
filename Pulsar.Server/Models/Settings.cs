@@ -7,7 +7,8 @@ namespace Pulsar.Server.Models
 {
     public static class Settings
     {
-        private static readonly string SettingsPath = Path.Combine(Application.StartupPath, "settings.json");
+        private static readonly string PulsarStuffDir = Path.Combine(Application.StartupPath, "PulsarStuff");
+        private static readonly string SettingsPath = Path.Combine(PulsarStuffDir, "settings.json");
         private static SettingsModel _settings;
         private static readonly object _lockObject = new object();
 
@@ -78,12 +79,10 @@ namespace Pulsar.Server.Models
             {
                 try
                 {
-                    var dir = Path.GetDirectoryName(SettingsPath);
-                    if (!Directory.Exists(dir))
+                    if (!Directory.Exists(PulsarStuffDir))
                     {
-                        Directory.CreateDirectory(dir);
+                        Directory.CreateDirectory(PulsarStuffDir);
                     }
-
                     string json = JsonConvert.SerializeObject(_settings, Newtonsoft.Json.Formatting.Indented);
                     File.WriteAllText(SettingsPath, json);
                 }
