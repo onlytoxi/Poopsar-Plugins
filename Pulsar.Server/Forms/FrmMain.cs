@@ -443,6 +443,16 @@ namespace Pulsar.Server.Forms
         {
             string filePath = Path.Combine(PulsarStuffDir, "blocked.json");
 
+            if (!Directory.Exists(PulsarStuffDir))
+            {
+                Directory.CreateDirectory(PulsarStuffDir);
+            }
+
+            if (!(File.Exists(filePath)))
+            {
+                return false;
+            }
+
             try
             {
                 string json = File.ReadAllText(filePath);

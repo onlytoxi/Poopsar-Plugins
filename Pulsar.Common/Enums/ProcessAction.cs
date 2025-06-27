@@ -3,6 +3,7 @@
     public enum ProcessAction
     {
         Start,
-        End
+        End,
+        Suspend
     }
 }

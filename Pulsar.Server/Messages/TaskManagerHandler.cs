@@ -1,4 +1,5 @@
-﻿using Pulsar.Common.Enums;
+﻿using System;
+using Pulsar.Common.Enums;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Administration.TaskManager;
 using Pulsar.Common.Messages.Other;
@@ -130,13 +131,21 @@ namespace Pulsar.Server.Messages
             _client.Send(new DoProcessDump { Pid = pid });
         }
 
+        public void SuspendProcess(int pid)
+        {
+            _client.Send(new DoSuspendProcess { Pid = pid });
+        }
+
         private void Execute(ISender client, DoProcessResponse message)
         {
             OnProcessActionPerformed(message.Action, message.Result);
         }
 
+        public GetProcessesResponse LastProcessesResponse { get; private set; }
+
         private void Execute(ISender client, GetProcessesResponse message)
         {
+            LastProcessesResponse = message;
             OnReport(message.Processes);
         }
 

