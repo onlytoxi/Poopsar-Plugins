@@ -1,7 +1,6 @@
 stages:
   - determine
   - build
-  - release
 
 variables:
   SOLUTION_FILE: "Pulsar.sln"
@@ -80,100 +79,22 @@ build:
     - echo "Commit:" $COMMIT_SHORT_SHA
     - echo "Commit message:" $COMMIT_MESSAGE
     - dotnet build $SOLUTION_FILE --configuration $BUILD_CONFIGURATION --output "$CI_PROJECT_DIR/build_output/"
-    - cd build_output && zip -r ../build_output.zip . && cd ..
-    - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
-    - ls -la build_output/ || echo "Build output directory listing failed"
+    - |
+      if [ "$IS_STABLE" = "true" ]; then
+        echo "Creating artifacts for stable build..."
+        cd build_output && zip -r ../build_output.zip . && cd ..
+        find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
+        ls -la build_output/ || echo "Build output directory listing failed"
+      else
+        echo "Development build - skipping artifact creation, just verifying compilation"
+        ls -la build_output/ || echo "Build output directory listing failed"
+      fi
   artifacts:
     paths:
       - build_output.zip
       - build_output/
       - setup.bat
-    expire_in: 1 week
-
-release-stable:
-  stage: release
-  needs: ["determine-version", "build"]
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  tags:
-    - docker
-  rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /^STABLE/'
-  before_script:
-    # Skip deletion attempts due to permission issues - let release-cli handle conflicts
-    - echo "Skipping deletion of existing releases due to permission constraints"
-  script:
-    - echo "Creating stable release for version:" "$VERSION"
-  release:
-    tag_name: "AutoBuild"
-    name: "Pulsar Stable"
-    description: |
-      # Pulsar Stable Build
-      **Version:** $VERSION
-      **Built from branch:** $CI_COMMIT_BRANCH
-      **Build date:** $CI_PIPELINE_CREATED_AT
-      **Commit:** $COMMIT_SHORT_SHA
-      **Commit message:** $COMMIT_MESSAGE
-
-      This is the stable automated build triggered by a commit message starting with 'STABLE'.
-      
-      ## Download Instructions
-      1. Download build_output.zip for the complete build package
-      2. Or download individual files: Pulsar.exe (Server), Client.exe, and setup.bat
-    assets:
-      links:
-        - name: 'build_output.zip'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output.zip?job=build'
-          link_type: 'package'
-        - name: 'Pulsar.exe (Server)'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Pulsar.exe?job=build'
-          link_type: 'other'
-        - name: 'Client.exe'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Client.exe?job=build'
-          link_type: 'other'
-        - name: 'setup.bat'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/setup.bat?job=build'
-          link_type: 'other'
-
-release-dev:
-  stage: release
-  needs: ["determine-version", "build"]
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  tags:
-    - docker
-  rules:
-    - if: $IS_STABLE == "false"
-  before_script:
-    # Skip deletion attempts due to permission issues - let release-cli handle conflicts
-    - echo "Skipping deletion of existing releases due to permission constraints"
-  script:
-    - echo "Creating development release for version:" "$VERSION"
-  release:
-    tag_name: "AutoBuild-Dev"
-    name: "Pulsar Development"
-    description: |
-      # Pulsar Development Build
-      **Version:** $VERSION (Development)
-      **Built from branch:** $CI_COMMIT_BRANCH
-      **Build date:** $CI_PIPELINE_CREATED_AT
-      **Commit:** $COMMIT_SHORT_SHA
-      **Commit message:** $COMMIT_MESSAGE
-      
-      This is the development build with the latest features and may be unstable.
-      
-      ## Download Instructions
-      1. Download build_output.zip for the complete build package
-      2. Or download individual files: Pulsar.exe (Server), Client.exe, and setup.bat
-    assets:
-      links:
-        - name: 'build_output.zip'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output.zip?job=build'
-          link_type: 'package'
-        - name: 'Pulsar.exe (Server)'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Pulsar.exe?job=build'
-          link_type: 'other'
-        - name: 'Client.exe'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Client.exe?job=build'
-          link_type: 'other'
-        - name: 'setup.bat'
-          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/setup.bat?job=build'
-          link_type: 'other'
+    expire_in: 30 days
+    when: always
+    rules:
+      - if: $IS_STABLE == "true"
