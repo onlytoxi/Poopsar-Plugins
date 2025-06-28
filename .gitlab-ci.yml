@@ -125,7 +125,6 @@ release-stable:
     - env | grep -E "(IS_STABLE|VERSION|RELEASE_TYPE)" || echo "No matching env vars found"
     # Install jq and curl for JSON parsing and uploads
     - apk add --no-cache jq curl
-    # Delete existing stable release and tag if they exist
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild" > /dev/null 2>&1; then
