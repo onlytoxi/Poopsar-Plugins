@@ -71,13 +71,17 @@ build:
     - apt-get install -y -qq wget unzip zip
     # Install NuGet
     - wget -q https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-    - echo '#!/bin/bash\nmono /builds/$CI_PROJECT_PATH/nuget.exe "$@"' > /usr/local/bin/nuget
+    - |
+      cat > /usr/local/bin/nuget << 'EOF'
+      #!/bin/bash
+      mono /builds/$CI_PROJECT_PATH/nuget.exe "$@"
+      EOF
     - chmod +x /usr/local/bin/nuget
   script:
-    - "echo 'Building Pulsar version: $VERSION'"
-    - "echo 'Release type: $RELEASE_TYPE'"
-    - "echo 'Commit: $COMMIT_SHORT_SHA'"
-    - "echo 'Commit message: $COMMIT_MESSAGE'"
+    - echo "Building Pulsar version:" $VERSION
+    - echo "Release type:" $RELEASE_TYPE
+    - echo "Commit:" $COMMIT_SHORT_SHA
+    - echo "Commit message:" $COMMIT_MESSAGE
     - nuget restore $SOLUTION_FILE
     - msbuild $SOLUTION_FILE /p:Configuration=$BUILD_CONFIGURATION /p:Platform="Any CPU" /p:OutputPath="$CI_PROJECT_DIR/build_output/"
     - cd build_output && zip -r ../build_output.zip . && cd ..
