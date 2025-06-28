@@ -65,7 +65,7 @@ build-dev:
   tags:
     - docker
   rules:
-    - if: $IS_STABLE == "false"
+    - if: '$CI_COMMIT_MESSAGE !~ /^STABLE/'
   before_script:
     # Install Microsoft packages repository and .NET SDK 8.0
     - apt-get update -qq
@@ -91,7 +91,7 @@ build-stable:
   tags:
     - docker
   rules:
-    - if: $IS_STABLE == "true"
+    - if: '$CI_COMMIT_MESSAGE =~ /^STABLE/'
   before_script:
     # Install Microsoft packages repository and .NET SDK 8.0
     - apt-get update -qq
