@@ -48,7 +48,12 @@ determine-version:
     - echo "Commit short SHA:" $CI_COMMIT_SHORT_SHA
     - echo "Ref name:" $CI_COMMIT_REF_NAME
     - echo "COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA" >> variables.env
-    - echo "COMMIT_MESSAGE=\"$CI_COMMIT_MESSAGE\"" >> variables.env
+    - |
+      # Clean commit message for dotenv (remove problematic characters)
+      CLEAN_MESSAGE=$(echo "$CI_COMMIT_MESSAGE" | tr -d '\n\r' | sed 's/"/\\"/g' | sed "s/'/\\'/g")
+      echo "COMMIT_MESSAGE=$CLEAN_MESSAGE" >> variables.env
+    - echo "Debug - variables.env contents:"
+    - cat variables.env
   artifacts:
     reports:
       dotenv: variables.env
