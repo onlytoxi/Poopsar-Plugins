@@ -112,14 +112,14 @@ upload-package:
 release-stable:
   stage: release
   needs: ["determine-version", "build"]
-  image: curlimages/curl:latest
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   tags:
     - docker
   rules:
     - if: $IS_STABLE == "true"
   before_script:
-    # Install jq for JSON parsing
-    - apk add --no-cache jq
+    # Install jq and curl for JSON parsing and uploads
+    - apk add --no-cache jq curl
     # Delete existing stable release and tag if they exist
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
