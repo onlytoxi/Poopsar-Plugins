@@ -109,33 +109,6 @@ upload-package:
            --upload-file build_output.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${VERSION}/build_output.zip"
 
-  stage: release
-  needs: ["determine-version", "build"]
-  image: curlimages/curl:latest
-  tags:
-    - docker
-  rules:
-    - if: $IS_STABLE == "true"
-  script:
-    # Upload files to project uploads
-    - |
-      for file in build_output.zip build_output/Pulsar.exe build_output/client.bin setup.bat; do
-        [ -f "$file" ] && \
-        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-             --form "file=@$file" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" \
-             -o "upload_$(basename $file).json"
-      done
-    - |
-      BUILD_ZIP_URL=$(jq -r '.url' upload_build_output.zip.json)
-      SERVER_EXE_URL=$(jq -r '.url' upload_Pulsar.exe.json)
-      CLIENT_BIN_URL=$(jq -r '.url' upload_client.bin.json)
-      SETUP_BAT_URL=$(jq -r '.url' upload_setup.bat.json)
-      echo "BUILD_ZIP_URL=$BUILD_ZIP_URL" >> variables.env
-      echo "SERVER_EXE_URL=$SERVER_EXE_URL" >> variables.env
-      echo "CLIENT_BIN_URL=$CLIENT_BIN_URL" >> variables.env
-      echo "SETUP_BAT_URL=$SETUP_BAT_URL" >> variables.env
-
 release-stable:
   stage: release
   needs: ["determine-version", "build"]
@@ -144,6 +117,24 @@ release-stable:
     - docker
   rules:
     - if: $IS_STABLE == "true"
+  before_script:
+    # Install jq for JSON parsing
+    - apk add --no-cache jq
+    # Delete existing stable release and tag if they exist
+    - |
+      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild" > /dev/null 2>&1; then
+        echo "Deleting existing stable release..."
+        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild"
+      fi
+    - |
+      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild" > /dev/null 2>&1; then
+        echo "Deleting existing stable tag..."
+        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild"
+      fi
   script:
     # Debug: List all files in workspace and build_output
     - echo "[DEBUG] Listing root directory contents:"
