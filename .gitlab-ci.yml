@@ -90,7 +90,6 @@ build:
       - setup.bat
     expire_in: 1 week
 
-# Upload to GitLab Package Registry as well (optional but useful)
 upload-package:
   stage: release
   needs: ["determine-version", "build"]
