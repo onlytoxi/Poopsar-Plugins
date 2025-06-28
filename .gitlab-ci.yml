@@ -105,9 +105,11 @@ upload-package:
         PACKAGE_NAME: "pulsar-dev"
   script:
     - |
+      # Force HTTPS for API calls since the server redirects HTTP to HTTPS
+      export HTTPS_API_V4_URL="${CI_API_V4_URL/http:/https:}"
       curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
            --upload-file build_output.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${VERSION}/build_output.zip"
+           "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${VERSION}/build_output.zip"
 
 release-stable:
   stage: release
@@ -125,19 +127,22 @@ release-stable:
     - env | grep -E "(IS_STABLE|VERSION|RELEASE_TYPE)" || echo "No matching env vars found"
     # Install jq and curl for JSON parsing and uploads
     - apk add --no-cache jq curl
+    # Force HTTPS for API calls since the server redirects HTTP to HTTPS
+    - export HTTPS_API_V4_URL="${CI_API_V4_URL/http:/https:}"
+    - echo "[DEBUG] Using HTTPS API URL: $HTTPS_API_V4_URL"
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild" > /dev/null 2>&1; then
+         "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild" > /dev/null 2>&1; then
         echo "Deleting existing stable release..."
         curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild"
+             "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild"
       fi
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild" > /dev/null 2>&1; then
+         "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild" > /dev/null 2>&1; then
         echo "Deleting existing stable tag..."
         curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild"
+             "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild"
       fi
   script:
     # Debug: List all files in workspace and build_output
@@ -152,7 +157,7 @@ release-stable:
           echo "[DEBUG] Found $file, uploading..."
           curl --verbose --header "JOB-TOKEN: $CI_JOB_TOKEN" \
                --form "file=@$file" \
-               "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" \
+               "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" \
                -o "upload_$(basename $file).json"
         else
           echo "[DEBUG] File $file not found!"
@@ -208,19 +213,24 @@ release-dev:
   rules:
     - if: $IS_STABLE == "false"
   before_script:
+    # Install jq and curl for JSON parsing and uploads
+    - apk add --no-cache jq curl
+    # Force HTTPS for API calls since the server redirects HTTP to HTTPS
+    - export HTTPS_API_V4_URL="${CI_API_V4_URL/http:/https:}"
+    - echo "[DEBUG] Using HTTPS API URL: $HTTPS_API_V4_URL"
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev" > /dev/null 2>&1; then
+         "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev" > /dev/null 2>&1; then
         echo "Deleting existing dev release..."
         curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev"
+             "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev"
       fi
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev" > /dev/null 2>&1; then
+         "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev" > /dev/null 2>&1; then
         echo "Deleting existing dev tag..."
         curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev"
+             "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev"
       fi
   script:
     - echo "Creating development release for version:" "$VERSION"
