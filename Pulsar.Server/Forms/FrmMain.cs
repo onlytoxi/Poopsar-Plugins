@@ -969,34 +969,6 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private ClientInfo LoadClientInfo(string filePath)
-        {
-            try
-            {
-                if (!File.Exists(filePath))
-                    return null;
-
-                string json = File.ReadAllText(filePath);
-
-                if (string.IsNullOrWhiteSpace(json))
-                    return null;
-
-                ClientInfo clientInfo = JsonConvert.DeserializeObject<ClientInfo>(json);
-
-                return clientInfo ?? null;
-            }
-            catch (Newtonsoft.Json.JsonException ex)
-            {
-                Debug.WriteLine($"JSON parsing error: {ex.Message}");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error reading client info: {ex.Message}");
-                return null;
-            }
-        }
-
         private void RemoveClientFromListview(Client client)
         {
             if (client == null) return;
