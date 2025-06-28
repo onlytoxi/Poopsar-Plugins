@@ -1,0 +1,208 @@
+stages:
+  - determine
+  - build
+  - release
+
+variables:
+  SOLUTION_FILE: "Pulsar.sln"
+  BUILD_CONFIGURATION: "Release"
+  TARGET_FRAMEWORK: "net472"
+
+# Only run on main branch when C# files or project files change
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - "**/*.cs"
+        - "**/*.csproj"
+        - "**/*.sln"
+        - ".gitlab-ci.yml"
+
+determine-version:
+  stage: determine
+  image: ubuntu:22.04
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git grep
+  script:
+    - |
+      # Extract version from AssemblyInfo.cs
+      if [ -f "Pulsar.Server/Properties/AssemblyInfo.cs" ]; then
+        VERSION=$(grep -oP '\[assembly: AssemblyVersion\("\K[0-9]+\.[0-9]+\.[0-9]+' Pulsar.Server/Properties/AssemblyInfo.cs || echo "unknown")
+        echo "Found version: $VERSION"
+        echo "VERSION=$VERSION" >> variables.env
+      else
+        echo "AssemblyInfo.cs not found"
+        echo "VERSION=unknown" >> variables.env
+      fi
+      
+      # Check if this is a stable release (commit message starts with STABLE)
+      if echo "$CI_COMMIT_MESSAGE" | grep -q "^STABLE"; then
+        echo "Stable release detected"
+        echo "IS_STABLE=true" >> variables.env
+        echo "RELEASE_TYPE=stable" >> variables.env
+      else
+        echo "Development build"
+        echo "IS_STABLE=false" >> variables.env
+        echo "RELEASE_TYPE=dev" >> variables.env
+      fi
+      
+      # Store commit info
+      echo "COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA" >> variables.env
+      echo "COMMIT_MESSAGE=$CI_COMMIT_MESSAGE" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
+    expire_in: 1 hour
+
+build:
+  stage: build
+  needs: ["determine-version"]
+  image: mono:latest
+  before_script:
+    # Install necessary tools
+    - apt-get update -qq
+    - apt-get install -y -qq wget unzip zip
+    # Install NuGet
+    - wget -q https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+    - echo '#!/bin/bash\nmono /builds/$CI_PROJECT_PATH/nuget.exe "$@"' > /usr/local/bin/nuget
+    - chmod +x /usr/local/bin/nuget
+  script:
+    - echo "Building Pulsar version $VERSION"
+    - echo "Release type: $RELEASE_TYPE"
+    - echo "Commit: $COMMIT_SHORT_SHA"
+    - echo "Commit message: $COMMIT_MESSAGE"
+    
+    # Restore NuGet packages
+    - nuget restore $SOLUTION_FILE
+    
+    # Build the solution using MSBuild from Mono
+    - msbuild $SOLUTION_FILE /p:Configuration=$BUILD_CONFIGURATION /p:Platform="Any CPU" /p:OutputPath="$CI_PROJECT_DIR/build_output/"
+    
+    # Create build zip
+    - cd build_output && zip -r ../build_output.zip . && cd ..
+    
+    # List what was built for debugging
+    - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
+    
+    # Verify key files exist
+    - ls -la build_output/ || echo "Build output directory listing failed"
+    - test -f build_output/Pulsar.exe && echo "Pulsar.exe found" || echo "Warning: Pulsar.exe not found"
+    - test -f build_output/client.bin && echo "client.bin found" || echo "Warning: client.bin not found"
+    - test -f setup.bat && echo "setup.bat found" || echo "Warning: setup.bat not found in project root"
+  artifacts:
+    paths:
+      - build_output.zip
+      - build_output/
+      - setup.bat
+    expire_in: 1 week
+
+# Upload to GitLab Package Registry as well (optional but useful)
+upload-package:
+  stage: release
+  needs: ["determine-version", "build"]
+  image: curlimages/curl:latest
+  rules:
+    - if: $IS_STABLE == "true"
+      variables:
+        PACKAGE_NAME: "pulsar-stable"
+    - if: $IS_STABLE == "false"
+      variables:
+        PACKAGE_NAME: "pulsar-dev"
+  script:
+    - |
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --upload-file build_output.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${VERSION}/build_output.zip"
+
+release-stable:
+  stage: release
+  needs: ["determine-version", "build"]
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $IS_STABLE == "true"
+  before_script:
+    # Delete existing release and tag if they exist
+    - |
+      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild" > /dev/null 2>&1; then
+        echo "Deleting existing stable release..."
+        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild"
+      fi
+      
+      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild" > /dev/null 2>&1; then
+        echo "Deleting existing stable tag..."
+        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild"
+      fi
+  script:
+    - echo "Creating stable release for version $VERSION"
+  release:
+    tag_name: "AutoBuild"
+    name: "Pulsar Stable"
+    description: |
+      # Pulsar Stable Build
+      **Version:** $VERSION
+      **Built from branch:** $CI_COMMIT_BRANCH
+      **Build date:** $CI_PIPELINE_CREATED_AT
+      **Commit:** $COMMIT_SHORT_SHA
+      **Commit message:** $COMMIT_MESSAGE
+      
+      This is the stable automated build triggered by a commit message starting with 'STABLE'.
+    assets:
+      links:
+        - name: "build_output.zip"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output.zip?job=build"
+          link_type: "package"
+        - name: "DONT_DOWNLOAD_SERVER.exe"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Pulsar.exe?job=build"
+          link_type: "other"
+        - name: "DONT_DOWNLOAD_CLIENT.bin"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/client.bin?job=build"
+          link_type: "other"
+        - name: "RUN_ME.bat"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/setup.bat?job=build"
+          link_type: "other"
+
+release-dev:
+  stage: release
+  needs: ["determine-version", "build"]
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $IS_STABLE == "false"
+  before_script:
+    # Delete existing dev release and tag if they exist
+    - |
+      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev" > /dev/null 2>&1; then
+        echo "Deleting existing dev release..."
+        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev"
+      fi
+      
+      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev" > /dev/null 2>&1; then
+        echo "Deleting existing dev tag..."
+        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev"
+      fi
+  script:
+    - echo "Creating development release for version $VERSION"
+  release:
+    tag_name: "AutoBuild-Dev"
+    name: "Pulsar Development"
+    description: |
+      # Pulsar Development Build
+      **Version:** $VERSION (Development)
+      **Built from branch:** $CI_COMMIT_BRANCH
+      **Build date:** $CI_PIPELINE_CREATED_AT
+      **Commit:** $COMMIT_SHORT_SHA
+      **Commit message:** $COMMIT_MESSAGE
+      
+      This is the development build with the latest features and may be unstable.
+    assets:
+      links:
+        - name: "build_output.zip"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output.zip?job=build"
+          link_type: "package"
