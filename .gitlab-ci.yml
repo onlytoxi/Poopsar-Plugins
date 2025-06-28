@@ -109,7 +109,6 @@ upload-package:
            --upload-file build_output.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${VERSION}/build_output.zip"
 
-release-stable:
   stage: release
   needs: ["determine-version", "build"]
   image: curlimages/curl:latest
@@ -136,6 +135,49 @@ release-stable:
       echo "SERVER_EXE_URL=$SERVER_EXE_URL" >> variables.env
       echo "CLIENT_BIN_URL=$CLIENT_BIN_URL" >> variables.env
       echo "SETUP_BAT_URL=$SETUP_BAT_URL" >> variables.env
+
+release-stable:
+  stage: release
+  needs: ["determine-version", "build"]
+  image: curlimages/curl:latest
+  tags:
+    - docker
+  rules:
+    - if: $IS_STABLE == "true"
+  script:
+    # Debug: List all files in workspace and build_output
+    - echo "[DEBUG] Listing root directory contents:"
+    - ls -la
+    - echo "[DEBUG] Listing build_output directory contents:"
+    - ls -la build_output || echo "No build_output directory"
+    - echo "[DEBUG] Checking for files to upload:"
+    - |
+      for file in build_output.zip build_output/Pulsar.exe build_output/client.bin setup.bat; do
+        if [ -f "$file" ]; then
+          echo "[DEBUG] Found $file, uploading..."
+          curl --verbose --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+               --form "file=@$file" \
+               "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" \
+               -o "upload_$(basename $file).json"
+        else
+          echo "[DEBUG] File $file not found!"
+        fi
+      done
+    - echo "[DEBUG] Uploaded file responses:"
+    - cat upload_build_output.zip.json || echo "No upload_build_output.zip.json"
+    - cat upload_Pulsar.exe.json || echo "No upload_Pulsar.exe.json"
+    - cat upload_client.bin.json || echo "No upload_client.bin.json"
+    - cat upload_setup.bat.json || echo "No upload_setup.bat.json"
+    - |
+      BUILD_ZIP_URL=$(jq -r '.url' upload_build_output.zip.json 2>/dev/null || echo "")
+      SERVER_EXE_URL=$(jq -r '.url' upload_Pulsar.exe.json 2>/dev/null || echo "")
+      CLIENT_BIN_URL=$(jq -r '.url' upload_client.bin.json 2>/dev/null || echo "")
+      SETUP_BAT_URL=$(jq -r '.url' upload_setup.bat.json 2>/dev/null || echo "")
+      echo "BUILD_ZIP_URL=$BUILD_ZIP_URL" >> variables.env
+      echo "SERVER_EXE_URL=$SERVER_EXE_URL" >> variables.env
+      echo "CLIENT_BIN_URL=$CLIENT_BIN_URL" >> variables.env
+      echo "SETUP_BAT_URL=$SETUP_BAT_URL" >> variables.env
+
   release:
     tag_name: "AutoBuild"
     name: "Pulsar Stable"
