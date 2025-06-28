@@ -81,8 +81,15 @@ build-dev:
     - echo "Commit:" $COMMIT_SHORT_SHA
     - echo "Commit message:" $COMMIT_MESSAGE
     - dotnet build $SOLUTION_FILE --configuration $BUILD_CONFIGURATION --output "$CI_PROJECT_DIR/build_output/"
-    - echo "Development build - just verifying compilation, no artifacts created"
+    - apt-get install -y -qq zip
+    - cd build_output && zip -r ../build_output.zip . && cd ..
+    - echo "Development build artifacts created"
     - ls -la build_output/ || echo "Build output directory listing failed"
+  artifacts:
+    paths:
+      - build_output.zip
+    expire_in: 7 days  # Shorter expiry for dev builds
+    when: on_success
 
 build-stable:
   stage: build
