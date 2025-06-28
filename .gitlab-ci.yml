@@ -119,9 +119,9 @@ release-stable:
     - if: '$CI_COMMIT_MESSAGE =~ /^STABLE/'
   before_script:
     # Debug: Print all environment variables
-    - echo "[DEBUG] IS_STABLE value is: '$IS_STABLE'"
-    - echo "[DEBUG] VERSION value is: '$VERSION'"
-    - echo "[DEBUG] RELEASE_TYPE value is: '$RELEASE_TYPE'"
+    - echo "[DEBUG] IS_STABLE value is:" "$IS_STABLE"
+    - echo "[DEBUG] VERSION value is:" "$VERSION"
+    - echo "[DEBUG] RELEASE_TYPE value is:" "$RELEASE_TYPE"
     - env | grep -E "(IS_STABLE|VERSION|RELEASE_TYPE)" || echo "No matching env vars found"
     # Install jq and curl for JSON parsing and uploads
     - apk add --no-cache jq curl
@@ -173,7 +173,6 @@ release-stable:
       echo "SERVER_EXE_URL=$SERVER_EXE_URL" >> variables.env
       echo "CLIENT_EXE_URL=$CLIENT_EXE_URL" >> variables.env
       echo "SETUP_BAT_URL=$SETUP_BAT_URL" >> variables.env
-
   release:
     tag_name: "AutoBuild"
     name: "Pulsar Stable"
@@ -225,7 +224,7 @@ release-dev:
              "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev"
       fi
   script:
-    - "echo 'Creating development release for version: $VERSION'"
+    - echo "Creating development release for version:" "$VERSION"
   release:
     tag_name: "AutoBuild-Dev"
     name: "Pulsar Development"
