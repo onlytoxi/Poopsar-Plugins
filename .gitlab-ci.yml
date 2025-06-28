@@ -116,8 +116,13 @@ release-stable:
   tags:
     - docker
   rules:
-    - if: $IS_STABLE == "true"
+    - if: '$CI_COMMIT_MESSAGE =~ /^STABLE/'
   before_script:
+    # Debug: Print all environment variables
+    - echo "[DEBUG] IS_STABLE value is: '$IS_STABLE'"
+    - echo "[DEBUG] VERSION value is: '$VERSION'"
+    - echo "[DEBUG] RELEASE_TYPE value is: '$RELEASE_TYPE'"
+    - env | grep -E "(IS_STABLE|VERSION|RELEASE_TYPE)" || echo "No matching env vars found"
     # Install jq and curl for JSON parsing and uploads
     - apk add --no-cache jq curl
     # Delete existing stable release and tag if they exist
