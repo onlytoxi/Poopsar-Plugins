@@ -127,7 +127,6 @@ release-stable:
              "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" \
              -o "upload_$(basename $file).json"
       done
-    # Extract URLs from upload responses
     - |
       BUILD_ZIP_URL=$(jq -r '.url' upload_build_output.zip.json)
       SERVER_EXE_URL=$(jq -r '.url' upload_Pulsar.exe.json)
