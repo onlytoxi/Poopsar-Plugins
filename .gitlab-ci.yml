@@ -45,10 +45,10 @@ determine-version:
         echo "IS_STABLE=false" >> variables.env
         echo "RELEASE_TYPE=dev" >> variables.env
       fi
-    - "echo 'Commit short SHA: $CI_COMMIT_SHORT_SHA'"
-    - "echo 'Ref name: $CI_COMMIT_REF_NAME'"
+    - echo "Commit short SHA:" $CI_COMMIT_SHORT_SHA
+    - echo "Ref name:" $CI_COMMIT_REF_NAME
     - echo "COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA" >> variables.env
-    - echo "COMMIT_MESSAGE=$CI_COMMIT_MESSAGE" >> variables.env
+    - echo "COMMIT_MESSAGE=\"$CI_COMMIT_MESSAGE\"" >> variables.env
   artifacts:
     reports:
       dotenv: variables.env
