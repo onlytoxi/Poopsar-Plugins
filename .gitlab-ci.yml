@@ -84,9 +84,6 @@ build:
     - 7z a ..\build_output.zip *
     - cd ..
     - Get-ChildItem build_output -Recurse -Include *.exe,*.dll,*.bin | Select-Object -First 20 | Format-Table Name,Length
-    - if (Test-Path "build_output\Pulsar.exe") { echo "Pulsar.exe found" } else { echo "Warning: Pulsar.exe not found" }
-    - if (Test-Path "build_output\client.bin") { echo "client.bin found" } else { echo "Warning: client.bin not found" }
-    - if (Test-Path "setup.bat") { echo "setup.bat found" } else { echo "Warning: setup.bat not found in project root" }
   artifacts:
     paths:
       - build_output.zip
