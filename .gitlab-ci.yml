@@ -82,6 +82,10 @@ build:
     - |
       if [ "$IS_STABLE" = "true" ]; then
         echo "Creating artifacts for stable build..."
+        if [ -f "build_output/Client.exe" ]; then
+          mv build_output/Client.exe build_output/Client.bin
+          echo "Renamed Client.exe to Client.bin"
+        fi
         cd build_output && zip -r ../build_output.zip . && cd ..
         find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
         ls -la build_output/ || echo "Build output directory listing failed"
@@ -92,8 +96,6 @@ build:
   artifacts:
     paths:
       - build_output.zip
-      - build_output/
-      - setup.bat
     expire_in: 30 days
     when: always
     rules:
