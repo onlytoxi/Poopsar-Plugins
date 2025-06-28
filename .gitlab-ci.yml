@@ -78,9 +78,6 @@ build:
     - cd build_output && zip -r ../build_output.zip . && cd ..
     - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
     - ls -la build_output/ || echo "Build output directory listing failed"
-    - test -f build_output/Pulsar.exe && echo "Pulsar.exe found" || echo "Warning: Pulsar.exe not found"
-    - test -f build_output/client.bin && echo "client.bin found" || echo "Warning: client.bin not found"
-    - test -f setup.bat && echo "setup.bat found" || echo "Warning: setup.bat not found in project root"
   artifacts:
     paths:
       - build_output.zip
