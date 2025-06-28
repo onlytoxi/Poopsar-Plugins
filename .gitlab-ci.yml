@@ -45,6 +45,8 @@ determine-version:
         echo "IS_STABLE=false" >> variables.env
         echo "RELEASE_TYPE=dev" >> variables.env
       fi
+    - "echo 'Commit short SHA: $CI_COMMIT_SHORT_SHA'"
+    - "echo 'Ref name: $CI_COMMIT_REF_NAME'"
     - echo "COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA" >> variables.env
     - echo "COMMIT_MESSAGE=$CI_COMMIT_MESSAGE" >> variables.env
   artifacts:
@@ -67,10 +69,10 @@ build:
     - echo '#!/bin/bash\nmono /builds/$CI_PROJECT_PATH/nuget.exe "$@"' > /usr/local/bin/nuget
     - chmod +x /usr/local/bin/nuget
   script:
-    - echo "Building Pulsar version $VERSION"
-    - echo "Release type: $RELEASE_TYPE"
-    - echo "Commit: $COMMIT_SHORT_SHA"
-    - echo "Commit message: $COMMIT_MESSAGE"
+    - "echo 'Building Pulsar version: $VERSION'"
+    - "echo 'Release type: $RELEASE_TYPE'"
+    - "echo 'Commit: $COMMIT_SHORT_SHA'"
+    - "echo 'Commit message: $COMMIT_MESSAGE'"
     - nuget restore $SOLUTION_FILE
     - msbuild $SOLUTION_FILE /p:Configuration=$BUILD_CONFIGURATION /p:Platform="Any CPU" /p:OutputPath="$CI_PROJECT_DIR/build_output/"
     - cd build_output && zip -r ../build_output.zip . && cd ..
@@ -130,7 +132,7 @@ release-stable:
              "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild"
       fi
   script:
-    - echo "Creating stable release for version $VERSION"
+    - "echo 'Creating stable release for version: $VERSION'"
   release:
     tag_name: "AutoBuild"
     name: "Pulsar Stable"
@@ -182,7 +184,7 @@ release-dev:
              "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev"
       fi
   script:
-    - echo "Creating development release for version $VERSION"
+    - "echo 'Creating development release for version: $VERSION'"
   release:
     tag_name: "AutoBuild-Dev"
     name: "Pulsar Development"
