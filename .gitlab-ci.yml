@@ -101,7 +101,7 @@ release-stable:
   before_script:
     # Install curl for API calls
     - apk add --no-cache curl
-    # Force HTTPS for API calls since the server redirects HTTP to HTTPS
+
     - export HTTPS_API_V4_URL="${CI_API_V4_URL/http:/https:}"
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
