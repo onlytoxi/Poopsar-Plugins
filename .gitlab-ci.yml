@@ -90,27 +90,6 @@ build:
       - setup.bat
     expire_in: 1 week
 
-upload-package:
-  stage: release
-  needs: ["determine-version", "build"]
-  image: curlimages/curl:latest
-  tags:
-    - docker
-  rules:
-    - if: $IS_STABLE == "true"
-      variables:
-        PACKAGE_NAME: "pulsar-stable"
-    - if: $IS_STABLE == "false"
-      variables:
-        PACKAGE_NAME: "pulsar-dev"
-  script:
-    - |
-      # Force HTTPS for API calls since the server redirects HTTP to HTTPS
-      export HTTPS_API_V4_URL="${CI_API_V4_URL/http:/https:}"
-      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-           --upload-file build_output.zip \
-           "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${VERSION}/build_output.zip"
-
 release-stable:
   stage: release
   needs: ["determine-version", "build"]
@@ -120,13 +99,8 @@ release-stable:
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /^STABLE/'
   before_script:
-    # Debug: Print all environment variables
-    - echo "[DEBUG] IS_STABLE value is:" "$IS_STABLE"
-    - echo "[DEBUG] VERSION value is:" "$VERSION"
-    - echo "[DEBUG] RELEASE_TYPE value is:" "$RELEASE_TYPE"
-    - env | grep -E "(IS_STABLE|VERSION|RELEASE_TYPE)" || echo "No matching env vars found"
-    # Install jq and curl for JSON parsing and uploads
-    - apk add --no-cache jq curl
+    # Install curl for API calls
+    - apk add --no-cache curl
     # Force HTTPS for API calls since the server redirects HTTP to HTTPS
     - export HTTPS_API_V4_URL="${CI_API_V4_URL/http:/https:}"
     - |
@@ -144,38 +118,7 @@ release-stable:
              "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild"
       fi
   script:
-    # Debug: List all files in workspace and build_output
-    - echo "[DEBUG] Listing root directory contents:"
-    - ls -la
-    - echo "[DEBUG] Listing build_output directory contents:"
-    - ls -la build_output || echo "No build_output directory"
-    - echo "[DEBUG] Checking for files to upload:"
-    - |
-      for file in build_output.zip build_output/Pulsar.exe build_output/Client.exe setup.bat; do
-        if [ -f "$file" ]; then
-          echo "[DEBUG] Found $file, uploading..."
-          curl --verbose --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-               --form "file=@$file" \
-               "${HTTPS_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" \
-               -o "upload_$(basename $file).json"
-        else
-          echo "[DEBUG] File $file not found!"
-        fi
-      done
-    - echo "[DEBUG] Uploaded file responses:"
-    - cat upload_build_output.zip.json || echo "No upload_build_output.zip.json"
-    - cat upload_Pulsar.exe.json || echo "No upload_Pulsar.exe.json"
-    - cat upload_Client.exe.json || echo "No upload_Client.exe.json"
-    - cat upload_setup.bat.json || echo "No upload_setup.bat.json"
-    - |
-      BUILD_ZIP_URL=$(jq -r '.url' upload_build_output.zip.json 2>/dev/null || echo "")
-      SERVER_EXE_URL=$(jq -r '.url' upload_Pulsar.exe.json 2>/dev/null || echo "")
-      CLIENT_EXE_URL=$(jq -r '.url' upload_Client.exe.json 2>/dev/null || echo "")
-      SETUP_BAT_URL=$(jq -r '.url' upload_setup.bat.json 2>/dev/null || echo "")
-      echo "BUILD_ZIP_URL=$BUILD_ZIP_URL" >> variables.env
-      echo "SERVER_EXE_URL=$SERVER_EXE_URL" >> variables.env
-      echo "CLIENT_EXE_URL=$CLIENT_EXE_URL" >> variables.env
-      echo "SETUP_BAT_URL=$SETUP_BAT_URL" >> variables.env
+    - echo "Creating stable release for version:" "$VERSION"
   release:
     tag_name: "AutoBuild"
     name: "Pulsar Stable"
@@ -188,19 +131,23 @@ release-stable:
       **Commit message:** $COMMIT_MESSAGE
 
       This is the stable automated build triggered by a commit message starting with 'STABLE'.
+      
+      ## Download Instructions
+      1. Download `build_output.zip` for the complete build package
+      2. Or download individual files: `Pulsar.exe` (Server), `Client.exe`, and `setup.bat`
     assets:
       links:
         - name: "build_output.zip"
-          url: "${CI_PROJECT_URL}${BUILD_ZIP_URL}"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output.zip?job=build"
           link_type: "package"
-        - name: "DONT_DOWNLOAD_SERVER.exe"
-          url: "${CI_PROJECT_URL}${SERVER_EXE_URL}"
+        - name: "Pulsar.exe (Server)"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Pulsar.exe?job=build"
           link_type: "other"
-        - name: "DONT_DOWNLOAD_CLIENT.exe"
-          url: "${CI_PROJECT_URL}${CLIENT_EXE_URL}"
+        - name: "Client.exe"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Client.exe?job=build"
           link_type: "other"
-        - name: "RUN_ME.bat"
-          url: "${CI_PROJECT_URL}${SETUP_BAT_URL}"
+        - name: "setup.bat"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/setup.bat?job=build"
           link_type: "other"
 
 release-dev:
@@ -212,8 +159,8 @@ release-dev:
   rules:
     - if: $IS_STABLE == "false"
   before_script:
-    # Install jq and curl for JSON parsing and uploads
-    - apk add --no-cache jq curl
+    # Install curl for API calls
+    - apk add --no-cache curl
     # Force HTTPS for API calls since the server redirects HTTP to HTTPS
     - export HTTPS_API_V4_URL="${CI_API_V4_URL/http:/https:}"
     - |
@@ -244,8 +191,21 @@ release-dev:
       **Commit message:** $COMMIT_MESSAGE
       
       This is the development build with the latest features and may be unstable.
+      
+      ## Download Instructions
+      1. Download `build_output.zip` for the complete build package
+      2. Or download individual files: `Pulsar.exe` (Server), `Client.exe`, and `setup.bat`
     assets:
       links:
         - name: "build_output.zip"
           url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output.zip?job=build"
           link_type: "package"
+        - name: "Pulsar.exe (Server)"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Pulsar.exe?job=build"
+          link_type: "other"
+        - name: "Client.exe"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Client.exe?job=build"
+          link_type: "other"
+        - name: "setup.bat"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/setup.bat?job=build"
+          link_type: "other"
