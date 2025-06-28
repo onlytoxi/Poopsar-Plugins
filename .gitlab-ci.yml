@@ -62,24 +62,24 @@ determine-version:
 build:
   stage: build
   needs: ["determine-version"]
-  image: mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019
+  image: mcr.microsoft.com/dotnet/sdk:6.0
   tags:
-    - windows
+    - docker
   before_script:
-    # Install chocolatey for package management
-    - Set-ExecutionPolicy Bypass -Scope Process -Force
-    - '[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072'
-    - iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-    # Install 7zip for creating archives
-    - choco install 7zip -y
-    - $env:PATH += ";C:\Program Files\7-Zip"
+    # Install additional tools
+    - apt-get update -qq
+    - apt-get install -y -qq unzip zip
   script:
-    - nuget restore $env:SOLUTION_FILE
-    - msbuild $env:SOLUTION_FILE /p:Configuration=$env:BUILD_CONFIGURATION /p:Platform="Any CPU" /p:OutputPath="$env:CI_PROJECT_DIR\build_output\"
-    - cd build_output
-    - 7z a ..\build_output.zip *
-    - cd ..
-    - Get-ChildItem build_output -Recurse -Include *.exe,*.dll,*.bin | Select-Object -First 20 | Format-Table Name,Length
+    - echo "Building Pulsar version:" $VERSION
+    - echo "Release type:" $RELEASE_TYPE
+    - echo "Commit:" $COMMIT_SHORT_SHA
+    - echo "Commit message:" $COMMIT_MESSAGE
+    # Try building with specific unsafe compilation flags
+    - dotnet restore $SOLUTION_FILE
+    - dotnet build $SOLUTION_FILE --configuration $BUILD_CONFIGURATION --no-restore --output "$CI_PROJECT_DIR/build_output/" /p:AllowUnsafeBlocks=true /p:DefineConstants="TRACE" /p:ErrorOnDuplicatePublishOutputFiles=false
+    - cd build_output && zip -r ../build_output.zip . && cd ..
+    - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
+    - ls -la build_output/ || echo "Build output directory listing failed"
   artifacts:
     paths:
       - build_output.zip
