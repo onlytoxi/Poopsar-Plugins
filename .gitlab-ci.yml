@@ -112,28 +112,31 @@ upload-package:
 release-stable:
   stage: release
   needs: ["determine-version", "build"]
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  image: curlimages/curl:latest
   tags:
     - docker
   rules:
     - if: $IS_STABLE == "true"
-  before_script:
-    - |
-      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild" > /dev/null 2>&1; then
-        echo "Deleting existing stable release..."
-        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild"
-      fi
-    - |
-      if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild" > /dev/null 2>&1; then
-        echo "Deleting existing stable tag..."
-        curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild"
-      fi
   script:
-    - "echo 'Creating stable release for version: $VERSION'"
+    # Upload files to project uploads
+    - |
+      for file in build_output.zip build_output/Pulsar.exe build_output/client.bin setup.bat; do
+        [ -f "$file" ] && \
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+             --form "file=@$file" \
+             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" \
+             -o "upload_$(basename $file).json"
+      done
+    # Extract URLs from upload responses
+    - |
+      BUILD_ZIP_URL=$(jq -r '.url' upload_build_output.zip.json)
+      SERVER_EXE_URL=$(jq -r '.url' upload_Pulsar.exe.json)
+      CLIENT_BIN_URL=$(jq -r '.url' upload_client.bin.json)
+      SETUP_BAT_URL=$(jq -r '.url' upload_setup.bat.json)
+      echo "BUILD_ZIP_URL=$BUILD_ZIP_URL" >> variables.env
+      echo "SERVER_EXE_URL=$SERVER_EXE_URL" >> variables.env
+      echo "CLIENT_BIN_URL=$CLIENT_BIN_URL" >> variables.env
+      echo "SETUP_BAT_URL=$SETUP_BAT_URL" >> variables.env
   release:
     tag_name: "AutoBuild"
     name: "Pulsar Stable"
@@ -144,21 +147,21 @@ release-stable:
       **Build date:** $CI_PIPELINE_CREATED_AT
       **Commit:** $COMMIT_SHORT_SHA
       **Commit message:** $COMMIT_MESSAGE
-      
+
       This is the stable automated build triggered by a commit message starting with 'STABLE'.
     assets:
       links:
         - name: "build_output.zip"
-          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output.zip?job=build"
+          url: "${CI_PROJECT_URL}${BUILD_ZIP_URL}"
           link_type: "package"
         - name: "DONT_DOWNLOAD_SERVER.exe"
-          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/Pulsar.exe?job=build"
+          url: "${CI_PROJECT_URL}${SERVER_EXE_URL}"
           link_type: "other"
         - name: "DONT_DOWNLOAD_CLIENT.bin"
-          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/build_output/client.bin?job=build"
+          url: "${CI_PROJECT_URL}${CLIENT_BIN_URL}"
           link_type: "other"
         - name: "RUN_ME.bat"
-          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_SHA}/raw/setup.bat?job=build"
+          url: "${CI_PROJECT_URL}${SETUP_BAT_URL}"
           link_type: "other"
 
 release-dev:
