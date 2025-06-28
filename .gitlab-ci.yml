@@ -27,7 +27,6 @@ determine-version:
     - apt-get update -qq && apt-get install -y -qq git grep
   script:
     - |
-      # Extract version from AssemblyInfo.cs
       if [ -f "Pulsar.Server/Properties/AssemblyInfo.cs" ]; then
         VERSION=$(grep -oP '\[assembly: AssemblyVersion\("\K[0-9]+\.[0-9]+\.[0-9]+' Pulsar.Server/Properties/AssemblyInfo.cs || echo "unknown")
         echo "Found version: $VERSION"
@@ -36,8 +35,7 @@ determine-version:
         echo "AssemblyInfo.cs not found"
         echo "VERSION=unknown" >> variables.env
       fi
-      
-      # Check if this is a stable release (commit message starts with STABLE)
+    - |
       if echo "$CI_COMMIT_MESSAGE" | grep -q "^STABLE"; then
         echo "Stable release detected"
         echo "IS_STABLE=true" >> variables.env
@@ -47,10 +45,8 @@ determine-version:
         echo "IS_STABLE=false" >> variables.env
         echo "RELEASE_TYPE=dev" >> variables.env
       fi
-      
-      # Store commit info
-      echo "COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA" >> variables.env
-      echo "COMMIT_MESSAGE=$CI_COMMIT_MESSAGE" >> variables.env
+    - echo "COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA" >> variables.env
+    - echo "COMMIT_MESSAGE=$CI_COMMIT_MESSAGE" >> variables.env
   artifacts:
     reports:
       dotenv: variables.env
@@ -75,20 +71,10 @@ build:
     - echo "Release type: $RELEASE_TYPE"
     - echo "Commit: $COMMIT_SHORT_SHA"
     - echo "Commit message: $COMMIT_MESSAGE"
-    
-    # Restore NuGet packages
     - nuget restore $SOLUTION_FILE
-    
-    # Build the solution using MSBuild from Mono
     - msbuild $SOLUTION_FILE /p:Configuration=$BUILD_CONFIGURATION /p:Platform="Any CPU" /p:OutputPath="$CI_PROJECT_DIR/build_output/"
-    
-    # Create build zip
     - cd build_output && zip -r ../build_output.zip . && cd ..
-    
-    # List what was built for debugging
     - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
-    
-    # Verify key files exist
     - ls -la build_output/ || echo "Build output directory listing failed"
     - test -f build_output/Pulsar.exe && echo "Pulsar.exe found" || echo "Warning: Pulsar.exe not found"
     - test -f build_output/client.bin && echo "client.bin found" || echo "Warning: client.bin not found"
@@ -129,7 +115,6 @@ release-stable:
   rules:
     - if: $IS_STABLE == "true"
   before_script:
-    # Delete existing release and tag if they exist
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild" > /dev/null 2>&1; then
@@ -137,7 +122,7 @@ release-stable:
         curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
              "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild"
       fi
-      
+    - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild" > /dev/null 2>&1; then
         echo "Deleting existing stable tag..."
@@ -182,7 +167,6 @@ release-dev:
   rules:
     - if: $IS_STABLE == "false"
   before_script:
-    # Delete existing dev release and tag if they exist
     - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev" > /dev/null 2>&1; then
@@ -190,7 +174,7 @@ release-dev:
         curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
              "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/AutoBuild-Dev"
       fi
-      
+    - |
       if curl --silent --fail --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags/AutoBuild-Dev" > /dev/null 2>&1; then
         echo "Deleting existing dev tag..."
