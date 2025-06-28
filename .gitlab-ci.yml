@@ -58,12 +58,14 @@ determine-version:
       dotenv: variables.env
     expire_in: 1 hour
 
-build:
+build-dev:
   stage: build
   needs: ["determine-version"]
   image: debian:12
   tags:
     - docker
+  rules:
+    - if: $IS_STABLE == "false"
   before_script:
     # Install Microsoft packages repository and .NET SDK 8.0
     - apt-get update -qq
@@ -72,31 +74,50 @@ build:
     - dpkg -i packages-microsoft-prod.deb
     - rm packages-microsoft-prod.deb
     - apt-get update -qq
-    - apt-get install -y -qq dotnet-sdk-8.0 zip unzip
+    - apt-get install -y -qq dotnet-sdk-8.0
   script:
     - echo "Building Pulsar version:" $VERSION
     - echo "Release type:" $RELEASE_TYPE
     - echo "Commit:" $COMMIT_SHORT_SHA
     - echo "Commit message:" $COMMIT_MESSAGE
     - dotnet build $SOLUTION_FILE --configuration $BUILD_CONFIGURATION --output "$CI_PROJECT_DIR/build_output/"
+    - echo "Development build - just verifying compilation, no artifacts created"
+    - ls -la build_output/ || echo "Build output directory listing failed"
+
+build-stable:
+  stage: build
+  needs: ["determine-version"]
+  image: debian:12
+  tags:
+    - docker
+  rules:
+    - if: $IS_STABLE == "true"
+  before_script:
+    # Install Microsoft packages repository and .NET SDK 8.0
+    - apt-get update -qq
+    - apt-get install -y -qq wget ca-certificates apt-transport-https
+    - wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+    - dpkg -i packages-microsoft-prod.deb
+    - rm packages-microsoft-prod.deb
+    - apt-get update -qq
+    - apt-get install -y -qq dotnet-sdk-8.0 zip
+  script:
+    - echo "Building Pulsar version:" $VERSION
+    - echo "Release type:" $RELEASE_TYPE
+    - echo "Commit:" $COMMIT_SHORT_SHA
+    - echo "Commit message:" $COMMIT_MESSAGE
+    - dotnet build $SOLUTION_FILE --configuration $BUILD_CONFIGURATION --output "$CI_PROJECT_DIR/build_output/"
+    - echo "Creating artifacts for stable build..."
     - |
-      if [ "$IS_STABLE" = "true" ]; then
-        echo "Creating artifacts for stable build..."
-        if [ -f "build_output/Client.exe" ]; then
-          mv build_output/Client.exe build_output/Client.bin
-          echo "Renamed Client.exe to Client.bin"
-        fi
-        cd build_output && zip -r ../build_output.zip . && cd ..
-        find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
-        ls -la build_output/ || echo "Build output directory listing failed"
-      else
-        echo "Development build - skipping artifact creation, just verifying compilation"
-        ls -la build_output/ || echo "Build output directory listing failed"
+      if [ -f "build_output/Client.exe" ]; then
+        mv build_output/Client.exe build_output/Client.bin
+        echo "Renamed Client.exe to Client.bin"
       fi
+    - cd build_output && zip -r ../build_output.zip . && cd ..
+    - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
+    - ls -la build_output/ || echo "Build output directory listing failed"
   artifacts:
     paths:
       - build_output.zip
     expire_in: 30 days
-    when: always
-    rules:
-      - if: $IS_STABLE == "true"
+    when: on_success
