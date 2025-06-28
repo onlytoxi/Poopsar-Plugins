@@ -62,28 +62,20 @@ determine-version:
 build:
   stage: build
   needs: ["determine-version"]
-  image: mono:latest
+  image: mcr.microsoft.com/dotnet/sdk:6.0
   tags:
     - docker
   before_script:
-    # Install necessary tools
+    # Install additional tools
     - apt-get update -qq
-    - apt-get install -y -qq wget unzip zip
-    # Install NuGet
-    - wget -q https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-    - |
-      cat > /usr/local/bin/nuget << 'EOF'
-      #!/bin/bash
-      mono /builds/$CI_PROJECT_PATH/nuget.exe "$@"
-      EOF
-    - chmod +x /usr/local/bin/nuget
+    - apt-get install -y -qq unzip zip
   script:
     - echo "Building Pulsar version:" $VERSION
     - echo "Release type:" $RELEASE_TYPE
     - echo "Commit:" $COMMIT_SHORT_SHA
     - echo "Commit message:" $COMMIT_MESSAGE
-    - nuget restore $SOLUTION_FILE
-    - msbuild $SOLUTION_FILE /p:Configuration=$BUILD_CONFIGURATION /p:Platform="Any CPU" /p:OutputPath="$CI_PROJECT_DIR/build_output/"
+    - dotnet restore $SOLUTION_FILE
+    - dotnet build $SOLUTION_FILE --configuration $BUILD_CONFIGURATION --no-restore --output "$CI_PROJECT_DIR/build_output/"
     - cd build_output && zip -r ../build_output.zip . && cd ..
     - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
     - ls -la build_output/ || echo "Build output directory listing failed"
