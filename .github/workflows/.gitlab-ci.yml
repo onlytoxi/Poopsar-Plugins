@@ -21,6 +21,8 @@ workflow:
 determine-version:
   stage: determine
   image: ubuntu:22.04
+  tags:
+    - docker
   before_script:
     - apt-get update -qq && apt-get install -y -qq git grep
   script:
@@ -58,6 +60,8 @@ build:
   stage: build
   needs: ["determine-version"]
   image: mono:latest
+  tags:
+    - docker
   before_script:
     # Install necessary tools
     - apt-get update -qq
@@ -101,6 +105,8 @@ upload-package:
   stage: release
   needs: ["determine-version", "build"]
   image: curlimages/curl:latest
+  tags:
+    - docker
   rules:
     - if: $IS_STABLE == "true"
       variables:
@@ -118,6 +124,8 @@ release-stable:
   stage: release
   needs: ["determine-version", "build"]
   image: registry.gitlab.com/gitlab-org/release-cli:latest
+  tags:
+    - docker
   rules:
     - if: $IS_STABLE == "true"
   before_script:
@@ -169,6 +177,8 @@ release-dev:
   stage: release
   needs: ["determine-version", "build"]
   image: registry.gitlab.com/gitlab-org/release-cli:latest
+  tags:
+    - docker
   rules:
     - if: $IS_STABLE == "false"
   before_script:
