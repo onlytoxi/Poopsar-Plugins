@@ -88,7 +88,6 @@ namespace Pulsar.Server.Forms
             this.hVNCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keyloggerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.passwordRecoveryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.kematianGrabbingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.virtualMonitorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.installVirtualMonitorToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.uninstallVirtualMonitorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -286,7 +285,7 @@ namespace Pulsar.Server.Forms
             this.lineToolStripMenuItem,
             this.selectAllToolStripMenuItem});
             this.contextMenuStrip.Name = "ctxtMenu";
-            this.contextMenuStrip.Size = new System.Drawing.Size(180, 164);
+            this.contextMenuStrip.Size = new System.Drawing.Size(181, 186);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
             // systemToolStripMenuItem
@@ -305,7 +304,7 @@ namespace Pulsar.Server.Forms
             this.actionsToolStripMenuItem});
             this.systemToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog;
             this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
-            this.systemToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.systemToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.systemToolStripMenuItem.Text = "Administration";
             this.systemToolStripMenuItem.Click += new System.EventHandler(this.systemToolStripMenuItem_Click);
             // 
@@ -449,11 +448,10 @@ namespace Pulsar.Server.Forms
             this.hVNCToolStripMenuItem,
             this.keyloggerToolStripMenuItem,
             this.passwordRecoveryToolStripMenuItem,
-            this.kematianGrabbingToolStripMenuItem,
             this.virtualMonitorToolStripMenuItem});
             this.surveillanceToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.monitoring;
             this.surveillanceToolStripMenuItem.Name = "surveillanceToolStripMenuItem";
-            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.surveillanceToolStripMenuItem.Text = "Monitoring";
             // 
             // remoteDesktopToolStripMenuItem2
@@ -512,14 +510,6 @@ namespace Pulsar.Server.Forms
             this.passwordRecoveryToolStripMenuItem.Text = "Password Recovery";
             this.passwordRecoveryToolStripMenuItem.Click += new System.EventHandler(this.passwordRecoveryToolStripMenuItem_Click);
             // 
-            // kematianGrabbingToolStripMenuItem
-            // 
-            this.kematianGrabbingToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("kematianGrabbingToolStripMenuItem.Image")));
-            this.kematianGrabbingToolStripMenuItem.Name = "kematianGrabbingToolStripMenuItem";
-            this.kematianGrabbingToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.kematianGrabbingToolStripMenuItem.Text = "Kematian Grabbing";
-            this.kematianGrabbingToolStripMenuItem.Click += new System.EventHandler(this.kematianGrabbingToolStripMenuItem_Click);
-            // 
             // virtualMonitorToolStripMenuItem
             // 
             this.virtualMonitorToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -555,7 +545,7 @@ namespace Pulsar.Server.Forms
             this.visitWebsiteToolStripMenuItem});
             this.userSupportToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.user;
             this.userSupportToolStripMenuItem.Name = "userSupportToolStripMenuItem";
-            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.userSupportToolStripMenuItem.Text = "User Support";
             // 
             // remoteChatToolStripMenuItem
@@ -597,7 +587,7 @@ namespace Pulsar.Server.Forms
             this.taskManagerToolStripMenuItem1});
             this.quickCommandsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.wrench;
             this.quickCommandsToolStripMenuItem.Name = "quickCommandsToolStripMenuItem";
-            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.quickCommandsToolStripMenuItem.Text = "Miscellaneous";
             // 
             // addCDriveExceptionToolStripMenuItem
@@ -644,7 +634,7 @@ namespace Pulsar.Server.Forms
             this.gdiToolStripMenuItem});
             this.funMethodsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.emoticon_evilgrin;
             this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
-            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
             // 
             // bSODToolStripMenuItem
@@ -718,7 +708,7 @@ namespace Pulsar.Server.Forms
             this.uninstallToolStripMenuItem});
             this.connectionToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("connectionToolStripMenuItem.Image")));
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.connectionToolStripMenuItem.Text = "Client Management";
             // 
             // elevatedToolStripMenuItem
@@ -851,12 +841,12 @@ namespace Pulsar.Server.Forms
             // lineToolStripMenuItem
             // 
             this.lineToolStripMenuItem.Name = "lineToolStripMenuItem";
-            this.lineToolStripMenuItem.Size = new System.Drawing.Size(176, 6);
+            this.lineToolStripMenuItem.Size = new System.Drawing.Size(177, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
@@ -1909,14 +1899,6 @@ namespace Pulsar.Server.Forms
             this.shellCommandToolStripMenuItem.Text = "Shell Command";
             this.shellCommandToolStripMenuItem.Click += new System.EventHandler(this.shellCommandToolStripMenuItem_Click);
             // 
-            // kematianToolStripMenuItem
-            // 
-            this.kematianToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.user_thief;
-            this.kematianToolStripMenuItem.Name = "kematianToolStripMenuItem";
-            this.kematianToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-            this.kematianToolStripMenuItem.Text = "Kematian Recovery";
-            this.kematianToolStripMenuItem.Click += new System.EventHandler(this.kematianToolStripMenuItem_Click);
-            // 
             // showMessageBoxToolStripMenuItem1
             // 
             this.showMessageBoxToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.information;
@@ -2428,7 +2410,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.ToolStripMenuItem localFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem webFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem remoteDesktopToolStripMenuItem2;
-        private ToolStripMenuItem kematianGrabbingToolStripMenuItem;
         private ToolStripMenuItem funMethodsToolStripMenuItem;
         private ToolStripMenuItem bSODToolStripMenuItem;
         private ToolStripMenuItem cWToolStripMenuItem;

