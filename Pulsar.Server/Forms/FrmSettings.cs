@@ -56,9 +56,16 @@ namespace Pulsar.Server.Forms
             chkDiscordRPC.Checked = Settings.DiscordRPC; // Will load as false by default
             _previousDiscordRPCState = chkDiscordRPC.Checked;
 
-            string filePath = "blocked.json";
+            string pulsarPath = Path.Combine(Application.StartupPath, "PulsarStuff");
+            string filePath = Path.Combine(pulsarPath, "blocked.json");
+
             try
             {
+                if (!(Directory.Exists(pulsarPath) && File.Exists(filePath)))
+                {
+                    Directory.CreateDirectory(pulsarPath);
+                    File.WriteAllText(filePath, "[]");
+                }
                 string json = File.ReadAllText(filePath);
                 var blockedIPs = JsonConvert.DeserializeObject<List<string>>(json);
                 if (blockedIPs != null && blockedIPs.Count > 0)
