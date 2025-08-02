@@ -302,8 +302,8 @@
 		<PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />		
-		<PackageReference Include="protobuf-net">
-			<Version>3.2.52</Version>
+		<PackageReference Include="MessagePack">
+			<Version>3.1.4</Version>
 		</PackageReference>		
 		<PackageReference Include="System.Resources.Extensions" Version="9.0.6" />
 		<PackageReference Include="System.Runtime.CompilerServices.Unsafe">
