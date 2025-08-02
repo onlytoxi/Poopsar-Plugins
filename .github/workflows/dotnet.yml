@@ -37,7 +37,7 @@ jobs:
         shell: cmd
 
       - name: Zip Build Output
-        run: Compress-Archive -Path "D:\a\Pulsar\Pulsar\bin\Release\net472\*" -DestinationPath "build_output.zip"
+        run: Compress-Archive -Path "D:\a\Poopsar\Pulsar\bin\Release\net472\*" -DestinationPath "build_output.zip"
         shell: pwsh
 
       - name: Upload Build Artifact
