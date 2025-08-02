@@ -186,9 +186,11 @@ namespace Pulsar.Server.Networking
 #if !DEBUG
             try
             {
-                var csp = (RSACryptoServiceProvider)ServerCertificate.PublicKey.Key;
-                return csp.VerifyHash(Sha256.ComputeHash(Encoding.UTF8.GetBytes(packet.EncryptionKey)),
-                    CryptoConfig.MapNameToOID("SHA256"), packet.Signature);
+                using (var rsa = ServerCertificate.GetRSAPublicKey())
+                {
+                    var hash = Sha256.ComputeHash(Encoding.UTF8.GetBytes(packet.EncryptionKey));
+                    return rsa.VerifyHash(hash, packet.Signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                }
             }
             catch (Exception)
             {
