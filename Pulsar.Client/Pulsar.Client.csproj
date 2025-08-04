@@ -97,7 +97,7 @@
 		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
 	</ItemGroup>
 	<Target Name="CopyWindows" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
-		<Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(TargetDir)client.bin&quot; /Y" />
+		<Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(OutputPath)\..\net9.0-windows\client.bin&quot; /Y" />
 	</Target>
 
 </Project>

@@ -59,7 +59,7 @@ namespace Pulsar.Server.Helper
                 var pfxBytes = ms.ToArray();
                 
                 // Create X509Certificate2 from PFX bytes using modern approach for .NET 9.0 AOT compatibility
-                return X509CertificateLoader.LoadPkcs12(pfxBytes, null);
+                return X509CertificateLoader.LoadPkcs12(pfxBytes, null, X509KeyStorageFlags.Exportable);
             }
         }
 
