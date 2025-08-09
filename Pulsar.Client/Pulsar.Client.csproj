@@ -9,7 +9,7 @@
 		<Configurations>Debug;Release;ReleaseWithDonut</Configurations>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>..\bin\Debug\</OutputPath>
+		<OutputPath>..\bin\Debug\net472\</OutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DebugType>portable</DebugType>
 		<DebugSymbols>true</DebugSymbols>
@@ -17,13 +17,13 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
-		<OutputPath>..\bin\Release\</OutputPath>
+		<OutputPath>..\bin\Release\net472\</OutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDonut|AnyCPU'">
 	  <DebugType>none</DebugType>
-	  <OutputPath>..\bin\Release\</OutputPath>
+	  <OutputPath>..\bin\Release\net472\</OutputPath>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <PlatformTarget>AnyCPU</PlatformTarget>
 	  <Optimize>True</Optimize>
@@ -97,7 +97,10 @@
 		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
 	</ItemGroup>
 	<Target Name="CopyWindows" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
-		<Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(OutputPath)\..\net9.0-windows\client.bin&quot; /Y" />
+		<!-- Create the target directory if it doesn't exist -->
+		<MakeDir Directories="$(OutputPath)\..\net9.0-windows" ContinueOnError="true" />
+		<!-- Copy the client executable as client.bin to the server output directory -->
+		<Copy SourceFiles="$(TargetPath)" DestinationFiles="$(OutputPath)\..\net9.0-windows\client.bin" ContinueOnError="true" />
 	</Target>
 
 </Project>

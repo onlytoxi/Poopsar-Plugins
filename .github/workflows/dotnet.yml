@@ -38,9 +38,15 @@ jobs:
           New-Item -ItemType Directory -Path "./build_output" -Force
           # Copy published server files
           Copy-Item -Path "./publish/server/*" -Destination "./build_output/" -Recurse -Force
-          # Copy client as client.bin
-          if (Test-Path "./bin/Release/net472/Client.exe") {
-            Copy-Item -Path "./bin/Release/net472/Client.exe" -Destination "./build_output/Client.bin" -Force
+          # Copy client as client.bin - check both possible locations
+          if (Test-Path "./bin/Release/net9.0-windows/client.bin") {
+            Copy-Item -Path "./bin/Release/net9.0-windows/client.bin" -Destination "./build_output/client.bin" -Force
+            Write-Host "Copied client.bin from net9.0-windows directory"
+          } elseif (Test-Path "./bin/Release/net472/Client.exe") {
+            Copy-Item -Path "./bin/Release/net472/Client.exe" -Destination "./build_output/client.bin" -Force
+            Write-Host "Copied Client.exe from net472 directory as client.bin"
+          } else {
+            Write-Host "Warning: Client executable not found in expected locations"
           }
         shell: pwsh
 
