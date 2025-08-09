@@ -9,7 +9,7 @@
 		<Configurations>Debug;Release;ReleaseWithDonut</Configurations>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>..\bin\Debug\net472\</OutputPath>
+		<OutputPath>..\bin\Debug\</OutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DebugType>portable</DebugType>
 		<DebugSymbols>true</DebugSymbols>
@@ -17,13 +17,13 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
-		<OutputPath>..\bin\Release\net472\</OutputPath>
+		<OutputPath>..\bin\Release\</OutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDonut|AnyCPU'">
 	  <DebugType>none</DebugType>
-	  <OutputPath>..\bin\Release\net472\</OutputPath>
+	  <OutputPath>..\bin\Release\</OutputPath>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <PlatformTarget>AnyCPU</PlatformTarget>
 	  <Optimize>True</Optimize>

@@ -98,7 +98,9 @@ build:
       else
         echo "Warning: Client executable not found in expected locations"
         echo "Checking available files:"
-        find bin/Release -name "Client.exe" -o -name "client.bin" || echo "No client files found"
+        find bin/Release -name "Client.exe" -o -name "client.bin" -o -name "*.exe" | head -10 || echo "No client files found"
+        echo "Directory structure:"
+        ls -la bin/Release/ || echo "bin/Release not found"
       fi
     - cd build_output && zip -r ../build_output.zip . && cd ..
     - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
