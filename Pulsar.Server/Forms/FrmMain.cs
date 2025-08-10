@@ -130,8 +130,8 @@ namespace Pulsar.Server.Forms
                         int selected = lstClients.SelectedItems.Count;
                         int connected = ListenServer?.ConnectedClients?.Length ?? 0;
                         this.Text = (selected > 0)
-                            ? string.Format("Pulsar - Connected: {0} [Selected: {1}]", connected, selected)
-                            : string.Format("Pulsar - Connected: {0}", connected);
+                            ? string.Format("Pulsar NATIVE EDITION - Connected: {0} [Selected: {1}]", connected, selected)
+                            : string.Format("Pulsar NATIVE EDITION - Connected: {0}", connected);
                     }
                     finally
                     {
