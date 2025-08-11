@@ -5,7 +5,8 @@ stages:
 variables:
   SOLUTION_FILE: "Pulsar.sln"
   BUILD_CONFIGURATION: "Release"
-  SERVER_TARGET_FRAMEWORK: "net9.0-windows"
+  SERVER_TARGET_FRAMEWORK: "net9.0"
+  SERVER_RUNTIME: "win-x64"
   CLIENT_TARGET_FRAMEWORK: "net472"
 
 # Only run on main branch when C# files or project files change
@@ -88,7 +89,7 @@ build:
     - echo "Client build completed. Checking build output..."
     - ls -la Pulsar.Client/bin/Release/ 2>/dev/null || echo "Client bin directory not found"
     - echo "Publishing server..."
-    - dotnet publish Pulsar.Server/Pulsar.Server.csproj --configuration $BUILD_CONFIGURATION --output "$CI_PROJECT_DIR/publish/server" --no-restore --framework $SERVER_TARGET_FRAMEWORK
+    - dotnet publish Pulsar.Server/Pulsar.Server.csproj --configuration $BUILD_CONFIGURATION --output "$CI_PROJECT_DIR/publish/server" --no-restore --framework $SERVER_TARGET_FRAMEWORK --runtime $SERVER_RUNTIME --self-contained false
     - echo "Server publish completed. Checking publish output..."
     - ls -la publish/server/ 2>/dev/null || echo "Server publish directory not found"
     - echo "Preparing build output..."
