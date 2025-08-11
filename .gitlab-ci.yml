@@ -95,23 +95,47 @@ build:
     - mkdir -p build_output
     # Copy all published server code to build_output
     - cp -r publish/server/* build_output/
-    # Find and copy client.bin
+    # Find and copy client.bin - check multiple possible locations
     - |
       CLIENT_FOUND=false
+      # Check location 1: Pulsar.Client/bin/Release/net472/Pulsar.Client.exe
       if [ -f "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" ]; then
         cp "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" build_output/client.bin
-        echo "✓ Copied Pulsar.Client.exe as client.bin"
+        echo "✓ Copied Pulsar.Client.exe as client.bin from Pulsar.Client/bin"
         CLIENT_FOUND=true
+      # Check location 2: bin/Release/net472/Client.exe (like GitHub Actions)
+      elif [ -f "bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" ]; then
+        cp "bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" build_output/client.bin
+        echo "✓ Copied Client.exe from bin directory as client.bin"
+        CLIENT_FOUND=true
+      # Check location 3: bin/Release/net472/Pulsar.Client.exe
       elif [ -f "bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" ]; then
         cp "bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" build_output/client.bin
         echo "✓ Copied Pulsar.Client.exe from bin directory as client.bin"
+        CLIENT_FOUND=true
+      # Check location 4: Pulsar.Client/bin/Release/net472/Client.exe
+      elif [ -f "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" ]; then
+        cp "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" build_output/client.bin
+        echo "✓ Copied Client.exe as client.bin from Pulsar.Client/bin"
         CLIENT_FOUND=true
       fi
       
       if [ "$CLIENT_FOUND" = false ]; then
         echo "❌ ERROR: Client executable not found!"
-        echo "Available files in Pulsar.Client/bin:"
-        find Pulsar.Client/bin -name "*.exe" 2>/dev/null || echo "No exe files found"
+        echo "Searched locations:"
+        echo "  - Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe"
+        echo "  - bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe"
+        echo "  - bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe"
+        echo "  - Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe"
+        echo ""
+        echo "Available files in project directories:"
+        echo "Pulsar.Client/bin contents:"
+        find Pulsar.Client/bin -name "*.exe" 2>/dev/null || echo "No exe files found in Pulsar.Client/bin"
+        echo "bin contents:"
+        find bin -name "*.exe" 2>/dev/null || echo "No exe files found in bin"
+        echo ""
+        echo "All bin directories structure:"
+        find . -type d -name "bin" -exec echo "Directory: {}" \; -exec find {} -name "*.exe" \; 2>/dev/null || echo "No bin directories found"
         exit 1
       fi
     # Create the final zip with just the essentials
