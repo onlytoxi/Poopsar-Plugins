@@ -142,7 +142,7 @@ build:
     - cd build_output && zip -r ../Pulsar-Build.zip . && cd ..
     - echo "✓ Build package created successfully"
     - echo "Package contents:"
-    - unzip -l Pulsar-Build.zip | head -20
+    - unzip -l Pulsar-Build.zip | head -20 || true
   artifacts:
     paths:
       - Pulsar-Build.zip
