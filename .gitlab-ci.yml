@@ -5,7 +5,7 @@ stages:
 variables:
   SOLUTION_FILE: "Pulsar.sln"
   BUILD_CONFIGURATION: "Release"
-  SERVER_TARGET_FRAMEWORK: "net9.0"
+  SERVER_TARGET_FRAMEWORK: "net9.0-windows"
   SERVER_RUNTIME: "win-x64"
   CLIENT_TARGET_FRAMEWORK: "net472"
 
