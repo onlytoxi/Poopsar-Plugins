@@ -82,7 +82,7 @@ build:
     - echo "Commit:" $COMMIT_SHORT_SHA
     - echo "Commit message:" $COMMIT_MESSAGE
     - echo "Restoring dependencies..."
-    - dotnet restore $SOLUTION_FILE
+    - dotnet restore $SOLUTION_FILE --runtime $SERVER_RUNTIME
     - echo "Build completed. Checking if restore was successful..."
     - echo "Building client..."
     - dotnet build Pulsar.Client/Pulsar.Client.csproj --configuration $BUILD_CONFIGURATION --no-restore --framework $CLIENT_TARGET_FRAMEWORK
