@@ -107,8 +107,8 @@ namespace Pulsar.Server.Messages
         /// The video stream codec used to decode received frames.
         /// </summary>
         private UnsafeStreamCodec _codec;        // buffer parameters
-        private readonly int _initialFramesRequested = 5; // request 5 frames initially
-        private readonly int _defaultFrameRequestBatch = 3; // request 3 frames at a time now on
+        private readonly int _initialFramesRequested = 20; // request 20 frames initially for 60 FPS
+        private readonly int _defaultFrameRequestBatch = 15; // request 15 frames at a time for sustained 60 FPS
         private int _pendingFrames = 0;
         private readonly SemaphoreSlim _frameRequestSemaphore = new SemaphoreSlim(1, 1);
         private readonly Stopwatch _frameReceiptStopwatch = new Stopwatch();
@@ -357,7 +357,7 @@ namespace Pulsar.Server.Messages
                 Interlocked.Decrement(ref _pendingFrames);
             }
 
-            if (IsBufferedMode && (message.IsLastRequestedFrame || _pendingFrames <= 1))
+            if (IsBufferedMode && (message.IsLastRequestedFrame || _pendingFrames <= 8))
             {
                 await RequestMoreFramesAsync();
             }
@@ -365,19 +365,25 @@ namespace Pulsar.Server.Messages
 
         private async Task RequestMoreFramesAsync()
         {
-            if (!await _frameRequestSemaphore.WaitAsync(0))
+            if (!await _frameRequestSemaphore.WaitAsync(10))
                 return;
 
             try
             {
                 int batchSize = _defaultFrameRequestBatch;
 
-                if (_estimatedFps > 25)
+                if (_estimatedFps > 40)
+                    batchSize = 20;
+                else if (_estimatedFps > 30)
+                    batchSize = 15;
+                else if (_estimatedFps > 20)
+                    batchSize = 10;
+                else if (_estimatedFps > 10)
                     batchSize = 5;
-                else if (_estimatedFps < 10)
-                    batchSize = 2;
+                else
+                    batchSize = 3;
 
-                Debug.WriteLine($"Requesting {batchSize} more frames");
+                Debug.WriteLine($"Requesting {batchSize} more frames (estimated FPS: {_estimatedFps:F1})");
                 Interlocked.Add(ref _pendingFrames, batchSize);
 
                 _client.Send(new GetDesktop
