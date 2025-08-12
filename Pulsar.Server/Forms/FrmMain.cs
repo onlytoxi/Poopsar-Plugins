@@ -171,7 +171,15 @@ namespace Pulsar.Server.Forms
         {
             try
             {
-                ListenServer.Listen(Settings.ListenPort, Settings.IPv6Support, Settings.UseUPnP);
+                var allPorts = new List<ushort> { Settings.ListenPort };
+                if (Settings.ListenPorts != null)
+                    allPorts.AddRange(Settings.ListenPorts);
+                allPorts = allPorts.Distinct().ToList();
+                
+                if (allPorts.Count > 1)
+                    ListenServer.ListenMany(allPorts, Settings.IPv6Support, Settings.UseUPnP);
+                else
+                    ListenServer.Listen(Settings.ListenPort, Settings.IPv6Support, Settings.UseUPnP);
             }
             catch (SocketException ex)
             {
@@ -439,7 +447,29 @@ namespace Pulsar.Server.Forms
                 {
                     if (!listening)
                         lstClients.Items.Clear();
-                    listenToolStripStatusLabel.Text = listening ? string.Format("Listening on port {0}.", port) : "Not listening.";
+
+                    string statusText;
+                    var ports = (ListenServer?.GetListeningPorts() ?? Array.Empty<ushort>()).Distinct().ToList();
+
+                    if (listening)
+                    {
+                        if (ports.Count <= 3)
+                        {
+                            statusText = $"Listening on ports {string.Join(", ", ports)}.";
+                        }
+                        else
+                        {
+                            var firstThree = ports.Take(3);
+                            var remaining = ports.Count - 3;
+                            statusText = $"Listening on ports {string.Join(", ", firstThree)} and {remaining} more ports.";
+                        }
+                    }
+                    else
+                    {
+                        statusText = "Not listening.";
+                    }
+
+                    listenToolStripStatusLabel.Text = statusText;
                 });
                 UpdateWindowTitle();
             }

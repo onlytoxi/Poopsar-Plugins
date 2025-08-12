@@ -126,6 +126,7 @@ namespace Pulsar.Server.Networking
 
         /// <summary>
         /// The port on which the server is listening.
+        /// For multi-port scenarios, this is the last port that was started.
         /// </summary>
         public ushort Port { get; private set; }
 
@@ -184,9 +185,15 @@ namespace Pulsar.Server.Networking
         }
 
         /// <summary>
-        /// Handle of the Server Socket.
+        /// Handle(s) of the Server Socket(s).
         /// </summary>
-        private Socket _handle;
+        private readonly List<Socket> _handles = new List<Socket>();
+        private readonly object _handlesLock = new object();
+
+        /// <summary>
+        /// Accept event args, one per listening socket.
+        /// </summary>
+        private readonly Dictionary<Socket, SocketAsyncEventArgs> _acceptArgs = new Dictionary<Socket, SocketAsyncEventArgs>();
 
         /// <summary>
         /// The server certificate.
@@ -194,19 +201,14 @@ namespace Pulsar.Server.Networking
         protected readonly X509Certificate2 ServerCertificate;
 
         /// <summary>
-        /// The event to accept new connections asynchronously.
-        /// </summary>
-        private SocketAsyncEventArgs _item;
-
-        /// <summary>
         /// List of the clients connected to the server.
         /// </summary>
         private readonly List<Client> _clients = new List<Client>();
 
         /// <summary>
-        /// The UPnP service used to discover, create and delete port mappings.
+        /// The UPnP service used to create port mappings per port.
         /// </summary>
-        private UPnPService _UPnPService;
+        private readonly Dictionary<ushort, UPnPService> _upnpByPort = new Dictionary<ushort, UPnPService>();
 
         /// <summary>
         /// Lock object for the list of clients.
@@ -253,7 +255,6 @@ namespace Pulsar.Server.Networking
             }
             catch (Exception)
             {
-                // ChatGPT simplified ts
             }
         }
 
@@ -282,45 +283,66 @@ namespace Pulsar.Server.Networking
         }
 
         /// <summary>
-        /// Begins listening for clients.
+        /// Begins listening for clients on a single port.
         /// </summary>
-        /// <param name="port">Port to listen for clients on.</param>
-        /// <param name="ipv6">If set to true, use a dual-stack socket to allow IPv4/6 connections. Otherwise use IPv4-only socket.</param>
-        /// <param name="enableUPnP">Enables the automatic UPnP port forwarding.</param>
         public void Listen(ushort port, bool ipv6, bool enableUPnP)
         {
-            if (Listening) return;
-            this.Port = port;
+            ListenMany(new[] { port }, ipv6, enableUPnP);
+        }
 
-            if (enableUPnP)
+        /// <summary>
+        /// Begins listening for clients on multiple ports.
+        /// </summary>
+        /// <param name="ports">Ports to listen on.</param>
+        /// <param name="ipv6">If set to true, use a dual-stack socket to allow IPv4/6 connections. Otherwise use IPv4-only socket.</param>
+        /// <param name="enableUPnP">Enables the automatic UPnP port forwarding for each port.</param>
+        public void ListenMany(IEnumerable<ushort> ports, bool ipv6, bool enableUPnP)
+        {
+            var startNow = !Listening;
+
+            foreach (var port in ports.Distinct())
             {
-                _UPnPService = new UPnPService();
-                _UPnPService.CreatePortMapAsync(port);
+                lock (_handlesLock)
+                {
+                    if (_handles.Any(h => (h.LocalEndPoint as IPEndPoint)?.Port == port))
+                        continue;
             }
-
+                Socket handle;
             if (Socket.OSSupportsIPv6 && ipv6)
             {
-                _handle = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                _handle.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0);
-                _handle.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
+                    handle = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                    handle.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0);
+                    handle.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
             }
             else
             {
-                _handle = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _handle.Bind(new IPEndPoint(IPAddress.Any, port));
+                    handle = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    handle.Bind(new IPEndPoint(IPAddress.Any, port));
             }
 
-            _handle.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            _handle.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-            _handle.Listen(1000);
+                handle.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                handle.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+                handle.Listen(1000);
+                lock (_handlesLock)
+                {
+                    _handles.Add(handle);
+                }
 
-            OnServerState(true);
+                if (enableUPnP)
+                {
+                    var upnp = new UPnPService();
+                    _upnpByPort[port] = upnp;
+                    upnp.CreatePortMapAsync(port);
+                }
 
-            _item = new SocketAsyncEventArgs();
-            _item.Completed += AcceptClient;
+                var item = new SocketAsyncEventArgs();
+                item.Completed += AcceptClient;
+                _acceptArgs[handle] = item;
 
-            if (!_handle.AcceptAsync(_item))
-                AcceptClient(this, _item);
+                Port = port; // keep last started port for compatibility
+
+                if (!handle.AcceptAsync(item))
+                    AcceptClient(handle, item);
 
             var mainForm = GetMainFormSafe();
             if (mainForm != null)
@@ -350,16 +372,29 @@ namespace Pulsar.Server.Networking
                 catch (Exception)
                 {
                 }
+                }
+            }
+
+            if (startNow && _handles.Count > 0)
+            {
+                OnServerState(true);
             }
         }
 
         /// <summary>
         /// Accepts and begins authenticating an incoming client.
         /// </summary>
-        /// <param name="s">The sender.</param>
+        /// <param name="s">The listening socket.</param>
         /// <param name="e">Asynchronous socket event.</param>
         private void AcceptClient(object s, SocketAsyncEventArgs e)
         {
+            var listenSocket = s as Socket;
+            if (listenSocket == null)
+            {
+                // Try to recover the listen socket from our map
+                listenSocket = _acceptArgs.Keys.FirstOrDefault();
+            }
+
             try
             {
                 do
@@ -373,7 +408,6 @@ namespace Pulsar.Server.Networking
                                 Socket clientSocket = e.AcceptSocket;
                                 clientSocket.SetKeepAliveEx(KeepAliveInterval, KeepAliveTime);
                                 sslStream = new SslStream(new NetworkStream(clientSocket, true), false);
-                                // the SslStream owns the socket and on disposing also disposes the NetworkStream and Socket
                                 sslStream.BeginAuthenticateAsServer(ServerCertificate, false, SslProtocols.Tls12, false, EndAuthenticateClient,
                                     new PendingClient { Stream = sslStream, EndPoint = (IPEndPoint)clientSocket.RemoteEndPoint });
                             }
@@ -389,7 +423,7 @@ namespace Pulsar.Server.Networking
                     }
 
                     e.AcceptSocket = null; // enable reuse
-                } while (!_handle.AcceptAsync(e));
+                } while (listenSocket != null && !listenSocket.AcceptAsync(e));
             }
             catch (ObjectDisposedException)
             {
@@ -470,23 +504,28 @@ namespace Pulsar.Server.Networking
             if (ProcessingDisconnect) return;
             ProcessingDisconnect = true;
 
-            if (_handle != null)
+            List<Socket> toClose;
+            lock (_handlesLock)
             {
-                _handle.Close();
-                _handle = null;
+                toClose = _handles.ToList();
+                _handles.Clear();
+            }
+            foreach (var handle in toClose)
+            {
+                try { handle.Close(); } catch { }
             }
 
-            if (_item != null)
+            foreach (var kvp in _acceptArgs.ToList())
             {
-                _item.Dispose();
-                _item = null;
+                try { kvp.Value.Dispose(); } catch { }
             }
+            _acceptArgs.Clear();
 
-            if (_UPnPService != null)
+            foreach (var upnpKvp in _upnpByPort.ToList())
             {
-                _UPnPService.DeletePortMapAsync(Port);
-                _UPnPService = null;
+                try { upnpKvp.Value.DeletePortMapAsync(upnpKvp.Key); } catch { }
             }
+            _upnpByPort.Clear();
 
             lock (_clientsLock)
             {
@@ -503,7 +542,6 @@ namespace Pulsar.Server.Networking
                     }
                     catch
                     {
-                        // Silently continue with other clients
                     }
                 }
             }
@@ -511,6 +549,17 @@ namespace Pulsar.Server.Networking
             ProcessingDisconnect = false;
             OnServerState(false);
             UpdateServerStatusIcon(false);
+        }
+
+        /// <summary>
+        /// Gets the ports the server is currently listening on.
+        /// </summary>
+        public ushort[] GetListeningPorts()
+        {
+            lock (_handlesLock)
+            {
+                return _handles.Select(h => (ushort)((IPEndPoint)h.LocalEndPoint).Port).ToArray();
+            }
         }
     }
 }
