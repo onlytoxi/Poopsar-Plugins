@@ -144,7 +144,7 @@ namespace Pulsar.Client.Helper.ScreenStuff.DesktopDuplication
             try
             {
                 // fml
-                mDeskDupl.AcquireNextFrame(16, out frameInfo, out desktopResource);
+                mDeskDupl.AcquireNextFrame(33, out frameInfo, out desktopResource);
             }
             catch (SharpDXException ex)
             {
@@ -233,7 +233,7 @@ namespace Pulsar.Client.Helper.ScreenStuff.DesktopDuplication
             frameInfo = new OutputDuplicateFrameInformation();
             try
             {
-                mDeskDupl.AcquireNextFrame(10, out frameInfo, out desktopResource);
+                mDeskDupl.AcquireNextFrame(33, out frameInfo, out desktopResource);
             }
             catch (SharpDXException ex)
             {

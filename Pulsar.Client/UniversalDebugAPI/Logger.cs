@@ -46,19 +46,54 @@ namespace Pulsar.Client.LoggingAPI
         {
             if (_client != null && _client.Connected)
             {
-                _client.Send(new GetDebugLog { Log = logMessage });
+                if (!IsBlacklistedMessage(logMessage))
+                {
+                    _client.Send(new GetDebugLog { Log = logMessage });
+                }
             }
+        }
+
+        private static bool IsBlacklistedMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return false;
+
+            var blacklistedPatterns = new[]
+            {
+                "HRESULT: [0x887A0027]",
+                "DXGI_ERROR_WAIT_TIMEOUT",
+                "WaitTimeout",
+                "The timeout value has elapsed and the resource is not yet available",
+                "SharpDX.SharpDXException",
+                "SharpDX.DXGI",
+                "SharpDX.Result.CheckError()",
+                "Waiting for frame requests. Buffer size:",
+                "Received packet: GetDesktop",
+                "Capture FPS:",
+                "Buffer size:",
+                "Pending requests:"
+            };
+
+            foreach (var pattern in blacklistedPatterns)
+            {
+                if (message.Contains(pattern))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public override void WriteLine(string message)
         {
             try
             {
-                // string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Logs", "plog.txt");
-                // using (StreamWriter writer = new StreamWriter(path, true))
-                // {
-                //     writer.WriteLine(message);
-                // }
+                    // string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Logs", "plog.txt");
+                    // using (StreamWriter writer = new StreamWriter(path, true))
+                    // {
+                    //     writer.WriteLine(message);
+                    // }
             }
             catch (Exception)
             {

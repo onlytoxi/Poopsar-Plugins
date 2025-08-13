@@ -45,6 +45,11 @@ namespace Pulsar.Client.User
         {
             if (e.ExceptionObject is Exception ex)
             {
+                if (ShouldIgnoreException(ex))
+                {
+                    return;
+                }
+                
                 LogException(ex);
                 _client.Send(new GetDebugLog { Log = ex.ToString() });
             }
@@ -52,12 +57,22 @@ namespace Pulsar.Client.User
 
         private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
+            if (ShouldIgnoreException(e.Exception))
+            {
+                return;
+            }
+            
             LogException(e.Exception);
             _client.Send(new GetDebugLog { Log = e.Exception.ToString() });
         }
 
         private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
+            if (ShouldIgnoreException(e.Exception))
+            {
+                return;
+            }
+            
             LogException(e.Exception);
             _client.Send(new GetDebugLog { Log = e.Exception.ToString() });
         }
@@ -93,6 +108,43 @@ namespace Pulsar.Client.User
                 ex.StackTrace?.Contains("AForge.Video.DirectShow.FilterInfoCollection.CollectFilters") == true)
             {
                 return true;
+            }
+
+            if (IsBlacklistedMessage(ex.Message) || IsBlacklistedMessage(ex.ToString()))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsBlacklistedMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return false;
+
+            var blacklistedPatterns = new[]
+            {
+                "HRESULT: [0x887A0027]",
+                "DXGI_ERROR_WAIT_TIMEOUT",
+                "WaitTimeout",
+                "The timeout value has elapsed and the resource is not yet available",
+                "SharpDX.SharpDXException",
+                "SharpDX.DXGI",
+                "SharpDX.Result.CheckError()",
+                "Waiting for frame requests. Buffer size:",
+                "Received packet: GetDesktop",
+                "Capture FPS:",
+                "Buffer size:",
+                "Pending requests:"
+            };
+
+            foreach (var pattern in blacklistedPatterns)
+            {
+                if (message.Contains(pattern))
+                {
+                    return true;
+                }
             }
 
             return false;

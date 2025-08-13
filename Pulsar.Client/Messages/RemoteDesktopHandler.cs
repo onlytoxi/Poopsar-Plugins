@@ -453,6 +453,12 @@ namespace Pulsar.Client.Messages
                     }
                 }
 
+                if (_useGPU)
+                {
+                    Thread.Sleep(2);
+                    return null;
+                }
+
                 _desktop = _useGPU ? ScreenHelperGPU.CaptureScreen(_displayIndex) : ScreenHelperCPU.CaptureScreen(_displayIndex);
 
                 if (_desktop == null)

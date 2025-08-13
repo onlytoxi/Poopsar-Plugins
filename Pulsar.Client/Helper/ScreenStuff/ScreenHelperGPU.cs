@@ -136,7 +136,7 @@ namespace Pulsar.Client.Helper
         /// </summary>
         /// <param name="screenNumber">The index of the screen to capture</param>
         /// <param name="setThreadPointer">Whether to set the thread desktop pointer</param>
-        /// <returns>A bitmap containing the captured screen</returns>
+        /// <returns>A bitmap containing the captured screen, or null if no new GPU frame is available.</returns>
         public static Bitmap CaptureScreen(int screenNumber, bool setThreadPointer = false)
         {
             if (setThreadPointer)
@@ -165,7 +165,7 @@ namespace Pulsar.Client.Helper
                         Debug.WriteLine($"Screen {screenNumber} is in portrait mode, falling back to CPU capture");
                         return ScreenHelperCPU.CaptureScreen(screenNumber, false);
                     }
-                    
+
        
                     DesktopDuplicator duplicator;
                     try
@@ -197,8 +197,8 @@ namespace Pulsar.Client.Helper
 
                     if (frame == null || frame.DesktopImage == null)
                     {
-                        Debug.WriteLine($"GPU capture: No new frame available for screen {screenNumber}, falling back to CPU");
-                        return ScreenHelperCPU.CaptureScreen(screenNumber, false);
+                        Debug.WriteLine($"GPU capture: No new frame available for screen {screenNumber}");
+                        return null;
                     }
 
                     Bitmap resultBitmap = frame.DesktopImage;
