@@ -38,6 +38,20 @@ namespace Pulsar.Server.Forms
         private void FrmSettings_Load(object sender, EventArgs e)
         {
             ncPort.Value = Settings.ListenPort;
+            var allPorts = new List<ushort> { Settings.ListenPort };
+            if (Settings.ListenPorts != null)
+                allPorts.AddRange(Settings.ListenPorts);
+            allPorts = allPorts.Distinct().ToList();
+            if (allPorts.Count > 0)
+            {
+                txtMultiPorts.Text = string.Join(", ", allPorts);
+                txtMultiPorts.ForeColor = System.Drawing.Color.Black;
+            }
+            else
+            {
+                txtMultiPorts.Text = "port1 port2 etc..";
+                txtMultiPorts.ForeColor = System.Drawing.Color.Gray;
+            }
             chkDarkMode.Checked = Settings.DarkMode;
             chkHideFromScreenCapture.Checked = Settings.HideFromScreenCapture;
             chkIPv6Support.Checked = Settings.IPv6Support;
@@ -53,7 +67,7 @@ namespace Pulsar.Server.Forms
             txtNoIPHost.Text = Settings.NoIPHost;
             txtNoIPUser.Text = Settings.NoIPUsername;
             txtNoIPPass.Text = Settings.NoIPPassword;
-            chkDiscordRPC.Checked = Settings.DiscordRPC; // Will load as false by default
+            chkDiscordRPC.Checked = Settings.DiscordRPC; // hidden by design
             _previousDiscordRPCState = chkDiscordRPC.Checked;
 
             string pulsarPath = Path.Combine(Application.StartupPath, "PulsarStuff");
@@ -83,6 +97,24 @@ namespace Pulsar.Server.Forms
             }
         }
 
+        private void txtMultiPorts_Enter(object sender, EventArgs e)
+        {
+            if (txtMultiPorts.Text == "port1 port2 etc..")
+            {
+                txtMultiPorts.Text = "";
+                txtMultiPorts.ForeColor = System.Drawing.Color.Black;
+            }
+        }
+
+        private void txtMultiPorts_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtMultiPorts.Text))
+            {
+                txtMultiPorts.Text = "port1 port2 etc..";
+                txtMultiPorts.ForeColor = System.Drawing.Color.Gray;
+            }
+        }
+
         private ushort GetPortSafe()
         {
             var portValue = ncPort.Value.ToString(CultureInfo.InvariantCulture);
@@ -90,14 +122,70 @@ namespace Pulsar.Server.Forms
             return (!ushort.TryParse(portValue, out port)) ? (ushort)0 : port;
         }
 
+        private static IEnumerable<ushort> ParsePorts(string input)
+        {
+            var list = new List<ushort>();
+            if (string.IsNullOrWhiteSpace(input) || input == "port1 port2 etc..") return list;
+
+            foreach (var token in input.Split(new[] { ',', ';', ' ', '_' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var part = token.Trim();
+                if (part.Contains("-"))
+                {
+                    var bounds = part.Split('-');
+                    if (bounds.Length == 2 && ushort.TryParse(bounds[0], out var a) && ushort.TryParse(bounds[1], out var b))
+                    {
+                        if (a > b) { var t = a; a = b; b = t; }
+                        for (var p = a; p <= b; p++) list.Add((ushort)p);
+                    }
+                }
+                else if (ushort.TryParse(part, out var single))
+                {
+                    if (single >= 1 && single <= 65535)
+                    {
+                        list.Add(single);
+                    }
+                }
+            }
+            return list.Distinct();
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            var port = GetPortSafe();
+            if (port == 0) return;
+
+            var existing = txtMultiPorts.Text;
+            var parts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(existing))
+                parts.AddRange(existing.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
+
+            if (!parts.Contains(port.ToString()))
+            {
+                parts.Add(port.ToString());
+                txtMultiPorts.Text = string.Join(",", parts);
+            }
+        }
+
+        private void txtMultiPorts_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsControl(e.KeyChar)) return;
+            if (char.IsDigit(e.KeyChar)) return;
+            if (e.KeyChar == ',' || e.KeyChar == '-' || e.KeyChar == ';' || e.KeyChar == ' ') return;
+            e.Handled = true;
+        }
+
+        private void txtMultiPorts_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
         private void btnListen_Click(object sender, EventArgs e)
         {
-            ushort port = GetPortSafe();
-
-            if (port == 0)
+            var allPorts = ParsePorts(txtMultiPorts.Text).Distinct().ToList();
+            if (allPorts.Count == 0)
             {
-                MessageBox.Show("Please enter a valid port > 0.", "Please enter a valid port", MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter at least one port in 'Ports to listen to'.", "No ports provided", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -107,7 +195,7 @@ namespace Pulsar.Server.Forms
                 {
                     if (chkNoIPIntegration.Checked)
                         NoIpUpdater.Start();
-                    _listenServer.Listen(port, chkIPv6Support.Checked, chkUseUpnp.Checked);
+                    _listenServer.ListenMany(allPorts, chkIPv6Support.Checked, chkUseUpnp.Checked);
                     ToggleListenerSettings(false);
                 }
                 catch (SocketException ex)
@@ -141,16 +229,16 @@ namespace Pulsar.Server.Forms
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            ushort port = GetPortSafe();
-
-            if (port == 0)
+            var ports = ParsePorts(txtMultiPorts.Text).Distinct().ToArray();
+            if (ports.Length == 0)
             {
-                MessageBox.Show("Please enter a valid port > 0.", "Please enter a valid port", MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter at least one port in 'Ports to listen to'.", "No ports provided", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            Settings.ListenPort = port;
+            Settings.ListenPort = ports[0];
+            Settings.ListenPorts = ports.Skip(1).ToArray();
+            
+            txtMultiPorts.Text = string.Join(", ", ports);
             Settings.DarkMode = chkDarkMode.Checked;
             Settings.HideFromScreenCapture = chkHideFromScreenCapture.Checked;
             Settings.IPv6Support = chkIPv6Support.Checked;
@@ -185,7 +273,6 @@ namespace Pulsar.Server.Forms
             }
             catch (Exception)
             {
-
             }
 
             this.Close();
@@ -209,7 +296,6 @@ namespace Pulsar.Server.Forms
             DiscordRPCManager.ApplyDiscordRPC(this);
             Console.WriteLine("Discord RPC toggled to: " + chkDiscordRPC.Checked);
 
-            // Show popup only when user actively disables Discord RPC (from true to false)
             if (_previousDiscordRPCState && !chkDiscordRPC.Checked)
             {
                 MessageBox.Show(
@@ -220,16 +306,16 @@ namespace Pulsar.Server.Forms
                 );
             }
 
-            // Update previous state for the next change
             _previousDiscordRPCState = chkDiscordRPC.Checked;
         }
 
         private void ToggleListenerSettings(bool enabled)
         {
             btnListen.Text = enabled ? "Start listening" : "Stop listening";
-            ncPort.Enabled = enabled;
+            ncPort.Enabled = false;
             chkIPv6Support.Enabled = enabled;
             chkUseUpnp.Enabled = enabled;
+            txtMultiPorts.Enabled = enabled;
         }
 
         private void NoIPControlHandler(bool enable)

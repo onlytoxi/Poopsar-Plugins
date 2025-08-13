@@ -57,7 +57,6 @@ namespace Pulsar.Server.Models
                     else
                     {
                         _settings = new SettingsModel();
-                        // Set system-detected dark mode as default
                         _settings.DarkMode = _isDarkMode();
                         SaveSettings();
                     }
@@ -65,7 +64,6 @@ namespace Pulsar.Server.Models
                 catch
                 {
                     _settings = new SettingsModel();
-                    // Set system-detected dark mode as default
                     _settings.DarkMode = _isDarkMode();
                 }
 
@@ -88,252 +86,128 @@ namespace Pulsar.Server.Models
                 }
                 catch
                 {
-                    // Ignore save errors
                 }
             }
         }
 
         public static bool DarkMode
         {
-            get
-            {
-                return LoadSettings().DarkMode;
-            }
-            set
-            {
-                LoadSettings().DarkMode = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().DarkMode; }
+            set { LoadSettings().DarkMode = value; SaveSettings(); }
         }
 
         public static bool HideFromScreenCapture
         {
-            get
-            {
-                return LoadSettings().HideFromScreenCapture;
-            }
-            set
-            {
-                LoadSettings().HideFromScreenCapture = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().HideFromScreenCapture; }
+            set { LoadSettings().HideFromScreenCapture = value; SaveSettings(); }
         }
 
         public static bool DiscordRPC
         {
             get { return LoadSettings().DiscordRPC; }
-            set 
-            { 
-                LoadSettings().DiscordRPC = value;
-                SaveSettings();
-            }
+            set { LoadSettings().DiscordRPC = value; SaveSettings(); }
         }
 
         public static ushort ListenPort
         {
-            get
-            {
-                return LoadSettings().ListenPort;
-            }
-            set
-            {
-                LoadSettings().ListenPort = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().ListenPort; }
+            set { LoadSettings().ListenPort = value; SaveSettings(); }
+        }
+
+        public static ushort[] ListenPorts
+        {
+            get { return LoadSettings().ListenPorts ?? new ushort[0]; }
+            set { LoadSettings().ListenPorts = value; SaveSettings(); }
         }
 
         public static bool IPv6Support
         {
-            get
-            {
-                return LoadSettings().IPv6Support;
-            }
-            set
-            {
-                LoadSettings().IPv6Support = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().IPv6Support; }
+            set { LoadSettings().IPv6Support = value; SaveSettings(); }
         }
 
         public static bool AutoListen
         {
-            get
-            {
-                return LoadSettings().AutoListen;
-            }
-            set            {
-                LoadSettings().AutoListen = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().AutoListen; }
+            set { LoadSettings().AutoListen = value; SaveSettings(); }
         }
 
         public static bool EventLog
         {
-            get
-            {
-                return LoadSettings().EventLog;
-            }
-            set
-            {
-                LoadSettings().EventLog = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().EventLog; }
+            set { LoadSettings().EventLog = value; SaveSettings(); }
         }
 
         public static bool TelegramNotifications
         {
-            get
-            {
-                return LoadSettings().TelegramNotifications;
-            }
-            set
-            {
-                LoadSettings().TelegramNotifications = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().TelegramNotifications; }
+            set { LoadSettings().TelegramNotifications = value; SaveSettings(); }
         }
 
         public static bool ShowPopup
         {
-            get
-            {
-                return LoadSettings().ShowPopup;
-            }
-            set
-            {
-                LoadSettings().ShowPopup = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().ShowPopup; }
+            set { LoadSettings().ShowPopup = value; SaveSettings(); }
         }
 
         public static bool UseUPnP
         {
-            get
-            {
-                return LoadSettings().UseUPnP;
-            }
-            set
-            {
-                LoadSettings().UseUPnP = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().UseUPnP; }
+            set { LoadSettings().UseUPnP = value; SaveSettings(); }
         }
 
         public static bool ShowToolTip
         {
-            get
-            {
-                return LoadSettings().ShowToolTip;
-            }
-            set
-            {
-                LoadSettings().ShowToolTip = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().ShowToolTip; }
+            set { LoadSettings().ShowToolTip = value; SaveSettings(); }
         }
 
         public static bool EnableNoIPUpdater
         {
-            get
-            {
-                return LoadSettings().EnableNoIPUpdater;
-            }
-            set
-            {
-                LoadSettings().EnableNoIPUpdater = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().EnableNoIPUpdater; }
+            set { LoadSettings().EnableNoIPUpdater = value; SaveSettings(); }
         }
 
         public static string TelegramChatID
         {
-            get
-            {
-                return LoadSettings().TelegramChatID;
-            }
-            set
-            {
-                LoadSettings().TelegramChatID = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().TelegramChatID; }
+            set { LoadSettings().TelegramChatID = value; SaveSettings(); }
         }
 
         public static string TelegramBotToken
         {
-            get
-            {
-                return LoadSettings().TelegramBotToken;
-            }
-            set
-            {
-                LoadSettings().TelegramBotToken = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().TelegramBotToken; }
+            set { LoadSettings().TelegramBotToken = value; SaveSettings(); }
         }
 
         public static string NoIPHost
         {
-            get
-            {
-                return LoadSettings().NoIPHost;
-            }
-            set
-            {
-                LoadSettings().NoIPHost = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().NoIPHost; }
+            set { LoadSettings().NoIPHost = value; SaveSettings(); }
         }
 
         public static string NoIPUsername
         {
-            get
-            {
-                return LoadSettings().NoIPUsername;
-            }
-            set
-            {
-                LoadSettings().NoIPUsername = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().NoIPUsername; }
+            set { LoadSettings().NoIPUsername = value; SaveSettings(); }
         }
 
         public static string NoIPPassword
         {
-            get
-            {
-                return LoadSettings().NoIPPassword;
-            }
-            set
-            {
-                LoadSettings().NoIPPassword = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().NoIPPassword; }
+            set { LoadSettings().NoIPPassword = value; SaveSettings(); }
         }
 
         public static string SaveFormat
         {
-            get
-            {
-                return LoadSettings().SaveFormat;
-            }
-            set
-            {
-                LoadSettings().SaveFormat = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().SaveFormat; }
+            set { LoadSettings().SaveFormat = value; SaveSettings(); }
         }
 
         public static ushort ReverseProxyPort
         {
-            get
-            {
-                return LoadSettings().ReverseProxyPort;
-            }
-            set
-            {
-                LoadSettings().ReverseProxyPort = value;
-                SaveSettings();
-            }
+            get { return LoadSettings().ReverseProxyPort; }
+            set { LoadSettings().ReverseProxyPort = value; SaveSettings(); }
         }
     }
 }
