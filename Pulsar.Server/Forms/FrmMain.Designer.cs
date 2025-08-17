@@ -41,2330 +41,2111 @@ namespace Pulsar.Server.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter1 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("CPU");
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("GPU");
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("RAM");
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("Uptime");
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Antivirus");
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Default Browser");
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("Ping");
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem("Webcam");
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem("AFK Time");
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter2 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter3 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter4 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter5 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter6 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter7 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter8 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter9 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter10 = new Pulsar.Server.Utilities.ListViewColumnSorter();
-            this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.systemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.systemInformationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fileManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.startupManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.taskManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteShellToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.connectionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reverseProxyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.registryEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteExecuteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.localFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.webFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ctxtLine = new System.Windows.Forms.ToolStripSeparator();
-            this.actionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.shutdownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.standbyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.surveillanceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteDesktopToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.webcamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteSystemAudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.audioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.hVNCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.keyloggerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.passwordRecoveryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.virtualMonitorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.installVirtualMonitorToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.uninstallVirtualMonitorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.userSupportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteChatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteScriptingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.showMessageboxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.visitWebsiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.quickCommandsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addCDriveExceptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.taskManagerToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.enableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.disableTaskManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.funMethodsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bSODToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.cWToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.swapMouseButtonsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.hideTaskBarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.gdiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.screenCorruptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.illuminatiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.elevatedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.elevateClientPermissionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.elevateToSystemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deElevateFromSystemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.uACBypassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.winREToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.installWinresetSurvivalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeWinresetSurvivalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.winRECustomFileForSurvivalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.nicknameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.blockIPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.uninstallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lineToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
-            this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imgFlags = new System.Windows.Forms.ImageList(this.components);
-            this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.MainTabControl = new Pulsar.Server.Controls.NoButtonTabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.lstClients = new Pulsar.Server.Controls.AeroListView();
-            this.hIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hNick = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hUserPC = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hCurrentWindow = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hUserStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hCountry = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hOS = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hAccountType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.pictureBoxMain = new System.Windows.Forms.PictureBox();
-            this.tblLayoutQuickButtons = new System.Windows.Forms.TableLayoutPanel();
-            this.btnQuickListenToMicrophone = new System.Windows.Forms.Button();
-            this.btnQuickRemoteDesktop = new System.Windows.Forms.Button();
-            this.btnQuickWebcam = new System.Windows.Forms.Button();
-            this.btnQuickKeylogger = new System.Windows.Forms.Button();
-            this.btnQuickFileTransfer = new System.Windows.Forms.Button();
-            this.btnQuickRemoteShell = new System.Windows.Forms.Button();
-            this.btnQuickFileExplorer = new System.Windows.Forms.Button();
-            this.chkDisablePreview = new System.Windows.Forms.CheckBox();
-            this.gBoxClientInfo = new System.Windows.Forms.GroupBox();
-            this.clientInfoListView = new Pulsar.Server.Controls.AeroListView();
-            this.Names = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Stats = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.splitter1 = new System.Windows.Forms.Splitter();
-            this.DebugLogRichBox = new System.Windows.Forms.RichTextBox();
-            this.DebugContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.saveLogsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveSlectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.clearLogsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.lstNoti = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader11 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.NotificationContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.addKeywordsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.clearSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.cryptoGroupBox = new System.Windows.Forms.GroupBox();
-            this.BCHTextBox = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.TRXTextBox = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.XRPTextBox = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.DASHTextBox = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.SOLTextBox = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.XMRTextBox = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.LTCTextBox = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.ETHTextBox = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.BTCTextBox = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.ClipperCheckbox = new System.Windows.Forms.CheckBox();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.lstTasks = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.TasksContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.addTaskToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.remoteExecuteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.shellCommandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.kematianToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.showMessageBoxToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.excludeSystemDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.winREToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteTasksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.splitter2 = new System.Windows.Forms.Splitter();
-            this.dotNetBarTabControl1 = new Pulsar.Server.Controls.DotNetBarTabControl();
-            this.Passwords = new System.Windows.Forms.TabPage();
-            this.aeroListView2 = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader9 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader10 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader12 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Cookies = new System.Windows.Forms.TabPage();
-            this.aeroListView3 = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader14 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader16 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Communication = new System.Windows.Forms.TabPage();
-            this.aeroListView4 = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader15 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader17 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Games = new System.Windows.Forms.TabPage();
-            this.aeroListView5 = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.tabPage6 = new System.Windows.Forms.TabPage();
-            this.aeroListView6 = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader13 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.tabPage7 = new System.Windows.Forms.TabPage();
-            this.aeroListView1 = new Pulsar.Server.Controls.AeroListView();
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.listenToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.connectedToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.menuStrip = new System.Windows.Forms.MenuStrip();
-            this.clientsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.autoTasksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.cryptoClipperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.notificationCentreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.builderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip.SuspendLayout();
-            this.tableLayoutPanel.SuspendLayout();
-            this.MainTabControl.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
-            this.tblLayoutQuickButtons.SuspendLayout();
-            this.gBoxClientInfo.SuspendLayout();
-            this.DebugContextMenuStrip.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            this.NotificationContextMenuStrip.SuspendLayout();
-            this.tabPage3.SuspendLayout();
-            this.cryptoGroupBox.SuspendLayout();
-            this.tabPage4.SuspendLayout();
-            this.TasksContextMenuStrip.SuspendLayout();
-            this.tabPage5.SuspendLayout();
-            this.dotNetBarTabControl1.SuspendLayout();
-            this.Passwords.SuspendLayout();
-            this.Cookies.SuspendLayout();
-            this.Communication.SuspendLayout();
-            this.Games.SuspendLayout();
-            this.tabPage6.SuspendLayout();
-            this.statusStrip.SuspendLayout();
-            this.menuStrip.SuspendLayout();
-            this.SuspendLayout();
+            ListViewItem listViewItem1 = new ListViewItem("CPU");
+            ListViewItem listViewItem2 = new ListViewItem("GPU");
+            ListViewItem listViewItem3 = new ListViewItem("RAM");
+            ListViewItem listViewItem4 = new ListViewItem("Uptime");
+            ListViewItem listViewItem5 = new ListViewItem("Antivirus");
+            ListViewItem listViewItem6 = new ListViewItem("Default Browser");
+            ListViewItem listViewItem7 = new ListViewItem("Ping");
+            ListViewItem listViewItem8 = new ListViewItem("Webcam");
+            ListViewItem listViewItem9 = new ListViewItem("AFK Time");
+            contextMenuStrip = new ContextMenuStrip(components);
+            systemToolStripMenuItem = new ToolStripMenuItem();
+            systemInformationToolStripMenuItem = new ToolStripMenuItem();
+            fileManagerToolStripMenuItem = new ToolStripMenuItem();
+            startupManagerToolStripMenuItem = new ToolStripMenuItem();
+            taskManagerToolStripMenuItem = new ToolStripMenuItem();
+            remoteShellToolStripMenuItem = new ToolStripMenuItem();
+            connectionsToolStripMenuItem = new ToolStripMenuItem();
+            reverseProxyToolStripMenuItem = new ToolStripMenuItem();
+            registryEditorToolStripMenuItem = new ToolStripMenuItem();
+            remoteExecuteToolStripMenuItem = new ToolStripMenuItem();
+            localFileToolStripMenuItem = new ToolStripMenuItem();
+            webFileToolStripMenuItem = new ToolStripMenuItem();
+            ctxtLine = new ToolStripSeparator();
+            actionsToolStripMenuItem = new ToolStripMenuItem();
+            shutdownToolStripMenuItem = new ToolStripMenuItem();
+            restartToolStripMenuItem = new ToolStripMenuItem();
+            standbyToolStripMenuItem = new ToolStripMenuItem();
+            surveillanceToolStripMenuItem = new ToolStripMenuItem();
+            remoteDesktopToolStripMenuItem2 = new ToolStripMenuItem();
+            webcamToolStripMenuItem = new ToolStripMenuItem();
+            remoteSystemAudioToolStripMenuItem = new ToolStripMenuItem();
+            audioToolStripMenuItem = new ToolStripMenuItem();
+            hVNCToolStripMenuItem = new ToolStripMenuItem();
+            keyloggerToolStripMenuItem = new ToolStripMenuItem();
+            passwordRecoveryToolStripMenuItem = new ToolStripMenuItem();
+            virtualMonitorToolStripMenuItem = new ToolStripMenuItem();
+            installVirtualMonitorToolStripMenuItem1 = new ToolStripMenuItem();
+            uninstallVirtualMonitorToolStripMenuItem = new ToolStripMenuItem();
+            userSupportToolStripMenuItem = new ToolStripMenuItem();
+            remoteChatToolStripMenuItem = new ToolStripMenuItem();
+            remoteScriptingToolStripMenuItem = new ToolStripMenuItem();
+            showMessageboxToolStripMenuItem = new ToolStripMenuItem();
+            visitWebsiteToolStripMenuItem = new ToolStripMenuItem();
+            quickCommandsToolStripMenuItem = new ToolStripMenuItem();
+            addCDriveExceptionToolStripMenuItem = new ToolStripMenuItem();
+            taskManagerToolStripMenuItem1 = new ToolStripMenuItem();
+            enableToolStripMenuItem = new ToolStripMenuItem();
+            disableTaskManagerToolStripMenuItem = new ToolStripMenuItem();
+            funMethodsToolStripMenuItem = new ToolStripMenuItem();
+            bSODToolStripMenuItem = new ToolStripMenuItem();
+            cWToolStripMenuItem = new ToolStripMenuItem();
+            swapMouseButtonsToolStripMenuItem = new ToolStripMenuItem();
+            hideTaskBarToolStripMenuItem = new ToolStripMenuItem();
+            connectionToolStripMenuItem = new ToolStripMenuItem();
+            elevatedToolStripMenuItem = new ToolStripMenuItem();
+            elevateClientPermissionsToolStripMenuItem = new ToolStripMenuItem();
+            elevateToSystemToolStripMenuItem = new ToolStripMenuItem();
+            deElevateFromSystemToolStripMenuItem = new ToolStripMenuItem();
+            uACBypassToolStripMenuItem = new ToolStripMenuItem();
+            winREToolStripMenuItem = new ToolStripMenuItem();
+            installWinresetSurvivalToolStripMenuItem = new ToolStripMenuItem();
+            removeWinresetSurvivalToolStripMenuItem = new ToolStripMenuItem();
+            winRECustomFileForSurvivalToolStripMenuItem = new ToolStripMenuItem();
+            nicknameToolStripMenuItem = new ToolStripMenuItem();
+            blockIPToolStripMenuItem = new ToolStripMenuItem();
+            updateToolStripMenuItem = new ToolStripMenuItem();
+            reconnectToolStripMenuItem = new ToolStripMenuItem();
+            disconnectToolStripMenuItem = new ToolStripMenuItem();
+            uninstallToolStripMenuItem = new ToolStripMenuItem();
+            lineToolStripMenuItem = new ToolStripSeparator();
+            selectAllToolStripMenuItem = new ToolStripMenuItem();
+            imgFlags = new ImageList(components);
+            notifyIcon = new NotifyIcon(components);
+            tableLayoutPanel = new TableLayoutPanel();
+            MainTabControl = new NoButtonTabControl();
+            tabPage1 = new TabPage();
+            lstClients = new AeroListView();
+            hIP = new ColumnHeader();
+            hNick = new ColumnHeader();
+            hTag = new ColumnHeader();
+            hUserPC = new ColumnHeader();
+            hVersion = new ColumnHeader();
+            hStatus = new ColumnHeader();
+            hCurrentWindow = new ColumnHeader();
+            hUserStatus = new ColumnHeader();
+            hCountry = new ColumnHeader();
+            hOS = new ColumnHeader();
+            hAccountType = new ColumnHeader();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            label1 = new Label();
+            pictureBoxMain = new PictureBox();
+            tblLayoutQuickButtons = new TableLayoutPanel();
+            btnQuickListenToMicrophone = new Button();
+            btnQuickRemoteDesktop = new Button();
+            btnQuickWebcam = new Button();
+            btnQuickKeylogger = new Button();
+            btnQuickFileTransfer = new Button();
+            btnQuickRemoteShell = new Button();
+            btnQuickFileExplorer = new Button();
+            chkDisablePreview = new CheckBox();
+            gBoxClientInfo = new GroupBox();
+            clientInfoListView = new AeroListView();
+            Names = new ColumnHeader();
+            Stats = new ColumnHeader();
+            splitter1 = new Splitter();
+            DebugLogRichBox = new RichTextBox();
+            DebugContextMenuStrip = new ContextMenuStrip(components);
+            saveLogsToolStripMenuItem = new ToolStripMenuItem();
+            saveSlectedToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            clearLogsToolStripMenuItem = new ToolStripMenuItem();
+            tabPage2 = new TabPage();
+            lstNoti = new AeroListView();
+            columnHeader1 = new ColumnHeader();
+            columnHeader2 = new ColumnHeader();
+            columnHeader3 = new ColumnHeader();
+            columnHeader11 = new ColumnHeader();
+            NotificationContextMenuStrip = new ContextMenuStrip(components);
+            addKeywordsToolStripMenuItem = new ToolStripMenuItem();
+            clearSelectedToolStripMenuItem = new ToolStripMenuItem();
+            tabPage3 = new TabPage();
+            cryptoGroupBox = new GroupBox();
+            BCHTextBox = new TextBox();
+            label10 = new Label();
+            TRXTextBox = new TextBox();
+            label9 = new Label();
+            XRPTextBox = new TextBox();
+            label8 = new Label();
+            DASHTextBox = new TextBox();
+            label7 = new Label();
+            SOLTextBox = new TextBox();
+            label6 = new Label();
+            XMRTextBox = new TextBox();
+            label5 = new Label();
+            LTCTextBox = new TextBox();
+            label4 = new Label();
+            ETHTextBox = new TextBox();
+            label3 = new Label();
+            BTCTextBox = new TextBox();
+            label2 = new Label();
+            ClipperCheckbox = new CheckBox();
+            tabPage4 = new TabPage();
+            lstTasks = new AeroListView();
+            columnHeader4 = new ColumnHeader();
+            columnHeader5 = new ColumnHeader();
+            columnHeader8 = new ColumnHeader();
+            TasksContextMenuStrip = new ContextMenuStrip(components);
+            addTaskToolStripMenuItem = new ToolStripMenuItem();
+            remoteExecuteToolStripMenuItem1 = new ToolStripMenuItem();
+            shellCommandToolStripMenuItem = new ToolStripMenuItem();
+            kematianToolStripMenuItem = new ToolStripMenuItem();
+            showMessageBoxToolStripMenuItem1 = new ToolStripMenuItem();
+            excludeSystemDriveToolStripMenuItem = new ToolStripMenuItem();
+            winREToolStripMenuItem1 = new ToolStripMenuItem();
+            deleteTasksToolStripMenuItem = new ToolStripMenuItem();
+            tabPage5 = new TabPage();
+            splitter2 = new Splitter();
+            dotNetBarTabControl1 = new DotNetBarTabControl();
+            Passwords = new TabPage();
+            aeroListView2 = new AeroListView();
+            columnHeader9 = new ColumnHeader();
+            columnHeader10 = new ColumnHeader();
+            columnHeader12 = new ColumnHeader();
+            Cookies = new TabPage();
+            aeroListView3 = new AeroListView();
+            columnHeader14 = new ColumnHeader();
+            columnHeader16 = new ColumnHeader();
+            Communication = new TabPage();
+            aeroListView4 = new AeroListView();
+            columnHeader15 = new ColumnHeader();
+            columnHeader17 = new ColumnHeader();
+            Games = new TabPage();
+            aeroListView5 = new AeroListView();
+            columnHeader7 = new ColumnHeader();
+            tabPage6 = new TabPage();
+            aeroListView6 = new AeroListView();
+            columnHeader13 = new ColumnHeader();
+            tabPage7 = new TabPage();
+            aeroListView1 = new AeroListView();
+            columnHeader6 = new ColumnHeader();
+            statusStrip = new StatusStrip();
+            listenToolStripStatusLabel = new ToolStripStatusLabel();
+            connectedToolStripStatusLabel = new ToolStripStatusLabel();
+            menuStrip = new MenuStrip();
+            clientsToolStripMenuItem = new ToolStripMenuItem();
+            autoTasksToolStripMenuItem = new ToolStripMenuItem();
+            cryptoClipperToolStripMenuItem = new ToolStripMenuItem();
+            notificationCentreToolStripMenuItem = new ToolStripMenuItem();
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            settingsToolStripMenuItem = new ToolStripMenuItem();
+            builderToolStripMenuItem = new ToolStripMenuItem();
+            contextMenuStrip.SuspendLayout();
+            tableLayoutPanel.SuspendLayout();
+            MainTabControl.SuspendLayout();
+            tabPage1.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
+            tblLayoutQuickButtons.SuspendLayout();
+            gBoxClientInfo.SuspendLayout();
+            DebugContextMenuStrip.SuspendLayout();
+            tabPage2.SuspendLayout();
+            NotificationContextMenuStrip.SuspendLayout();
+            tabPage3.SuspendLayout();
+            cryptoGroupBox.SuspendLayout();
+            tabPage4.SuspendLayout();
+            TasksContextMenuStrip.SuspendLayout();
+            tabPage5.SuspendLayout();
+            dotNetBarTabControl1.SuspendLayout();
+            Passwords.SuspendLayout();
+            Cookies.SuspendLayout();
+            Communication.SuspendLayout();
+            Games.SuspendLayout();
+            tabPage6.SuspendLayout();
+            statusStrip.SuspendLayout();
+            menuStrip.SuspendLayout();
+            SuspendLayout();
             // 
             // contextMenuStrip
             // 
-            this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.systemToolStripMenuItem,
-            this.surveillanceToolStripMenuItem,
-            this.userSupportToolStripMenuItem,
-            this.quickCommandsToolStripMenuItem,
-            this.funMethodsToolStripMenuItem,
-            this.connectionToolStripMenuItem,
-            this.lineToolStripMenuItem,
-            this.selectAllToolStripMenuItem});
-            this.contextMenuStrip.Name = "ctxtMenu";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 186);
-            this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
+            contextMenuStrip.Items.AddRange(new ToolStripItem[] { systemToolStripMenuItem, surveillanceToolStripMenuItem, userSupportToolStripMenuItem, quickCommandsToolStripMenuItem, funMethodsToolStripMenuItem, connectionToolStripMenuItem, lineToolStripMenuItem, selectAllToolStripMenuItem });
+            contextMenuStrip.Name = "ctxtMenu";
+            contextMenuStrip.Size = new Size(181, 186);
+            contextMenuStrip.Opening += contextMenuStrip_Opening;
             // 
             // systemToolStripMenuItem
             // 
-            this.systemToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.systemInformationToolStripMenuItem,
-            this.fileManagerToolStripMenuItem,
-            this.startupManagerToolStripMenuItem,
-            this.taskManagerToolStripMenuItem,
-            this.remoteShellToolStripMenuItem,
-            this.connectionsToolStripMenuItem,
-            this.reverseProxyToolStripMenuItem,
-            this.registryEditorToolStripMenuItem,
-            this.remoteExecuteToolStripMenuItem,
-            this.ctxtLine,
-            this.actionsToolStripMenuItem});
-            this.systemToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog;
-            this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
-            this.systemToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.systemToolStripMenuItem.Text = "Administration";
-            this.systemToolStripMenuItem.Click += new System.EventHandler(this.systemToolStripMenuItem_Click);
+            systemToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { systemInformationToolStripMenuItem, fileManagerToolStripMenuItem, startupManagerToolStripMenuItem, taskManagerToolStripMenuItem, remoteShellToolStripMenuItem, connectionsToolStripMenuItem, reverseProxyToolStripMenuItem, registryEditorToolStripMenuItem, remoteExecuteToolStripMenuItem, ctxtLine, actionsToolStripMenuItem });
+            systemToolStripMenuItem.Image = Properties.Resources.cog;
+            systemToolStripMenuItem.Name = "systemToolStripMenuItem";
+            systemToolStripMenuItem.Size = new Size(180, 22);
+            systemToolStripMenuItem.Text = "Administration";
+            systemToolStripMenuItem.Click += systemToolStripMenuItem_Click;
             // 
             // systemInformationToolStripMenuItem
             // 
-            this.systemInformationToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("systemInformationToolStripMenuItem.Image")));
-            this.systemInformationToolStripMenuItem.Name = "systemInformationToolStripMenuItem";
-            this.systemInformationToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.systemInformationToolStripMenuItem.Text = "System Information";
-            this.systemInformationToolStripMenuItem.Click += new System.EventHandler(this.systemInformationToolStripMenuItem_Click);
+            systemInformationToolStripMenuItem.Image = (Image)resources.GetObject("systemInformationToolStripMenuItem.Image");
+            systemInformationToolStripMenuItem.Name = "systemInformationToolStripMenuItem";
+            systemInformationToolStripMenuItem.Size = new Size(178, 22);
+            systemInformationToolStripMenuItem.Text = "System Information";
+            systemInformationToolStripMenuItem.Click += systemInformationToolStripMenuItem_Click;
             // 
             // fileManagerToolStripMenuItem
             // 
-            this.fileManagerToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("fileManagerToolStripMenuItem.Image")));
-            this.fileManagerToolStripMenuItem.Name = "fileManagerToolStripMenuItem";
-            this.fileManagerToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.fileManagerToolStripMenuItem.Text = "File Manager";
-            this.fileManagerToolStripMenuItem.Click += new System.EventHandler(this.fileManagerToolStripMenuItem_Click);
+            fileManagerToolStripMenuItem.Image = (Image)resources.GetObject("fileManagerToolStripMenuItem.Image");
+            fileManagerToolStripMenuItem.Name = "fileManagerToolStripMenuItem";
+            fileManagerToolStripMenuItem.Size = new Size(178, 22);
+            fileManagerToolStripMenuItem.Text = "File Manager";
+            fileManagerToolStripMenuItem.Click += fileManagerToolStripMenuItem_Click;
             // 
             // startupManagerToolStripMenuItem
             // 
-            this.startupManagerToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.application_edit;
-            this.startupManagerToolStripMenuItem.Name = "startupManagerToolStripMenuItem";
-            this.startupManagerToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.startupManagerToolStripMenuItem.Text = "Startup Manager";
-            this.startupManagerToolStripMenuItem.Click += new System.EventHandler(this.startupManagerToolStripMenuItem_Click);
+            startupManagerToolStripMenuItem.Image = Properties.Resources.application_edit;
+            startupManagerToolStripMenuItem.Name = "startupManagerToolStripMenuItem";
+            startupManagerToolStripMenuItem.Size = new Size(178, 22);
+            startupManagerToolStripMenuItem.Text = "Startup Manager";
+            startupManagerToolStripMenuItem.Click += startupManagerToolStripMenuItem_Click;
             // 
             // taskManagerToolStripMenuItem
             // 
-            this.taskManagerToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.application_cascade;
-            this.taskManagerToolStripMenuItem.Name = "taskManagerToolStripMenuItem";
-            this.taskManagerToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.taskManagerToolStripMenuItem.Text = "Task Manager";
-            this.taskManagerToolStripMenuItem.Click += new System.EventHandler(this.taskManagerToolStripMenuItem_Click);
+            taskManagerToolStripMenuItem.Image = Properties.Resources.application_cascade;
+            taskManagerToolStripMenuItem.Name = "taskManagerToolStripMenuItem";
+            taskManagerToolStripMenuItem.Size = new Size(178, 22);
+            taskManagerToolStripMenuItem.Text = "Task Manager";
+            taskManagerToolStripMenuItem.Click += taskManagerToolStripMenuItem_Click;
             // 
             // remoteShellToolStripMenuItem
             // 
-            this.remoteShellToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("remoteShellToolStripMenuItem.Image")));
-            this.remoteShellToolStripMenuItem.Name = "remoteShellToolStripMenuItem";
-            this.remoteShellToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.remoteShellToolStripMenuItem.Text = "Remote Shell";
-            this.remoteShellToolStripMenuItem.Click += new System.EventHandler(this.remoteShellToolStripMenuItem_Click);
+            remoteShellToolStripMenuItem.Image = (Image)resources.GetObject("remoteShellToolStripMenuItem.Image");
+            remoteShellToolStripMenuItem.Name = "remoteShellToolStripMenuItem";
+            remoteShellToolStripMenuItem.Size = new Size(178, 22);
+            remoteShellToolStripMenuItem.Text = "Remote Shell";
+            remoteShellToolStripMenuItem.Click += remoteShellToolStripMenuItem_Click;
             // 
             // connectionsToolStripMenuItem
             // 
-            this.connectionsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.transmit_blue;
-            this.connectionsToolStripMenuItem.Name = "connectionsToolStripMenuItem";
-            this.connectionsToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.connectionsToolStripMenuItem.Text = "TCP Connections";
-            this.connectionsToolStripMenuItem.Click += new System.EventHandler(this.connectionsToolStripMenuItem_Click);
+            connectionsToolStripMenuItem.Image = Properties.Resources.transmit_blue;
+            connectionsToolStripMenuItem.Name = "connectionsToolStripMenuItem";
+            connectionsToolStripMenuItem.Size = new Size(178, 22);
+            connectionsToolStripMenuItem.Text = "TCP Connections";
+            connectionsToolStripMenuItem.Click += connectionsToolStripMenuItem_Click;
             // 
             // reverseProxyToolStripMenuItem
             // 
-            this.reverseProxyToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.server_link;
-            this.reverseProxyToolStripMenuItem.Name = "reverseProxyToolStripMenuItem";
-            this.reverseProxyToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.reverseProxyToolStripMenuItem.Text = "Reverse Proxy";
-            this.reverseProxyToolStripMenuItem.Click += new System.EventHandler(this.reverseProxyToolStripMenuItem_Click);
+            reverseProxyToolStripMenuItem.Image = Properties.Resources.server_link;
+            reverseProxyToolStripMenuItem.Name = "reverseProxyToolStripMenuItem";
+            reverseProxyToolStripMenuItem.Size = new Size(178, 22);
+            reverseProxyToolStripMenuItem.Text = "Reverse Proxy";
+            reverseProxyToolStripMenuItem.Click += reverseProxyToolStripMenuItem_Click;
             // 
             // registryEditorToolStripMenuItem
             // 
-            this.registryEditorToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.registry;
-            this.registryEditorToolStripMenuItem.Name = "registryEditorToolStripMenuItem";
-            this.registryEditorToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.registryEditorToolStripMenuItem.Text = "Registry Editor";
-            this.registryEditorToolStripMenuItem.Click += new System.EventHandler(this.registryEditorToolStripMenuItem_Click);
+            registryEditorToolStripMenuItem.Image = Properties.Resources.registry;
+            registryEditorToolStripMenuItem.Name = "registryEditorToolStripMenuItem";
+            registryEditorToolStripMenuItem.Size = new Size(178, 22);
+            registryEditorToolStripMenuItem.Text = "Registry Editor";
+            registryEditorToolStripMenuItem.Click += registryEditorToolStripMenuItem_Click;
             // 
             // remoteExecuteToolStripMenuItem
             // 
-            this.remoteExecuteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.localFileToolStripMenuItem,
-            this.webFileToolStripMenuItem});
-            this.remoteExecuteToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.lightning;
-            this.remoteExecuteToolStripMenuItem.Name = "remoteExecuteToolStripMenuItem";
-            this.remoteExecuteToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.remoteExecuteToolStripMenuItem.Text = "Remote Execute";
+            remoteExecuteToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { localFileToolStripMenuItem, webFileToolStripMenuItem });
+            remoteExecuteToolStripMenuItem.Image = Properties.Resources.lightning;
+            remoteExecuteToolStripMenuItem.Name = "remoteExecuteToolStripMenuItem";
+            remoteExecuteToolStripMenuItem.Size = new Size(178, 22);
+            remoteExecuteToolStripMenuItem.Text = "Remote Execute";
             // 
             // localFileToolStripMenuItem
             // 
-            this.localFileToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.drive_go;
-            this.localFileToolStripMenuItem.Name = "localFileToolStripMenuItem";
-            this.localFileToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
-            this.localFileToolStripMenuItem.Text = "Local File...";
-            this.localFileToolStripMenuItem.Click += new System.EventHandler(this.localFileToolStripMenuItem_Click);
+            localFileToolStripMenuItem.Image = Properties.Resources.drive_go;
+            localFileToolStripMenuItem.Name = "localFileToolStripMenuItem";
+            localFileToolStripMenuItem.Size = new Size(132, 22);
+            localFileToolStripMenuItem.Text = "Local File...";
+            localFileToolStripMenuItem.Click += localFileToolStripMenuItem_Click;
             // 
             // webFileToolStripMenuItem
             // 
-            this.webFileToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.world_go;
-            this.webFileToolStripMenuItem.Name = "webFileToolStripMenuItem";
-            this.webFileToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
-            this.webFileToolStripMenuItem.Text = "Web File...";
-            this.webFileToolStripMenuItem.Click += new System.EventHandler(this.webFileToolStripMenuItem_Click);
+            webFileToolStripMenuItem.Image = Properties.Resources.world_go;
+            webFileToolStripMenuItem.Name = "webFileToolStripMenuItem";
+            webFileToolStripMenuItem.Size = new Size(132, 22);
+            webFileToolStripMenuItem.Text = "Web File...";
+            webFileToolStripMenuItem.Click += webFileToolStripMenuItem_Click;
             // 
             // ctxtLine
             // 
-            this.ctxtLine.Name = "ctxtLine";
-            this.ctxtLine.Size = new System.Drawing.Size(175, 6);
+            ctxtLine.Name = "ctxtLine";
+            ctxtLine.Size = new Size(175, 6);
             // 
             // actionsToolStripMenuItem
             // 
-            this.actionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.shutdownToolStripMenuItem,
-            this.restartToolStripMenuItem,
-            this.standbyToolStripMenuItem});
-            this.actionsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.actions;
-            this.actionsToolStripMenuItem.Name = "actionsToolStripMenuItem";
-            this.actionsToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.actionsToolStripMenuItem.Text = "Actions";
+            actionsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { shutdownToolStripMenuItem, restartToolStripMenuItem, standbyToolStripMenuItem });
+            actionsToolStripMenuItem.Image = Properties.Resources.actions;
+            actionsToolStripMenuItem.Name = "actionsToolStripMenuItem";
+            actionsToolStripMenuItem.Size = new Size(178, 22);
+            actionsToolStripMenuItem.Text = "Actions";
             // 
             // shutdownToolStripMenuItem
             // 
-            this.shutdownToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.shutdown;
-            this.shutdownToolStripMenuItem.Name = "shutdownToolStripMenuItem";
-            this.shutdownToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
-            this.shutdownToolStripMenuItem.Text = "Shutdown";
-            this.shutdownToolStripMenuItem.Click += new System.EventHandler(this.shutdownToolStripMenuItem_Click);
+            shutdownToolStripMenuItem.Image = Properties.Resources.shutdown;
+            shutdownToolStripMenuItem.Name = "shutdownToolStripMenuItem";
+            shutdownToolStripMenuItem.Size = new Size(128, 22);
+            shutdownToolStripMenuItem.Text = "Shutdown";
+            shutdownToolStripMenuItem.Click += shutdownToolStripMenuItem_Click;
             // 
             // restartToolStripMenuItem
             // 
-            this.restartToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.restart;
-            this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
-            this.restartToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
-            this.restartToolStripMenuItem.Text = "Restart";
-            this.restartToolStripMenuItem.Click += new System.EventHandler(this.restartToolStripMenuItem_Click);
+            restartToolStripMenuItem.Image = Properties.Resources.restart;
+            restartToolStripMenuItem.Name = "restartToolStripMenuItem";
+            restartToolStripMenuItem.Size = new Size(128, 22);
+            restartToolStripMenuItem.Text = "Restart";
+            restartToolStripMenuItem.Click += restartToolStripMenuItem_Click;
             // 
             // standbyToolStripMenuItem
             // 
-            this.standbyToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.standby;
-            this.standbyToolStripMenuItem.Name = "standbyToolStripMenuItem";
-            this.standbyToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
-            this.standbyToolStripMenuItem.Text = "Standby";
-            this.standbyToolStripMenuItem.Click += new System.EventHandler(this.standbyToolStripMenuItem_Click);
+            standbyToolStripMenuItem.Image = Properties.Resources.standby;
+            standbyToolStripMenuItem.Name = "standbyToolStripMenuItem";
+            standbyToolStripMenuItem.Size = new Size(128, 22);
+            standbyToolStripMenuItem.Text = "Standby";
+            standbyToolStripMenuItem.Click += standbyToolStripMenuItem_Click;
             // 
             // surveillanceToolStripMenuItem
             // 
-            this.surveillanceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.remoteDesktopToolStripMenuItem2,
-            this.webcamToolStripMenuItem,
-            this.remoteSystemAudioToolStripMenuItem,
-            this.audioToolStripMenuItem,
-            this.hVNCToolStripMenuItem,
-            this.keyloggerToolStripMenuItem,
-            this.passwordRecoveryToolStripMenuItem,
-            this.virtualMonitorToolStripMenuItem});
-            this.surveillanceToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.monitoring;
-            this.surveillanceToolStripMenuItem.Name = "surveillanceToolStripMenuItem";
-            this.surveillanceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.surveillanceToolStripMenuItem.Text = "Monitoring";
+            surveillanceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { remoteDesktopToolStripMenuItem2, webcamToolStripMenuItem, remoteSystemAudioToolStripMenuItem, audioToolStripMenuItem, hVNCToolStripMenuItem, keyloggerToolStripMenuItem, passwordRecoveryToolStripMenuItem, virtualMonitorToolStripMenuItem });
+            surveillanceToolStripMenuItem.Image = Properties.Resources.monitoring;
+            surveillanceToolStripMenuItem.Name = "surveillanceToolStripMenuItem";
+            surveillanceToolStripMenuItem.Size = new Size(180, 22);
+            surveillanceToolStripMenuItem.Text = "Monitoring";
             // 
             // remoteDesktopToolStripMenuItem2
             // 
-            this.remoteDesktopToolStripMenuItem2.Image = ((System.Drawing.Image)(resources.GetObject("remoteDesktopToolStripMenuItem2.Image")));
-            this.remoteDesktopToolStripMenuItem2.Name = "remoteDesktopToolStripMenuItem2";
-            this.remoteDesktopToolStripMenuItem2.Size = new System.Drawing.Size(191, 22);
-            this.remoteDesktopToolStripMenuItem2.Text = "Remote Desktop";
-            this.remoteDesktopToolStripMenuItem2.Click += new System.EventHandler(this.remoteDesktopToolStripMenuItem_Click);
+            remoteDesktopToolStripMenuItem2.Image = (Image)resources.GetObject("remoteDesktopToolStripMenuItem2.Image");
+            remoteDesktopToolStripMenuItem2.Name = "remoteDesktopToolStripMenuItem2";
+            remoteDesktopToolStripMenuItem2.Size = new Size(191, 22);
+            remoteDesktopToolStripMenuItem2.Text = "Remote Desktop";
+            remoteDesktopToolStripMenuItem2.Click += remoteDesktopToolStripMenuItem_Click;
             // 
             // webcamToolStripMenuItem
             // 
-            this.webcamToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.webcam;
-            this.webcamToolStripMenuItem.Name = "webcamToolStripMenuItem";
-            this.webcamToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.webcamToolStripMenuItem.Text = "Webcam";
-            this.webcamToolStripMenuItem.Click += new System.EventHandler(this.webcamToolStripMenuItem_Click);
+            webcamToolStripMenuItem.Image = Properties.Resources.webcam;
+            webcamToolStripMenuItem.Name = "webcamToolStripMenuItem";
+            webcamToolStripMenuItem.Size = new Size(191, 22);
+            webcamToolStripMenuItem.Text = "Webcam";
+            webcamToolStripMenuItem.Click += webcamToolStripMenuItem_Click;
             // 
             // remoteSystemAudioToolStripMenuItem
             // 
-            this.remoteSystemAudioToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.sound;
-            this.remoteSystemAudioToolStripMenuItem.Name = "remoteSystemAudioToolStripMenuItem";
-            this.remoteSystemAudioToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.remoteSystemAudioToolStripMenuItem.Text = "Remote System Audio";
-            this.remoteSystemAudioToolStripMenuItem.Click += new System.EventHandler(this.remoteSystemAudioToolStripMenuItem_Click);
+            remoteSystemAudioToolStripMenuItem.Image = Properties.Resources.sound;
+            remoteSystemAudioToolStripMenuItem.Name = "remoteSystemAudioToolStripMenuItem";
+            remoteSystemAudioToolStripMenuItem.Size = new Size(191, 22);
+            remoteSystemAudioToolStripMenuItem.Text = "Remote System Audio";
+            remoteSystemAudioToolStripMenuItem.Click += remoteSystemAudioToolStripMenuItem_Click;
             // 
             // audioToolStripMenuItem
             // 
-            this.audioToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.sound;
-            this.audioToolStripMenuItem.Name = "audioToolStripMenuItem";
-            this.audioToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.audioToolStripMenuItem.Text = "Remote Microphone";
-            this.audioToolStripMenuItem.Click += new System.EventHandler(this.audioToolStripMenuItem_Click);
+            audioToolStripMenuItem.Image = Properties.Resources.sound;
+            audioToolStripMenuItem.Name = "audioToolStripMenuItem";
+            audioToolStripMenuItem.Size = new Size(191, 22);
+            audioToolStripMenuItem.Text = "Remote Microphone";
+            audioToolStripMenuItem.Click += audioToolStripMenuItem_Click;
             // 
             // hVNCToolStripMenuItem
             // 
-            this.hVNCToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.ruby;
-            this.hVNCToolStripMenuItem.Name = "hVNCToolStripMenuItem";
-            this.hVNCToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.hVNCToolStripMenuItem.Text = "HVNC";
-            this.hVNCToolStripMenuItem.Click += new System.EventHandler(this.hVNCToolStripMenuItem_Click);
+            hVNCToolStripMenuItem.Image = Properties.Resources.ruby;
+            hVNCToolStripMenuItem.Name = "hVNCToolStripMenuItem";
+            hVNCToolStripMenuItem.Size = new Size(191, 22);
+            hVNCToolStripMenuItem.Text = "HVNC";
+            hVNCToolStripMenuItem.Click += hVNCToolStripMenuItem_Click;
             // 
             // keyloggerToolStripMenuItem
             // 
-            this.keyloggerToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.keyboard_magnify;
-            this.keyloggerToolStripMenuItem.Name = "keyloggerToolStripMenuItem";
-            this.keyloggerToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.keyloggerToolStripMenuItem.Text = "Keylogger";
-            this.keyloggerToolStripMenuItem.Click += new System.EventHandler(this.keyloggerToolStripMenuItem_Click);
+            keyloggerToolStripMenuItem.Image = Properties.Resources.keyboard_magnify;
+            keyloggerToolStripMenuItem.Name = "keyloggerToolStripMenuItem";
+            keyloggerToolStripMenuItem.Size = new Size(191, 22);
+            keyloggerToolStripMenuItem.Text = "Keylogger";
+            keyloggerToolStripMenuItem.Click += keyloggerToolStripMenuItem_Click;
             // 
             // passwordRecoveryToolStripMenuItem
             // 
-            this.passwordRecoveryToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("passwordRecoveryToolStripMenuItem.Image")));
-            this.passwordRecoveryToolStripMenuItem.Name = "passwordRecoveryToolStripMenuItem";
-            this.passwordRecoveryToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.passwordRecoveryToolStripMenuItem.Text = "Password Recovery";
-            this.passwordRecoveryToolStripMenuItem.Click += new System.EventHandler(this.passwordRecoveryToolStripMenuItem_Click);
+            passwordRecoveryToolStripMenuItem.Image = (Image)resources.GetObject("passwordRecoveryToolStripMenuItem.Image");
+            passwordRecoveryToolStripMenuItem.Name = "passwordRecoveryToolStripMenuItem";
+            passwordRecoveryToolStripMenuItem.Size = new Size(191, 22);
+            passwordRecoveryToolStripMenuItem.Text = "Password Recovery";
+            passwordRecoveryToolStripMenuItem.Click += passwordRecoveryToolStripMenuItem_Click;
             // 
             // virtualMonitorToolStripMenuItem
             // 
-            this.virtualMonitorToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.installVirtualMonitorToolStripMenuItem1,
-            this.uninstallVirtualMonitorToolStripMenuItem});
-            this.virtualMonitorToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.monitor;
-            this.virtualMonitorToolStripMenuItem.Name = "virtualMonitorToolStripMenuItem";
-            this.virtualMonitorToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.virtualMonitorToolStripMenuItem.Text = "Virtual Monitor";
+            virtualMonitorToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { installVirtualMonitorToolStripMenuItem1, uninstallVirtualMonitorToolStripMenuItem });
+            virtualMonitorToolStripMenuItem.Image = Properties.Resources.monitor;
+            virtualMonitorToolStripMenuItem.Name = "virtualMonitorToolStripMenuItem";
+            virtualMonitorToolStripMenuItem.Size = new Size(191, 22);
+            virtualMonitorToolStripMenuItem.Text = "Virtual Monitor";
             // 
             // installVirtualMonitorToolStripMenuItem1
             // 
-            this.installVirtualMonitorToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.monitor;
-            this.installVirtualMonitorToolStripMenuItem1.Name = "installVirtualMonitorToolStripMenuItem1";
-            this.installVirtualMonitorToolStripMenuItem1.Size = new System.Drawing.Size(203, 22);
-            this.installVirtualMonitorToolStripMenuItem1.Text = "Install Virtual Monitor";
-            this.installVirtualMonitorToolStripMenuItem1.Click += new System.EventHandler(this.installVirtualMonitorToolStripMenuItem1_Click);
+            installVirtualMonitorToolStripMenuItem1.Image = Properties.Resources.monitor;
+            installVirtualMonitorToolStripMenuItem1.Name = "installVirtualMonitorToolStripMenuItem1";
+            installVirtualMonitorToolStripMenuItem1.Size = new Size(203, 22);
+            installVirtualMonitorToolStripMenuItem1.Text = "Install Virtual Monitor";
+            installVirtualMonitorToolStripMenuItem1.Click += installVirtualMonitorToolStripMenuItem1_Click;
             // 
             // uninstallVirtualMonitorToolStripMenuItem
             // 
-            this.uninstallVirtualMonitorToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.monitor;
-            this.uninstallVirtualMonitorToolStripMenuItem.Name = "uninstallVirtualMonitorToolStripMenuItem";
-            this.uninstallVirtualMonitorToolStripMenuItem.Size = new System.Drawing.Size(203, 22);
-            this.uninstallVirtualMonitorToolStripMenuItem.Text = "Uninstall Virtual Monitor";
-            this.uninstallVirtualMonitorToolStripMenuItem.Click += new System.EventHandler(this.uninstallVirtualMonitorToolStripMenuItem_Click);
+            uninstallVirtualMonitorToolStripMenuItem.Image = Properties.Resources.monitor;
+            uninstallVirtualMonitorToolStripMenuItem.Name = "uninstallVirtualMonitorToolStripMenuItem";
+            uninstallVirtualMonitorToolStripMenuItem.Size = new Size(203, 22);
+            uninstallVirtualMonitorToolStripMenuItem.Text = "Uninstall Virtual Monitor";
+            uninstallVirtualMonitorToolStripMenuItem.Click += uninstallVirtualMonitorToolStripMenuItem_Click;
             // 
             // userSupportToolStripMenuItem
             // 
-            this.userSupportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.remoteChatToolStripMenuItem,
-            this.remoteScriptingToolStripMenuItem,
-            this.showMessageboxToolStripMenuItem,
-            this.visitWebsiteToolStripMenuItem});
-            this.userSupportToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.user;
-            this.userSupportToolStripMenuItem.Name = "userSupportToolStripMenuItem";
-            this.userSupportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.userSupportToolStripMenuItem.Text = "User Support";
+            userSupportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { remoteChatToolStripMenuItem, remoteScriptingToolStripMenuItem, showMessageboxToolStripMenuItem, visitWebsiteToolStripMenuItem });
+            userSupportToolStripMenuItem.Image = Properties.Resources.user;
+            userSupportToolStripMenuItem.Name = "userSupportToolStripMenuItem";
+            userSupportToolStripMenuItem.Size = new Size(180, 22);
+            userSupportToolStripMenuItem.Text = "User Support";
             // 
             // remoteChatToolStripMenuItem
             // 
-            this.remoteChatToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.phone;
-            this.remoteChatToolStripMenuItem.Name = "remoteChatToolStripMenuItem";
-            this.remoteChatToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.remoteChatToolStripMenuItem.Text = "Remote Chat";
-            this.remoteChatToolStripMenuItem.Click += new System.EventHandler(this.remoteChatToolStripMenuItem_Click);
+            remoteChatToolStripMenuItem.Image = Properties.Resources.phone;
+            remoteChatToolStripMenuItem.Name = "remoteChatToolStripMenuItem";
+            remoteChatToolStripMenuItem.Size = new Size(172, 22);
+            remoteChatToolStripMenuItem.Text = "Remote Chat";
+            remoteChatToolStripMenuItem.Click += remoteChatToolStripMenuItem_Click;
             // 
             // remoteScriptingToolStripMenuItem
             // 
-            this.remoteScriptingToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.script_code;
-            this.remoteScriptingToolStripMenuItem.Name = "remoteScriptingToolStripMenuItem";
-            this.remoteScriptingToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.remoteScriptingToolStripMenuItem.Text = "Remote Scripting";
-            this.remoteScriptingToolStripMenuItem.Click += new System.EventHandler(this.remoteScriptingToolStripMenuItem_Click);
+            remoteScriptingToolStripMenuItem.Image = Properties.Resources.script_code;
+            remoteScriptingToolStripMenuItem.Name = "remoteScriptingToolStripMenuItem";
+            remoteScriptingToolStripMenuItem.Size = new Size(172, 22);
+            remoteScriptingToolStripMenuItem.Text = "Remote Scripting";
+            remoteScriptingToolStripMenuItem.Click += remoteScriptingToolStripMenuItem_Click;
             // 
             // showMessageboxToolStripMenuItem
             // 
-            this.showMessageboxToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("showMessageboxToolStripMenuItem.Image")));
-            this.showMessageboxToolStripMenuItem.Name = "showMessageboxToolStripMenuItem";
-            this.showMessageboxToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.showMessageboxToolStripMenuItem.Text = "Show Messagebox";
-            this.showMessageboxToolStripMenuItem.Click += new System.EventHandler(this.showMessageboxToolStripMenuItem_Click);
+            showMessageboxToolStripMenuItem.Image = (Image)resources.GetObject("showMessageboxToolStripMenuItem.Image");
+            showMessageboxToolStripMenuItem.Name = "showMessageboxToolStripMenuItem";
+            showMessageboxToolStripMenuItem.Size = new Size(172, 22);
+            showMessageboxToolStripMenuItem.Text = "Show Messagebox";
+            showMessageboxToolStripMenuItem.Click += showMessageboxToolStripMenuItem_Click;
             // 
             // visitWebsiteToolStripMenuItem
             // 
-            this.visitWebsiteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("visitWebsiteToolStripMenuItem.Image")));
-            this.visitWebsiteToolStripMenuItem.Name = "visitWebsiteToolStripMenuItem";
-            this.visitWebsiteToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.visitWebsiteToolStripMenuItem.Text = "Send to Website";
-            this.visitWebsiteToolStripMenuItem.Click += new System.EventHandler(this.visitWebsiteToolStripMenuItem_Click);
+            visitWebsiteToolStripMenuItem.Image = (Image)resources.GetObject("visitWebsiteToolStripMenuItem.Image");
+            visitWebsiteToolStripMenuItem.Name = "visitWebsiteToolStripMenuItem";
+            visitWebsiteToolStripMenuItem.Size = new Size(172, 22);
+            visitWebsiteToolStripMenuItem.Text = "Send to Website";
+            visitWebsiteToolStripMenuItem.Click += visitWebsiteToolStripMenuItem_Click;
             // 
             // quickCommandsToolStripMenuItem
             // 
-            this.quickCommandsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addCDriveExceptionToolStripMenuItem,
-            this.taskManagerToolStripMenuItem1});
-            this.quickCommandsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.wrench;
-            this.quickCommandsToolStripMenuItem.Name = "quickCommandsToolStripMenuItem";
-            this.quickCommandsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.quickCommandsToolStripMenuItem.Text = "Miscellaneous";
+            quickCommandsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { addCDriveExceptionToolStripMenuItem, taskManagerToolStripMenuItem1 });
+            quickCommandsToolStripMenuItem.Image = Properties.Resources.wrench;
+            quickCommandsToolStripMenuItem.Name = "quickCommandsToolStripMenuItem";
+            quickCommandsToolStripMenuItem.Size = new Size(180, 22);
+            quickCommandsToolStripMenuItem.Text = "Miscellaneous";
             // 
             // addCDriveExceptionToolStripMenuItem
             // 
-            this.addCDriveExceptionToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.application_view_xp_terminal;
-            this.addCDriveExceptionToolStripMenuItem.Name = "addCDriveExceptionToolStripMenuItem";
-            this.addCDriveExceptionToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.addCDriveExceptionToolStripMenuItem.Text = "Add C: Drive Exception";
-            this.addCDriveExceptionToolStripMenuItem.Click += new System.EventHandler(this.addCDriveExceptionToolStripMenuItem_Click);
+            addCDriveExceptionToolStripMenuItem.Image = Properties.Resources.application_view_xp_terminal;
+            addCDriveExceptionToolStripMenuItem.Name = "addCDriveExceptionToolStripMenuItem";
+            addCDriveExceptionToolStripMenuItem.Size = new Size(195, 22);
+            addCDriveExceptionToolStripMenuItem.Text = "Add C: Drive Exception";
+            addCDriveExceptionToolStripMenuItem.Click += addCDriveExceptionToolStripMenuItem_Click;
             // 
             // taskManagerToolStripMenuItem1
             // 
-            this.taskManagerToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.enableToolStripMenuItem,
-            this.disableTaskManagerToolStripMenuItem});
-            this.taskManagerToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.cog;
-            this.taskManagerToolStripMenuItem1.Name = "taskManagerToolStripMenuItem1";
-            this.taskManagerToolStripMenuItem1.Size = new System.Drawing.Size(195, 22);
-            this.taskManagerToolStripMenuItem1.Text = "Task Manager";
+            taskManagerToolStripMenuItem1.DropDownItems.AddRange(new ToolStripItem[] { enableToolStripMenuItem, disableTaskManagerToolStripMenuItem });
+            taskManagerToolStripMenuItem1.Image = Properties.Resources.cog;
+            taskManagerToolStripMenuItem1.Name = "taskManagerToolStripMenuItem1";
+            taskManagerToolStripMenuItem1.Size = new Size(195, 22);
+            taskManagerToolStripMenuItem1.Text = "Task Manager";
             // 
             // enableToolStripMenuItem
             // 
-            this.enableToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog_add;
-            this.enableToolStripMenuItem.Name = "enableToolStripMenuItem";
-            this.enableToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
-            this.enableToolStripMenuItem.Text = "Enable Task Manager";
-            this.enableToolStripMenuItem.Click += new System.EventHandler(this.enableToolStripMenuItem_Click);
+            enableToolStripMenuItem.Image = Properties.Resources.cog_add;
+            enableToolStripMenuItem.Name = "enableToolStripMenuItem";
+            enableToolStripMenuItem.Size = new Size(187, 22);
+            enableToolStripMenuItem.Text = "Enable Task Manager";
+            enableToolStripMenuItem.Click += enableToolStripMenuItem_Click;
             // 
             // disableTaskManagerToolStripMenuItem
             // 
-            this.disableTaskManagerToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog_delete;
-            this.disableTaskManagerToolStripMenuItem.Name = "disableTaskManagerToolStripMenuItem";
-            this.disableTaskManagerToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
-            this.disableTaskManagerToolStripMenuItem.Text = "Disable Task Manager";
-            this.disableTaskManagerToolStripMenuItem.Click += new System.EventHandler(this.disableTaskManagerToolStripMenuItem_Click);
+            disableTaskManagerToolStripMenuItem.Image = Properties.Resources.cog_delete;
+            disableTaskManagerToolStripMenuItem.Name = "disableTaskManagerToolStripMenuItem";
+            disableTaskManagerToolStripMenuItem.Size = new Size(187, 22);
+            disableTaskManagerToolStripMenuItem.Text = "Disable Task Manager";
+            disableTaskManagerToolStripMenuItem.Click += disableTaskManagerToolStripMenuItem_Click;
             // 
             // funMethodsToolStripMenuItem
             // 
-            this.funMethodsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bSODToolStripMenuItem,
-            this.cWToolStripMenuItem,
-            this.swapMouseButtonsToolStripMenuItem,
-            this.hideTaskBarToolStripMenuItem,
-            this.gdiToolStripMenuItem});
-            this.funMethodsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.emoticon_evilgrin;
-            this.funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
-            this.funMethodsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.funMethodsToolStripMenuItem.Text = "Fun Stuff";
+            funMethodsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { bSODToolStripMenuItem, cWToolStripMenuItem, swapMouseButtonsToolStripMenuItem, hideTaskBarToolStripMenuItem });
+            funMethodsToolStripMenuItem.Image = Properties.Resources.emoticon_evilgrin;
+            funMethodsToolStripMenuItem.Name = "funMethodsToolStripMenuItem";
+            funMethodsToolStripMenuItem.Size = new Size(180, 22);
+            funMethodsToolStripMenuItem.Text = "Fun Stuff";
             // 
             // bSODToolStripMenuItem
             // 
-            this.bSODToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.nuclear;
-            this.bSODToolStripMenuItem.Name = "bSODToolStripMenuItem";
-            this.bSODToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.bSODToolStripMenuItem.Text = "BSOD";
-            this.bSODToolStripMenuItem.Click += new System.EventHandler(this.bSODToolStripMenuItem_Click);
+            bSODToolStripMenuItem.Image = Properties.Resources.nuclear;
+            bSODToolStripMenuItem.Name = "bSODToolStripMenuItem";
+            bSODToolStripMenuItem.Size = new Size(185, 22);
+            bSODToolStripMenuItem.Text = "BSOD";
+            bSODToolStripMenuItem.Click += bSODToolStripMenuItem_Click;
             // 
             // cWToolStripMenuItem
             // 
-            this.cWToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.images;
-            this.cWToolStripMenuItem.Name = "cWToolStripMenuItem";
-            this.cWToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.cWToolStripMenuItem.Text = "Change Wallpaper";
-            this.cWToolStripMenuItem.Click += new System.EventHandler(this.cWToolStripMenuItem_Click);
+            cWToolStripMenuItem.Image = Properties.Resources.images;
+            cWToolStripMenuItem.Name = "cWToolStripMenuItem";
+            cWToolStripMenuItem.Size = new Size(185, 22);
+            cWToolStripMenuItem.Text = "Change Wallpaper";
+            cWToolStripMenuItem.Click += cWToolStripMenuItem_Click;
             // 
             // swapMouseButtonsToolStripMenuItem
             // 
-            this.swapMouseButtonsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.mouse;
-            this.swapMouseButtonsToolStripMenuItem.Name = "swapMouseButtonsToolStripMenuItem";
-            this.swapMouseButtonsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.swapMouseButtonsToolStripMenuItem.Text = "Swap Mouse Buttons";
-            this.swapMouseButtonsToolStripMenuItem.Click += new System.EventHandler(this.swapMouseButtonsToolStripMenuItem_Click);
+            swapMouseButtonsToolStripMenuItem.Image = Properties.Resources.mouse;
+            swapMouseButtonsToolStripMenuItem.Name = "swapMouseButtonsToolStripMenuItem";
+            swapMouseButtonsToolStripMenuItem.Size = new Size(185, 22);
+            swapMouseButtonsToolStripMenuItem.Text = "Swap Mouse Buttons";
+            swapMouseButtonsToolStripMenuItem.Click += swapMouseButtonsToolStripMenuItem_Click;
             // 
             // hideTaskBarToolStripMenuItem
             // 
-            this.hideTaskBarToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog;
-            this.hideTaskBarToolStripMenuItem.Name = "hideTaskBarToolStripMenuItem";
-            this.hideTaskBarToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.hideTaskBarToolStripMenuItem.Text = "Hide Taskbar";
-            this.hideTaskBarToolStripMenuItem.Click += new System.EventHandler(this.hideTaskBarToolStripMenuItem_Click);
-            // 
-            // gdiToolStripMenuItem
-            // 
-            this.gdiToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.screenCorruptToolStripMenuItem,
-            this.illuminatiToolStripMenuItem});
-            this.gdiToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.pencil;
-            this.gdiToolStripMenuItem.Name = "gdiToolStripMenuItem";
-            this.gdiToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.gdiToolStripMenuItem.Text = "GDI";
-            // 
-            // screenCorruptToolStripMenuItem
-            // 
-            this.screenCorruptToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.pencil;
-            this.screenCorruptToolStripMenuItem.Name = "screenCorruptToolStripMenuItem";
-            this.screenCorruptToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-            this.screenCorruptToolStripMenuItem.Text = "Screen Corrupt";
-            this.screenCorruptToolStripMenuItem.Click += new System.EventHandler(this.screenCorruptToolStripMenuItem_Click);
-            // 
-            // illuminatiToolStripMenuItem
-            // 
-            this.illuminatiToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.pencil;
-            this.illuminatiToolStripMenuItem.Name = "illuminatiToolStripMenuItem";
-            this.illuminatiToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-            this.illuminatiToolStripMenuItem.Text = "Illuminati";
-            this.illuminatiToolStripMenuItem.Click += new System.EventHandler(this.illuminatiToolStripMenuItem_Click);
+            hideTaskBarToolStripMenuItem.Image = Properties.Resources.cog;
+            hideTaskBarToolStripMenuItem.Name = "hideTaskBarToolStripMenuItem";
+            hideTaskBarToolStripMenuItem.Size = new Size(185, 22);
+            hideTaskBarToolStripMenuItem.Text = "Hide Taskbar";
+            hideTaskBarToolStripMenuItem.Click += hideTaskBarToolStripMenuItem_Click;
             // 
             // connectionToolStripMenuItem
             // 
-            this.connectionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.elevatedToolStripMenuItem,
-            this.winREToolStripMenuItem,
-            this.nicknameToolStripMenuItem,
-            this.blockIPToolStripMenuItem,
-            this.updateToolStripMenuItem,
-            this.reconnectToolStripMenuItem,
-            this.disconnectToolStripMenuItem,
-            this.uninstallToolStripMenuItem});
-            this.connectionToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("connectionToolStripMenuItem.Image")));
-            this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.connectionToolStripMenuItem.Text = "Client Management";
+            connectionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { elevatedToolStripMenuItem, winREToolStripMenuItem, nicknameToolStripMenuItem, blockIPToolStripMenuItem, updateToolStripMenuItem, reconnectToolStripMenuItem, disconnectToolStripMenuItem, uninstallToolStripMenuItem });
+            connectionToolStripMenuItem.Image = (Image)resources.GetObject("connectionToolStripMenuItem.Image");
+            connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
+            connectionToolStripMenuItem.Size = new Size(180, 22);
+            connectionToolStripMenuItem.Text = "Client Management";
             // 
             // elevatedToolStripMenuItem
             // 
-            this.elevatedToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.elevateClientPermissionsToolStripMenuItem,
-            this.elevateToSystemToolStripMenuItem,
-            this.deElevateFromSystemToolStripMenuItem,
-            this.uACBypassToolStripMenuItem});
-            this.elevatedToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
-            this.elevatedToolStripMenuItem.Name = "elevatedToolStripMenuItem";
-            this.elevatedToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.elevatedToolStripMenuItem.Text = "Elevated";
+            elevatedToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { elevateClientPermissionsToolStripMenuItem, elevateToSystemToolStripMenuItem, deElevateFromSystemToolStripMenuItem, uACBypassToolStripMenuItem });
+            elevatedToolStripMenuItem.Image = Properties.Resources.uac_shield;
+            elevatedToolStripMenuItem.Name = "elevatedToolStripMenuItem";
+            elevatedToolStripMenuItem.Size = new Size(133, 22);
+            elevatedToolStripMenuItem.Text = "Elevated";
             // 
             // elevateClientPermissionsToolStripMenuItem
             // 
-            this.elevateClientPermissionsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
-            this.elevateClientPermissionsToolStripMenuItem.Name = "elevateClientPermissionsToolStripMenuItem";
-            this.elevateClientPermissionsToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.elevateClientPermissionsToolStripMenuItem.Text = "Elevate Client Permissions";
-            this.elevateClientPermissionsToolStripMenuItem.Click += new System.EventHandler(this.elevateClientPermissionsToolStripMenuItem_Click);
+            elevateClientPermissionsToolStripMenuItem.Image = Properties.Resources.uac_shield;
+            elevateClientPermissionsToolStripMenuItem.Name = "elevateClientPermissionsToolStripMenuItem";
+            elevateClientPermissionsToolStripMenuItem.Size = new Size(211, 22);
+            elevateClientPermissionsToolStripMenuItem.Text = "Elevate Client Permissions";
+            elevateClientPermissionsToolStripMenuItem.Click += elevateClientPermissionsToolStripMenuItem_Click;
             // 
             // elevateToSystemToolStripMenuItem
             // 
-            this.elevateToSystemToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
-            this.elevateToSystemToolStripMenuItem.Name = "elevateToSystemToolStripMenuItem";
-            this.elevateToSystemToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.elevateToSystemToolStripMenuItem.Text = "Elevate to System";
-            this.elevateToSystemToolStripMenuItem.Click += new System.EventHandler(this.elevateToSystemToolStripMenuItem_Click);
+            elevateToSystemToolStripMenuItem.Image = Properties.Resources.uac_shield;
+            elevateToSystemToolStripMenuItem.Name = "elevateToSystemToolStripMenuItem";
+            elevateToSystemToolStripMenuItem.Size = new Size(211, 22);
+            elevateToSystemToolStripMenuItem.Text = "Elevate to System";
+            elevateToSystemToolStripMenuItem.Click += elevateToSystemToolStripMenuItem_Click;
             // 
             // deElevateFromSystemToolStripMenuItem
             // 
-            this.deElevateFromSystemToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
-            this.deElevateFromSystemToolStripMenuItem.Name = "deElevateFromSystemToolStripMenuItem";
-            this.deElevateFromSystemToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.deElevateFromSystemToolStripMenuItem.Text = "DeElevate From System";
-            this.deElevateFromSystemToolStripMenuItem.Click += new System.EventHandler(this.deElevateToolStripMenuItem_Click);
+            deElevateFromSystemToolStripMenuItem.Image = Properties.Resources.uac_shield;
+            deElevateFromSystemToolStripMenuItem.Name = "deElevateFromSystemToolStripMenuItem";
+            deElevateFromSystemToolStripMenuItem.Size = new Size(211, 22);
+            deElevateFromSystemToolStripMenuItem.Text = "DeElevate From System";
+            deElevateFromSystemToolStripMenuItem.Click += deElevateToolStripMenuItem_Click;
             // 
             // uACBypassToolStripMenuItem
             // 
-            this.uACBypassToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
-            this.uACBypassToolStripMenuItem.Name = "uACBypassToolStripMenuItem";
-            this.uACBypassToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.uACBypassToolStripMenuItem.Text = "UAC Bypass";
-            this.uACBypassToolStripMenuItem.Click += new System.EventHandler(this.uACBypassToolStripMenuItem_Click);
+            uACBypassToolStripMenuItem.Image = Properties.Resources.uac_shield;
+            uACBypassToolStripMenuItem.Name = "uACBypassToolStripMenuItem";
+            uACBypassToolStripMenuItem.Size = new Size(211, 22);
+            uACBypassToolStripMenuItem.Text = "UAC Bypass";
+            uACBypassToolStripMenuItem.Click += uACBypassToolStripMenuItem_Click;
             // 
             // winREToolStripMenuItem
             // 
-            this.winREToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.installWinresetSurvivalToolStripMenuItem,
-            this.removeWinresetSurvivalToolStripMenuItem,
-            this.winRECustomFileForSurvivalToolStripMenuItem});
-            this.winREToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.anchor;
-            this.winREToolStripMenuItem.Name = "winREToolStripMenuItem";
-            this.winREToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.winREToolStripMenuItem.Text = "WinRE";
+            winREToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { installWinresetSurvivalToolStripMenuItem, removeWinresetSurvivalToolStripMenuItem, winRECustomFileForSurvivalToolStripMenuItem });
+            winREToolStripMenuItem.Image = Properties.Resources.anchor;
+            winREToolStripMenuItem.Name = "winREToolStripMenuItem";
+            winREToolStripMenuItem.Size = new Size(133, 22);
+            winREToolStripMenuItem.Text = "WinRE";
             // 
             // installWinresetSurvivalToolStripMenuItem
             // 
-            this.installWinresetSurvivalToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.anchor;
-            this.installWinresetSurvivalToolStripMenuItem.Name = "installWinresetSurvivalToolStripMenuItem";
-            this.installWinresetSurvivalToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
-            this.installWinresetSurvivalToolStripMenuItem.Text = "Install Winreset Survival";
-            this.installWinresetSurvivalToolStripMenuItem.Click += new System.EventHandler(this.installWinresetSurvivalToolStripMenuItem_Click);
+            installWinresetSurvivalToolStripMenuItem.Image = Properties.Resources.anchor;
+            installWinresetSurvivalToolStripMenuItem.Name = "installWinresetSurvivalToolStripMenuItem";
+            installWinresetSurvivalToolStripMenuItem.Size = new Size(216, 22);
+            installWinresetSurvivalToolStripMenuItem.Text = "Install Winreset Survival";
+            installWinresetSurvivalToolStripMenuItem.Click += installWinresetSurvivalToolStripMenuItem_Click;
             // 
             // removeWinresetSurvivalToolStripMenuItem
             // 
-            this.removeWinresetSurvivalToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.anchor;
-            this.removeWinresetSurvivalToolStripMenuItem.Name = "removeWinresetSurvivalToolStripMenuItem";
-            this.removeWinresetSurvivalToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
-            this.removeWinresetSurvivalToolStripMenuItem.Text = "Remove Winreset Survival";
-            this.removeWinresetSurvivalToolStripMenuItem.Click += new System.EventHandler(this.removeWinresetSurvivalToolStripMenuItem_Click);
+            removeWinresetSurvivalToolStripMenuItem.Image = Properties.Resources.anchor;
+            removeWinresetSurvivalToolStripMenuItem.Name = "removeWinresetSurvivalToolStripMenuItem";
+            removeWinresetSurvivalToolStripMenuItem.Size = new Size(216, 22);
+            removeWinresetSurvivalToolStripMenuItem.Text = "Remove Winreset Survival";
+            removeWinresetSurvivalToolStripMenuItem.Click += removeWinresetSurvivalToolStripMenuItem_Click;
             // 
             // winRECustomFileForSurvivalToolStripMenuItem
             // 
-            this.winRECustomFileForSurvivalToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.folder;
-            this.winRECustomFileForSurvivalToolStripMenuItem.Name = "winRECustomFileForSurvivalToolStripMenuItem";
-            this.winRECustomFileForSurvivalToolStripMenuItem.Size = new System.Drawing.Size(216, 22);
-            this.winRECustomFileForSurvivalToolStripMenuItem.Text = "Custom file WinRE Survival";
-            this.winRECustomFileForSurvivalToolStripMenuItem.Click += new System.EventHandler(this.winRECustomFileForSurvivalToolStripMenuItem_Click);
+            winRECustomFileForSurvivalToolStripMenuItem.Image = Properties.Resources.folder;
+            winRECustomFileForSurvivalToolStripMenuItem.Name = "winRECustomFileForSurvivalToolStripMenuItem";
+            winRECustomFileForSurvivalToolStripMenuItem.Size = new Size(216, 22);
+            winRECustomFileForSurvivalToolStripMenuItem.Text = "Custom file WinRE Survival";
+            winRECustomFileForSurvivalToolStripMenuItem.Click += winRECustomFileForSurvivalToolStripMenuItem_Click;
             // 
             // nicknameToolStripMenuItem
             // 
-            this.nicknameToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.textfield_rename;
-            this.nicknameToolStripMenuItem.Name = "nicknameToolStripMenuItem";
-            this.nicknameToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.nicknameToolStripMenuItem.Text = "Nickname";
-            this.nicknameToolStripMenuItem.Click += new System.EventHandler(this.nicknameToolStripMenuItem_Click);
+            nicknameToolStripMenuItem.Image = Properties.Resources.textfield_rename;
+            nicknameToolStripMenuItem.Name = "nicknameToolStripMenuItem";
+            nicknameToolStripMenuItem.Size = new Size(133, 22);
+            nicknameToolStripMenuItem.Text = "Nickname";
+            nicknameToolStripMenuItem.Click += nicknameToolStripMenuItem_Click;
             // 
             // blockIPToolStripMenuItem
             // 
-            this.blockIPToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.delete;
-            this.blockIPToolStripMenuItem.Name = "blockIPToolStripMenuItem";
-            this.blockIPToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.blockIPToolStripMenuItem.Text = "Block IP";
-            this.blockIPToolStripMenuItem.Click += new System.EventHandler(this.blockIPToolStripMenuItem_Click);
+            blockIPToolStripMenuItem.Image = Properties.Resources.delete;
+            blockIPToolStripMenuItem.Name = "blockIPToolStripMenuItem";
+            blockIPToolStripMenuItem.Size = new Size(133, 22);
+            blockIPToolStripMenuItem.Text = "Block IP";
+            blockIPToolStripMenuItem.Click += blockIPToolStripMenuItem_Click;
             // 
             // updateToolStripMenuItem
             // 
-            this.updateToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("updateToolStripMenuItem.Image")));
-            this.updateToolStripMenuItem.Name = "updateToolStripMenuItem";
-            this.updateToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.updateToolStripMenuItem.Text = "Update";
-            this.updateToolStripMenuItem.Click += new System.EventHandler(this.updateToolStripMenuItem_Click);
+            updateToolStripMenuItem.Image = (Image)resources.GetObject("updateToolStripMenuItem.Image");
+            updateToolStripMenuItem.Name = "updateToolStripMenuItem";
+            updateToolStripMenuItem.Size = new Size(133, 22);
+            updateToolStripMenuItem.Text = "Update";
+            updateToolStripMenuItem.Click += updateToolStripMenuItem_Click;
             // 
             // reconnectToolStripMenuItem
             // 
-            this.reconnectToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("reconnectToolStripMenuItem.Image")));
-            this.reconnectToolStripMenuItem.Name = "reconnectToolStripMenuItem";
-            this.reconnectToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.reconnectToolStripMenuItem.Text = "Reconnect";
-            this.reconnectToolStripMenuItem.Click += new System.EventHandler(this.reconnectToolStripMenuItem_Click);
+            reconnectToolStripMenuItem.Image = (Image)resources.GetObject("reconnectToolStripMenuItem.Image");
+            reconnectToolStripMenuItem.Name = "reconnectToolStripMenuItem";
+            reconnectToolStripMenuItem.Size = new Size(133, 22);
+            reconnectToolStripMenuItem.Text = "Reconnect";
+            reconnectToolStripMenuItem.Click += reconnectToolStripMenuItem_Click;
             // 
             // disconnectToolStripMenuItem
             // 
-            this.disconnectToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("disconnectToolStripMenuItem.Image")));
-            this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
-            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.disconnectToolStripMenuItem.Text = "Disconnect";
-            this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
+            disconnectToolStripMenuItem.Image = (Image)resources.GetObject("disconnectToolStripMenuItem.Image");
+            disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
+            disconnectToolStripMenuItem.Size = new Size(133, 22);
+            disconnectToolStripMenuItem.Text = "Disconnect";
+            disconnectToolStripMenuItem.Click += disconnectToolStripMenuItem_Click;
             // 
             // uninstallToolStripMenuItem
             // 
-            this.uninstallToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("uninstallToolStripMenuItem.Image")));
-            this.uninstallToolStripMenuItem.Name = "uninstallToolStripMenuItem";
-            this.uninstallToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.uninstallToolStripMenuItem.Text = "Uninstall";
-            this.uninstallToolStripMenuItem.Click += new System.EventHandler(this.uninstallToolStripMenuItem_Click);
+            uninstallToolStripMenuItem.Image = (Image)resources.GetObject("uninstallToolStripMenuItem.Image");
+            uninstallToolStripMenuItem.Name = "uninstallToolStripMenuItem";
+            uninstallToolStripMenuItem.Size = new Size(133, 22);
+            uninstallToolStripMenuItem.Text = "Uninstall";
+            uninstallToolStripMenuItem.Click += uninstallToolStripMenuItem_Click;
             // 
             // lineToolStripMenuItem
             // 
-            this.lineToolStripMenuItem.Name = "lineToolStripMenuItem";
-            this.lineToolStripMenuItem.Size = new System.Drawing.Size(177, 6);
+            lineToolStripMenuItem.Name = "lineToolStripMenuItem";
+            lineToolStripMenuItem.Size = new Size(177, 6);
             // 
             // selectAllToolStripMenuItem
             // 
-            this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.selectAllToolStripMenuItem.Text = "Select All";
-            this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
+            selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
+            selectAllToolStripMenuItem.Size = new Size(180, 22);
+            selectAllToolStripMenuItem.Text = "Select All";
+            selectAllToolStripMenuItem.Click += selectAllToolStripMenuItem_Click;
             // 
             // imgFlags
             // 
-            this.imgFlags.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgFlags.ImageStream")));
-            this.imgFlags.TransparentColor = System.Drawing.Color.Transparent;
-            this.imgFlags.Images.SetKeyName(0, "ad.png");
-            this.imgFlags.Images.SetKeyName(1, "ae.png");
-            this.imgFlags.Images.SetKeyName(2, "af.png");
-            this.imgFlags.Images.SetKeyName(3, "ag.png");
-            this.imgFlags.Images.SetKeyName(4, "ai.png");
-            this.imgFlags.Images.SetKeyName(5, "al.png");
-            this.imgFlags.Images.SetKeyName(6, "am.png");
-            this.imgFlags.Images.SetKeyName(7, "an.png");
-            this.imgFlags.Images.SetKeyName(8, "ao.png");
-            this.imgFlags.Images.SetKeyName(9, "ar.png");
-            this.imgFlags.Images.SetKeyName(10, "as.png");
-            this.imgFlags.Images.SetKeyName(11, "at.png");
-            this.imgFlags.Images.SetKeyName(12, "au.png");
-            this.imgFlags.Images.SetKeyName(13, "aw.png");
-            this.imgFlags.Images.SetKeyName(14, "ax.png");
-            this.imgFlags.Images.SetKeyName(15, "az.png");
-            this.imgFlags.Images.SetKeyName(16, "ba.png");
-            this.imgFlags.Images.SetKeyName(17, "bb.png");
-            this.imgFlags.Images.SetKeyName(18, "bd.png");
-            this.imgFlags.Images.SetKeyName(19, "be.png");
-            this.imgFlags.Images.SetKeyName(20, "bf.png");
-            this.imgFlags.Images.SetKeyName(21, "bg.png");
-            this.imgFlags.Images.SetKeyName(22, "bh.png");
-            this.imgFlags.Images.SetKeyName(23, "bi.png");
-            this.imgFlags.Images.SetKeyName(24, "bj.png");
-            this.imgFlags.Images.SetKeyName(25, "bm.png");
-            this.imgFlags.Images.SetKeyName(26, "bn.png");
-            this.imgFlags.Images.SetKeyName(27, "bo.png");
-            this.imgFlags.Images.SetKeyName(28, "br.png");
-            this.imgFlags.Images.SetKeyName(29, "bs.png");
-            this.imgFlags.Images.SetKeyName(30, "bt.png");
-            this.imgFlags.Images.SetKeyName(31, "bv.png");
-            this.imgFlags.Images.SetKeyName(32, "bw.png");
-            this.imgFlags.Images.SetKeyName(33, "by.png");
-            this.imgFlags.Images.SetKeyName(34, "bz.png");
-            this.imgFlags.Images.SetKeyName(35, "ca.png");
-            this.imgFlags.Images.SetKeyName(36, "catalonia.png");
-            this.imgFlags.Images.SetKeyName(37, "cc.png");
-            this.imgFlags.Images.SetKeyName(38, "cd.png");
-            this.imgFlags.Images.SetKeyName(39, "cf.png");
-            this.imgFlags.Images.SetKeyName(40, "cg.png");
-            this.imgFlags.Images.SetKeyName(41, "ch.png");
-            this.imgFlags.Images.SetKeyName(42, "ci.png");
-            this.imgFlags.Images.SetKeyName(43, "ck.png");
-            this.imgFlags.Images.SetKeyName(44, "cl.png");
-            this.imgFlags.Images.SetKeyName(45, "cm.png");
-            this.imgFlags.Images.SetKeyName(46, "cn.png");
-            this.imgFlags.Images.SetKeyName(47, "co.png");
-            this.imgFlags.Images.SetKeyName(48, "cr.png");
-            this.imgFlags.Images.SetKeyName(49, "cs.png");
-            this.imgFlags.Images.SetKeyName(50, "cu.png");
-            this.imgFlags.Images.SetKeyName(51, "cv.png");
-            this.imgFlags.Images.SetKeyName(52, "cx.png");
-            this.imgFlags.Images.SetKeyName(53, "cy.png");
-            this.imgFlags.Images.SetKeyName(54, "cz.png");
-            this.imgFlags.Images.SetKeyName(55, "de.png");
-            this.imgFlags.Images.SetKeyName(56, "dj.png");
-            this.imgFlags.Images.SetKeyName(57, "dk.png");
-            this.imgFlags.Images.SetKeyName(58, "dm.png");
-            this.imgFlags.Images.SetKeyName(59, "do.png");
-            this.imgFlags.Images.SetKeyName(60, "dz.png");
-            this.imgFlags.Images.SetKeyName(61, "ec.png");
-            this.imgFlags.Images.SetKeyName(62, "ee.png");
-            this.imgFlags.Images.SetKeyName(63, "eg.png");
-            this.imgFlags.Images.SetKeyName(64, "eh.png");
-            this.imgFlags.Images.SetKeyName(65, "england.png");
-            this.imgFlags.Images.SetKeyName(66, "er.png");
-            this.imgFlags.Images.SetKeyName(67, "es.png");
-            this.imgFlags.Images.SetKeyName(68, "et.png");
-            this.imgFlags.Images.SetKeyName(69, "europeanunion.png");
-            this.imgFlags.Images.SetKeyName(70, "fam.png");
-            this.imgFlags.Images.SetKeyName(71, "fi.png");
-            this.imgFlags.Images.SetKeyName(72, "fj.png");
-            this.imgFlags.Images.SetKeyName(73, "fk.png");
-            this.imgFlags.Images.SetKeyName(74, "fm.png");
-            this.imgFlags.Images.SetKeyName(75, "fo.png");
-            this.imgFlags.Images.SetKeyName(76, "fr.png");
-            this.imgFlags.Images.SetKeyName(77, "ga.png");
-            this.imgFlags.Images.SetKeyName(78, "gb.png");
-            this.imgFlags.Images.SetKeyName(79, "gd.png");
-            this.imgFlags.Images.SetKeyName(80, "ge.png");
-            this.imgFlags.Images.SetKeyName(81, "gf.png");
-            this.imgFlags.Images.SetKeyName(82, "gh.png");
-            this.imgFlags.Images.SetKeyName(83, "gi.png");
-            this.imgFlags.Images.SetKeyName(84, "gl.png");
-            this.imgFlags.Images.SetKeyName(85, "gm.png");
-            this.imgFlags.Images.SetKeyName(86, "gn.png");
-            this.imgFlags.Images.SetKeyName(87, "gp.png");
-            this.imgFlags.Images.SetKeyName(88, "gq.png");
-            this.imgFlags.Images.SetKeyName(89, "gr.png");
-            this.imgFlags.Images.SetKeyName(90, "gs.png");
-            this.imgFlags.Images.SetKeyName(91, "gt.png");
-            this.imgFlags.Images.SetKeyName(92, "gu.png");
-            this.imgFlags.Images.SetKeyName(93, "gw.png");
-            this.imgFlags.Images.SetKeyName(94, "gy.png");
-            this.imgFlags.Images.SetKeyName(95, "hk.png");
-            this.imgFlags.Images.SetKeyName(96, "hm.png");
-            this.imgFlags.Images.SetKeyName(97, "hn.png");
-            this.imgFlags.Images.SetKeyName(98, "hr.png");
-            this.imgFlags.Images.SetKeyName(99, "ht.png");
-            this.imgFlags.Images.SetKeyName(100, "hu.png");
-            this.imgFlags.Images.SetKeyName(101, "id.png");
-            this.imgFlags.Images.SetKeyName(102, "ie.png");
-            this.imgFlags.Images.SetKeyName(103, "il.png");
-            this.imgFlags.Images.SetKeyName(104, "in.png");
-            this.imgFlags.Images.SetKeyName(105, "io.png");
-            this.imgFlags.Images.SetKeyName(106, "iq.png");
-            this.imgFlags.Images.SetKeyName(107, "ir.png");
-            this.imgFlags.Images.SetKeyName(108, "is.png");
-            this.imgFlags.Images.SetKeyName(109, "it.png");
-            this.imgFlags.Images.SetKeyName(110, "jm.png");
-            this.imgFlags.Images.SetKeyName(111, "jo.png");
-            this.imgFlags.Images.SetKeyName(112, "jp.png");
-            this.imgFlags.Images.SetKeyName(113, "ke.png");
-            this.imgFlags.Images.SetKeyName(114, "kg.png");
-            this.imgFlags.Images.SetKeyName(115, "kh.png");
-            this.imgFlags.Images.SetKeyName(116, "ki.png");
-            this.imgFlags.Images.SetKeyName(117, "km.png");
-            this.imgFlags.Images.SetKeyName(118, "kn.png");
-            this.imgFlags.Images.SetKeyName(119, "kp.png");
-            this.imgFlags.Images.SetKeyName(120, "kr.png");
-            this.imgFlags.Images.SetKeyName(121, "kw.png");
-            this.imgFlags.Images.SetKeyName(122, "ky.png");
-            this.imgFlags.Images.SetKeyName(123, "kz.png");
-            this.imgFlags.Images.SetKeyName(124, "la.png");
-            this.imgFlags.Images.SetKeyName(125, "lb.png");
-            this.imgFlags.Images.SetKeyName(126, "lc.png");
-            this.imgFlags.Images.SetKeyName(127, "li.png");
-            this.imgFlags.Images.SetKeyName(128, "lk.png");
-            this.imgFlags.Images.SetKeyName(129, "lr.png");
-            this.imgFlags.Images.SetKeyName(130, "ls.png");
-            this.imgFlags.Images.SetKeyName(131, "lt.png");
-            this.imgFlags.Images.SetKeyName(132, "lu.png");
-            this.imgFlags.Images.SetKeyName(133, "lv.png");
-            this.imgFlags.Images.SetKeyName(134, "ly.png");
-            this.imgFlags.Images.SetKeyName(135, "ma.png");
-            this.imgFlags.Images.SetKeyName(136, "mc.png");
-            this.imgFlags.Images.SetKeyName(137, "md.png");
-            this.imgFlags.Images.SetKeyName(138, "me.png");
-            this.imgFlags.Images.SetKeyName(139, "mg.png");
-            this.imgFlags.Images.SetKeyName(140, "mh.png");
-            this.imgFlags.Images.SetKeyName(141, "mk.png");
-            this.imgFlags.Images.SetKeyName(142, "ml.png");
-            this.imgFlags.Images.SetKeyName(143, "mm.png");
-            this.imgFlags.Images.SetKeyName(144, "mn.png");
-            this.imgFlags.Images.SetKeyName(145, "mo.png");
-            this.imgFlags.Images.SetKeyName(146, "mp.png");
-            this.imgFlags.Images.SetKeyName(147, "mq.png");
-            this.imgFlags.Images.SetKeyName(148, "mr.png");
-            this.imgFlags.Images.SetKeyName(149, "ms.png");
-            this.imgFlags.Images.SetKeyName(150, "mt.png");
-            this.imgFlags.Images.SetKeyName(151, "mu.png");
-            this.imgFlags.Images.SetKeyName(152, "mv.png");
-            this.imgFlags.Images.SetKeyName(153, "mw.png");
-            this.imgFlags.Images.SetKeyName(154, "mx.png");
-            this.imgFlags.Images.SetKeyName(155, "my.png");
-            this.imgFlags.Images.SetKeyName(156, "mz.png");
-            this.imgFlags.Images.SetKeyName(157, "na.png");
-            this.imgFlags.Images.SetKeyName(158, "nc.png");
-            this.imgFlags.Images.SetKeyName(159, "ne.png");
-            this.imgFlags.Images.SetKeyName(160, "nf.png");
-            this.imgFlags.Images.SetKeyName(161, "ng.png");
-            this.imgFlags.Images.SetKeyName(162, "ni.png");
-            this.imgFlags.Images.SetKeyName(163, "nl.png");
-            this.imgFlags.Images.SetKeyName(164, "no.png");
-            this.imgFlags.Images.SetKeyName(165, "np.png");
-            this.imgFlags.Images.SetKeyName(166, "nr.png");
-            this.imgFlags.Images.SetKeyName(167, "nu.png");
-            this.imgFlags.Images.SetKeyName(168, "nz.png");
-            this.imgFlags.Images.SetKeyName(169, "om.png");
-            this.imgFlags.Images.SetKeyName(170, "pa.png");
-            this.imgFlags.Images.SetKeyName(171, "pe.png");
-            this.imgFlags.Images.SetKeyName(172, "pf.png");
-            this.imgFlags.Images.SetKeyName(173, "pg.png");
-            this.imgFlags.Images.SetKeyName(174, "ph.png");
-            this.imgFlags.Images.SetKeyName(175, "pk.png");
-            this.imgFlags.Images.SetKeyName(176, "pl.png");
-            this.imgFlags.Images.SetKeyName(177, "pm.png");
-            this.imgFlags.Images.SetKeyName(178, "pn.png");
-            this.imgFlags.Images.SetKeyName(179, "pr.png");
-            this.imgFlags.Images.SetKeyName(180, "ps.png");
-            this.imgFlags.Images.SetKeyName(181, "pt.png");
-            this.imgFlags.Images.SetKeyName(182, "pw.png");
-            this.imgFlags.Images.SetKeyName(183, "py.png");
-            this.imgFlags.Images.SetKeyName(184, "qa.png");
-            this.imgFlags.Images.SetKeyName(185, "re.png");
-            this.imgFlags.Images.SetKeyName(186, "ro.png");
-            this.imgFlags.Images.SetKeyName(187, "rs.png");
-            this.imgFlags.Images.SetKeyName(188, "ru.png");
-            this.imgFlags.Images.SetKeyName(189, "rw.png");
-            this.imgFlags.Images.SetKeyName(190, "sa.png");
-            this.imgFlags.Images.SetKeyName(191, "sb.png");
-            this.imgFlags.Images.SetKeyName(192, "sc.png");
-            this.imgFlags.Images.SetKeyName(193, "scotland.png");
-            this.imgFlags.Images.SetKeyName(194, "sd.png");
-            this.imgFlags.Images.SetKeyName(195, "se.png");
-            this.imgFlags.Images.SetKeyName(196, "sg.png");
-            this.imgFlags.Images.SetKeyName(197, "sh.png");
-            this.imgFlags.Images.SetKeyName(198, "si.png");
-            this.imgFlags.Images.SetKeyName(199, "sj.png");
-            this.imgFlags.Images.SetKeyName(200, "sk.png");
-            this.imgFlags.Images.SetKeyName(201, "sl.png");
-            this.imgFlags.Images.SetKeyName(202, "sm.png");
-            this.imgFlags.Images.SetKeyName(203, "sn.png");
-            this.imgFlags.Images.SetKeyName(204, "so.png");
-            this.imgFlags.Images.SetKeyName(205, "sr.png");
-            this.imgFlags.Images.SetKeyName(206, "st.png");
-            this.imgFlags.Images.SetKeyName(207, "sv.png");
-            this.imgFlags.Images.SetKeyName(208, "sy.png");
-            this.imgFlags.Images.SetKeyName(209, "sz.png");
-            this.imgFlags.Images.SetKeyName(210, "tc.png");
-            this.imgFlags.Images.SetKeyName(211, "td.png");
-            this.imgFlags.Images.SetKeyName(212, "tf.png");
-            this.imgFlags.Images.SetKeyName(213, "tg.png");
-            this.imgFlags.Images.SetKeyName(214, "th.png");
-            this.imgFlags.Images.SetKeyName(215, "tj.png");
-            this.imgFlags.Images.SetKeyName(216, "tk.png");
-            this.imgFlags.Images.SetKeyName(217, "tl.png");
-            this.imgFlags.Images.SetKeyName(218, "tm.png");
-            this.imgFlags.Images.SetKeyName(219, "tn.png");
-            this.imgFlags.Images.SetKeyName(220, "to.png");
-            this.imgFlags.Images.SetKeyName(221, "tr.png");
-            this.imgFlags.Images.SetKeyName(222, "tt.png");
-            this.imgFlags.Images.SetKeyName(223, "tv.png");
-            this.imgFlags.Images.SetKeyName(224, "tw.png");
-            this.imgFlags.Images.SetKeyName(225, "tz.png");
-            this.imgFlags.Images.SetKeyName(226, "ua.png");
-            this.imgFlags.Images.SetKeyName(227, "ug.png");
-            this.imgFlags.Images.SetKeyName(228, "um.png");
-            this.imgFlags.Images.SetKeyName(229, "us.png");
-            this.imgFlags.Images.SetKeyName(230, "uy.png");
-            this.imgFlags.Images.SetKeyName(231, "uz.png");
-            this.imgFlags.Images.SetKeyName(232, "va.png");
-            this.imgFlags.Images.SetKeyName(233, "vc.png");
-            this.imgFlags.Images.SetKeyName(234, "ve.png");
-            this.imgFlags.Images.SetKeyName(235, "vg.png");
-            this.imgFlags.Images.SetKeyName(236, "vi.png");
-            this.imgFlags.Images.SetKeyName(237, "vn.png");
-            this.imgFlags.Images.SetKeyName(238, "vu.png");
-            this.imgFlags.Images.SetKeyName(239, "wales.png");
-            this.imgFlags.Images.SetKeyName(240, "wf.png");
-            this.imgFlags.Images.SetKeyName(241, "ws.png");
-            this.imgFlags.Images.SetKeyName(242, "ye.png");
-            this.imgFlags.Images.SetKeyName(243, "yt.png");
-            this.imgFlags.Images.SetKeyName(244, "za.png");
-            this.imgFlags.Images.SetKeyName(245, "zm.png");
-            this.imgFlags.Images.SetKeyName(246, "zw.png");
-            this.imgFlags.Images.SetKeyName(247, "xy.png");
+            imgFlags.ColorDepth = ColorDepth.Depth8Bit;
+            imgFlags.ImageStream = (ImageListStreamer)resources.GetObject("imgFlags.ImageStream");
+            imgFlags.TransparentColor = Color.Transparent;
+            imgFlags.Images.SetKeyName(0, "ad.png");
+            imgFlags.Images.SetKeyName(1, "ae.png");
+            imgFlags.Images.SetKeyName(2, "af.png");
+            imgFlags.Images.SetKeyName(3, "ag.png");
+            imgFlags.Images.SetKeyName(4, "ai.png");
+            imgFlags.Images.SetKeyName(5, "al.png");
+            imgFlags.Images.SetKeyName(6, "am.png");
+            imgFlags.Images.SetKeyName(7, "an.png");
+            imgFlags.Images.SetKeyName(8, "ao.png");
+            imgFlags.Images.SetKeyName(9, "ar.png");
+            imgFlags.Images.SetKeyName(10, "as.png");
+            imgFlags.Images.SetKeyName(11, "at.png");
+            imgFlags.Images.SetKeyName(12, "au.png");
+            imgFlags.Images.SetKeyName(13, "aw.png");
+            imgFlags.Images.SetKeyName(14, "ax.png");
+            imgFlags.Images.SetKeyName(15, "az.png");
+            imgFlags.Images.SetKeyName(16, "ba.png");
+            imgFlags.Images.SetKeyName(17, "bb.png");
+            imgFlags.Images.SetKeyName(18, "bd.png");
+            imgFlags.Images.SetKeyName(19, "be.png");
+            imgFlags.Images.SetKeyName(20, "bf.png");
+            imgFlags.Images.SetKeyName(21, "bg.png");
+            imgFlags.Images.SetKeyName(22, "bh.png");
+            imgFlags.Images.SetKeyName(23, "bi.png");
+            imgFlags.Images.SetKeyName(24, "bj.png");
+            imgFlags.Images.SetKeyName(25, "bm.png");
+            imgFlags.Images.SetKeyName(26, "bn.png");
+            imgFlags.Images.SetKeyName(27, "bo.png");
+            imgFlags.Images.SetKeyName(28, "br.png");
+            imgFlags.Images.SetKeyName(29, "bs.png");
+            imgFlags.Images.SetKeyName(30, "bt.png");
+            imgFlags.Images.SetKeyName(31, "bv.png");
+            imgFlags.Images.SetKeyName(32, "bw.png");
+            imgFlags.Images.SetKeyName(33, "by.png");
+            imgFlags.Images.SetKeyName(34, "bz.png");
+            imgFlags.Images.SetKeyName(35, "ca.png");
+            imgFlags.Images.SetKeyName(36, "catalonia.png");
+            imgFlags.Images.SetKeyName(37, "cc.png");
+            imgFlags.Images.SetKeyName(38, "cd.png");
+            imgFlags.Images.SetKeyName(39, "cf.png");
+            imgFlags.Images.SetKeyName(40, "cg.png");
+            imgFlags.Images.SetKeyName(41, "ch.png");
+            imgFlags.Images.SetKeyName(42, "ci.png");
+            imgFlags.Images.SetKeyName(43, "ck.png");
+            imgFlags.Images.SetKeyName(44, "cl.png");
+            imgFlags.Images.SetKeyName(45, "cm.png");
+            imgFlags.Images.SetKeyName(46, "cn.png");
+            imgFlags.Images.SetKeyName(47, "co.png");
+            imgFlags.Images.SetKeyName(48, "cr.png");
+            imgFlags.Images.SetKeyName(49, "cs.png");
+            imgFlags.Images.SetKeyName(50, "cu.png");
+            imgFlags.Images.SetKeyName(51, "cv.png");
+            imgFlags.Images.SetKeyName(52, "cx.png");
+            imgFlags.Images.SetKeyName(53, "cy.png");
+            imgFlags.Images.SetKeyName(54, "cz.png");
+            imgFlags.Images.SetKeyName(55, "de.png");
+            imgFlags.Images.SetKeyName(56, "dj.png");
+            imgFlags.Images.SetKeyName(57, "dk.png");
+            imgFlags.Images.SetKeyName(58, "dm.png");
+            imgFlags.Images.SetKeyName(59, "do.png");
+            imgFlags.Images.SetKeyName(60, "dz.png");
+            imgFlags.Images.SetKeyName(61, "ec.png");
+            imgFlags.Images.SetKeyName(62, "ee.png");
+            imgFlags.Images.SetKeyName(63, "eg.png");
+            imgFlags.Images.SetKeyName(64, "eh.png");
+            imgFlags.Images.SetKeyName(65, "england.png");
+            imgFlags.Images.SetKeyName(66, "er.png");
+            imgFlags.Images.SetKeyName(67, "es.png");
+            imgFlags.Images.SetKeyName(68, "et.png");
+            imgFlags.Images.SetKeyName(69, "europeanunion.png");
+            imgFlags.Images.SetKeyName(70, "fam.png");
+            imgFlags.Images.SetKeyName(71, "fi.png");
+            imgFlags.Images.SetKeyName(72, "fj.png");
+            imgFlags.Images.SetKeyName(73, "fk.png");
+            imgFlags.Images.SetKeyName(74, "fm.png");
+            imgFlags.Images.SetKeyName(75, "fo.png");
+            imgFlags.Images.SetKeyName(76, "fr.png");
+            imgFlags.Images.SetKeyName(77, "ga.png");
+            imgFlags.Images.SetKeyName(78, "gb.png");
+            imgFlags.Images.SetKeyName(79, "gd.png");
+            imgFlags.Images.SetKeyName(80, "ge.png");
+            imgFlags.Images.SetKeyName(81, "gf.png");
+            imgFlags.Images.SetKeyName(82, "gh.png");
+            imgFlags.Images.SetKeyName(83, "gi.png");
+            imgFlags.Images.SetKeyName(84, "gl.png");
+            imgFlags.Images.SetKeyName(85, "gm.png");
+            imgFlags.Images.SetKeyName(86, "gn.png");
+            imgFlags.Images.SetKeyName(87, "gp.png");
+            imgFlags.Images.SetKeyName(88, "gq.png");
+            imgFlags.Images.SetKeyName(89, "gr.png");
+            imgFlags.Images.SetKeyName(90, "gs.png");
+            imgFlags.Images.SetKeyName(91, "gt.png");
+            imgFlags.Images.SetKeyName(92, "gu.png");
+            imgFlags.Images.SetKeyName(93, "gw.png");
+            imgFlags.Images.SetKeyName(94, "gy.png");
+            imgFlags.Images.SetKeyName(95, "hk.png");
+            imgFlags.Images.SetKeyName(96, "hm.png");
+            imgFlags.Images.SetKeyName(97, "hn.png");
+            imgFlags.Images.SetKeyName(98, "hr.png");
+            imgFlags.Images.SetKeyName(99, "ht.png");
+            imgFlags.Images.SetKeyName(100, "hu.png");
+            imgFlags.Images.SetKeyName(101, "id.png");
+            imgFlags.Images.SetKeyName(102, "ie.png");
+            imgFlags.Images.SetKeyName(103, "il.png");
+            imgFlags.Images.SetKeyName(104, "in.png");
+            imgFlags.Images.SetKeyName(105, "io.png");
+            imgFlags.Images.SetKeyName(106, "iq.png");
+            imgFlags.Images.SetKeyName(107, "ir.png");
+            imgFlags.Images.SetKeyName(108, "is.png");
+            imgFlags.Images.SetKeyName(109, "it.png");
+            imgFlags.Images.SetKeyName(110, "jm.png");
+            imgFlags.Images.SetKeyName(111, "jo.png");
+            imgFlags.Images.SetKeyName(112, "jp.png");
+            imgFlags.Images.SetKeyName(113, "ke.png");
+            imgFlags.Images.SetKeyName(114, "kg.png");
+            imgFlags.Images.SetKeyName(115, "kh.png");
+            imgFlags.Images.SetKeyName(116, "ki.png");
+            imgFlags.Images.SetKeyName(117, "km.png");
+            imgFlags.Images.SetKeyName(118, "kn.png");
+            imgFlags.Images.SetKeyName(119, "kp.png");
+            imgFlags.Images.SetKeyName(120, "kr.png");
+            imgFlags.Images.SetKeyName(121, "kw.png");
+            imgFlags.Images.SetKeyName(122, "ky.png");
+            imgFlags.Images.SetKeyName(123, "kz.png");
+            imgFlags.Images.SetKeyName(124, "la.png");
+            imgFlags.Images.SetKeyName(125, "lb.png");
+            imgFlags.Images.SetKeyName(126, "lc.png");
+            imgFlags.Images.SetKeyName(127, "li.png");
+            imgFlags.Images.SetKeyName(128, "lk.png");
+            imgFlags.Images.SetKeyName(129, "lr.png");
+            imgFlags.Images.SetKeyName(130, "ls.png");
+            imgFlags.Images.SetKeyName(131, "lt.png");
+            imgFlags.Images.SetKeyName(132, "lu.png");
+            imgFlags.Images.SetKeyName(133, "lv.png");
+            imgFlags.Images.SetKeyName(134, "ly.png");
+            imgFlags.Images.SetKeyName(135, "ma.png");
+            imgFlags.Images.SetKeyName(136, "mc.png");
+            imgFlags.Images.SetKeyName(137, "md.png");
+            imgFlags.Images.SetKeyName(138, "me.png");
+            imgFlags.Images.SetKeyName(139, "mg.png");
+            imgFlags.Images.SetKeyName(140, "mh.png");
+            imgFlags.Images.SetKeyName(141, "mk.png");
+            imgFlags.Images.SetKeyName(142, "ml.png");
+            imgFlags.Images.SetKeyName(143, "mm.png");
+            imgFlags.Images.SetKeyName(144, "mn.png");
+            imgFlags.Images.SetKeyName(145, "mo.png");
+            imgFlags.Images.SetKeyName(146, "mp.png");
+            imgFlags.Images.SetKeyName(147, "mq.png");
+            imgFlags.Images.SetKeyName(148, "mr.png");
+            imgFlags.Images.SetKeyName(149, "ms.png");
+            imgFlags.Images.SetKeyName(150, "mt.png");
+            imgFlags.Images.SetKeyName(151, "mu.png");
+            imgFlags.Images.SetKeyName(152, "mv.png");
+            imgFlags.Images.SetKeyName(153, "mw.png");
+            imgFlags.Images.SetKeyName(154, "mx.png");
+            imgFlags.Images.SetKeyName(155, "my.png");
+            imgFlags.Images.SetKeyName(156, "mz.png");
+            imgFlags.Images.SetKeyName(157, "na.png");
+            imgFlags.Images.SetKeyName(158, "nc.png");
+            imgFlags.Images.SetKeyName(159, "ne.png");
+            imgFlags.Images.SetKeyName(160, "nf.png");
+            imgFlags.Images.SetKeyName(161, "ng.png");
+            imgFlags.Images.SetKeyName(162, "ni.png");
+            imgFlags.Images.SetKeyName(163, "nl.png");
+            imgFlags.Images.SetKeyName(164, "no.png");
+            imgFlags.Images.SetKeyName(165, "np.png");
+            imgFlags.Images.SetKeyName(166, "nr.png");
+            imgFlags.Images.SetKeyName(167, "nu.png");
+            imgFlags.Images.SetKeyName(168, "nz.png");
+            imgFlags.Images.SetKeyName(169, "om.png");
+            imgFlags.Images.SetKeyName(170, "pa.png");
+            imgFlags.Images.SetKeyName(171, "pe.png");
+            imgFlags.Images.SetKeyName(172, "pf.png");
+            imgFlags.Images.SetKeyName(173, "pg.png");
+            imgFlags.Images.SetKeyName(174, "ph.png");
+            imgFlags.Images.SetKeyName(175, "pk.png");
+            imgFlags.Images.SetKeyName(176, "pl.png");
+            imgFlags.Images.SetKeyName(177, "pm.png");
+            imgFlags.Images.SetKeyName(178, "pn.png");
+            imgFlags.Images.SetKeyName(179, "pr.png");
+            imgFlags.Images.SetKeyName(180, "ps.png");
+            imgFlags.Images.SetKeyName(181, "pt.png");
+            imgFlags.Images.SetKeyName(182, "pw.png");
+            imgFlags.Images.SetKeyName(183, "py.png");
+            imgFlags.Images.SetKeyName(184, "qa.png");
+            imgFlags.Images.SetKeyName(185, "re.png");
+            imgFlags.Images.SetKeyName(186, "ro.png");
+            imgFlags.Images.SetKeyName(187, "rs.png");
+            imgFlags.Images.SetKeyName(188, "ru.png");
+            imgFlags.Images.SetKeyName(189, "rw.png");
+            imgFlags.Images.SetKeyName(190, "sa.png");
+            imgFlags.Images.SetKeyName(191, "sb.png");
+            imgFlags.Images.SetKeyName(192, "sc.png");
+            imgFlags.Images.SetKeyName(193, "scotland.png");
+            imgFlags.Images.SetKeyName(194, "sd.png");
+            imgFlags.Images.SetKeyName(195, "se.png");
+            imgFlags.Images.SetKeyName(196, "sg.png");
+            imgFlags.Images.SetKeyName(197, "sh.png");
+            imgFlags.Images.SetKeyName(198, "si.png");
+            imgFlags.Images.SetKeyName(199, "sj.png");
+            imgFlags.Images.SetKeyName(200, "sk.png");
+            imgFlags.Images.SetKeyName(201, "sl.png");
+            imgFlags.Images.SetKeyName(202, "sm.png");
+            imgFlags.Images.SetKeyName(203, "sn.png");
+            imgFlags.Images.SetKeyName(204, "so.png");
+            imgFlags.Images.SetKeyName(205, "sr.png");
+            imgFlags.Images.SetKeyName(206, "st.png");
+            imgFlags.Images.SetKeyName(207, "sv.png");
+            imgFlags.Images.SetKeyName(208, "sy.png");
+            imgFlags.Images.SetKeyName(209, "sz.png");
+            imgFlags.Images.SetKeyName(210, "tc.png");
+            imgFlags.Images.SetKeyName(211, "td.png");
+            imgFlags.Images.SetKeyName(212, "tf.png");
+            imgFlags.Images.SetKeyName(213, "tg.png");
+            imgFlags.Images.SetKeyName(214, "th.png");
+            imgFlags.Images.SetKeyName(215, "tj.png");
+            imgFlags.Images.SetKeyName(216, "tk.png");
+            imgFlags.Images.SetKeyName(217, "tl.png");
+            imgFlags.Images.SetKeyName(218, "tm.png");
+            imgFlags.Images.SetKeyName(219, "tn.png");
+            imgFlags.Images.SetKeyName(220, "to.png");
+            imgFlags.Images.SetKeyName(221, "tr.png");
+            imgFlags.Images.SetKeyName(222, "tt.png");
+            imgFlags.Images.SetKeyName(223, "tv.png");
+            imgFlags.Images.SetKeyName(224, "tw.png");
+            imgFlags.Images.SetKeyName(225, "tz.png");
+            imgFlags.Images.SetKeyName(226, "ua.png");
+            imgFlags.Images.SetKeyName(227, "ug.png");
+            imgFlags.Images.SetKeyName(228, "um.png");
+            imgFlags.Images.SetKeyName(229, "us.png");
+            imgFlags.Images.SetKeyName(230, "uy.png");
+            imgFlags.Images.SetKeyName(231, "uz.png");
+            imgFlags.Images.SetKeyName(232, "va.png");
+            imgFlags.Images.SetKeyName(233, "vc.png");
+            imgFlags.Images.SetKeyName(234, "ve.png");
+            imgFlags.Images.SetKeyName(235, "vg.png");
+            imgFlags.Images.SetKeyName(236, "vi.png");
+            imgFlags.Images.SetKeyName(237, "vn.png");
+            imgFlags.Images.SetKeyName(238, "vu.png");
+            imgFlags.Images.SetKeyName(239, "wales.png");
+            imgFlags.Images.SetKeyName(240, "wf.png");
+            imgFlags.Images.SetKeyName(241, "ws.png");
+            imgFlags.Images.SetKeyName(242, "ye.png");
+            imgFlags.Images.SetKeyName(243, "yt.png");
+            imgFlags.Images.SetKeyName(244, "za.png");
+            imgFlags.Images.SetKeyName(245, "zm.png");
+            imgFlags.Images.SetKeyName(246, "zw.png");
+            imgFlags.Images.SetKeyName(247, "xy.png");
             // 
             // notifyIcon
             // 
-            this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
-            this.notifyIcon.Text = "Pulsar";
-            this.notifyIcon.Visible = true;
-            this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseDoubleClick);
+            notifyIcon.Icon = (Icon)resources.GetObject("notifyIcon.Icon");
+            notifyIcon.Text = "Pulsar";
+            notifyIcon.Visible = true;
+            notifyIcon.MouseDoubleClick += notifyIcon_MouseDoubleClick;
             // 
             // tableLayoutPanel
             // 
-            this.tableLayoutPanel.ColumnCount = 1;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Controls.Add(this.MainTabControl, 0, 1);
-            this.tableLayoutPanel.Controls.Add(this.statusStrip, 0, 2);
-            this.tableLayoutPanel.Controls.Add(this.menuStrip, 0, 0);
-            this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 3;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(1144, 538);
-            this.tableLayoutPanel.TabIndex = 6;
+            tableLayoutPanel.ColumnCount = 1;
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel.Controls.Add(MainTabControl, 0, 1);
+            tableLayoutPanel.Controls.Add(statusStrip, 0, 2);
+            tableLayoutPanel.Controls.Add(menuStrip, 0, 0);
+            tableLayoutPanel.Dock = DockStyle.Fill;
+            tableLayoutPanel.GrowStyle = TableLayoutPanelGrowStyle.FixedSize;
+            tableLayoutPanel.Location = new Point(0, 0);
+            tableLayoutPanel.Name = "tableLayoutPanel";
+            tableLayoutPanel.RowCount = 3;
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
+            tableLayoutPanel.Size = new Size(1144, 538);
+            tableLayoutPanel.TabIndex = 6;
             // 
             // MainTabControl
             // 
-            this.MainTabControl.Controls.Add(this.tabPage1);
-            this.MainTabControl.Controls.Add(this.tabPage2);
-            this.MainTabControl.Controls.Add(this.tabPage3);
-            this.MainTabControl.Controls.Add(this.tabPage4);
-            this.MainTabControl.Controls.Add(this.tabPage5);
-            this.MainTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainTabControl.Location = new System.Drawing.Point(0, 25);
-            this.MainTabControl.Margin = new System.Windows.Forms.Padding(0);
-            this.MainTabControl.Name = "MainTabControl";
-            this.MainTabControl.SelectedIndex = 0;
-            this.MainTabControl.Size = new System.Drawing.Size(1144, 491);
-            this.MainTabControl.TabIndex = 7;
-            this.MainTabControl.SelectedIndexChanged += new System.EventHandler(this.MainTabControl_SelectedIndexChanged);
+            MainTabControl.Controls.Add(tabPage1);
+            MainTabControl.Controls.Add(tabPage2);
+            MainTabControl.Controls.Add(tabPage3);
+            MainTabControl.Controls.Add(tabPage4);
+            MainTabControl.Controls.Add(tabPage5);
+            MainTabControl.Dock = DockStyle.Fill;
+            MainTabControl.Location = new Point(0, 25);
+            MainTabControl.Margin = new Padding(0);
+            MainTabControl.Name = "MainTabControl";
+            MainTabControl.SelectedIndex = 0;
+            MainTabControl.Size = new Size(1144, 491);
+            MainTabControl.TabIndex = 7;
+            MainTabControl.SelectedIndexChanged += MainTabControl_SelectedIndexChanged;
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.lstClients);
-            this.tabPage1.Controls.Add(this.tableLayoutPanel1);
-            this.tabPage1.Controls.Add(this.splitter1);
-            this.tabPage1.Controls.Add(this.DebugLogRichBox);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(0);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Size = new System.Drawing.Size(1136, 465);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "ClientTabPage";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            tabPage1.Controls.Add(lstClients);
+            tabPage1.Controls.Add(tableLayoutPanel1);
+            tabPage1.Controls.Add(splitter1);
+            tabPage1.Controls.Add(DebugLogRichBox);
+            tabPage1.Location = new Point(4, 22);
+            tabPage1.Margin = new Padding(0);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Size = new Size(1136, 465);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "ClientTabPage";
+            tabPage1.UseVisualStyleBackColor = true;
             // 
             // lstClients
             // 
-            this.lstClients.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.hIP,
-            this.hNick,
-            this.hTag,
-            this.hUserPC,
-            this.hVersion,
-            this.hStatus,
-            this.hCurrentWindow,
-            this.hUserStatus,
-            this.hCountry,
-            this.hOS,
-            this.hAccountType});
-            this.lstClients.ContextMenuStrip = this.contextMenuStrip;
-            this.lstClients.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstClients.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lstClients.FullRowSelect = true;
-            this.lstClients.HideSelection = false;
-            this.lstClients.Location = new System.Drawing.Point(0, 0);
-            listViewColumnSorter1.NeedNumberCompare = false;
-            listViewColumnSorter1.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter1.SortColumn = 0;
-            this.lstClients.LvwColumnSorter = listViewColumnSorter1;
-            this.lstClients.Name = "lstClients";
-            this.lstClients.ShowItemToolTips = true;
-            this.lstClients.Size = new System.Drawing.Size(849, 351);
-            this.lstClients.SmallImageList = this.imgFlags;
-            this.lstClients.TabIndex = 1;
-            this.lstClients.UseCompatibleStateImageBehavior = false;
-            this.lstClients.View = System.Windows.Forms.View.Details;
-            this.lstClients.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.lstClients_ColumnWidthChanged);
-            this.lstClients.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.lstClients_DrawItem);
-            this.lstClients.SelectedIndexChanged += new System.EventHandler(this.lstClients_SelectedIndexChanged);
-            this.lstClients.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.lstClients_MouseWheel);
-            this.lstClients.Resize += new System.EventHandler(this.lstClients_Resize);
+            lstClients.Columns.AddRange(new ColumnHeader[] { hIP, hNick, hTag, hUserPC, hVersion, hStatus, hCurrentWindow, hUserStatus, hCountry, hOS, hAccountType });
+            lstClients.ContextMenuStrip = contextMenuStrip;
+            lstClients.Dock = DockStyle.Fill;
+            lstClients.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lstClients.FullRowSelect = true;
+            lstClients.Location = new Point(0, 0);
+            lstClients.Name = "lstClients";
+            lstClients.ShowItemToolTips = true;
+            lstClients.Size = new Size(849, 351);
+            lstClients.SmallImageList = imgFlags;
+            lstClients.TabIndex = 1;
+            lstClients.UseCompatibleStateImageBehavior = false;
+            lstClients.View = View.Details;
+            lstClients.ColumnWidthChanged += lstClients_ColumnWidthChanged;
+            lstClients.DrawItem += lstClients_DrawItem;
+            lstClients.SelectedIndexChanged += lstClients_SelectedIndexChanged;
+            lstClients.MouseWheel += lstClients_MouseWheel;
+            lstClients.Resize += lstClients_Resize;
             // 
             // hIP
             // 
-            this.hIP.Text = "IP Address";
-            this.hIP.Width = 112;
+            hIP.Text = "IP Address";
+            hIP.Width = 112;
             // 
             // hNick
             // 
-            this.hNick.Text = "Nickname";
-            this.hNick.Width = 112;
+            hNick.Text = "Nickname";
+            hNick.Width = 112;
             // 
             // hTag
             // 
-            this.hTag.Text = "Tag";
+            hTag.Text = "Tag";
             // 
             // hUserPC
             // 
-            this.hUserPC.Text = "User@PC";
-            this.hUserPC.Width = 175;
+            hUserPC.Text = "User@PC";
+            hUserPC.Width = 175;
             // 
             // hVersion
             // 
-            this.hVersion.Text = "Version";
-            this.hVersion.Width = 66;
+            hVersion.Text = "Version";
+            hVersion.Width = 66;
             // 
             // hStatus
             // 
-            this.hStatus.Text = "Status";
-            this.hStatus.Width = 78;
+            hStatus.Text = "Status";
+            hStatus.Width = 78;
             // 
             // hCurrentWindow
             // 
-            this.hCurrentWindow.Text = "Current Window";
-            this.hCurrentWindow.Width = 200;
+            hCurrentWindow.Text = "Current Window";
+            hCurrentWindow.Width = 200;
             // 
             // hUserStatus
             // 
-            this.hUserStatus.Text = "User Status";
-            this.hUserStatus.Width = 72;
+            hUserStatus.Text = "User Status";
+            hUserStatus.Width = 72;
             // 
             // hCountry
             // 
-            this.hCountry.Text = "Country";
-            this.hCountry.Width = 117;
+            hCountry.Text = "Country";
+            hCountry.Width = 117;
             // 
             // hOS
             // 
-            this.hOS.Text = "Operating System";
-            this.hOS.Width = 222;
+            hOS.Text = "Operating System";
+            hOS.Width = 222;
             // 
             // hAccountType
             // 
-            this.hAccountType.Text = "Account Type";
-            this.hAccountType.Width = 82;
+            hAccountType.Text = "Account Type";
+            hAccountType.Width = 82;
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBoxMain, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.tblLayoutQuickButtons, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.gBoxClientInfo, 0, 3);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(849, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 14F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 166F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(287, 351);
-            this.tableLayoutPanel1.TabIndex = 32;
-            this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
+            tableLayoutPanel1.ColumnCount = 1;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Controls.Add(label1, 0, 0);
+            tableLayoutPanel1.Controls.Add(pictureBoxMain, 0, 1);
+            tableLayoutPanel1.Controls.Add(tblLayoutQuickButtons, 0, 2);
+            tableLayoutPanel1.Controls.Add(gBoxClientInfo, 0, 3);
+            tableLayoutPanel1.Dock = DockStyle.Right;
+            tableLayoutPanel1.Location = new Point(849, 0);
+            tableLayoutPanel1.Margin = new Padding(0);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 4;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 14F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 166F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle());
+            tableLayoutPanel1.Size = new Size(287, 351);
+            tableLayoutPanel1.TabIndex = 32;
+            tableLayoutPanel1.Paint += tableLayoutPanel1_Paint;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(79, 13);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Client Preview";
+            label1.AutoSize = true;
+            label1.Location = new Point(3, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(79, 13);
+            label1.TabIndex = 8;
+            label1.Text = "Client Preview";
             // 
             // pictureBoxMain
             // 
-            this.pictureBoxMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBoxMain.Image = global::Pulsar.Server.Properties.Resources.no_previewbmp;
-            this.pictureBoxMain.InitialImage = null;
-            this.pictureBoxMain.Location = new System.Drawing.Point(3, 17);
-            this.pictureBoxMain.Name = "pictureBoxMain";
-            this.pictureBoxMain.Size = new System.Drawing.Size(281, 160);
-            this.pictureBoxMain.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBoxMain.TabIndex = 31;
-            this.pictureBoxMain.TabStop = false;
+            pictureBoxMain.Dock = DockStyle.Fill;
+            pictureBoxMain.Image = Properties.Resources.no_previewbmp;
+            pictureBoxMain.InitialImage = null;
+            pictureBoxMain.Location = new Point(3, 17);
+            pictureBoxMain.Name = "pictureBoxMain";
+            pictureBoxMain.Size = new Size(281, 160);
+            pictureBoxMain.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBoxMain.TabIndex = 31;
+            pictureBoxMain.TabStop = false;
             // 
             // tblLayoutQuickButtons
             // 
-            this.tblLayoutQuickButtons.ColumnCount = 8;
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblLayoutQuickButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 77F));
-            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickListenToMicrophone, 2, 0);
-            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickRemoteDesktop, 0, 0);
-            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickWebcam, 1, 0);
-            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickKeylogger, 6, 0);
-            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickFileTransfer, 5, 0);
-            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickRemoteShell, 4, 0);
-            this.tblLayoutQuickButtons.Controls.Add(this.btnQuickFileExplorer, 3, 0);
-            this.tblLayoutQuickButtons.Controls.Add(this.chkDisablePreview, 7, 0);
-            this.tblLayoutQuickButtons.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblLayoutQuickButtons.Location = new System.Drawing.Point(0, 180);
-            this.tblLayoutQuickButtons.Margin = new System.Windows.Forms.Padding(0);
-            this.tblLayoutQuickButtons.Name = "tblLayoutQuickButtons";
-            this.tblLayoutQuickButtons.RowCount = 1;
-            this.tblLayoutQuickButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblLayoutQuickButtons.Size = new System.Drawing.Size(287, 30);
-            this.tblLayoutQuickButtons.TabIndex = 32;
+            tblLayoutQuickButtons.ColumnCount = 8;
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30F));
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30F));
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30F));
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30F));
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30F));
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30F));
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30F));
+            tblLayoutQuickButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 77F));
+            tblLayoutQuickButtons.Controls.Add(btnQuickListenToMicrophone, 2, 0);
+            tblLayoutQuickButtons.Controls.Add(btnQuickRemoteDesktop, 0, 0);
+            tblLayoutQuickButtons.Controls.Add(btnQuickWebcam, 1, 0);
+            tblLayoutQuickButtons.Controls.Add(btnQuickKeylogger, 6, 0);
+            tblLayoutQuickButtons.Controls.Add(btnQuickFileTransfer, 5, 0);
+            tblLayoutQuickButtons.Controls.Add(btnQuickRemoteShell, 4, 0);
+            tblLayoutQuickButtons.Controls.Add(btnQuickFileExplorer, 3, 0);
+            tblLayoutQuickButtons.Controls.Add(chkDisablePreview, 7, 0);
+            tblLayoutQuickButtons.Dock = DockStyle.Fill;
+            tblLayoutQuickButtons.Location = new Point(0, 180);
+            tblLayoutQuickButtons.Margin = new Padding(0);
+            tblLayoutQuickButtons.Name = "tblLayoutQuickButtons";
+            tblLayoutQuickButtons.RowCount = 1;
+            tblLayoutQuickButtons.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tblLayoutQuickButtons.Size = new Size(287, 30);
+            tblLayoutQuickButtons.TabIndex = 32;
             // 
             // btnQuickListenToMicrophone
             // 
-            this.btnQuickListenToMicrophone.Image = global::Pulsar.Server.Properties.Resources.sound;
-            this.btnQuickListenToMicrophone.Location = new System.Drawing.Point(63, 3);
-            this.btnQuickListenToMicrophone.Name = "btnQuickListenToMicrophone";
-            this.btnQuickListenToMicrophone.Size = new System.Drawing.Size(24, 24);
-            this.btnQuickListenToMicrophone.TabIndex = 9;
-            this.btnQuickListenToMicrophone.UseVisualStyleBackColor = true;
-            this.btnQuickListenToMicrophone.Click += new System.EventHandler(this.button1_Click_1);
+            btnQuickListenToMicrophone.Image = Properties.Resources.sound;
+            btnQuickListenToMicrophone.Location = new Point(63, 3);
+            btnQuickListenToMicrophone.Name = "btnQuickListenToMicrophone";
+            btnQuickListenToMicrophone.Size = new Size(24, 24);
+            btnQuickListenToMicrophone.TabIndex = 9;
+            btnQuickListenToMicrophone.UseVisualStyleBackColor = true;
+            btnQuickListenToMicrophone.Click += button1_Click_1;
             // 
             // btnQuickRemoteDesktop
             // 
-            this.btnQuickRemoteDesktop.Image = global::Pulsar.Server.Properties.Resources.monitor;
-            this.btnQuickRemoteDesktop.Location = new System.Drawing.Point(3, 3);
-            this.btnQuickRemoteDesktop.Name = "btnQuickRemoteDesktop";
-            this.btnQuickRemoteDesktop.Size = new System.Drawing.Size(24, 24);
-            this.btnQuickRemoteDesktop.TabIndex = 4;
-            this.btnQuickRemoteDesktop.UseVisualStyleBackColor = true;
-            this.btnQuickRemoteDesktop.Click += new System.EventHandler(this.button2_Click);
+            btnQuickRemoteDesktop.Image = Properties.Resources.monitor;
+            btnQuickRemoteDesktop.Location = new Point(3, 3);
+            btnQuickRemoteDesktop.Name = "btnQuickRemoteDesktop";
+            btnQuickRemoteDesktop.Size = new Size(24, 24);
+            btnQuickRemoteDesktop.TabIndex = 4;
+            btnQuickRemoteDesktop.UseVisualStyleBackColor = true;
+            btnQuickRemoteDesktop.Click += button2_Click;
             // 
             // btnQuickWebcam
             // 
-            this.btnQuickWebcam.Image = global::Pulsar.Server.Properties.Resources.webcam;
-            this.btnQuickWebcam.Location = new System.Drawing.Point(33, 3);
-            this.btnQuickWebcam.Name = "btnQuickWebcam";
-            this.btnQuickWebcam.Size = new System.Drawing.Size(24, 24);
-            this.btnQuickWebcam.TabIndex = 3;
-            this.btnQuickWebcam.UseVisualStyleBackColor = true;
-            this.btnQuickWebcam.Click += new System.EventHandler(this.button1_Click);
+            btnQuickWebcam.Image = Properties.Resources.webcam;
+            btnQuickWebcam.Location = new Point(33, 3);
+            btnQuickWebcam.Name = "btnQuickWebcam";
+            btnQuickWebcam.Size = new Size(24, 24);
+            btnQuickWebcam.TabIndex = 3;
+            btnQuickWebcam.UseVisualStyleBackColor = true;
+            btnQuickWebcam.Click += button1_Click;
             // 
             // btnQuickKeylogger
             // 
-            this.btnQuickKeylogger.Image = global::Pulsar.Server.Properties.Resources.keyboard_magnify;
-            this.btnQuickKeylogger.Location = new System.Drawing.Point(183, 3);
-            this.btnQuickKeylogger.Name = "btnQuickKeylogger";
-            this.btnQuickKeylogger.Size = new System.Drawing.Size(24, 24);
-            this.btnQuickKeylogger.TabIndex = 8;
-            this.btnQuickKeylogger.UseVisualStyleBackColor = true;
-            this.btnQuickKeylogger.Click += new System.EventHandler(this.button6_Click);
+            btnQuickKeylogger.Image = Properties.Resources.keyboard_magnify;
+            btnQuickKeylogger.Location = new Point(183, 3);
+            btnQuickKeylogger.Name = "btnQuickKeylogger";
+            btnQuickKeylogger.Size = new Size(24, 24);
+            btnQuickKeylogger.TabIndex = 8;
+            btnQuickKeylogger.UseVisualStyleBackColor = true;
+            btnQuickKeylogger.Click += button6_Click;
             // 
             // btnQuickFileTransfer
             // 
-            this.btnQuickFileTransfer.Image = global::Pulsar.Server.Properties.Resources.drive_go;
-            this.btnQuickFileTransfer.Location = new System.Drawing.Point(153, 3);
-            this.btnQuickFileTransfer.Name = "btnQuickFileTransfer";
-            this.btnQuickFileTransfer.Size = new System.Drawing.Size(24, 24);
-            this.btnQuickFileTransfer.TabIndex = 7;
-            this.btnQuickFileTransfer.UseVisualStyleBackColor = true;
-            this.btnQuickFileTransfer.Click += new System.EventHandler(this.button5_Click);
+            btnQuickFileTransfer.Image = Properties.Resources.drive_go;
+            btnQuickFileTransfer.Location = new Point(153, 3);
+            btnQuickFileTransfer.Name = "btnQuickFileTransfer";
+            btnQuickFileTransfer.Size = new Size(24, 24);
+            btnQuickFileTransfer.TabIndex = 7;
+            btnQuickFileTransfer.UseVisualStyleBackColor = true;
+            btnQuickFileTransfer.Click += button5_Click;
             // 
             // btnQuickRemoteShell
             // 
-            this.btnQuickRemoteShell.Image = global::Pulsar.Server.Properties.Resources.terminal;
-            this.btnQuickRemoteShell.Location = new System.Drawing.Point(123, 3);
-            this.btnQuickRemoteShell.Name = "btnQuickRemoteShell";
-            this.btnQuickRemoteShell.Size = new System.Drawing.Size(24, 24);
-            this.btnQuickRemoteShell.TabIndex = 6;
-            this.btnQuickRemoteShell.UseVisualStyleBackColor = true;
-            this.btnQuickRemoteShell.Click += new System.EventHandler(this.button4_Click);
+            btnQuickRemoteShell.Image = Properties.Resources.terminal;
+            btnQuickRemoteShell.Location = new Point(123, 3);
+            btnQuickRemoteShell.Name = "btnQuickRemoteShell";
+            btnQuickRemoteShell.Size = new Size(24, 24);
+            btnQuickRemoteShell.TabIndex = 6;
+            btnQuickRemoteShell.UseVisualStyleBackColor = true;
+            btnQuickRemoteShell.Click += button4_Click;
             // 
             // btnQuickFileExplorer
             // 
-            this.btnQuickFileExplorer.Image = global::Pulsar.Server.Properties.Resources.folder;
-            this.btnQuickFileExplorer.Location = new System.Drawing.Point(93, 3);
-            this.btnQuickFileExplorer.Name = "btnQuickFileExplorer";
-            this.btnQuickFileExplorer.Size = new System.Drawing.Size(24, 24);
-            this.btnQuickFileExplorer.TabIndex = 5;
-            this.btnQuickFileExplorer.UseVisualStyleBackColor = true;
-            this.btnQuickFileExplorer.Click += new System.EventHandler(this.button3_Click);
+            btnQuickFileExplorer.Image = Properties.Resources.folder;
+            btnQuickFileExplorer.Location = new Point(93, 3);
+            btnQuickFileExplorer.Name = "btnQuickFileExplorer";
+            btnQuickFileExplorer.Size = new Size(24, 24);
+            btnQuickFileExplorer.TabIndex = 5;
+            btnQuickFileExplorer.UseVisualStyleBackColor = true;
+            btnQuickFileExplorer.Click += button3_Click;
             // 
             // chkDisablePreview
             // 
-            this.chkDisablePreview.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.chkDisablePreview.AutoSize = true;
-            this.chkDisablePreview.Location = new System.Drawing.Point(213, 6);
-            this.chkDisablePreview.Name = "chkDisablePreview";
-            this.chkDisablePreview.Size = new System.Drawing.Size(71, 17);
-            this.chkDisablePreview.TabIndex = 10;
-            this.chkDisablePreview.Text = "Disable Preview";
-            this.chkDisablePreview.UseVisualStyleBackColor = true;
+            chkDisablePreview.Anchor = AnchorStyles.None;
+            chkDisablePreview.AutoSize = true;
+            chkDisablePreview.Location = new Point(213, 6);
+            chkDisablePreview.Name = "chkDisablePreview";
+            chkDisablePreview.Size = new Size(71, 17);
+            chkDisablePreview.TabIndex = 10;
+            chkDisablePreview.Text = "Disable Preview";
+            chkDisablePreview.UseVisualStyleBackColor = true;
             // 
             // gBoxClientInfo
             // 
-            this.gBoxClientInfo.Controls.Add(this.clientInfoListView);
-            this.gBoxClientInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gBoxClientInfo.Location = new System.Drawing.Point(2, 212);
-            this.gBoxClientInfo.Margin = new System.Windows.Forms.Padding(2);
-            this.gBoxClientInfo.Name = "gBoxClientInfo";
-            this.gBoxClientInfo.Size = new System.Drawing.Size(283, 137);
-            this.gBoxClientInfo.TabIndex = 9;
-            this.gBoxClientInfo.TabStop = false;
-            this.gBoxClientInfo.Text = "Client Info";
+            gBoxClientInfo.Controls.Add(clientInfoListView);
+            gBoxClientInfo.Dock = DockStyle.Fill;
+            gBoxClientInfo.Location = new Point(2, 212);
+            gBoxClientInfo.Margin = new Padding(2);
+            gBoxClientInfo.Name = "gBoxClientInfo";
+            gBoxClientInfo.Size = new Size(283, 137);
+            gBoxClientInfo.TabIndex = 9;
+            gBoxClientInfo.TabStop = false;
+            gBoxClientInfo.Text = "Client Info";
             // 
             // clientInfoListView
             // 
-            this.clientInfoListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.Names,
-            this.Stats});
-            this.clientInfoListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.clientInfoListView.FullRowSelect = true;
-            this.clientInfoListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.clientInfoListView.HideSelection = false;
-            this.clientInfoListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3,
-            listViewItem4,
-            listViewItem5,
-            listViewItem6,
-            listViewItem7,
-            listViewItem8,
-            listViewItem9});
-            this.clientInfoListView.Location = new System.Drawing.Point(3, 18);
-            listViewColumnSorter2.NeedNumberCompare = false;
-            listViewColumnSorter2.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter2.SortColumn = 0;
-            this.clientInfoListView.LvwColumnSorter = listViewColumnSorter2;
-            this.clientInfoListView.Name = "clientInfoListView";
-            this.clientInfoListView.Size = new System.Drawing.Size(277, 116);
-            this.clientInfoListView.TabIndex = 0;
-            this.clientInfoListView.UseCompatibleStateImageBehavior = false;
-            this.clientInfoListView.View = System.Windows.Forms.View.Details;
+            clientInfoListView.Columns.AddRange(new ColumnHeader[] { Names, Stats });
+            clientInfoListView.Dock = DockStyle.Fill;
+            clientInfoListView.FullRowSelect = true;
+            clientInfoListView.HeaderStyle = ColumnHeaderStyle.None;
+            clientInfoListView.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3, listViewItem4, listViewItem5, listViewItem6, listViewItem7, listViewItem8, listViewItem9 });
+            clientInfoListView.Location = new Point(3, 18);
+            clientInfoListView.Name = "clientInfoListView";
+            clientInfoListView.Size = new Size(277, 116);
+            clientInfoListView.TabIndex = 0;
+            clientInfoListView.UseCompatibleStateImageBehavior = false;
+            clientInfoListView.View = View.Details;
             // 
             // Names
             // 
-            this.Names.Text = "Names";
-            this.Names.Width = 122;
+            Names.Text = "Names";
+            Names.Width = 122;
             // 
             // Stats
             // 
-            this.Stats.Text = "Stats";
-            this.Stats.Width = 134;
+            Stats.Text = "Stats";
+            Stats.Width = 134;
             // 
             // splitter1
             // 
-            this.splitter1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter1.Location = new System.Drawing.Point(0, 351);
-            this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(1136, 3);
-            this.splitter1.TabIndex = 34;
-            this.splitter1.TabStop = false;
-            this.splitter1.Visible = false;
+            splitter1.Dock = DockStyle.Bottom;
+            splitter1.Location = new Point(0, 351);
+            splitter1.Name = "splitter1";
+            splitter1.Size = new Size(1136, 3);
+            splitter1.TabIndex = 34;
+            splitter1.TabStop = false;
+            splitter1.Visible = false;
             // 
             // DebugLogRichBox
             // 
-            this.DebugLogRichBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.DebugLogRichBox.ContextMenuStrip = this.DebugContextMenuStrip;
-            this.DebugLogRichBox.Cursor = System.Windows.Forms.Cursors.Default;
-            this.DebugLogRichBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.DebugLogRichBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DebugLogRichBox.ForeColor = System.Drawing.SystemColors.InfoText;
-            this.DebugLogRichBox.Location = new System.Drawing.Point(0, 354);
-            this.DebugLogRichBox.Name = "DebugLogRichBox";
-            this.DebugLogRichBox.ReadOnly = true;
-            this.DebugLogRichBox.Size = new System.Drawing.Size(1136, 111);
-            this.DebugLogRichBox.TabIndex = 35;
-            this.DebugLogRichBox.Text = "";
-            this.DebugLogRichBox.Visible = false;
+            DebugLogRichBox.BorderStyle = BorderStyle.None;
+            DebugLogRichBox.ContextMenuStrip = DebugContextMenuStrip;
+            DebugLogRichBox.Dock = DockStyle.Bottom;
+            DebugLogRichBox.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            DebugLogRichBox.ForeColor = SystemColors.InfoText;
+            DebugLogRichBox.Location = new Point(0, 354);
+            DebugLogRichBox.Name = "DebugLogRichBox";
+            DebugLogRichBox.ReadOnly = true;
+            DebugLogRichBox.Size = new Size(1136, 111);
+            DebugLogRichBox.TabIndex = 35;
+            DebugLogRichBox.Text = "";
+            DebugLogRichBox.Visible = false;
             // 
             // DebugContextMenuStrip
             // 
-            this.DebugContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveLogsToolStripMenuItem,
-            this.saveSlectedToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.clearLogsToolStripMenuItem});
-            this.DebugContextMenuStrip.Name = "DebugContextMenuStrip";
-            this.DebugContextMenuStrip.Size = new System.Drawing.Size(146, 76);
+            DebugContextMenuStrip.Items.AddRange(new ToolStripItem[] { saveLogsToolStripMenuItem, saveSlectedToolStripMenuItem, toolStripSeparator1, clearLogsToolStripMenuItem });
+            DebugContextMenuStrip.Name = "DebugContextMenuStrip";
+            DebugContextMenuStrip.Size = new Size(146, 76);
             // 
             // saveLogsToolStripMenuItem
             // 
-            this.saveLogsToolStripMenuItem.Name = "saveLogsToolStripMenuItem";
-            this.saveLogsToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
-            this.saveLogsToolStripMenuItem.Text = "Save Logs";
-            this.saveLogsToolStripMenuItem.Click += new System.EventHandler(this.saveLogsToolStripMenuItem_Click);
+            saveLogsToolStripMenuItem.Name = "saveLogsToolStripMenuItem";
+            saveLogsToolStripMenuItem.Size = new Size(145, 22);
+            saveLogsToolStripMenuItem.Text = "Save Logs";
+            saveLogsToolStripMenuItem.Click += saveLogsToolStripMenuItem_Click;
             // 
             // saveSlectedToolStripMenuItem
             // 
-            this.saveSlectedToolStripMenuItem.Name = "saveSlectedToolStripMenuItem";
-            this.saveSlectedToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
-            this.saveSlectedToolStripMenuItem.Text = "Save Selected";
-            this.saveSlectedToolStripMenuItem.Click += new System.EventHandler(this.saveSlectedToolStripMenuItem_Click);
+            saveSlectedToolStripMenuItem.Name = "saveSlectedToolStripMenuItem";
+            saveSlectedToolStripMenuItem.Size = new Size(145, 22);
+            saveSlectedToolStripMenuItem.Text = "Save Selected";
+            saveSlectedToolStripMenuItem.Click += saveSlectedToolStripMenuItem_Click;
             // 
             // toolStripSeparator1
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(142, 6);
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(142, 6);
             // 
             // clearLogsToolStripMenuItem
             // 
-            this.clearLogsToolStripMenuItem.Name = "clearLogsToolStripMenuItem";
-            this.clearLogsToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
-            this.clearLogsToolStripMenuItem.Text = "Clear Logs";
-            this.clearLogsToolStripMenuItem.Click += new System.EventHandler(this.clearLogsToolStripMenuItem_Click);
+            clearLogsToolStripMenuItem.Name = "clearLogsToolStripMenuItem";
+            clearLogsToolStripMenuItem.Size = new Size(145, 22);
+            clearLogsToolStripMenuItem.Text = "Clear Logs";
+            clearLogsToolStripMenuItem.Click += clearLogsToolStripMenuItem_Click;
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.lstNoti);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(0);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(1136, 465);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "NotiTabPage";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            tabPage2.Controls.Add(lstNoti);
+            tabPage2.Location = new Point(4, 24);
+            tabPage2.Margin = new Padding(0);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Size = new Size(1136, 463);
+            tabPage2.TabIndex = 1;
+            tabPage2.Text = "NotiTabPage";
+            tabPage2.UseVisualStyleBackColor = true;
             // 
             // lstNoti
             // 
-            this.lstNoti.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader11});
-            this.lstNoti.ContextMenuStrip = this.NotificationContextMenuStrip;
-            this.lstNoti.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstNoti.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lstNoti.FullRowSelect = true;
-            this.lstNoti.HideSelection = false;
-            this.lstNoti.Location = new System.Drawing.Point(0, 0);
-            listViewColumnSorter3.NeedNumberCompare = false;
-            listViewColumnSorter3.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter3.SortColumn = 0;
-            this.lstNoti.LvwColumnSorter = listViewColumnSorter3;
-            this.lstNoti.Margin = new System.Windows.Forms.Padding(0);
-            this.lstNoti.Name = "lstNoti";
-            this.lstNoti.ShowItemToolTips = true;
-            this.lstNoti.Size = new System.Drawing.Size(1136, 465);
-            this.lstNoti.SmallImageList = this.imgFlags;
-            this.lstNoti.TabIndex = 2;
-            this.lstNoti.UseCompatibleStateImageBehavior = false;
-            this.lstNoti.View = System.Windows.Forms.View.Details;
+            lstNoti.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2, columnHeader3, columnHeader11 });
+            lstNoti.ContextMenuStrip = NotificationContextMenuStrip;
+            lstNoti.Dock = DockStyle.Fill;
+            lstNoti.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lstNoti.FullRowSelect = true;
+            lstNoti.Location = new Point(0, 0);
+            lstNoti.Margin = new Padding(0);
+            lstNoti.Name = "lstNoti";
+            lstNoti.ShowItemToolTips = true;
+            lstNoti.Size = new Size(1136, 463);
+            lstNoti.SmallImageList = imgFlags;
+            lstNoti.TabIndex = 2;
+            lstNoti.UseCompatibleStateImageBehavior = false;
+            lstNoti.View = View.Details;
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Text = "User@PC";
-            this.columnHeader1.Width = 150;
+            columnHeader1.Text = "User@PC";
+            columnHeader1.Width = 150;
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "Time";
-            this.columnHeader2.Width = 140;
+            columnHeader2.Text = "Time";
+            columnHeader2.Width = 140;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Event";
-            this.columnHeader3.Width = 200;
+            columnHeader3.Text = "Event";
+            columnHeader3.Width = 200;
             // 
             // columnHeader11
             // 
-            this.columnHeader11.Text = "Parameter";
-            this.columnHeader11.Width = 642;
+            columnHeader11.Text = "Parameter";
+            columnHeader11.Width = 642;
             // 
             // NotificationContextMenuStrip
             // 
-            this.NotificationContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addKeywordsToolStripMenuItem,
-            this.clearSelectedToolStripMenuItem});
-            this.NotificationContextMenuStrip.Name = "NotificationContextMenuStrip";
-            this.NotificationContextMenuStrip.Size = new System.Drawing.Size(156, 48);
+            NotificationContextMenuStrip.Items.AddRange(new ToolStripItem[] { addKeywordsToolStripMenuItem, clearSelectedToolStripMenuItem });
+            NotificationContextMenuStrip.Name = "NotificationContextMenuStrip";
+            NotificationContextMenuStrip.Size = new Size(156, 48);
             // 
             // addKeywordsToolStripMenuItem
             // 
-            this.addKeywordsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.add;
-            this.addKeywordsToolStripMenuItem.Name = "addKeywordsToolStripMenuItem";
-            this.addKeywordsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
-            this.addKeywordsToolStripMenuItem.Text = "Add Key-words";
-            this.addKeywordsToolStripMenuItem.Click += new System.EventHandler(this.addKeywordsToolStripMenuItem_Click);
+            addKeywordsToolStripMenuItem.Image = Properties.Resources.add;
+            addKeywordsToolStripMenuItem.Name = "addKeywordsToolStripMenuItem";
+            addKeywordsToolStripMenuItem.Size = new Size(155, 22);
+            addKeywordsToolStripMenuItem.Text = "Add Key-words";
+            addKeywordsToolStripMenuItem.Click += addKeywordsToolStripMenuItem_Click;
             // 
             // clearSelectedToolStripMenuItem
             // 
-            this.clearSelectedToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.delete;
-            this.clearSelectedToolStripMenuItem.Name = "clearSelectedToolStripMenuItem";
-            this.clearSelectedToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
-            this.clearSelectedToolStripMenuItem.Text = "Clear Selected";
-            this.clearSelectedToolStripMenuItem.Click += new System.EventHandler(this.clearSelectedToolStripMenuItem_Click);
+            clearSelectedToolStripMenuItem.Image = Properties.Resources.delete;
+            clearSelectedToolStripMenuItem.Name = "clearSelectedToolStripMenuItem";
+            clearSelectedToolStripMenuItem.Size = new Size(155, 22);
+            clearSelectedToolStripMenuItem.Text = "Clear Selected";
+            clearSelectedToolStripMenuItem.Click += clearSelectedToolStripMenuItem_Click;
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.cryptoGroupBox);
-            this.tabPage3.Controls.Add(this.ClipperCheckbox);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(1136, 465);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "ClipperTabPage";
-            this.tabPage3.UseVisualStyleBackColor = true;
+            tabPage3.Controls.Add(cryptoGroupBox);
+            tabPage3.Controls.Add(ClipperCheckbox);
+            tabPage3.Location = new Point(4, 24);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Padding = new Padding(3);
+            tabPage3.Size = new Size(1136, 463);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "ClipperTabPage";
+            tabPage3.UseVisualStyleBackColor = true;
             // 
             // cryptoGroupBox
             // 
-            this.cryptoGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cryptoGroupBox.Controls.Add(this.BCHTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label10);
-            this.cryptoGroupBox.Controls.Add(this.TRXTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label9);
-            this.cryptoGroupBox.Controls.Add(this.XRPTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label8);
-            this.cryptoGroupBox.Controls.Add(this.DASHTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label7);
-            this.cryptoGroupBox.Controls.Add(this.SOLTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label6);
-            this.cryptoGroupBox.Controls.Add(this.XMRTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label5);
-            this.cryptoGroupBox.Controls.Add(this.LTCTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label4);
-            this.cryptoGroupBox.Controls.Add(this.ETHTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label3);
-            this.cryptoGroupBox.Controls.Add(this.BTCTextBox);
-            this.cryptoGroupBox.Controls.Add(this.label2);
-            this.cryptoGroupBox.Location = new System.Drawing.Point(8, 29);
-            this.cryptoGroupBox.Name = "cryptoGroupBox";
-            this.cryptoGroupBox.Size = new System.Drawing.Size(1104, 279);
-            this.cryptoGroupBox.TabIndex = 1;
-            this.cryptoGroupBox.TabStop = false;
-            this.cryptoGroupBox.Text = "Settings";
-            this.cryptoGroupBox.Enter += new System.EventHandler(this.groupBox1_Enter);
+            cryptoGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            cryptoGroupBox.Controls.Add(BCHTextBox);
+            cryptoGroupBox.Controls.Add(label10);
+            cryptoGroupBox.Controls.Add(TRXTextBox);
+            cryptoGroupBox.Controls.Add(label9);
+            cryptoGroupBox.Controls.Add(XRPTextBox);
+            cryptoGroupBox.Controls.Add(label8);
+            cryptoGroupBox.Controls.Add(DASHTextBox);
+            cryptoGroupBox.Controls.Add(label7);
+            cryptoGroupBox.Controls.Add(SOLTextBox);
+            cryptoGroupBox.Controls.Add(label6);
+            cryptoGroupBox.Controls.Add(XMRTextBox);
+            cryptoGroupBox.Controls.Add(label5);
+            cryptoGroupBox.Controls.Add(LTCTextBox);
+            cryptoGroupBox.Controls.Add(label4);
+            cryptoGroupBox.Controls.Add(ETHTextBox);
+            cryptoGroupBox.Controls.Add(label3);
+            cryptoGroupBox.Controls.Add(BTCTextBox);
+            cryptoGroupBox.Controls.Add(label2);
+            cryptoGroupBox.Location = new Point(8, 29);
+            cryptoGroupBox.Name = "cryptoGroupBox";
+            cryptoGroupBox.Size = new Size(1104, 279);
+            cryptoGroupBox.TabIndex = 1;
+            cryptoGroupBox.TabStop = false;
+            cryptoGroupBox.Text = "Settings";
+            cryptoGroupBox.Enter += groupBox1_Enter;
             // 
             // BCHTextBox
             // 
-            this.BCHTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.BCHTextBox.Location = new System.Drawing.Point(50, 245);
-            this.BCHTextBox.Name = "BCHTextBox";
-            this.BCHTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.BCHTextBox.TabIndex = 17;
+            BCHTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            BCHTextBox.Location = new Point(50, 245);
+            BCHTextBox.Name = "BCHTextBox";
+            BCHTextBox.Size = new Size(1048, 22);
+            BCHTextBox.TabIndex = 17;
             // 
             // label10
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 250);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(31, 13);
-            this.label10.TabIndex = 16;
-            this.label10.Text = "BCH:";
+            label10.AutoSize = true;
+            label10.Location = new Point(6, 250);
+            label10.Name = "label10";
+            label10.Size = new Size(31, 13);
+            label10.TabIndex = 16;
+            label10.Text = "BCH:";
             // 
             // TRXTextBox
             // 
-            this.TRXTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TRXTextBox.Location = new System.Drawing.Point(50, 217);
-            this.TRXTextBox.Name = "TRXTextBox";
-            this.TRXTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.TRXTextBox.TabIndex = 15;
+            TRXTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            TRXTextBox.Location = new Point(50, 217);
+            TRXTextBox.Name = "TRXTextBox";
+            TRXTextBox.Size = new Size(1048, 22);
+            TRXTextBox.TabIndex = 15;
             // 
             // label9
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 222);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(29, 13);
-            this.label9.TabIndex = 14;
-            this.label9.Text = "TRX:";
+            label9.AutoSize = true;
+            label9.Location = new Point(6, 222);
+            label9.Name = "label9";
+            label9.Size = new Size(29, 13);
+            label9.TabIndex = 14;
+            label9.Text = "TRX:";
             // 
             // XRPTextBox
             // 
-            this.XRPTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.XRPTextBox.Location = new System.Drawing.Point(50, 189);
-            this.XRPTextBox.Name = "XRPTextBox";
-            this.XRPTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.XRPTextBox.TabIndex = 13;
+            XRPTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            XRPTextBox.Location = new Point(50, 189);
+            XRPTextBox.Name = "XRPTextBox";
+            XRPTextBox.Size = new Size(1048, 22);
+            XRPTextBox.TabIndex = 13;
             // 
             // label8
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 194);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(29, 13);
-            this.label8.TabIndex = 12;
-            this.label8.Text = "XRP:";
+            label8.AutoSize = true;
+            label8.Location = new Point(6, 194);
+            label8.Name = "label8";
+            label8.Size = new Size(29, 13);
+            label8.TabIndex = 12;
+            label8.Text = "XRP:";
             // 
             // DASHTextBox
             // 
-            this.DASHTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.DASHTextBox.Location = new System.Drawing.Point(50, 161);
-            this.DASHTextBox.Name = "DASHTextBox";
-            this.DASHTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.DASHTextBox.TabIndex = 11;
+            DASHTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            DASHTextBox.Location = new Point(50, 161);
+            DASHTextBox.Name = "DASHTextBox";
+            DASHTextBox.Size = new Size(1048, 22);
+            DASHTextBox.TabIndex = 11;
             // 
             // label7
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 166);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(39, 13);
-            this.label7.TabIndex = 10;
-            this.label7.Text = "DASH:";
+            label7.AutoSize = true;
+            label7.Location = new Point(6, 166);
+            label7.Name = "label7";
+            label7.Size = new Size(39, 13);
+            label7.TabIndex = 10;
+            label7.Text = "DASH:";
             // 
             // SOLTextBox
             // 
-            this.SOLTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.SOLTextBox.Location = new System.Drawing.Point(50, 133);
-            this.SOLTextBox.Name = "SOLTextBox";
-            this.SOLTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.SOLTextBox.TabIndex = 9;
+            SOLTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            SOLTextBox.Location = new Point(50, 133);
+            SOLTextBox.Name = "SOLTextBox";
+            SOLTextBox.Size = new Size(1048, 22);
+            SOLTextBox.TabIndex = 9;
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 138);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(30, 13);
-            this.label6.TabIndex = 8;
-            this.label6.Text = "SOL:";
+            label6.AutoSize = true;
+            label6.Location = new Point(6, 138);
+            label6.Name = "label6";
+            label6.Size = new Size(30, 13);
+            label6.TabIndex = 8;
+            label6.Text = "SOL:";
             // 
             // XMRTextBox
             // 
-            this.XMRTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.XMRTextBox.Location = new System.Drawing.Point(50, 105);
-            this.XMRTextBox.Name = "XMRTextBox";
-            this.XMRTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.XMRTextBox.TabIndex = 7;
+            XMRTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            XMRTextBox.Location = new Point(50, 105);
+            XMRTextBox.Name = "XMRTextBox";
+            XMRTextBox.Size = new Size(1048, 22);
+            XMRTextBox.TabIndex = 7;
             // 
             // label5
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 110);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(33, 13);
-            this.label5.TabIndex = 6;
-            this.label5.Text = "XMR:";
+            label5.AutoSize = true;
+            label5.Location = new Point(6, 110);
+            label5.Name = "label5";
+            label5.Size = new Size(33, 13);
+            label5.TabIndex = 6;
+            label5.Text = "XMR:";
             // 
             // LTCTextBox
             // 
-            this.LTCTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LTCTextBox.Location = new System.Drawing.Point(50, 77);
-            this.LTCTextBox.Name = "LTCTextBox";
-            this.LTCTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.LTCTextBox.TabIndex = 5;
+            LTCTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            LTCTextBox.Location = new Point(50, 77);
+            LTCTextBox.Name = "LTCTextBox";
+            LTCTextBox.Size = new Size(1048, 22);
+            LTCTextBox.TabIndex = 5;
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 82);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(26, 13);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "LTC:";
+            label4.AutoSize = true;
+            label4.Location = new Point(6, 82);
+            label4.Name = "label4";
+            label4.Size = new Size(26, 13);
+            label4.TabIndex = 4;
+            label4.Text = "LTC:";
             // 
             // ETHTextBox
             // 
-            this.ETHTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ETHTextBox.Location = new System.Drawing.Point(50, 49);
-            this.ETHTextBox.Name = "ETHTextBox";
-            this.ETHTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.ETHTextBox.TabIndex = 3;
+            ETHTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            ETHTextBox.Location = new Point(50, 49);
+            ETHTextBox.Name = "ETHTextBox";
+            ETHTextBox.Size = new Size(1048, 22);
+            ETHTextBox.TabIndex = 3;
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 54);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(30, 13);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "ETH:";
+            label3.AutoSize = true;
+            label3.Location = new Point(6, 54);
+            label3.Name = "label3";
+            label3.Size = new Size(30, 13);
+            label3.TabIndex = 2;
+            label3.Text = "ETH:";
             // 
             // BTCTextBox
             // 
-            this.BTCTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.BTCTextBox.Location = new System.Drawing.Point(50, 21);
-            this.BTCTextBox.Name = "BTCTextBox";
-            this.BTCTextBox.Size = new System.Drawing.Size(1048, 22);
-            this.BTCTextBox.TabIndex = 1;
+            BTCTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            BTCTextBox.Location = new Point(50, 21);
+            BTCTextBox.Name = "BTCTextBox";
+            BTCTextBox.Size = new Size(1048, 22);
+            BTCTextBox.TabIndex = 1;
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 26);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(28, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "BTC:";
+            label2.AutoSize = true;
+            label2.Location = new Point(6, 26);
+            label2.Name = "label2";
+            label2.Size = new Size(28, 13);
+            label2.TabIndex = 0;
+            label2.Text = "BTC:";
             // 
             // ClipperCheckbox
             // 
-            this.ClipperCheckbox.AutoSize = true;
-            this.ClipperCheckbox.Location = new System.Drawing.Point(8, 6);
-            this.ClipperCheckbox.Name = "ClipperCheckbox";
-            this.ClipperCheckbox.Size = new System.Drawing.Size(50, 17);
-            this.ClipperCheckbox.TabIndex = 0;
-            this.ClipperCheckbox.Text = "Start";
-            this.ClipperCheckbox.UseVisualStyleBackColor = true;
-            this.ClipperCheckbox.CheckedChanged += new System.EventHandler(this.ClipperCheckbox_CheckedChanged);
+            ClipperCheckbox.AutoSize = true;
+            ClipperCheckbox.Location = new Point(8, 6);
+            ClipperCheckbox.Name = "ClipperCheckbox";
+            ClipperCheckbox.Size = new Size(50, 17);
+            ClipperCheckbox.TabIndex = 0;
+            ClipperCheckbox.Text = "Start";
+            ClipperCheckbox.UseVisualStyleBackColor = true;
+            ClipperCheckbox.CheckedChanged += ClipperCheckbox_CheckedChanged;
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.lstTasks);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Margin = new System.Windows.Forms.Padding(0);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(1136, 465);
-            this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "AutoTasksTabPage";
-            this.tabPage4.UseVisualStyleBackColor = true;
+            tabPage4.Controls.Add(lstTasks);
+            tabPage4.Location = new Point(4, 24);
+            tabPage4.Margin = new Padding(0);
+            tabPage4.Name = "tabPage4";
+            tabPage4.Size = new Size(1136, 463);
+            tabPage4.TabIndex = 3;
+            tabPage4.Text = "AutoTasksTabPage";
+            tabPage4.UseVisualStyleBackColor = true;
             // 
             // lstTasks
             // 
-            this.lstTasks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader4,
-            this.columnHeader5,
-            this.columnHeader8});
-            this.lstTasks.ContextMenuStrip = this.TasksContextMenuStrip;
-            this.lstTasks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstTasks.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lstTasks.FullRowSelect = true;
-            this.lstTasks.HideSelection = false;
-            this.lstTasks.Location = new System.Drawing.Point(0, 0);
-            listViewColumnSorter4.NeedNumberCompare = false;
-            listViewColumnSorter4.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter4.SortColumn = 0;
-            this.lstTasks.LvwColumnSorter = listViewColumnSorter4;
-            this.lstTasks.Margin = new System.Windows.Forms.Padding(0);
-            this.lstTasks.Name = "lstTasks";
-            this.lstTasks.ShowItemToolTips = true;
-            this.lstTasks.Size = new System.Drawing.Size(1136, 465);
-            this.lstTasks.SmallImageList = this.imgFlags;
-            this.lstTasks.TabIndex = 3;
-            this.lstTasks.UseCompatibleStateImageBehavior = false;
-            this.lstTasks.View = System.Windows.Forms.View.Details;
+            lstTasks.Columns.AddRange(new ColumnHeader[] { columnHeader4, columnHeader5, columnHeader8 });
+            lstTasks.ContextMenuStrip = TasksContextMenuStrip;
+            lstTasks.Dock = DockStyle.Fill;
+            lstTasks.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lstTasks.FullRowSelect = true;
+            lstTasks.Location = new Point(0, 0);
+            lstTasks.Margin = new Padding(0);
+            lstTasks.Name = "lstTasks";
+            lstTasks.ShowItemToolTips = true;
+            lstTasks.Size = new Size(1136, 463);
+            lstTasks.SmallImageList = imgFlags;
+            lstTasks.TabIndex = 3;
+            lstTasks.UseCompatibleStateImageBehavior = false;
+            lstTasks.View = View.Details;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "Task";
-            this.columnHeader4.Width = 150;
+            columnHeader4.Text = "Task";
+            columnHeader4.Width = 150;
             // 
             // columnHeader5
             // 
-            this.columnHeader5.Text = "Host";
-            this.columnHeader5.Width = 450;
+            columnHeader5.Text = "Host";
+            columnHeader5.Width = 450;
             // 
             // columnHeader8
             // 
-            this.columnHeader8.Text = "Arguments";
-            this.columnHeader8.Width = 532;
+            columnHeader8.Text = "Arguments";
+            columnHeader8.Width = 532;
             // 
             // TasksContextMenuStrip
             // 
-            this.TasksContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addTaskToolStripMenuItem,
-            this.deleteTasksToolStripMenuItem});
-            this.TasksContextMenuStrip.Name = "TasksContextMenuStrip";
-            this.TasksContextMenuStrip.Size = new System.Drawing.Size(138, 48);
+            TasksContextMenuStrip.Items.AddRange(new ToolStripItem[] { addTaskToolStripMenuItem, deleteTasksToolStripMenuItem });
+            TasksContextMenuStrip.Name = "TasksContextMenuStrip";
+            TasksContextMenuStrip.Size = new Size(138, 48);
             // 
             // addTaskToolStripMenuItem
             // 
-            this.addTaskToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.remoteExecuteToolStripMenuItem1,
-            this.shellCommandToolStripMenuItem,
-            this.kematianToolStripMenuItem,
-            this.showMessageBoxToolStripMenuItem1,
-            this.excludeSystemDriveToolStripMenuItem,
-            this.winREToolStripMenuItem1});
-            this.addTaskToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.add;
-            this.addTaskToolStripMenuItem.Name = "addTaskToolStripMenuItem";
-            this.addTaskToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
-            this.addTaskToolStripMenuItem.Text = "Add Task";
+            addTaskToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { remoteExecuteToolStripMenuItem1, shellCommandToolStripMenuItem, kematianToolStripMenuItem, showMessageBoxToolStripMenuItem1, excludeSystemDriveToolStripMenuItem, winREToolStripMenuItem1 });
+            addTaskToolStripMenuItem.Image = Properties.Resources.add;
+            addTaskToolStripMenuItem.Name = "addTaskToolStripMenuItem";
+            addTaskToolStripMenuItem.Size = new Size(137, 22);
+            addTaskToolStripMenuItem.Text = "Add Task";
             // 
             // remoteExecuteToolStripMenuItem1
             // 
-            this.remoteExecuteToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.drive_go;
-            this.remoteExecuteToolStripMenuItem1.Name = "remoteExecuteToolStripMenuItem1";
-            this.remoteExecuteToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
-            this.remoteExecuteToolStripMenuItem1.Text = "Remote Execute";
-            this.remoteExecuteToolStripMenuItem1.Click += new System.EventHandler(this.remoteExecuteToolStripMenuItem1_Click);
+            remoteExecuteToolStripMenuItem1.Image = Properties.Resources.drive_go;
+            remoteExecuteToolStripMenuItem1.Name = "remoteExecuteToolStripMenuItem1";
+            remoteExecuteToolStripMenuItem1.Size = new Size(186, 22);
+            remoteExecuteToolStripMenuItem1.Text = "Remote Execute";
+            remoteExecuteToolStripMenuItem1.Click += remoteExecuteToolStripMenuItem1_Click;
             // 
             // shellCommandToolStripMenuItem
             // 
-            this.shellCommandToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.terminal;
-            this.shellCommandToolStripMenuItem.Name = "shellCommandToolStripMenuItem";
-            this.shellCommandToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-            this.shellCommandToolStripMenuItem.Text = "Shell Command";
-            this.shellCommandToolStripMenuItem.Click += new System.EventHandler(this.shellCommandToolStripMenuItem_Click);
+            shellCommandToolStripMenuItem.Image = Properties.Resources.terminal;
+            shellCommandToolStripMenuItem.Name = "shellCommandToolStripMenuItem";
+            shellCommandToolStripMenuItem.Size = new Size(186, 22);
+            shellCommandToolStripMenuItem.Text = "Shell Command";
+            shellCommandToolStripMenuItem.Click += shellCommandToolStripMenuItem_Click;
+            // 
+            // kematianToolStripMenuItem
+            // 
+            kematianToolStripMenuItem.Name = "kematianToolStripMenuItem";
+            kematianToolStripMenuItem.Size = new Size(186, 22);
             // 
             // showMessageBoxToolStripMenuItem1
             // 
-            this.showMessageBoxToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.information;
-            this.showMessageBoxToolStripMenuItem1.Name = "showMessageBoxToolStripMenuItem1";
-            this.showMessageBoxToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
-            this.showMessageBoxToolStripMenuItem1.Text = "Show Message Box";
-            this.showMessageBoxToolStripMenuItem1.Click += new System.EventHandler(this.showMessageBoxToolStripMenuItem1_Click);
+            showMessageBoxToolStripMenuItem1.Image = Properties.Resources.information;
+            showMessageBoxToolStripMenuItem1.Name = "showMessageBoxToolStripMenuItem1";
+            showMessageBoxToolStripMenuItem1.Size = new Size(186, 22);
+            showMessageBoxToolStripMenuItem1.Text = "Show Message Box";
+            showMessageBoxToolStripMenuItem1.Click += showMessageBoxToolStripMenuItem1_Click;
             // 
             // excludeSystemDriveToolStripMenuItem
             // 
-            this.excludeSystemDriveToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.uac_shield;
-            this.excludeSystemDriveToolStripMenuItem.Name = "excludeSystemDriveToolStripMenuItem";
-            this.excludeSystemDriveToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-            this.excludeSystemDriveToolStripMenuItem.Text = "Exclude System Drive";
-            this.excludeSystemDriveToolStripMenuItem.Click += new System.EventHandler(this.excludeSystemDriveToolStripMenuItem_Click);
+            excludeSystemDriveToolStripMenuItem.Image = Properties.Resources.uac_shield;
+            excludeSystemDriveToolStripMenuItem.Name = "excludeSystemDriveToolStripMenuItem";
+            excludeSystemDriveToolStripMenuItem.Size = new Size(186, 22);
+            excludeSystemDriveToolStripMenuItem.Text = "Exclude System Drive";
+            excludeSystemDriveToolStripMenuItem.Click += excludeSystemDriveToolStripMenuItem_Click;
             // 
             // winREToolStripMenuItem1
             // 
-            this.winREToolStripMenuItem1.Image = global::Pulsar.Server.Properties.Resources.anchor;
-            this.winREToolStripMenuItem1.Name = "winREToolStripMenuItem1";
-            this.winREToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
-            this.winREToolStripMenuItem1.Text = "WinRE";
-            this.winREToolStripMenuItem1.Click += new System.EventHandler(this.winREToolStripMenuItem1_Click);
+            winREToolStripMenuItem1.Image = Properties.Resources.anchor;
+            winREToolStripMenuItem1.Name = "winREToolStripMenuItem1";
+            winREToolStripMenuItem1.Size = new Size(186, 22);
+            winREToolStripMenuItem1.Text = "WinRE";
+            winREToolStripMenuItem1.Click += winREToolStripMenuItem1_Click;
             // 
             // deleteTasksToolStripMenuItem
             // 
-            this.deleteTasksToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.delete;
-            this.deleteTasksToolStripMenuItem.Name = "deleteTasksToolStripMenuItem";
-            this.deleteTasksToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
-            this.deleteTasksToolStripMenuItem.Text = "Delete Task&s";
-            this.deleteTasksToolStripMenuItem.Click += new System.EventHandler(this.deleteTasksToolStripMenuItem_Click);
+            deleteTasksToolStripMenuItem.Image = Properties.Resources.delete;
+            deleteTasksToolStripMenuItem.Name = "deleteTasksToolStripMenuItem";
+            deleteTasksToolStripMenuItem.Size = new Size(137, 22);
+            deleteTasksToolStripMenuItem.Text = "Delete Task&s";
+            deleteTasksToolStripMenuItem.Click += deleteTasksToolStripMenuItem_Click;
             // 
             // tabPage5
             // 
-            this.tabPage5.Controls.Add(this.splitter2);
-            this.tabPage5.Controls.Add(this.dotNetBarTabControl1);
-            this.tabPage5.Controls.Add(this.aeroListView1);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(1136, 465);
-            this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "GathererSorter";
-            this.tabPage5.UseVisualStyleBackColor = true;
+            tabPage5.Controls.Add(splitter2);
+            tabPage5.Controls.Add(dotNetBarTabControl1);
+            tabPage5.Controls.Add(aeroListView1);
+            tabPage5.Location = new Point(4, 24);
+            tabPage5.Name = "tabPage5";
+            tabPage5.Padding = new Padding(3);
+            tabPage5.Size = new Size(1136, 463);
+            tabPage5.TabIndex = 4;
+            tabPage5.Text = "GathererSorter";
+            tabPage5.UseVisualStyleBackColor = true;
             // 
             // splitter2
             // 
-            this.splitter2.Location = new System.Drawing.Point(156, 3);
-            this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(3, 459);
-            this.splitter2.TabIndex = 2;
-            this.splitter2.TabStop = false;
+            splitter2.Location = new Point(156, 3);
+            splitter2.Name = "splitter2";
+            splitter2.Size = new Size(3, 457);
+            splitter2.TabIndex = 2;
+            splitter2.TabStop = false;
             // 
             // dotNetBarTabControl1
             // 
-            this.dotNetBarTabControl1.Controls.Add(this.Passwords);
-            this.dotNetBarTabControl1.Controls.Add(this.Cookies);
-            this.dotNetBarTabControl1.Controls.Add(this.Communication);
-            this.dotNetBarTabControl1.Controls.Add(this.Games);
-            this.dotNetBarTabControl1.Controls.Add(this.tabPage6);
-            this.dotNetBarTabControl1.Controls.Add(this.tabPage7);
-            this.dotNetBarTabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dotNetBarTabControl1.ItemSize = new System.Drawing.Size(90, 22);
-            this.dotNetBarTabControl1.Location = new System.Drawing.Point(156, 3);
-            this.dotNetBarTabControl1.Name = "dotNetBarTabControl1";
-            this.dotNetBarTabControl1.SelectedIndex = 0;
-            this.dotNetBarTabControl1.ShowCloseButtons = false;
-            this.dotNetBarTabControl1.Size = new System.Drawing.Size(977, 459);
-            this.dotNetBarTabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
-            this.dotNetBarTabControl1.TabIndex = 1;
+            dotNetBarTabControl1.Controls.Add(Passwords);
+            dotNetBarTabControl1.Controls.Add(Cookies);
+            dotNetBarTabControl1.Controls.Add(Communication);
+            dotNetBarTabControl1.Controls.Add(Games);
+            dotNetBarTabControl1.Controls.Add(tabPage6);
+            dotNetBarTabControl1.Controls.Add(tabPage7);
+            dotNetBarTabControl1.Dock = DockStyle.Fill;
+            dotNetBarTabControl1.ItemSize = new Size(90, 22);
+            dotNetBarTabControl1.Location = new Point(156, 3);
+            dotNetBarTabControl1.Name = "dotNetBarTabControl1";
+            dotNetBarTabControl1.SelectedIndex = 0;
+            dotNetBarTabControl1.Size = new Size(977, 457);
+            dotNetBarTabControl1.SizeMode = TabSizeMode.Fixed;
+            dotNetBarTabControl1.TabIndex = 1;
             // 
             // Passwords
             // 
-            this.Passwords.Controls.Add(this.aeroListView2);
-            this.Passwords.Location = new System.Drawing.Point(4, 26);
-            this.Passwords.Name = "Passwords";
-            this.Passwords.Padding = new System.Windows.Forms.Padding(3);
-            this.Passwords.Size = new System.Drawing.Size(969, 429);
-            this.Passwords.TabIndex = 0;
-            this.Passwords.Text = "Passwords";
-            this.Passwords.UseVisualStyleBackColor = true;
+            Passwords.Controls.Add(aeroListView2);
+            Passwords.Location = new Point(4, 26);
+            Passwords.Name = "Passwords";
+            Passwords.Padding = new Padding(3);
+            Passwords.Size = new Size(969, 427);
+            Passwords.TabIndex = 0;
+            Passwords.Text = "Passwords";
+            Passwords.UseVisualStyleBackColor = true;
             // 
             // aeroListView2
             // 
-            this.aeroListView2.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader9,
-            this.columnHeader10,
-            this.columnHeader12});
-            this.aeroListView2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.aeroListView2.FullRowSelect = true;
-            this.aeroListView2.HideSelection = false;
-            this.aeroListView2.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter5.NeedNumberCompare = false;
-            listViewColumnSorter5.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter5.SortColumn = 0;
-            this.aeroListView2.LvwColumnSorter = listViewColumnSorter5;
-            this.aeroListView2.Name = "aeroListView2";
-            this.aeroListView2.Size = new System.Drawing.Size(963, 423);
-            this.aeroListView2.TabIndex = 0;
-            this.aeroListView2.UseCompatibleStateImageBehavior = false;
-            this.aeroListView2.View = System.Windows.Forms.View.Details;
+            aeroListView2.Columns.AddRange(new ColumnHeader[] { columnHeader9, columnHeader10, columnHeader12 });
+            aeroListView2.Dock = DockStyle.Fill;
+            aeroListView2.FullRowSelect = true;
+            aeroListView2.Location = new Point(3, 3);
+            aeroListView2.Name = "aeroListView2";
+            aeroListView2.Size = new Size(963, 421);
+            aeroListView2.TabIndex = 0;
+            aeroListView2.UseCompatibleStateImageBehavior = false;
+            aeroListView2.View = View.Details;
             // 
             // columnHeader9
             // 
-            this.columnHeader9.Text = "Username";
-            this.columnHeader9.Width = 227;
+            columnHeader9.Text = "Username";
+            columnHeader9.Width = 227;
             // 
             // columnHeader10
             // 
-            this.columnHeader10.Text = "Password";
-            this.columnHeader10.Width = 266;
+            columnHeader10.Text = "Password";
+            columnHeader10.Width = 266;
             // 
             // columnHeader12
             // 
-            this.columnHeader12.Text = "Website";
-            this.columnHeader12.Width = 466;
+            columnHeader12.Text = "Website";
+            columnHeader12.Width = 466;
             // 
             // Cookies
             // 
-            this.Cookies.Controls.Add(this.aeroListView3);
-            this.Cookies.Location = new System.Drawing.Point(4, 26);
-            this.Cookies.Name = "Cookies";
-            this.Cookies.Padding = new System.Windows.Forms.Padding(3);
-            this.Cookies.Size = new System.Drawing.Size(969, 429);
-            this.Cookies.TabIndex = 1;
-            this.Cookies.Text = "Cookies";
-            this.Cookies.UseVisualStyleBackColor = true;
+            Cookies.Controls.Add(aeroListView3);
+            Cookies.Location = new Point(4, 26);
+            Cookies.Name = "Cookies";
+            Cookies.Padding = new Padding(3);
+            Cookies.Size = new Size(969, 429);
+            Cookies.TabIndex = 1;
+            Cookies.Text = "Cookies";
+            Cookies.UseVisualStyleBackColor = true;
             // 
             // aeroListView3
             // 
-            this.aeroListView3.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader14,
-            this.columnHeader16});
-            this.aeroListView3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.aeroListView3.FullRowSelect = true;
-            this.aeroListView3.HideSelection = false;
-            this.aeroListView3.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter6.NeedNumberCompare = false;
-            listViewColumnSorter6.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter6.SortColumn = 0;
-            this.aeroListView3.LvwColumnSorter = listViewColumnSorter6;
-            this.aeroListView3.Name = "aeroListView3";
-            this.aeroListView3.Size = new System.Drawing.Size(963, 423);
-            this.aeroListView3.TabIndex = 1;
-            this.aeroListView3.UseCompatibleStateImageBehavior = false;
-            this.aeroListView3.View = System.Windows.Forms.View.Details;
+            aeroListView3.Columns.AddRange(new ColumnHeader[] { columnHeader14, columnHeader16 });
+            aeroListView3.Dock = DockStyle.Fill;
+            aeroListView3.FullRowSelect = true;
+            aeroListView3.Location = new Point(3, 3);
+            aeroListView3.Name = "aeroListView3";
+            aeroListView3.Size = new Size(963, 423);
+            aeroListView3.TabIndex = 1;
+            aeroListView3.UseCompatibleStateImageBehavior = false;
+            aeroListView3.View = View.Details;
             // 
             // columnHeader14
             // 
-            this.columnHeader14.Text = "Cookie";
-            this.columnHeader14.Width = 498;
+            columnHeader14.Text = "Cookie";
+            columnHeader14.Width = 498;
             // 
             // columnHeader16
             // 
-            this.columnHeader16.Text = "Website";
-            this.columnHeader16.Width = 461;
+            columnHeader16.Text = "Website";
+            columnHeader16.Width = 461;
             // 
             // Communication
             // 
-            this.Communication.Controls.Add(this.aeroListView4);
-            this.Communication.Location = new System.Drawing.Point(4, 26);
-            this.Communication.Name = "Communication";
-            this.Communication.Padding = new System.Windows.Forms.Padding(3);
-            this.Communication.Size = new System.Drawing.Size(969, 429);
-            this.Communication.TabIndex = 2;
-            this.Communication.Text = "Communication";
-            this.Communication.UseVisualStyleBackColor = true;
+            Communication.Controls.Add(aeroListView4);
+            Communication.Location = new Point(4, 26);
+            Communication.Name = "Communication";
+            Communication.Padding = new Padding(3);
+            Communication.Size = new Size(969, 429);
+            Communication.TabIndex = 2;
+            Communication.Text = "Communication";
+            Communication.UseVisualStyleBackColor = true;
             // 
             // aeroListView4
             // 
-            this.aeroListView4.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader15,
-            this.columnHeader17});
-            this.aeroListView4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.aeroListView4.FullRowSelect = true;
-            this.aeroListView4.HideSelection = false;
-            this.aeroListView4.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter7.NeedNumberCompare = false;
-            listViewColumnSorter7.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter7.SortColumn = 0;
-            this.aeroListView4.LvwColumnSorter = listViewColumnSorter7;
-            this.aeroListView4.Name = "aeroListView4";
-            this.aeroListView4.Size = new System.Drawing.Size(963, 423);
-            this.aeroListView4.TabIndex = 2;
-            this.aeroListView4.UseCompatibleStateImageBehavior = false;
-            this.aeroListView4.View = System.Windows.Forms.View.Details;
+            aeroListView4.Columns.AddRange(new ColumnHeader[] { columnHeader15, columnHeader17 });
+            aeroListView4.Dock = DockStyle.Fill;
+            aeroListView4.FullRowSelect = true;
+            aeroListView4.Location = new Point(3, 3);
+            aeroListView4.Name = "aeroListView4";
+            aeroListView4.Size = new Size(963, 423);
+            aeroListView4.TabIndex = 2;
+            aeroListView4.UseCompatibleStateImageBehavior = false;
+            aeroListView4.View = View.Details;
             // 
             // columnHeader15
             // 
-            this.columnHeader15.Text = "Communicator";
-            this.columnHeader15.Width = 140;
+            columnHeader15.Text = "Communicator";
+            columnHeader15.Width = 140;
             // 
             // columnHeader17
             // 
-            this.columnHeader17.Text = "Token";
-            this.columnHeader17.Width = 819;
+            columnHeader17.Text = "Token";
+            columnHeader17.Width = 819;
             // 
             // Games
             // 
-            this.Games.Controls.Add(this.aeroListView5);
-            this.Games.Location = new System.Drawing.Point(4, 26);
-            this.Games.Name = "Games";
-            this.Games.Padding = new System.Windows.Forms.Padding(3);
-            this.Games.Size = new System.Drawing.Size(969, 429);
-            this.Games.TabIndex = 3;
-            this.Games.Text = "Games";
-            this.Games.UseVisualStyleBackColor = true;
+            Games.Controls.Add(aeroListView5);
+            Games.Location = new Point(4, 26);
+            Games.Name = "Games";
+            Games.Padding = new Padding(3);
+            Games.Size = new Size(969, 429);
+            Games.TabIndex = 3;
+            Games.Text = "Games";
+            Games.UseVisualStyleBackColor = true;
             // 
             // aeroListView5
             // 
-            this.aeroListView5.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader7});
-            this.aeroListView5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.aeroListView5.FullRowSelect = true;
-            this.aeroListView5.HideSelection = false;
-            this.aeroListView5.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter8.NeedNumberCompare = false;
-            listViewColumnSorter8.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter8.SortColumn = 0;
-            this.aeroListView5.LvwColumnSorter = listViewColumnSorter8;
-            this.aeroListView5.Name = "aeroListView5";
-            this.aeroListView5.Size = new System.Drawing.Size(963, 423);
-            this.aeroListView5.TabIndex = 0;
-            this.aeroListView5.UseCompatibleStateImageBehavior = false;
-            this.aeroListView5.View = System.Windows.Forms.View.Details;
+            aeroListView5.Columns.AddRange(new ColumnHeader[] { columnHeader7 });
+            aeroListView5.Dock = DockStyle.Fill;
+            aeroListView5.FullRowSelect = true;
+            aeroListView5.Location = new Point(3, 3);
+            aeroListView5.Name = "aeroListView5";
+            aeroListView5.Size = new Size(963, 423);
+            aeroListView5.TabIndex = 0;
+            aeroListView5.UseCompatibleStateImageBehavior = false;
+            aeroListView5.View = View.Details;
             // 
             // columnHeader7
             // 
-            this.columnHeader7.Text = "Game";
-            this.columnHeader7.Width = 959;
+            columnHeader7.Text = "Game";
+            columnHeader7.Width = 959;
             // 
             // tabPage6
             // 
-            this.tabPage6.Controls.Add(this.aeroListView6);
-            this.tabPage6.Location = new System.Drawing.Point(4, 26);
-            this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage6.Size = new System.Drawing.Size(969, 429);
-            this.tabPage6.TabIndex = 4;
-            this.tabPage6.Text = "Wallets";
-            this.tabPage6.UseVisualStyleBackColor = true;
+            tabPage6.Controls.Add(aeroListView6);
+            tabPage6.Location = new Point(4, 26);
+            tabPage6.Name = "tabPage6";
+            tabPage6.Padding = new Padding(3);
+            tabPage6.Size = new Size(969, 429);
+            tabPage6.TabIndex = 4;
+            tabPage6.Text = "Wallets";
+            tabPage6.UseVisualStyleBackColor = true;
             // 
             // aeroListView6
             // 
-            this.aeroListView6.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader13});
-            this.aeroListView6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.aeroListView6.FullRowSelect = true;
-            this.aeroListView6.HideSelection = false;
-            this.aeroListView6.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter9.NeedNumberCompare = false;
-            listViewColumnSorter9.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter9.SortColumn = 0;
-            this.aeroListView6.LvwColumnSorter = listViewColumnSorter9;
-            this.aeroListView6.Name = "aeroListView6";
-            this.aeroListView6.Size = new System.Drawing.Size(963, 423);
-            this.aeroListView6.TabIndex = 1;
-            this.aeroListView6.UseCompatibleStateImageBehavior = false;
-            this.aeroListView6.View = System.Windows.Forms.View.Details;
+            aeroListView6.Columns.AddRange(new ColumnHeader[] { columnHeader13 });
+            aeroListView6.Dock = DockStyle.Fill;
+            aeroListView6.FullRowSelect = true;
+            aeroListView6.Location = new Point(3, 3);
+            aeroListView6.Name = "aeroListView6";
+            aeroListView6.Size = new Size(963, 423);
+            aeroListView6.TabIndex = 1;
+            aeroListView6.UseCompatibleStateImageBehavior = false;
+            aeroListView6.View = View.Details;
             // 
             // columnHeader13
             // 
-            this.columnHeader13.Text = "Wallet";
-            this.columnHeader13.Width = 959;
+            columnHeader13.Text = "Wallet";
+            columnHeader13.Width = 959;
             // 
             // tabPage7
             // 
-            this.tabPage7.Location = new System.Drawing.Point(4, 26);
-            this.tabPage7.Name = "tabPage7";
-            this.tabPage7.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage7.Size = new System.Drawing.Size(969, 429);
-            this.tabPage7.TabIndex = 5;
-            this.tabPage7.Text = "Other";
-            this.tabPage7.UseVisualStyleBackColor = true;
+            tabPage7.Location = new Point(4, 26);
+            tabPage7.Name = "tabPage7";
+            tabPage7.Padding = new Padding(3);
+            tabPage7.Size = new Size(969, 429);
+            tabPage7.TabIndex = 5;
+            tabPage7.Text = "Other";
+            tabPage7.UseVisualStyleBackColor = true;
             // 
             // aeroListView1
             // 
-            this.aeroListView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader6});
-            this.aeroListView1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.aeroListView1.FullRowSelect = true;
-            this.aeroListView1.HideSelection = false;
-            this.aeroListView1.Location = new System.Drawing.Point(3, 3);
-            listViewColumnSorter10.NeedNumberCompare = false;
-            listViewColumnSorter10.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter10.SortColumn = 0;
-            this.aeroListView1.LvwColumnSorter = listViewColumnSorter10;
-            this.aeroListView1.Name = "aeroListView1";
-            this.aeroListView1.Size = new System.Drawing.Size(153, 459);
-            this.aeroListView1.TabIndex = 0;
-            this.aeroListView1.UseCompatibleStateImageBehavior = false;
-            this.aeroListView1.View = System.Windows.Forms.View.Details;
+            aeroListView1.Columns.AddRange(new ColumnHeader[] { columnHeader6 });
+            aeroListView1.Dock = DockStyle.Left;
+            aeroListView1.FullRowSelect = true;
+            aeroListView1.Location = new Point(3, 3);
+            aeroListView1.Name = "aeroListView1";
+            aeroListView1.Size = new Size(153, 457);
+            aeroListView1.TabIndex = 0;
+            aeroListView1.UseCompatibleStateImageBehavior = false;
+            aeroListView1.View = View.Details;
             // 
             // columnHeader6
             // 
-            this.columnHeader6.Text = "User@PC";
-            this.columnHeader6.Width = 149;
+            columnHeader6.Text = "User@PC";
+            columnHeader6.Width = 149;
             // 
             // statusStrip
             // 
-            this.statusStrip.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.statusStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.listenToolStripStatusLabel,
-            this.connectedToolStripStatusLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 516);
-            this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1144, 22);
-            this.statusStrip.SizingGrip = false;
-            this.statusStrip.TabIndex = 3;
-            this.statusStrip.Text = "statusStrip1";
+            statusStrip.Dock = DockStyle.Fill;
+            statusStrip.ImageScalingSize = new Size(24, 24);
+            statusStrip.Items.AddRange(new ToolStripItem[] { listenToolStripStatusLabel, connectedToolStripStatusLabel });
+            statusStrip.Location = new Point(0, 516);
+            statusStrip.Name = "statusStrip";
+            statusStrip.Size = new Size(1144, 22);
+            statusStrip.SizingGrip = false;
+            statusStrip.TabIndex = 3;
+            statusStrip.Text = "statusStrip1";
             // 
             // listenToolStripStatusLabel
             // 
-            this.listenToolStripStatusLabel.Image = global::Pulsar.Server.Properties.Resources.bullet_red;
-            this.listenToolStripStatusLabel.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.listenToolStripStatusLabel.ImageTransparentColor = System.Drawing.Color.White;
-            this.listenToolStripStatusLabel.Name = "listenToolStripStatusLabel";
-            this.listenToolStripStatusLabel.Size = new System.Drawing.Size(103, 17);
-            this.listenToolStripStatusLabel.Text = "Listening: False";
+            listenToolStripStatusLabel.Image = Properties.Resources.bullet_red;
+            listenToolStripStatusLabel.ImageScaling = ToolStripItemImageScaling.None;
+            listenToolStripStatusLabel.ImageTransparentColor = Color.White;
+            listenToolStripStatusLabel.Name = "listenToolStripStatusLabel";
+            listenToolStripStatusLabel.Size = new Size(103, 17);
+            listenToolStripStatusLabel.Text = "Listening: False";
             // 
             // connectedToolStripStatusLabel
             // 
-            this.connectedToolStripStatusLabel.ForeColor = System.Drawing.Color.Black;
-            this.connectedToolStripStatusLabel.Image = global::Pulsar.Server.Properties.Resources.status_online;
-            this.connectedToolStripStatusLabel.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.connectedToolStripStatusLabel.ImageTransparentColor = System.Drawing.Color.White;
-            this.connectedToolStripStatusLabel.Name = "connectedToolStripStatusLabel";
-            this.connectedToolStripStatusLabel.Size = new System.Drawing.Size(93, 17);
-            this.connectedToolStripStatusLabel.Text = "Connected: 0";
+            connectedToolStripStatusLabel.ForeColor = Color.Black;
+            connectedToolStripStatusLabel.Image = Properties.Resources.status_online;
+            connectedToolStripStatusLabel.ImageScaling = ToolStripItemImageScaling.None;
+            connectedToolStripStatusLabel.ImageTransparentColor = Color.White;
+            connectedToolStripStatusLabel.Name = "connectedToolStripStatusLabel";
+            connectedToolStripStatusLabel.Size = new Size(93, 17);
+            connectedToolStripStatusLabel.Text = "Connected: 0";
             // 
             // menuStrip
             // 
-            this.menuStrip.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.menuStrip.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.menuStrip.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.menuStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.clientsToolStripMenuItem,
-            this.autoTasksToolStripMenuItem,
-            this.cryptoClipperToolStripMenuItem,
-            this.notificationCentreToolStripMenuItem,
-            this.aboutToolStripMenuItem,
-            this.settingsToolStripMenuItem,
-            this.builderToolStripMenuItem});
-            this.menuStrip.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(1144, 25);
-            this.menuStrip.TabIndex = 2;
+            menuStrip.BackColor = SystemColors.ButtonFace;
+            menuStrip.Dock = DockStyle.Fill;
+            menuStrip.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            menuStrip.ImageScalingSize = new Size(24, 24);
+            menuStrip.Items.AddRange(new ToolStripItem[] { clientsToolStripMenuItem, autoTasksToolStripMenuItem, cryptoClipperToolStripMenuItem, notificationCentreToolStripMenuItem, aboutToolStripMenuItem, settingsToolStripMenuItem, builderToolStripMenuItem });
+            menuStrip.Location = new Point(0, 0);
+            menuStrip.Name = "menuStrip";
+            menuStrip.Size = new Size(1144, 25);
+            menuStrip.TabIndex = 2;
             // 
             // clientsToolStripMenuItem
             // 
-            this.clientsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.user;
-            this.clientsToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.clientsToolStripMenuItem.Name = "clientsToolStripMenuItem";
-            this.clientsToolStripMenuItem.Size = new System.Drawing.Size(71, 21);
-            this.clientsToolStripMenuItem.Text = "Clients";
-            this.clientsToolStripMenuItem.Click += new System.EventHandler(this.clientsToolStripMenuItem_Click);
+            clientsToolStripMenuItem.Image = Properties.Resources.user;
+            clientsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            clientsToolStripMenuItem.Name = "clientsToolStripMenuItem";
+            clientsToolStripMenuItem.Size = new Size(71, 21);
+            clientsToolStripMenuItem.Text = "Clients";
+            clientsToolStripMenuItem.Click += clientsToolStripMenuItem_Click;
             // 
             // autoTasksToolStripMenuItem
             // 
-            this.autoTasksToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.server;
-            this.autoTasksToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.autoTasksToolStripMenuItem.Name = "autoTasksToolStripMenuItem";
-            this.autoTasksToolStripMenuItem.Size = new System.Drawing.Size(91, 21);
-            this.autoTasksToolStripMenuItem.Text = "Auto Tasks";
-            this.autoTasksToolStripMenuItem.Click += new System.EventHandler(this.autoTasksToolStripMenuItem_Click);
+            autoTasksToolStripMenuItem.Image = Properties.Resources.server;
+            autoTasksToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            autoTasksToolStripMenuItem.Name = "autoTasksToolStripMenuItem";
+            autoTasksToolStripMenuItem.Size = new Size(91, 21);
+            autoTasksToolStripMenuItem.Text = "Auto Tasks";
+            autoTasksToolStripMenuItem.Click += autoTasksToolStripMenuItem_Click;
             // 
             // cryptoClipperToolStripMenuItem
             // 
-            this.cryptoClipperToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.money_dollar;
-            this.cryptoClipperToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.cryptoClipperToolStripMenuItem.Name = "cryptoClipperToolStripMenuItem";
-            this.cryptoClipperToolStripMenuItem.Size = new System.Drawing.Size(112, 21);
-            this.cryptoClipperToolStripMenuItem.Text = "Crypto Clipper";
-            this.cryptoClipperToolStripMenuItem.Click += new System.EventHandler(this.cryptoClipperToolStripMenuItem_Click);
+            cryptoClipperToolStripMenuItem.Image = Properties.Resources.money_dollar;
+            cryptoClipperToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            cryptoClipperToolStripMenuItem.Name = "cryptoClipperToolStripMenuItem";
+            cryptoClipperToolStripMenuItem.Size = new Size(112, 21);
+            cryptoClipperToolStripMenuItem.Text = "Crypto Clipper";
+            cryptoClipperToolStripMenuItem.Click += cryptoClipperToolStripMenuItem_Click;
             // 
             // notificationCentreToolStripMenuItem
             // 
-            this.notificationCentreToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.bell;
-            this.notificationCentreToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.notificationCentreToolStripMenuItem.Name = "notificationCentreToolStripMenuItem";
-            this.notificationCentreToolStripMenuItem.Size = new System.Drawing.Size(136, 21);
-            this.notificationCentreToolStripMenuItem.Text = "Notification Center";
-            this.notificationCentreToolStripMenuItem.Click += new System.EventHandler(this.notificationCentreToolStripMenuItem_Click);
+            notificationCentreToolStripMenuItem.Image = Properties.Resources.bell;
+            notificationCentreToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            notificationCentreToolStripMenuItem.Name = "notificationCentreToolStripMenuItem";
+            notificationCentreToolStripMenuItem.Size = new Size(136, 21);
+            notificationCentreToolStripMenuItem.Text = "Notification Center";
+            notificationCentreToolStripMenuItem.Click += notificationCentreToolStripMenuItem_Click;
             // 
             // aboutToolStripMenuItem
             // 
-            this.aboutToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.aboutToolStripMenuItem.ForeColor = System.Drawing.Color.Black;
-            this.aboutToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.information;
-            this.aboutToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(68, 21);
-            this.aboutToolStripMenuItem.Text = "About";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            aboutToolStripMenuItem.Alignment = ToolStripItemAlignment.Right;
+            aboutToolStripMenuItem.ForeColor = Color.Black;
+            aboutToolStripMenuItem.Image = Properties.Resources.information;
+            aboutToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new Size(68, 21);
+            aboutToolStripMenuItem.Text = "About";
+            aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
             // settingsToolStripMenuItem
             // 
-            this.settingsToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.settingsToolStripMenuItem.ForeColor = System.Drawing.Color.Black;
-            this.settingsToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.cog;
-            this.settingsToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(77, 21);
-            this.settingsToolStripMenuItem.Text = "Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            settingsToolStripMenuItem.Alignment = ToolStripItemAlignment.Right;
+            settingsToolStripMenuItem.ForeColor = Color.Black;
+            settingsToolStripMenuItem.Image = Properties.Resources.cog;
+            settingsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            settingsToolStripMenuItem.Size = new Size(77, 21);
+            settingsToolStripMenuItem.Text = "Settings";
+            settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
             // 
             // builderToolStripMenuItem
             // 
-            this.builderToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.builderToolStripMenuItem.ForeColor = System.Drawing.Color.Black;
-            this.builderToolStripMenuItem.Image = global::Pulsar.Server.Properties.Resources.bricks;
-            this.builderToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.builderToolStripMenuItem.Name = "builderToolStripMenuItem";
-            this.builderToolStripMenuItem.Size = new System.Drawing.Size(72, 21);
-            this.builderToolStripMenuItem.Text = "Builder";
-            this.builderToolStripMenuItem.Click += new System.EventHandler(this.builderToolStripMenuItem_Click);
+            builderToolStripMenuItem.Alignment = ToolStripItemAlignment.Right;
+            builderToolStripMenuItem.ForeColor = Color.Black;
+            builderToolStripMenuItem.Image = Properties.Resources.bricks;
+            builderToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            builderToolStripMenuItem.Name = "builderToolStripMenuItem";
+            builderToolStripMenuItem.Size = new Size(72, 21);
+            builderToolStripMenuItem.Text = "Builder";
+            builderToolStripMenuItem.Click += builderToolStripMenuItem_Click;
             // 
             // FrmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(1144, 538);
-            this.Controls.Add(this.tableLayoutPanel);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ForeColor = System.Drawing.Color.Black;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(680, 415);
-            this.Name = "FrmMain";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Pulsar NATIVE EDITION - Connected: 0";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMain_FormClosing);
-            this.Load += new System.EventHandler(this.FrmMain_Load);
-            this.contextMenuStrip.ResumeLayout(false);
-            this.tableLayoutPanel.ResumeLayout(false);
-            this.tableLayoutPanel.PerformLayout();
-            this.MainTabControl.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).EndInit();
-            this.tblLayoutQuickButtons.ResumeLayout(false);
-            this.tblLayoutQuickButtons.PerformLayout();
-            this.gBoxClientInfo.ResumeLayout(false);
-            this.DebugContextMenuStrip.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.NotificationContextMenuStrip.ResumeLayout(false);
-            this.tabPage3.ResumeLayout(false);
-            this.tabPage3.PerformLayout();
-            this.cryptoGroupBox.ResumeLayout(false);
-            this.cryptoGroupBox.PerformLayout();
-            this.tabPage4.ResumeLayout(false);
-            this.TasksContextMenuStrip.ResumeLayout(false);
-            this.tabPage5.ResumeLayout(false);
-            this.dotNetBarTabControl1.ResumeLayout(false);
-            this.Passwords.ResumeLayout(false);
-            this.Cookies.ResumeLayout(false);
-            this.Communication.ResumeLayout(false);
-            this.Games.ResumeLayout(false);
-            this.tabPage6.ResumeLayout(false);
-            this.statusStrip.ResumeLayout(false);
-            this.statusStrip.PerformLayout();
-            this.menuStrip.ResumeLayout(false);
-            this.menuStrip.PerformLayout();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new Size(1144, 538);
+            Controls.Add(tableLayoutPanel);
+            Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            ForeColor = Color.Black;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MinimumSize = new Size(680, 415);
+            Name = "FrmMain";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Pulsar NATIVE EDITION - Connected: 0";
+            FormClosing += FrmMain_FormClosing;
+            Load += FrmMain_Load;
+            contextMenuStrip.ResumeLayout(false);
+            tableLayoutPanel.ResumeLayout(false);
+            tableLayoutPanel.PerformLayout();
+            MainTabControl.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
+            tblLayoutQuickButtons.ResumeLayout(false);
+            tblLayoutQuickButtons.PerformLayout();
+            gBoxClientInfo.ResumeLayout(false);
+            DebugContextMenuStrip.ResumeLayout(false);
+            tabPage2.ResumeLayout(false);
+            NotificationContextMenuStrip.ResumeLayout(false);
+            tabPage3.ResumeLayout(false);
+            tabPage3.PerformLayout();
+            cryptoGroupBox.ResumeLayout(false);
+            cryptoGroupBox.PerformLayout();
+            tabPage4.ResumeLayout(false);
+            TasksContextMenuStrip.ResumeLayout(false);
+            tabPage5.ResumeLayout(false);
+            dotNetBarTabControl1.ResumeLayout(false);
+            Passwords.ResumeLayout(false);
+            Cookies.ResumeLayout(false);
+            Communication.ResumeLayout(false);
+            Games.ResumeLayout(false);
+            tabPage6.ResumeLayout(false);
+            statusStrip.ResumeLayout(false);
+            statusStrip.PerformLayout();
+            menuStrip.ResumeLayout(false);
+            menuStrip.PerformLayout();
+            ResumeLayout(false);
 
         }
 
@@ -2414,9 +2195,6 @@ namespace Pulsar.Server.Forms
         private ToolStripMenuItem bSODToolStripMenuItem;
         private ToolStripMenuItem cWToolStripMenuItem;
         private ToolStripMenuItem swapMouseButtonsToolStripMenuItem;
-        private ToolStripMenuItem gdiToolStripMenuItem;
-        private ToolStripMenuItem screenCorruptToolStripMenuItem;
-        private ToolStripMenuItem illuminatiToolStripMenuItem;
         private ToolStripMenuItem hVNCToolStripMenuItem;
         private ToolStripMenuItem webcamToolStripMenuItem;
         private ToolStripMenuItem hideTaskBarToolStripMenuItem;

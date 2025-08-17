@@ -407,6 +407,7 @@ namespace Pulsar.Server.Networking
                             {
                                 Socket clientSocket = e.AcceptSocket;
                                 clientSocket.SetKeepAliveEx(KeepAliveInterval, KeepAliveTime);
+                                clientSocket.NoDelay = true;
                                 sslStream = new SslStream(new NetworkStream(clientSocket, true), false);
                                 sslStream.BeginAuthenticateAsServer(ServerCertificate, false, SslProtocols.Tls12, false, EndAuthenticateClient,
                                     new PendingClient { Stream = sslStream, EndPoint = (IPEndPoint)clientSocket.RemoteEndPoint });

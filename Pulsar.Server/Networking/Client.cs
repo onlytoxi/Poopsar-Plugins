@@ -323,9 +323,18 @@ namespace Pulsar.Server.Networking
                 lock (_sendMessageLock)
                 {
                     var payload = PulsarMessagePackSerializer.Serialize(message);
-                    _stream.Write(BitConverter.GetBytes(payload.Length), 0, HEADER_SIZE);
-                    _stream.Write(payload, 0, payload.Length);
-                    _stream.Flush();
+                    int totalLength = HEADER_SIZE + payload.Length;
+                    var buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(totalLength);
+                    try
+                    {
+                        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, 0, HEADER_SIZE), payload.Length);
+                        Buffer.BlockCopy(payload, 0, buffer, HEADER_SIZE, payload.Length);
+                        _stream.Write(buffer, 0, totalLength);
+                    }
+                    finally
+                    {
+                        System.Buffers.ArrayPool<byte>.Shared.Return(buffer, clearArray: false);
+                    }
                 }
             }
             catch

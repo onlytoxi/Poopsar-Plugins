@@ -6,7 +6,6 @@ using Pulsar.Common.Messages.ClientManagement;
 using Pulsar.Common.Messages.ClientManagement.UAC;
 using Pulsar.Common.Messages.ClientManagement.WinRE;
 using Pulsar.Common.Messages.FunStuff;
-using Pulsar.Common.Messages.FunStuff.GDI;
 using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
 using Pulsar.Common.Messages.Preview;
 using Pulsar.Common.Messages.QuickCommands;
@@ -1780,22 +1779,6 @@ namespace Pulsar.Server.Forms
             foreach (Client c in GetSelectedClients())
             {
                 c.Send(new DoSwapMouseButtons());
-            }
-        }
-
-        private void screenCorruptToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                c.Send(new DoScreenCorrupt());
-            }
-        }
-
-        private void illuminatiToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Client c in GetSelectedClients())
-            {
-                c.Send(new DoIlluminati());
             }
         }
 
