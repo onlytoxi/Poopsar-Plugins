@@ -29,6 +29,11 @@ namespace Pulsar.Client
     public class PulsarApplication : Form
     {
         /// <summary>
+        /// Static reference to the current application instance.
+        /// </summary>
+        public static PulsarApplication Instance { get; private set; }
+
+        /// <summary>
         /// A system-wide mutex that ensures that only one instance runs at a time.
         /// </summary>
         public SingleInstanceMutex ApplicationMutex;
@@ -58,6 +63,11 @@ namespace Pulsar.Client
         private DebugLog _debugLog;
 
         /// <summary>
+        /// Gets the clipboard checker instance.
+        /// </summary>
+        public ClipboardChecker ClipboardChecker => _clipboardChecker;
+
+        /// <summary>
         /// Determines whether an installation is required depending on the current and target paths.
         /// </summary>
         private bool IsInstallationRequired => Settings.INSTALL && Settings.INSTALLPATH != Application.ExecutablePath;
@@ -72,6 +82,7 @@ namespace Pulsar.Client
         /// </summary>
         public PulsarApplication()
         {
+            Instance = this;
             _messageProcessors = new List<IMessageProcessor>();
             _notifyIcon = new NotifyIcon();
         }

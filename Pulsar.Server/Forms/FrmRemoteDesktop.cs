@@ -405,6 +405,12 @@ namespace Pulsar.Server.Forms
             UnregisterMessageHandler();
             _remoteDesktopHandler.Dispose();
             _clipboardMonitor?.Dispose();
+            
+            _connectClient.Send(new SetClipboardMonitoringEnabled 
+            { 
+                Enabled = false 
+            });
+            
             picDesktop.Image?.Dispose();
         }
 
@@ -835,6 +841,11 @@ namespace Pulsar.Server.Forms
 
             _clipboardMonitor.IsEnabled = _enableBidirectionalClipboard;
             Debug.WriteLine(_clipboardMonitor.IsEnabled ? "Clipboard monitor enabled." : "Clipboard monitor disabled.");
+
+            _connectClient.Send(new SetClipboardMonitoringEnabled 
+            { 
+                Enabled = _enableBidirectionalClipboard 
+            });
 
             if (_enableBidirectionalClipboard)
             {

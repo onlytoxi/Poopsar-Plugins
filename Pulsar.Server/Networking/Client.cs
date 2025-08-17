@@ -272,7 +272,21 @@ namespace Pulsar.Server.Networking
 
                 if (_stream != null)
                 {
-                    _stream.BeginRead(_readBuffer, _readOffset, _readLength, AsyncReceive, result.AsyncState);
+                    ThreadPool.QueueUserWorkItem(_ =>
+                    {
+                        try
+                        {
+                            if (_stream != null)
+                            {
+                                _stream.BeginRead(_readBuffer, _readOffset, _readLength, AsyncReceive, result.AsyncState);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Disconnect();
+                            OnClientFail(ex);
+                        }
+                    });
                 }
             }
             catch (Exception ex)

