@@ -391,7 +391,7 @@ namespace Pulsar.Client.Networking
                     {
                         BinaryPrimitives.WriteInt32LittleEndian(new Span<byte>(buffer, 0, HEADER_SIZE), payload.Length);
                         Buffer.BlockCopy(payload, 0, buffer, HEADER_SIZE, payload.Length);
-                        _stream.Write(buffer, 0, totalLength);
+                        _stream?.Write(buffer, 0, totalLength);
                     }
                     finally
                     {
@@ -413,10 +413,13 @@ namespace Pulsar.Client.Networking
         /// </summary>
         public void Disconnect()
         {
-            if (_stream != null)
+            lock (_sendMessageLock)
             {
-                _stream.Dispose();
-                _stream = null;
+                if (_stream != null)
+                {
+                    _stream.Dispose();
+                    _stream = null;
+                }
             }
 
             _readBuffer = new byte[HEADER_SIZE];
