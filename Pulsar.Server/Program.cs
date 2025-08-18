@@ -13,11 +13,10 @@ namespace Pulsar.Server
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            ComWrappers.RegisterForMarshalling(global::WinFormsComInterop.WinFormsComWrappers.Instance);
 
             using (FrmMain mainForm = new FrmMain())
             {
-                ComWrappers.RegisterForMarshalling(WinFormsComInterop.WinFormsComWrappers.Instance);
-
                 DiscordRPCManager.Initialize(mainForm);
 
                 Application.Run(mainForm);
