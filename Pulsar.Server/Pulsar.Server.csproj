@@ -15,8 +15,6 @@
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<UseWPF>false</UseWPF>
 		<NoWarn>$(NoWarn);CA1416</NoWarn>
-		<PublishAot>true</PublishAot>
-		<_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>
 	</PropertyGroup>
 	<!-- Donut build configuration -->
   <!-- Build Donut only for ReleaseWithDonut config -->
