@@ -95,23 +95,23 @@ build:
       CLIENT_FOUND=false
       # Check location 1: Pulsar.Client/bin/Release/net472/Pulsar.Client.exe
       if [ -f "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" ]; then
-        cp "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" build_output/client.bin
-        echo "✓ Copied Pulsar.Client.exe as client.bin from Pulsar.Client/bin"
+        cp "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" build_output/Client.bin
+        echo "✓ Copied Pulsar.Client.exe as Client.bin from Pulsar.Client/bin"
         CLIENT_FOUND=true
       # Check location 2: bin/Release/net472/Client.exe (like GitHub Actions)
       elif [ -f "bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" ]; then
-        cp "bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" build_output/client.bin
-        echo "✓ Copied Client.exe from bin directory as client.bin"
+        cp "bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" build_output/Client.bin
+        echo "✓ Copied Client.exe from bin directory as Client.bin"
         CLIENT_FOUND=true
       # Check location 3: bin/Release/net472/Pulsar.Client.exe
       elif [ -f "bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" ]; then
-        cp "bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" build_output/client.bin
-        echo "✓ Copied Pulsar.Client.exe from bin directory as client.bin"
+        cp "bin/Release/$CLIENT_TARGET_FRAMEWORK/Pulsar.Client.exe" build_output/Client.bin
+        echo "✓ Copied Pulsar.Client.exe from bin directory as Client.bin"
         CLIENT_FOUND=true
       # Check location 4: Pulsar.Client/bin/Release/net472/Client.exe
       elif [ -f "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" ]; then
-        cp "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" build_output/client.bin
-        echo "✓ Copied Client.exe as client.bin from Pulsar.Client/bin"
+        cp "Pulsar.Client/bin/Release/$CLIENT_TARGET_FRAMEWORK/Client.exe" build_output/Client.bin
+        echo "✓ Copied Client.exe as Client.bin from Pulsar.Client/bin"
         CLIENT_FOUND=true
       fi
       
@@ -133,11 +133,10 @@ build:
         find . -type d -name "bin" -exec echo "Directory: {}" \; -exec find {} -name "*.exe" \; 2>/dev/null || echo "No bin directories found"
         exit 1
       fi
-    # Create the final zip with just the essentials
+    - echo "Creating artifacts..."
     - cd build_output && zip -r ../build_output.zip . && cd ..
-    - echo "✓ Build package created successfully"
-    - echo "Package contents:"
-    - unzip -l build_output.zip | head -20 || true
+    - find build_output -type f -name "*.exe" -o -name "*.dll" -o -name "*.bin" | head -20
+    - ls -la build_output/ || echo "Build output directory listing failed"
   artifacts:
     paths:
       - build_output.zip
