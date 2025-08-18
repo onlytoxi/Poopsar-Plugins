@@ -134,12 +134,12 @@ build:
         exit 1
       fi
     # Create the final zip with just the essentials
-    - cd build_output && zip -r ../Pulsar-Build.zip . && cd ..
+    - cd build_output && zip -r ../build_output.zip . && cd ..
     - echo "✓ Build package created successfully"
     - echo "Package contents:"
-    - unzip -l Pulsar-Build.zip | head -20 || true
+    - unzip -l build_output.zip | head -20 || true
   artifacts:
     paths:
-      - Pulsar-Build.zip
+      - build_output.zip
     expire_in: 30 days
     when: on_success
