@@ -31,8 +31,6 @@ namespace Pulsar.Server.Forms
             ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
 
             ToggleListenerSettings(!listenServer.Listening);
-
-            ShowPassword(false);
         }
 
         private void FrmSettings_Load(object sender, EventArgs e)
@@ -59,14 +57,10 @@ namespace Pulsar.Server.Forms
             chkPopup.Checked = Settings.ShowPopup;
             chkUseUpnp.Checked = Settings.UseUPnP;
             chkShowTooltip.Checked = Settings.ShowToolTip;
-            chkNoIPIntegration.Checked = Settings.EnableNoIPUpdater;
             chkEventLog.Checked = Settings.EventLog;
             txtTelegramChatID.Text = Settings.TelegramChatID;
             txtTelegramToken.Text = Settings.TelegramBotToken;
             chkTelegramNotis.Checked = Settings.TelegramNotifications;
-            txtNoIPHost.Text = Settings.NoIPHost;
-            txtNoIPUser.Text = Settings.NoIPUsername;
-            txtNoIPPass.Text = Settings.NoIPPassword;
             chkDiscordRPC.Checked = Settings.DiscordRPC; // hidden by design
             _previousDiscordRPCState = chkDiscordRPC.Checked;
 
@@ -193,8 +187,6 @@ namespace Pulsar.Server.Forms
             {
                 try
                 {
-                    if (chkNoIPIntegration.Checked)
-                        NoIpUpdater.Start();
                     _listenServer.ListenMany(allPorts, chkIPv6Support.Checked, chkUseUpnp.Checked);
                     ToggleListenerSettings(false);
                 }
@@ -246,11 +238,7 @@ namespace Pulsar.Server.Forms
             Settings.ShowPopup = chkPopup.Checked;
             Settings.UseUPnP = chkUseUpnp.Checked;
             Settings.ShowToolTip = chkShowTooltip.Checked;
-            Settings.EnableNoIPUpdater = chkNoIPIntegration.Checked;
             Settings.EventLog = chkEventLog.Checked;
-            Settings.NoIPHost = txtNoIPHost.Text;
-            Settings.NoIPUsername = txtNoIPUser.Text;
-            Settings.NoIPPassword = txtNoIPPass.Text;
             Settings.DiscordRPC = chkDiscordRPC.Checked;
             Settings.TelegramChatID = txtTelegramChatID.Text;
             Settings.TelegramBotToken = txtTelegramToken.Text;
@@ -285,11 +273,6 @@ namespace Pulsar.Server.Forms
                 this.Close();
         }
 
-        private void chkNoIPIntegration_CheckedChanged(object sender, EventArgs e)
-        {
-            NoIPControlHandler(chkNoIPIntegration.Checked);
-        }
-
         private void chkDiscordRPC_CheckedChanged(object sender, EventArgs e)
         {
             Settings.DiscordRPC = chkDiscordRPC.Checked;
@@ -318,31 +301,10 @@ namespace Pulsar.Server.Forms
             txtMultiPorts.Enabled = enabled;
         }
 
-        private void NoIPControlHandler(bool enable)
-        {
-            lblHost.Enabled = enable;
-            lblUser.Enabled = enable;
-            lblPass.Enabled = enable;
-            txtNoIPHost.Enabled = enable;
-            txtNoIPUser.Enabled = enable;
-            txtNoIPPass.Enabled = enable;
-            chkShowPassword.Enabled = enable;
-        }
-
         private void TelegramControlHandler(bool enable)
         {
             txtTelegramToken.Enabled = enable;
             txtTelegramChatID.Enabled = enable;
-        }
-
-        private void ShowPassword(bool show = true)
-        {
-            txtNoIPPass.PasswordChar = (show) ? (char)0 : (char)'●';
-        }
-
-        private void chkShowPassword_CheckedChanged(object sender, EventArgs e)
-        {
-            ShowPassword(chkShowPassword.Checked);
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)

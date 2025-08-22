@@ -29,502 +29,342 @@ namespace Pulsar.Server.Forms
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmSettings));
-            this.btnSave = new System.Windows.Forms.Button();
-            this.lblPort = new System.Windows.Forms.Label();
-            this.ncPort = new System.Windows.Forms.NumericUpDown();
-            this.chkAutoListen = new System.Windows.Forms.CheckBox();
-            this.chkPopup = new System.Windows.Forms.CheckBox();
-            this.btnListen = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.chkUseUpnp = new System.Windows.Forms.CheckBox();
-            this.chkShowTooltip = new System.Windows.Forms.CheckBox();
-            this.chkNoIPIntegration = new System.Windows.Forms.CheckBox();
-            this.lblHost = new System.Windows.Forms.Label();
-            this.lblPass = new System.Windows.Forms.Label();
-            this.lblUser = new System.Windows.Forms.Label();
-            this.txtNoIPPass = new System.Windows.Forms.TextBox();
-            this.txtNoIPUser = new System.Windows.Forms.TextBox();
-            this.txtNoIPHost = new System.Windows.Forms.TextBox();
-            this.chkShowPassword = new System.Windows.Forms.CheckBox();
-            this.chkIPv6Support = new System.Windows.Forms.CheckBox();
-            this.chkDarkMode = new System.Windows.Forms.CheckBox();
-            this.chkEventLog = new System.Windows.Forms.CheckBox();
-            this.chkDiscordRPC = new System.Windows.Forms.CheckBox();
-            this.chkTelegramNotis = new System.Windows.Forms.CheckBox();
-            this.txtTelegramToken = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtTelegramChatID = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.BlockedRichTB = new System.Windows.Forms.RichTextBox();
-            this.chkHideFromScreenCapture = new System.Windows.Forms.CheckBox();
-            this.lblMultiPorts = new System.Windows.Forms.Label();
-            this.txtMultiPorts = new System.Windows.Forms.TextBox();
-            this.btnAdd = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.ncPort)).BeginInit();
-            this.groupBox1.SuspendLayout();
-            this.SuspendLayout();
+            btnSave = new System.Windows.Forms.Button();
+            lblPort = new System.Windows.Forms.Label();
+            ncPort = new System.Windows.Forms.NumericUpDown();
+            chkAutoListen = new System.Windows.Forms.CheckBox();
+            chkPopup = new System.Windows.Forms.CheckBox();
+            btnListen = new System.Windows.Forms.Button();
+            btnCancel = new System.Windows.Forms.Button();
+            chkUseUpnp = new System.Windows.Forms.CheckBox();
+            chkShowTooltip = new System.Windows.Forms.CheckBox();
+            chkIPv6Support = new System.Windows.Forms.CheckBox();
+            chkDarkMode = new System.Windows.Forms.CheckBox();
+            chkEventLog = new System.Windows.Forms.CheckBox();
+            chkDiscordRPC = new System.Windows.Forms.CheckBox();
+            chkTelegramNotis = new System.Windows.Forms.CheckBox();
+            txtTelegramToken = new System.Windows.Forms.TextBox();
+            label1 = new System.Windows.Forms.Label();
+            txtTelegramChatID = new System.Windows.Forms.TextBox();
+            label2 = new System.Windows.Forms.Label();
+            button1 = new System.Windows.Forms.Button();
+            groupBox1 = new System.Windows.Forms.GroupBox();
+            BlockedRichTB = new System.Windows.Forms.RichTextBox();
+            chkHideFromScreenCapture = new System.Windows.Forms.CheckBox();
+            lblMultiPorts = new System.Windows.Forms.Label();
+            txtMultiPorts = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)ncPort).BeginInit();
+            groupBox1.SuspendLayout();
+            SuspendLayout();
             // 
             // btnSave
             // 
-            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSave.Location = new System.Drawing.Point(227, 617);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 19;
-            this.btnSave.Text = "&Save";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            btnSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            btnSave.Location = new System.Drawing.Point(227, 543);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new System.Drawing.Size(121, 23);
+            btnSave.TabIndex = 19;
+            btnSave.Text = "&Save";
+            btnSave.UseVisualStyleBackColor = true;
+            btnSave.Click += btnSave_Click;
             // 
             // lblPort
             // 
-            this.lblPort.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblPort.AutoSize = true;
-            this.lblPort.Location = new System.Drawing.Point(12, 11);
-            this.lblPort.Name = "lblPort";
-            this.lblPort.Size = new System.Drawing.Size(78, 13);
-            this.lblPort.TabIndex = 0;
-            this.lblPort.Text = "Port to add:";
-            this.lblPort.Visible = false;
+            lblPort.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            lblPort.AutoSize = true;
+            lblPort.Location = new System.Drawing.Point(12, 11);
+            lblPort.Name = "lblPort";
+            lblPort.Size = new System.Drawing.Size(78, 13);
+            lblPort.TabIndex = 0;
+            lblPort.Text = "Port to add:";
+            lblPort.Visible = false;
             // 
             // ncPort
             // 
-            this.ncPort.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ncPort.Location = new System.Drawing.Point(111, 7);
-            this.ncPort.Maximum = new decimal(new int[] {
-            65535,
-            0,
-            0,
-            0});
-            this.ncPort.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ncPort.Name = "ncPort";
-            this.ncPort.Size = new System.Drawing.Size(75, 22);
-            this.ncPort.TabIndex = 1;
-            this.ncPort.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ncPort.Visible = false;
-            this.ncPort.Enabled = false;
+            ncPort.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            ncPort.Enabled = false;
+            ncPort.Location = new System.Drawing.Point(111, 7);
+            ncPort.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
+            ncPort.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            ncPort.Name = "ncPort";
+            ncPort.Size = new System.Drawing.Size(75, 23);
+            ncPort.TabIndex = 1;
+            ncPort.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            ncPort.Visible = false;
             // 
             // chkAutoListen
             // 
-            this.chkAutoListen.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkAutoListen.AutoSize = true;
-            this.chkAutoListen.Location = new System.Drawing.Point(12, 128);
-            this.chkAutoListen.Name = "chkAutoListen";
-            this.chkAutoListen.Size = new System.Drawing.Size(222, 17);
-            this.chkAutoListen.TabIndex = 6;
-            this.chkAutoListen.Text = "Listen for new connections on startup";
-            this.chkAutoListen.UseVisualStyleBackColor = true;
+            chkAutoListen.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkAutoListen.AutoSize = true;
+            chkAutoListen.Location = new System.Drawing.Point(12, 122);
+            chkAutoListen.Name = "chkAutoListen";
+            chkAutoListen.Size = new System.Drawing.Size(222, 17);
+            chkAutoListen.TabIndex = 6;
+            chkAutoListen.Text = "Listen for new connections on startup";
+            chkAutoListen.UseVisualStyleBackColor = true;
             // 
             // chkPopup
             // 
-            this.chkPopup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkPopup.AutoSize = true;
-            this.chkPopup.Location = new System.Drawing.Point(12, 174);
-            this.chkPopup.Name = "chkPopup";
-            this.chkPopup.Size = new System.Drawing.Size(259, 17);
-            this.chkPopup.TabIndex = 7;
-            this.chkPopup.Text = "Show popup notification on new connection";
-            this.chkPopup.UseVisualStyleBackColor = true;
-            // 
-            // chkUseUpnp
-            // 
-            this.chkUseUpnp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkUseUpnp.AutoSize = true;
-            this.chkUseUpnp.Location = new System.Drawing.Point(12, 197);
-            this.chkUseUpnp.Name = "chkUseUpnp";
-            this.chkUseUpnp.Size = new System.Drawing.Size(250, 17);
-            this.chkUseUpnp.TabIndex = 8;
-            this.chkUseUpnp.Text = "Try to automatically forward the port (UPnP)";
-            this.chkUseUpnp.UseVisualStyleBackColor = true;
-            // 
-            // chkShowTooltip
-            // 
-            this.chkShowTooltip.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkShowTooltip.AutoSize = true;
-            this.chkShowTooltip.Location = new System.Drawing.Point(12, 220);
-            this.chkShowTooltip.Name = "chkShowTooltip";
-            this.chkShowTooltip.Size = new System.Drawing.Size(268, 17);
-            this.chkShowTooltip.TabIndex = 9;
-            this.chkShowTooltip.Text = "Show tooltip on client with system information";
-            this.chkShowTooltip.UseVisualStyleBackColor = true;
-            // 
-            // chkNoIPIntegration
-            // 
-            this.chkNoIPIntegration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkNoIPIntegration.AutoSize = true;
-            this.chkNoIPIntegration.Location = new System.Drawing.Point(12, 509);
-            this.chkNoIPIntegration.Name = "chkNoIPIntegration";
-            this.chkNoIPIntegration.Size = new System.Drawing.Size(187, 17);
-            this.chkNoIPIntegration.TabIndex = 10;
-            this.chkNoIPIntegration.Text = "Enable No-Ip.com DNS Updater";
-            this.chkNoIPIntegration.UseVisualStyleBackColor = true;
-            this.chkNoIPIntegration.CheckedChanged += new System.EventHandler(this.chkNoIPIntegration_CheckedChanged);
-            // 
-            // lblHost
-            // 
-            this.lblHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblHost.AutoSize = true;
-            this.lblHost.Enabled = false;
-            this.lblHost.Location = new System.Drawing.Point(30, 535);
-            this.lblHost.Name = "lblHost";
-            this.lblHost.Size = new System.Drawing.Size(34, 13);
-            this.lblHost.TabIndex = 11;
-            this.lblHost.Text = "Host:";
-            // 
-            // lblPass
-            // 
-            this.lblPass.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblPass.AutoSize = true;
-            this.lblPass.Enabled = false;
-            this.lblPass.Location = new System.Drawing.Point(167, 563);
-            this.lblPass.Name = "lblPass";
-            this.lblPass.Size = new System.Drawing.Size(32, 13);
-            this.lblPass.TabIndex = 15;
-            this.lblPass.Text = "Pass:";
-            // 
-            // lblUser
-            // 
-            this.lblUser.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblUser.AutoSize = true;
-            this.lblUser.Enabled = false;
-            this.lblUser.Location = new System.Drawing.Point(30, 563);
-            this.lblUser.Name = "lblUser";
-            this.lblUser.Size = new System.Drawing.Size(32, 13);
-            this.lblUser.TabIndex = 13;
-            this.lblUser.Text = "Mail:";
-            // 
-            // txtNoIPPass
-            // 
-            this.txtNoIPPass.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtNoIPPass.Enabled = false;
-            this.txtNoIPPass.Location = new System.Drawing.Point(199, 560);
-            this.txtNoIPPass.Name = "txtNoIPPass";
-            this.txtNoIPPass.Size = new System.Drawing.Size(63, 22);
-            this.txtNoIPPass.TabIndex = 16;
-            // 
-            // txtNoIPUser
-            // 
-            this.txtNoIPUser.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtNoIPUser.Enabled = false;
-            this.txtNoIPUser.Location = new System.Drawing.Point(70, 560);
-            this.txtNoIPUser.Name = "txtNoIPUser";
-            this.txtNoIPUser.Size = new System.Drawing.Size(91, 22);
-            this.txtNoIPUser.TabIndex = 14;
-            // 
-            // txtNoIPHost
-            // 
-            this.txtNoIPHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtNoIPHost.Enabled = false;
-            this.txtNoIPHost.Location = new System.Drawing.Point(70, 532);
-            this.txtNoIPHost.Name = "txtNoIPHost";
-            this.txtNoIPHost.Size = new System.Drawing.Size(192, 22);
-            this.txtNoIPHost.TabIndex = 12;
-            this.txtNoIPHost.TextChanged += new System.EventHandler(this.txtNoIPHost_TextChanged);
-            // 
-            // chkShowPassword
-            // 
-            this.chkShowPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkShowPassword.AutoSize = true;
-            this.chkShowPassword.Enabled = false;
-            this.chkShowPassword.Location = new System.Drawing.Point(192, 588);
-            this.chkShowPassword.Name = "chkShowPassword";
-            this.chkShowPassword.Size = new System.Drawing.Size(107, 17);
-            this.chkShowPassword.TabIndex = 17;
-            this.chkShowPassword.Text = "Show Password";
-            this.chkShowPassword.UseVisualStyleBackColor = true;
-            this.chkShowPassword.CheckedChanged += new System.EventHandler(this.chkShowPassword_CheckedChanged);
-            // 
-            // chkIPv6Support
-            // 
-            this.chkIPv6Support.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkIPv6Support.AutoSize = true;
-            this.chkIPv6Support.Location = new System.Drawing.Point(12, 128);
-            this.chkIPv6Support.Name = "chkIPv6Support";
-            this.chkIPv6Support.Size = new System.Drawing.Size(128, 17);
-            this.chkIPv6Support.TabIndex = 5;
-            this.chkIPv6Support.Text = "Enable IPv6 support";
-            this.chkIPv6Support.UseVisualStyleBackColor = true;
-            // 
-            // chkDarkMode
-            // 
-            this.chkDarkMode.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkDarkMode.AutoSize = true;
-            this.chkDarkMode.Checked = true;
-            this.chkDarkMode.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDarkMode.Location = new System.Drawing.Point(12, 82);
-            this.chkDarkMode.Name = "chkDarkMode";
-            this.chkDarkMode.Size = new System.Drawing.Size(83, 17);
-            this.chkDarkMode.TabIndex = 20;
-            this.chkDarkMode.Text = "Dark Mode";
-            this.chkDarkMode.UseVisualStyleBackColor = true;
-            // 
-            // chkEventLog
-            // 
-            this.chkEventLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkEventLog.AutoSize = true;
-            this.chkEventLog.Location = new System.Drawing.Point(12, 243);
-            this.chkEventLog.Name = "chkEventLog";
-            this.chkEventLog.Size = new System.Drawing.Size(186, 17);
-            this.chkEventLog.TabIndex = 21;
-            this.chkEventLog.Text = "Show event log and debug log";
-            this.chkEventLog.UseVisualStyleBackColor = true;
-            // 
-            // chkDiscordRPC
-            // 
-            this.chkDiscordRPC.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkDiscordRPC.AutoSize = true;
-            this.chkDiscordRPC.Checked = true;
-            this.chkDiscordRPC.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDiscordRPC.Location = new System.Drawing.Point(12, 105);
-            this.chkDiscordRPC.Name = "chkDiscordRPC";
-            this.chkDiscordRPC.Size = new System.Drawing.Size(88, 17);
-            this.chkDiscordRPC.TabIndex = 22;
-            this.chkDiscordRPC.Text = "Discord RPC";
-            this.chkDiscordRPC.UseVisualStyleBackColor = true;
-            this.chkDiscordRPC.CheckedChanged += new System.EventHandler(this.chkDiscordRPC_CheckedChanged);
-            // 
-            // chkTelegramNotis
-            // 
-            this.chkTelegramNotis.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkTelegramNotis.AutoSize = true;
-            this.chkTelegramNotis.Location = new System.Drawing.Point(12, 274);
-            this.chkTelegramNotis.Name = "chkTelegramNotis";
-            this.chkTelegramNotis.Size = new System.Drawing.Size(179, 17);
-            this.chkTelegramNotis.TabIndex = 23;
-            this.chkTelegramNotis.Text = "Enable Telegram Notifications";
-            this.chkTelegramNotis.UseVisualStyleBackColor = true;
-            this.chkTelegramNotis.CheckedChanged += new System.EventHandler(this.chkTelegramNotis_CheckedChanged);
-            // 
-            // txtTelegramToken
-            // 
-            this.txtTelegramToken.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTelegramToken.Enabled = false;
-            this.txtTelegramToken.Location = new System.Drawing.Point(70, 297);
-            this.txtTelegramToken.Name = "txtTelegramToken";
-            this.txtTelegramToken.Size = new System.Drawing.Size(232, 22);
-            this.txtTelegramToken.TabIndex = 24;
-            this.txtTelegramToken.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Enabled = false;
-            this.label1.Location = new System.Drawing.Point(20, 300);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(44, 13);
-            this.label1.TabIndex = 25;
-            this.label1.Text = "Token: ";
-            // 
-            // txtTelegramChatID
-            // 
-            this.txtTelegramChatID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTelegramChatID.Enabled = false;
-            this.txtTelegramChatID.Location = new System.Drawing.Point(70, 325);
-            this.txtTelegramChatID.Name = "txtTelegramChatID";
-            this.txtTelegramChatID.Size = new System.Drawing.Size(232, 22);
-            this.txtTelegramChatID.TabIndex = 26;
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Enabled = false;
-            this.label2.Location = new System.Drawing.Point(19, 328);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(45, 13);
-            this.label2.TabIndex = 27;
-            this.label2.Text = "ChatID:";
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(192, 353);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(110, 23);
-            this.button1.TabIndex = 28;
-            this.button1.Text = "Test";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.groupBox1.Controls.Add(this.BlockedRichTB);
-            this.groupBox1.Location = new System.Drawing.Point(12, 378);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(290, 137);
-            this.groupBox1.TabIndex = 30;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Blocked IP's";
-            // 
-            // BlockedRichTB
-            // 
-            this.BlockedRichTB.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.BlockedRichTB.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.BlockedRichTB.Location = new System.Drawing.Point(3, 18);
-            this.BlockedRichTB.Name = "BlockedRichTB";
-            this.BlockedRichTB.Size = new System.Drawing.Size(284, 116);
-            this.BlockedRichTB.TabIndex = 0;
-            this.BlockedRichTB.Text = "";
-            // 
-            // chkHideFromScreenCapture
-            // 
-            this.chkHideFromScreenCapture.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkHideFromScreenCapture.AutoSize = true;
-            this.chkHideFromScreenCapture.Location = new System.Drawing.Point(12, 151);
-            this.chkHideFromScreenCapture.Name = "chkHideFromScreenCapture";
-            this.chkHideFromScreenCapture.Size = new System.Drawing.Size(212, 17);
-            this.chkHideFromScreenCapture.TabIndex = 5;
-            this.chkHideFromScreenCapture.Text = "Hide window contents from screen capture";
-            this.chkHideFromScreenCapture.UseVisualStyleBackColor = true;
-            this.chkHideFromScreenCapture.CheckedChanged += new System.EventHandler(this.hideFromScreenCapture_CheckedChanged);
-            // 
-            // lblMultiPorts
-            // 
-            this.lblMultiPorts.AutoSize = true;
-            this.lblMultiPorts.Location = new System.Drawing.Point(12, 39);
-            this.lblMultiPorts.Name = "lblMultiPorts";
-            this.lblMultiPorts.Size = new System.Drawing.Size(102, 13);
-            this.lblMultiPorts.TabIndex = 20;
-            this.lblMultiPorts.Text = "Ports to listen to:";
-            // 
-            // txtMultiPorts
-            // 
-            this.txtMultiPorts.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtMultiPorts.Location = new System.Drawing.Point(111, 36);
-            this.txtMultiPorts.Name = "txtMultiPorts";
-            this.txtMultiPorts.Size = new System.Drawing.Size(191, 22);
-            this.txtMultiPorts.TabIndex = 21;
-            this.txtMultiPorts.Text = "port1 port2 etc..";
-            this.txtMultiPorts.ForeColor = System.Drawing.Color.Gray;
-            this.txtMultiPorts.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtMultiPorts_KeyPress);
-            this.txtMultiPorts.Enter += new System.EventHandler(this.txtMultiPorts_Enter);
-            this.txtMultiPorts.Leave += new System.EventHandler(this.txtMultiPorts_Leave);
-            // 
-            // btnAdd
-            // 
-            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.Location = new System.Drawing.Point(258, 6);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(44, 23);
-            this.btnAdd.TabIndex = 99;
-            this.btnAdd.Text = "Add";
-            this.btnAdd.UseVisualStyleBackColor = true;
-            this.btnAdd.Visible = false;
-            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            chkPopup.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkPopup.AutoSize = true;
+            chkPopup.Location = new System.Drawing.Point(12, 191);
+            chkPopup.Name = "chkPopup";
+            chkPopup.Size = new System.Drawing.Size(259, 17);
+            chkPopup.TabIndex = 7;
+            chkPopup.Text = "Show popup notification on new connection";
+            chkPopup.UseVisualStyleBackColor = true;
             // 
             // btnListen
             // 
-            this.btnListen.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnListen.Location = new System.Drawing.Point(12, 6);
-            this.btnListen.Name = "btnListen";
-            this.btnListen.Size = new System.Drawing.Size(290, 23);
-            this.btnListen.TabIndex = 2;
-            this.btnListen.Text = "Start listening";
-            this.btnListen.UseVisualStyleBackColor = true;
-            this.btnListen.Click += new System.EventHandler(this.btnListen_Click);
+            btnListen.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            btnListen.Location = new System.Drawing.Point(12, 6);
+            btnListen.Name = "btnListen";
+            btnListen.Size = new System.Drawing.Size(336, 23);
+            btnListen.TabIndex = 2;
+            btnListen.Text = "Start listening";
+            btnListen.UseVisualStyleBackColor = true;
+            btnListen.Click += btnListen_Click;
             // 
             // btnCancel
             // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(146, 617);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 18;
-            this.btnCancel.Text = "&Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            btnCancel.Location = new System.Drawing.Point(12, 543);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new System.Drawing.Size(121, 23);
+            btnCancel.TabIndex = 18;
+            btnCancel.Text = "&Cancel";
+            btnCancel.UseVisualStyleBackColor = true;
+            btnCancel.Click += btnCancel_Click;
+            // 
+            // chkUseUpnp
+            // 
+            chkUseUpnp.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkUseUpnp.AutoSize = true;
+            chkUseUpnp.Location = new System.Drawing.Point(12, 214);
+            chkUseUpnp.Name = "chkUseUpnp";
+            chkUseUpnp.Size = new System.Drawing.Size(250, 17);
+            chkUseUpnp.TabIndex = 8;
+            chkUseUpnp.Text = "Try to automatically forward the port (UPnP)";
+            chkUseUpnp.UseVisualStyleBackColor = true;
+            // 
+            // chkShowTooltip
+            // 
+            chkShowTooltip.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkShowTooltip.AutoSize = true;
+            chkShowTooltip.Location = new System.Drawing.Point(12, 237);
+            chkShowTooltip.Name = "chkShowTooltip";
+            chkShowTooltip.Size = new System.Drawing.Size(268, 17);
+            chkShowTooltip.TabIndex = 9;
+            chkShowTooltip.Text = "Show tooltip on client with system information";
+            chkShowTooltip.UseVisualStyleBackColor = true;
+            // 
+            // chkIPv6Support
+            // 
+            chkIPv6Support.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkIPv6Support.AutoSize = true;
+            chkIPv6Support.Location = new System.Drawing.Point(12, 145);
+            chkIPv6Support.Name = "chkIPv6Support";
+            chkIPv6Support.Size = new System.Drawing.Size(128, 17);
+            chkIPv6Support.TabIndex = 5;
+            chkIPv6Support.Text = "Enable IPv6 support";
+            chkIPv6Support.UseVisualStyleBackColor = true;
+            // 
+            // chkDarkMode
+            // 
+            chkDarkMode.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkDarkMode.AutoSize = true;
+            chkDarkMode.Checked = true;
+            chkDarkMode.CheckState = System.Windows.Forms.CheckState.Checked;
+            chkDarkMode.Location = new System.Drawing.Point(12, 76);
+            chkDarkMode.Name = "chkDarkMode";
+            chkDarkMode.Size = new System.Drawing.Size(83, 17);
+            chkDarkMode.TabIndex = 20;
+            chkDarkMode.Text = "Dark Mode";
+            chkDarkMode.UseVisualStyleBackColor = true;
+            // 
+            // chkEventLog
+            // 
+            chkEventLog.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkEventLog.AutoSize = true;
+            chkEventLog.Location = new System.Drawing.Point(12, 260);
+            chkEventLog.Name = "chkEventLog";
+            chkEventLog.Size = new System.Drawing.Size(186, 17);
+            chkEventLog.TabIndex = 21;
+            chkEventLog.Text = "Show event log and debug log";
+            chkEventLog.UseVisualStyleBackColor = true;
+            // 
+            // chkDiscordRPC
+            // 
+            chkDiscordRPC.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkDiscordRPC.AutoSize = true;
+            chkDiscordRPC.Checked = true;
+            chkDiscordRPC.CheckState = System.Windows.Forms.CheckState.Checked;
+            chkDiscordRPC.Location = new System.Drawing.Point(12, 99);
+            chkDiscordRPC.Name = "chkDiscordRPC";
+            chkDiscordRPC.Size = new System.Drawing.Size(88, 17);
+            chkDiscordRPC.TabIndex = 22;
+            chkDiscordRPC.Text = "Discord RPC";
+            chkDiscordRPC.UseVisualStyleBackColor = true;
+            chkDiscordRPC.CheckedChanged += chkDiscordRPC_CheckedChanged;
+            // 
+            // chkTelegramNotis
+            // 
+            chkTelegramNotis.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkTelegramNotis.AutoSize = true;
+            chkTelegramNotis.Location = new System.Drawing.Point(12, 291);
+            chkTelegramNotis.Name = "chkTelegramNotis";
+            chkTelegramNotis.Size = new System.Drawing.Size(179, 17);
+            chkTelegramNotis.TabIndex = 23;
+            chkTelegramNotis.Text = "Enable Telegram Notifications";
+            chkTelegramNotis.UseVisualStyleBackColor = true;
+            chkTelegramNotis.CheckedChanged += chkTelegramNotis_CheckedChanged;
+            // 
+            // txtTelegramToken
+            // 
+            txtTelegramToken.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            txtTelegramToken.Enabled = false;
+            txtTelegramToken.Location = new System.Drawing.Point(70, 314);
+            txtTelegramToken.Name = "txtTelegramToken";
+            txtTelegramToken.Size = new System.Drawing.Size(278, 22);
+            txtTelegramToken.TabIndex = 24;
+            txtTelegramToken.TextChanged += textBox1_TextChanged;
+            // 
+            // label1
+            // 
+            label1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Enabled = false;
+            label1.Location = new System.Drawing.Point(20, 317);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(44, 13);
+            label1.TabIndex = 25;
+            label1.Text = "Token: ";
+            // 
+            // txtTelegramChatID
+            // 
+            txtTelegramChatID.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            txtTelegramChatID.Enabled = false;
+            txtTelegramChatID.Location = new System.Drawing.Point(70, 342);
+            txtTelegramChatID.Name = "txtTelegramChatID";
+            txtTelegramChatID.Size = new System.Drawing.Size(278, 22);
+            txtTelegramChatID.TabIndex = 26;
+            // 
+            // label2
+            // 
+            label2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            label2.AutoSize = true;
+            label2.Enabled = false;
+            label2.Location = new System.Drawing.Point(19, 345);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(45, 13);
+            label2.TabIndex = 27;
+            label2.Text = "ChatID:";
+            // 
+            // button1
+            // 
+            button1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            button1.Location = new System.Drawing.Point(192, 370);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(156, 23);
+            button1.TabIndex = 28;
+            button1.Text = "Test";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            groupBox1.Controls.Add(BlockedRichTB);
+            groupBox1.Location = new System.Drawing.Point(39, 400);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new System.Drawing.Size(290, 137);
+            groupBox1.TabIndex = 30;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Blocked IP's";
+            // 
+            // BlockedRichTB
+            // 
+            BlockedRichTB.Anchor = System.Windows.Forms.AnchorStyles.None;
+            BlockedRichTB.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            BlockedRichTB.Location = new System.Drawing.Point(3, 18);
+            BlockedRichTB.Name = "BlockedRichTB";
+            BlockedRichTB.Size = new System.Drawing.Size(284, 116);
+            BlockedRichTB.TabIndex = 0;
+            BlockedRichTB.Text = "";
+            // 
+            // chkHideFromScreenCapture
+            // 
+            chkHideFromScreenCapture.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            chkHideFromScreenCapture.AutoSize = true;
+            chkHideFromScreenCapture.Location = new System.Drawing.Point(12, 168);
+            chkHideFromScreenCapture.Name = "chkHideFromScreenCapture";
+            chkHideFromScreenCapture.Size = new System.Drawing.Size(248, 17);
+            chkHideFromScreenCapture.TabIndex = 5;
+            chkHideFromScreenCapture.Text = "Hide window contents from screen capture";
+            chkHideFromScreenCapture.UseVisualStyleBackColor = true;
+            chkHideFromScreenCapture.CheckedChanged += hideFromScreenCapture_CheckedChanged;
+            // 
+            // lblMultiPorts
+            // 
+            lblMultiPorts.AutoSize = true;
+            lblMultiPorts.Location = new System.Drawing.Point(12, 39);
+            lblMultiPorts.Name = "lblMultiPorts";
+            lblMultiPorts.Size = new System.Drawing.Size(95, 13);
+            lblMultiPorts.TabIndex = 20;
+            lblMultiPorts.Text = "Ports to listen to:";
+            // 
+            // txtMultiPorts
+            // 
+            txtMultiPorts.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            txtMultiPorts.ForeColor = System.Drawing.Color.Gray;
+            txtMultiPorts.Location = new System.Drawing.Point(111, 36);
+            txtMultiPorts.Name = "txtMultiPorts";
+            txtMultiPorts.Size = new System.Drawing.Size(237, 22);
+            txtMultiPorts.TabIndex = 21;
+            txtMultiPorts.Text = "port1 port2 etc..";
+            txtMultiPorts.Enter += txtMultiPorts_Enter;
+            txtMultiPorts.KeyPress += txtMultiPorts_KeyPress;
+            txtMultiPorts.Leave += txtMultiPorts_Leave;
             // 
             // FrmSettings
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(314, 652);
-            this.Controls.Add(this.btnAdd);
-            this.Controls.Add(this.txtMultiPorts);
-            this.Controls.Add(this.lblMultiPorts);
-            this.Controls.Add(this.chkHideFromScreenCapture);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.txtTelegramChatID);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.txtTelegramToken);
-            this.Controls.Add(this.chkTelegramNotis);
-            this.Controls.Add(this.chkDiscordRPC);
-            this.Controls.Add(this.chkEventLog);
-            this.Controls.Add(this.chkDarkMode);
-            this.Controls.Add(this.chkIPv6Support);
-            this.Controls.Add(this.chkShowPassword);
-            this.Controls.Add(this.txtNoIPHost);
-            this.Controls.Add(this.txtNoIPUser);
-            this.Controls.Add(this.txtNoIPPass);
-            this.Controls.Add(this.lblUser);
-            this.Controls.Add(this.lblPass);
-            this.Controls.Add(this.lblHost);
-            this.Controls.Add(this.chkNoIPIntegration);
-            this.Controls.Add(this.chkShowTooltip);
-            this.Controls.Add(this.chkUseUpnp);
-            this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.btnListen);
-            this.Controls.Add(this.chkPopup);
-            this.Controls.Add(this.chkAutoListen);
-            // this.Controls.Add(this.ncPort);
-            // this.Controls.Add(this.lblPort);
-            this.Controls.Add(this.btnSave);
-            this.Font = new System.Drawing.Font("Verdana", 9F);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "FrmSettings";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Settings";
-            this.Load += new System.EventHandler(this.FrmSettings_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.ncPort)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(360, 578);
+            Controls.Add(txtMultiPorts);
+            Controls.Add(lblMultiPorts);
+            Controls.Add(chkHideFromScreenCapture);
+            Controls.Add(groupBox1);
+            Controls.Add(button1);
+            Controls.Add(label2);
+            Controls.Add(txtTelegramChatID);
+            Controls.Add(label1);
+            Controls.Add(txtTelegramToken);
+            Controls.Add(chkTelegramNotis);
+            Controls.Add(chkDiscordRPC);
+            Controls.Add(chkEventLog);
+            Controls.Add(chkDarkMode);
+            Controls.Add(chkIPv6Support);
+            Controls.Add(chkShowTooltip);
+            Controls.Add(chkUseUpnp);
+            Controls.Add(btnCancel);
+            Controls.Add(btnListen);
+            Controls.Add(chkPopup);
+            Controls.Add(chkAutoListen);
+            Controls.Add(btnSave);
+            Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "FrmSettings";
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            Text = "Settings";
+            Load += FrmSettings_Load;
+            ((System.ComponentModel.ISupportInitialize)ncPort).EndInit();
+            groupBox1.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -539,14 +379,6 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.CheckBox chkUseUpnp;
         private System.Windows.Forms.CheckBox chkShowTooltip;
-        private System.Windows.Forms.CheckBox chkNoIPIntegration;
-        private System.Windows.Forms.Label lblHost;
-        private System.Windows.Forms.Label lblPass;
-        private System.Windows.Forms.Label lblUser;
-        private System.Windows.Forms.TextBox txtNoIPPass;
-        private System.Windows.Forms.TextBox txtNoIPUser;
-        private System.Windows.Forms.TextBox txtNoIPHost;
-        private System.Windows.Forms.CheckBox chkShowPassword;
         private System.Windows.Forms.CheckBox chkIPv6Support;
         private System.Windows.Forms.CheckBox chkDarkMode;
         private System.Windows.Forms.CheckBox chkEventLog;
@@ -562,6 +394,5 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.CheckBox chkHideFromScreenCapture;
         private System.Windows.Forms.Label lblMultiPorts;
         private System.Windows.Forms.TextBox txtMultiPorts;
-        private System.Windows.Forms.Button btnAdd;
     }
 }
