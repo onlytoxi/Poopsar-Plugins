@@ -31,16 +31,12 @@ namespace Pulsar.Server.Controls
         /// <summary>
         /// Returns the width of the original screen.
         /// </summary>
-    [Browsable(false)]
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public int ScreenWidth { get; private set; }
+        public int ScreenWidth { get; private set; }
 
         /// <summary>
         /// Returns the height of the original screen.
         /// </summary>
-    [Browsable(false)]
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public int ScreenHeight { get; private set; }
+        public int ScreenHeight { get; private set; }
 
         /// <summary>
         /// Provides thread-safe access to the Image of this Picturebox.

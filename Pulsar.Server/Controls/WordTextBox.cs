@@ -11,9 +11,7 @@ namespace Pulsar.Server.Controls
         private bool isHexNumber;
         private WordType type;
 
-    [Browsable(false)]
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public override int MaxLength
+        public override int MaxLength
         {
             get
             {
