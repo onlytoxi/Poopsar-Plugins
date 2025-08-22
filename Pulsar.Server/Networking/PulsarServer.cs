@@ -178,6 +178,7 @@ namespace Pulsar.Server.Networking
             client.Value.Tag = packet.Tag;
             client.Value.ImageIndex = packet.ImageIndex;
             client.Value.EncryptionKey = packet.EncryptionKey;
+            client.Value.PublicIP = packet.PublicIP;
 
             // TODO: Refactor tooltip
             //if (Settings.ShowToolTip)

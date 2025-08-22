@@ -915,29 +915,17 @@ namespace Pulsar.Server.Forms
                 lstClients.Controls.Remove(control);
             }
 
-            // Separate favorited and unfavorited clients
-            List<ListViewItem> favoritedItems = new List<ListViewItem>();
-            List<ListViewItem> unfavoritedItems = new List<ListViewItem>();
-
-            foreach (ListViewItem item in lstClients.Items)
-            {
-                if (item.Tag is Client client)
-                {
-                    if (Favorites.IsFavorite(client.Value.UserAtPc))
-                        favoritedItems.Add(item);
-                    else
-                        unfavoritedItems.Add(item);
-                }
-            }
+            var allItems = lstClients.Items.Cast<ListViewItem>()
+                .Where(item => item.Tag is Client)
+                .OrderBy(item => (item.Tag as Client)?.Value?.Country ?? "ZZZ")
+                .ThenByDescending(item => Favorites.IsFavorite((item.Tag as Client)?.Value?.UserAtPc ?? ""))
+                .ToList();
 
             // Clear the ListView
             lstClients.Items.Clear();
 
-            // Add favorited items first, then unfavorited
-            foreach (var item in favoritedItems)
-                lstClients.Items.Add(item);
-
-            foreach (var item in unfavoritedItems)
+            // Add all items in sorted order
+            foreach (var item in allItems)
                 lstClients.Items.Add(item);
 
             // Add star buttons back for each client in the correct order
@@ -961,7 +949,7 @@ namespace Pulsar.Server.Forms
             {
                 ListViewItem lvi = new ListViewItem(new string[]
                 {
-                    " " + client.EndPoint.Address, nickname, client.Value.Tag,
+                    " " + (client.Value.PublicIP ?? client.EndPoint.Address.ToString()), nickname, client.Value.Tag,
                     client.Value.UserAtPc, client.Value.Version, "Connected", "", "Active", client.Value.CountryWithCode,
                     client.Value.OperatingSystem, client.Value.AccountType
                 })

@@ -18,6 +18,7 @@ namespace Pulsar.Server.Networking
         public string CountryCode { get; set; }
         public string Id { get; set; }
         public string Username { get; set; }
+        public string PublicIP { get; set; }
         public string PcName { get; set; }
         public string UserAtPc => $"{Username}@{PcName}";
         public string CountryWithCode => $"{Country} [{CountryCode}]";

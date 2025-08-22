@@ -40,5 +40,8 @@ namespace Pulsar.Common.Messages.Other
 
         [Key(12)]
         public byte[] Signature { get; set; }
+
+        [Key(13)]
+        public string PublicIP { get; set; }
     }
 }
