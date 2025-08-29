@@ -71,6 +71,8 @@ namespace Pulsar.Server.Forms
             _discordRpc.Enabled = Settings.DiscordRPC;     // Sync with settings on startup
 
             tableLayoutPanel1.VisibleChanged += TableLayoutPanel1_VisibleChanged;
+            
+            InitializeSearch();
         }
 
         private void OnAddressReceived(object sender, Client client, string addressType)
@@ -934,7 +936,13 @@ namespace Pulsar.Server.Forms
                 lstClients.Controls.Remove(control);
             }
 
-            var allItems = lstClients.Items.Cast<ListViewItem>()
+            var allItems = new List<ListViewItem>();
+            
+            allItems.AddRange(lstClients.Items.Cast<ListViewItem>().Where(item => item.Tag is Client));
+            
+            allItems.AddRange(_allClientItems.Values);
+
+            var sortedItems = allItems
                 .Where(item => item.Tag is Client)
                 .OrderBy(item => (item.Tag as Client)?.Value?.Country ?? "Unknown")
                 .ThenByDescending(item => Favorites.IsFavorite((item.Tag as Client)?.Value?.UserAtPc ?? ""))
@@ -942,8 +950,9 @@ namespace Pulsar.Server.Forms
 
             lstClients.Items.Clear();
             lstClients.Groups.Clear();
+            _allClientItems.Clear();
 
-            foreach (var item in allItems)
+            foreach (var item in sortedItems)
             {
                 if (item.Tag is Client client)
                 {
@@ -952,11 +961,19 @@ namespace Pulsar.Server.Forms
                     
                     var group = GetGroupFromCountry(country, countryWithCode);
                     item.Group = group;
+                    
+                    if (ShouldShowClientInSearch(client, item))
+                    {
+                        lstClients.Items.Add(item);
+                    }
+                    else
+                    {
+                        _allClientItems[client] = item;
+                    }
                 }
-                lstClients.Items.Add(item);
             }
 
-            // Add star buttons back for each client in the correct order
+            // Add star buttons back for each visible client
             foreach (ListViewItem item in lstClients.Items)
             {
                 if (item.Tag is Client client)
@@ -1015,8 +1032,16 @@ namespace Pulsar.Server.Forms
                         string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
                         lvi.Group = GetGroupFromCountry(country, countryWithCode);
                         
-                        lstClients.Items.Add(lvi);
-                        AddStarButton(lvi, client);
+                        if (ShouldShowClientInSearch(client, lvi))
+                        {
+                            lstClients.Items.Add(lvi);
+                            AddStarButton(lvi, client);
+                        }
+                        else
+                        {
+                            _allClientItems[client] = lvi;
+                        }
+                        
                         SortClientsByFavoriteStatus();
                         lstClients.EndUpdate();
                     }
@@ -1115,6 +1140,9 @@ namespace Pulsar.Server.Forms
                         lstClients.EndUpdate();
                     }
                 });
+                
+                _allClientItems.Remove(client);
+                
                 UpdateWindowTitle();
                 EventLog(client.Value.UserAtPc + " Has disconnected.", "normal");
             }
@@ -1126,6 +1154,9 @@ namespace Pulsar.Server.Forms
         private readonly Dictionary<Client, Dictionary<string, object>> _pendingStatusUpdates = new Dictionary<Client, Dictionary<string, object>>();
         private readonly object _statusUpdateLock = new object();
         private bool _statusUpdatePending = false;
+
+        private string _currentSearchFilter = "";
+        private readonly Dictionary<Client, ListViewItem> _allClientItems = new Dictionary<Client, ListViewItem>();
 
         private void SetStatusByClient(object sender, Client client, string text)
         {
@@ -2426,6 +2457,257 @@ namespace Pulsar.Server.Forms
         {
             AddTask("WinRE", "", "");
         }
+
+        #region "Search Functionality"
+
+        private TextBox _searchTextBox;
+        private Label _searchLabel;
+        private Label _searchResultsLabel;
+
+        private void InitializeSearch()
+        {
+            _searchTextBox = new TextBox
+            {
+                Visible = false,
+                Location = new System.Drawing.Point(220, 10),
+                Size = new System.Drawing.Size(300, 23),
+                TabIndex = 0,
+                Font = new System.Drawing.Font("Segoe UI", 9F),
+                PlaceholderText = "Search clients... (press Esc to close)"
+            };
+            _searchTextBox.TextChanged += SearchTextBox_TextChanged;
+            _searchTextBox.KeyDown += SearchTextBox_KeyDown;
+
+            _searchLabel = new Label
+            {
+                Text = "🔍 Search:",
+                Visible = false,
+                Location = new System.Drawing.Point(150, 13),
+                Size = new System.Drawing.Size(65, 15),
+                Font = new System.Drawing.Font("Segoe UI", 9F),
+                ForeColor = System.Drawing.Color.FromArgb(64, 64, 64)
+            };
+
+            _searchResultsLabel = new Label
+            {
+                Text = "",
+                Visible = false,
+                Location = new System.Drawing.Point(530, 13),
+                Size = new System.Drawing.Size(200, 15),
+                Font = new System.Drawing.Font("Segoe UI", 8F),
+                ForeColor = System.Drawing.Color.FromArgb(96, 96, 96)
+            };
+
+            tabPage1.Controls.Add(_searchTextBox);
+            tabPage1.Controls.Add(_searchLabel);
+            tabPage1.Controls.Add(_searchResultsLabel);
+            
+            _searchTextBox.BringToFront();
+            _searchLabel.BringToFront();
+            _searchResultsLabel.BringToFront();
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.F))
+            {
+                ShowSearch();
+                return true;
+            }
+            else if (keyData == Keys.Escape && _searchTextBox.Visible)
+            {
+                HideSearch();
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void ShowSearch()
+        {
+            if (MainTabControl.SelectedTab != tabPage1) return;
+
+            _searchLabel.Visible = true;
+            _searchTextBox.Visible = true;
+            _searchResultsLabel.Visible = true;
+            _searchTextBox.Focus();
+            _searchTextBox.SelectAll();
+            UpdateSearchResultsCount();
+        }
+
+        private void HideSearch()
+        {
+            _searchLabel.Visible = false;
+            _searchTextBox.Visible = false;
+            _searchResultsLabel.Visible = false;
+            _currentSearchFilter = "";
+            _searchTextBox.Text = "";
+            ApplySearchFilter();
+            lstClients.Focus();
+        }
+
+        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                HideSearch();
+            }
+        }
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            _currentSearchFilter = _searchTextBox.Text.Trim();
+            ApplySearchFilter();
+            UpdateSearchResultsCount();
+        }
+
+        private void ApplySearchFilter()
+        {
+            if (string.IsNullOrEmpty(_currentSearchFilter))
+            {
+                ShowAllClients();
+                return;
+            }
+
+            string searchLower = _currentSearchFilter.ToLowerInvariant();
+
+            lstClients.BeginUpdate();
+            try
+            {
+                var itemsToRemove = new List<ListViewItem>();
+                
+                foreach (ListViewItem item in lstClients.Items)
+                {
+                    if (item.Tag is Client client)
+                    {
+                        bool matches = false;
+
+                        for (int i = 0; i < item.SubItems.Count; i++)
+                        {
+                            string text = item.SubItems[i].Text?.ToLowerInvariant() ?? "";
+                            if (text.Contains(searchLower))
+                            {
+                                matches = true;
+                                break;
+                            }
+                        }
+
+                        if (!matches)
+                        {
+                            string nickname = GetClientNickname(client)?.ToLowerInvariant() ?? "";
+                            string publicIp = (client.Value?.PublicIP ?? client.EndPoint?.Address?.ToString() ?? "").ToLowerInvariant();
+                            
+                            if (nickname.Contains(searchLower) || publicIp.Contains(searchLower))
+                            {
+                                matches = true;
+                            }
+                        }
+
+                        if (!matches)
+                        {
+                            itemsToRemove.Add(item);
+                        }
+                    }
+                }
+
+                foreach (var item in itemsToRemove)
+                {
+                    if (item.Tag is Client client)
+                    {
+                        if (!_allClientItems.ContainsKey(client))
+                        {
+                            _allClientItems[client] = item;
+                        }
+                    }
+                    lstClients.Items.Remove(item);
+                }
+            }
+            finally
+            {
+                lstClients.EndUpdate();
+            }
+        }
+
+        private void ShowAllClients()
+        {
+            lstClients.BeginUpdate();
+            try
+            {
+                foreach (var kvp in _allClientItems)
+                {
+                    var client = kvp.Key;
+                    var item = kvp.Value;
+                    
+                    if (!lstClients.Items.Contains(item))
+                    {
+                        if (client.Value != null)
+                        {
+                            string country = client.Value.Country ?? "Unknown";
+                            string countryWithCode = client.Value.CountryWithCode ?? "Unknown";
+                            item.Group = GetGroupFromCountry(country, countryWithCode);
+                        }
+                        lstClients.Items.Add(item);
+                    }
+                }
+                _allClientItems.Clear();
+
+                SortClientsByFavoriteStatus();
+            }
+            finally
+            {
+                lstClients.EndUpdate();
+            }
+        }
+
+        private bool ShouldShowClientInSearch(Client client, ListViewItem item)
+        {
+            if (string.IsNullOrEmpty(_currentSearchFilter))
+                return true;
+
+            string searchLower = _currentSearchFilter.ToLowerInvariant();
+
+            for (int i = 0; i < item.SubItems.Count; i++)
+            {
+                string text = item.SubItems[i].Text?.ToLowerInvariant() ?? "";
+                if (text.Contains(searchLower))
+                {
+                    return true;
+                }
+            }
+
+            string nickname = GetClientNickname(client)?.ToLowerInvariant() ?? "";
+            string publicIp = (client.Value?.PublicIP ?? client.EndPoint?.Address?.ToString() ?? "").ToLowerInvariant();
+            
+            if (nickname.Contains(searchLower) || publicIp.Contains(searchLower))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private void UpdateSearchResultsCount()
+        {
+            if (string.IsNullOrEmpty(_currentSearchFilter))
+            {
+                _searchResultsLabel.Text = "";
+                return;
+            }
+
+            int visibleCount = lstClients.Items.Count;
+            int totalCount = visibleCount + _allClientItems.Count;
+
+            if (visibleCount == totalCount)
+            {
+                _searchResultsLabel.Text = $"Showing all {totalCount} clients";
+            }
+            else
+            {
+                _searchResultsLabel.Text = $"Showing {visibleCount} of {totalCount} clients";
+            }
+        }
+
+        #endregion
     }
 
     public class AutoTask
