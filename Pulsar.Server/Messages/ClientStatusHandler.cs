@@ -12,6 +12,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Pulsar.Server.Messages
 {
@@ -162,8 +163,8 @@ namespace Pulsar.Server.Messages
 
             Task.Run(() =>
             {
-                string keywordsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "keywords.json");
-
+                string keywordsFilePath = Path.Combine(Application.StartupPath, "PulsarStuff", "keywords.json");
+                
                 if (File.Exists(keywordsFilePath))
                 {
                     string jsonContent = File.ReadAllText(keywordsFilePath);
