@@ -46,7 +46,7 @@ namespace Pulsar.Server.Networking
                     Models.Settings.TelegramBotToken,
                     Models.Settings.TelegramChatID,
                     client.Value.Username,
-                    client.EndPoint.Address.ToString(),
+                    client.Value.PublicIP ?? "Unknown",
                     client.Value.Country
                 ));
             }

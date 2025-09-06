@@ -97,7 +97,7 @@ namespace Pulsar.Server.Forms
 
         private bool _useGPU = false;
 
-        private int _framesReceived = 0;
+        private int _sizeFrames = 0; // independent counter for size label updates
 
         /// <summary>
         /// Creates a new remote desktop form for the client or gets the current open form, if there exists one already.
@@ -346,26 +346,22 @@ namespace Pulsar.Server.Forms
 
         private void UpdateImage(object sender, Bitmap bmp)
         {
-            _framesReceived++;
-
-            if (_framesReceived >= 30)
+            _sizeFrames++;
+            if (_sizeFrames >= 60)
             {
-                long sizeInBytes = 0;
-                using (MemoryStream ms = new MemoryStream())
+                _sizeFrames = 0;
+                long last = _remoteDesktopHandler.LastFrameSizeBytes;
+                double avg = _remoteDesktopHandler.AverageFrameSizeBytes;
+                if (last > 0 || avg > 0)
                 {
-                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    sizeInBytes = ms.Length;
+                    double lastKB = last / 1024.0;
+                    double avgKB = avg / 1024.0;
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        sizeLabelCounter.Text = $"{avgKB:0.0}  KB";
+                    });
                 }
-                double sizeInKB = sizeInBytes / 1024.0;
-
-                this.Invoke((MethodInvoker)delegate
-                {
-                    sizeLabelCounter.Text = $"Size: {sizeInKB:0.00} KB";
-                });
-
-                _framesReceived = 0;
             }
-
             picDesktop.UpdateImage(bmp, false);
         }
 

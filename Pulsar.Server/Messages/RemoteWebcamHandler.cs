@@ -120,6 +120,21 @@ namespace Pulsar.Server.Messages
         private int _framesReceived = 0;
         private double _estimatedFps = 0;
 
+        private long _accumulatedFrameBytes = 0;
+        private int _frameBytesSamples = 0;
+        private long _lastFrameBytes = 0;
+
+        public long LastFrameSizeBytes => Interlocked.Read(ref _lastFrameBytes);
+        public double AverageFrameSizeBytes
+        {
+            get
+            {
+                long total = Interlocked.Read(ref _accumulatedFrameBytes);
+                int count = Volatile.Read(ref _frameBytesSamples);
+                return count > 0 ? (double)total / count : 0.0;
+            }
+        }
+
         /// <summary>
         /// Stores the last FPS reported by the client.
         /// </summary>
@@ -248,12 +263,23 @@ namespace Pulsar.Server.Messages
                     _codec = new UnsafeStreamCodec(message.Quality, message.Monitor, message.Resolution);
                 }
 
+                if (message.Image != null)
+                {
+                    long size = message.Image.LongLength;
+                    Interlocked.Exchange(ref _lastFrameBytes, size);
+                    Interlocked.Add(ref _accumulatedFrameBytes, size);
+                    Interlocked.Increment(ref _frameBytesSamples);
+                }
+
                 using (MemoryStream ms = new MemoryStream(message.Image))
                 {
                     try
                     {
-                        // create deep copy & resize bitmap to local resolution
-                        OnReport(new Bitmap(_codec.DecodeData(ms), LocalResolution));
+                        var decoded = _codec.DecodeData(ms);
+                        if (decoded != null && (decoded.Width != LocalResolution.Width || decoded.Height != LocalResolution.Height) && LocalResolution.Width > 0 && LocalResolution.Height > 0)
+                            OnReport(new Bitmap(decoded, LocalResolution));
+                        else
+                            OnReport(decoded);
                     }
                     catch (Exception ex)
                     {

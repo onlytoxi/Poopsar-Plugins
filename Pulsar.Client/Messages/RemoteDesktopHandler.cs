@@ -343,6 +343,8 @@ namespace Pulsar.Client.Messages
             }
 
             var lastCaptureTime = DateTime.UtcNow;
+            const double targetFps = 60.0;
+            const double minFrameMs = 500.0 / targetFps; // ~8.33ms
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -358,7 +360,26 @@ namespace Pulsar.Client.Messages
                         continue;
                     }
 
-                    lastCaptureTime = DateTime.UtcNow;
+                    // 60 fps throttle give or take
+                    if (_useGPU)
+                    {
+                        var now = DateTime.UtcNow;
+                        var elapsedMs = (now - lastCaptureTime).TotalMilliseconds;
+                        if (elapsedMs < minFrameMs)
+                        {
+                            int sleep = (int)Math.Max(1, minFrameMs - elapsedMs);
+                            Thread.Sleep(sleep);
+                            lastCaptureTime = DateTime.UtcNow;
+                        }
+                        else
+                        {
+                            lastCaptureTime = now;
+                        }
+                    }
+                    else
+                    {
+                        lastCaptureTime = DateTime.UtcNow;
+                    }
 
                     // capture frame and add to buffer
                     byte[] frameData = CaptureFrame();

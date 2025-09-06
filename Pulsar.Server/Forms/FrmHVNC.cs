@@ -270,7 +270,7 @@ namespace Pulsar.Server.Forms
         /// <param name="sender">The message handler which raised the event.</param>
         /// <param name="bmp">The new desktop image to draw.</param>
         private Stopwatch _stopwatch = new Stopwatch();
-        private int _frameCount = 0;
+        private int _sizeFrames = 0;
 
         private void UpdateImage(object sender, Bitmap bmp)
         {
@@ -279,7 +279,7 @@ namespace Pulsar.Server.Forms
                 _stopwatch.Start();
             }
 
-            _frameCount++;
+            _sizeFrames++;
 
             double elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
             
@@ -290,26 +290,23 @@ namespace Pulsar.Server.Forms
 
             if (elapsedSeconds >= 1.0)
             {
-                _frameCount = 0;
                 _stopwatch.Restart();
             }
 
-            if (_frameCount >= UpdateInterval)
+            if (_sizeFrames >= 60)
             {
-                _frameCount = 0;
-
-                long sizeInBytes = 0;
-                using (MemoryStream ms = new MemoryStream())
+                _sizeFrames = 0;
+                long last = _hVNCHandler.LastFrameSizeBytes;
+                double avg = _hVNCHandler.AverageFrameSizeBytes;
+                if (last > 0 || avg > 0)
                 {
-                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    sizeInBytes = ms.Length;
+                    double lastKB = last / 1024.0;
+                    double avgKB = avg / 1024.0;
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        sizeLabelCounter.Text = $"{avgKB:0.0}  KB";
+                    });
                 }
-                double sizeInKB = sizeInBytes / 1024.0;
-
-                this.Invoke((MethodInvoker)delegate
-                {
-                    sizeLabelCounter.Text = $"Size: {sizeInKB:0.00} KB";
-                });
             }
 
             picDesktop.UpdateImage(bmp, false);

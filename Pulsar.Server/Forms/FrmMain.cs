@@ -1294,7 +1294,7 @@ namespace Pulsar.Server.Forms
 
                     notifyIcon.Visible = true;
                     notifyIcon.ShowBalloonTip(4000, string.Format("Client connected from {0}!", c.Value.Country),
-                        string.Format("IP Address: {0}\nOperating System: {1}", c.EndPoint.Address.ToString(),
+                        string.Format("IP Address: {0}\nOperating System: {1}", c.Value.PublicIP ?? "Unknown",
                         c.Value.OperatingSystem), ToolTipIcon.Info);
                     notifyIcon.Visible = false;
                 });

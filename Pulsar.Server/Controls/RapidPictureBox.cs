@@ -198,18 +198,20 @@ namespace Pulsar.Server.Controls
             g.CompositingMode = CompositingMode.SourceCopy;
             g.CompositingQuality = CompositingQuality.HighSpeed;
             g.PixelOffsetMode = PixelOffsetMode.Half;
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-            if (localFrame != null)
+            if (localFrame == null)
+                return;
+
+            var cs = this.ClientSize;
+            if (cs.Width <= 0 || cs.Height <= 0) return;
+
+            if (localFrame.Width == cs.Width && localFrame.Height == cs.Height)
             {
-                var cs = this.ClientSize;
-                if (cs.Width <= 0 || cs.Height <= 0)
-                    return;
-
-                double sx = (double)cs.Width / localFrame.Width;
-                double sy = (double)cs.Height / localFrame.Height;
-                bool upscaling = sx >= 1.0 || sy >= 1.0;
-                g.InterpolationMode = upscaling ? InterpolationMode.NearestNeighbor : InterpolationMode.Low;
-
+                g.DrawImageUnscaled(localFrame, 0, 0);
+            }
+            else
+            {
                 g.DrawImage(localFrame, this.ClientRectangle);
             }
         }
@@ -255,7 +257,7 @@ namespace Pulsar.Server.Controls
                 if (!IsDisposed)
                 {
                     Invalidate();
-                    Update();
+                    //Update();
                 }
                 _repaintPending = false;
             }

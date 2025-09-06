@@ -29,6 +29,8 @@ namespace Pulsar.Server.Forms
         /// </summary>
         private static readonly Dictionary<Client, FrmRemoteWebcam> OpenedForms = new Dictionary<Client, FrmRemoteWebcam>();
 
+    private int _framesForSize = 0;
+
         /// <summary>
         /// Creates a new remote webcam form for the client or gets the current open form, if there exists one already.
         /// </summary>
@@ -195,6 +197,19 @@ namespace Pulsar.Server.Forms
         /// <param name="bmp">The new webcam image to draw.</param>
         private void UpdateImage(object sender, Bitmap bmp)
         {
+            _framesForSize++;
+            if (_framesForSize >= 60)
+            {
+                _framesForSize = 0;
+                long last = _RemoteWebcamHandler.LastFrameSizeBytes;
+                double avg = _RemoteWebcamHandler.AverageFrameSizeBytes;
+                double lastKB = last / 1024.0;
+                double avgKB = avg / 1024.0;
+                this.Invoke((MethodInvoker)delegate
+                {
+                    sizeLabelCounter.Text = $"{avgKB:0.0} KB";
+                });
+            }
             picWebcam.UpdateImage(bmp, false);
         }
 

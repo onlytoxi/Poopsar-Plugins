@@ -132,7 +132,7 @@ namespace Pulsar.Server.Controls
                     var oldImage = GetImageSafe;
 
                     SuspendLayout();
-                    GetImageSafe = cloneBitmap ? new Bitmap(bmp, Width, Height) /*resize bitmap*/ : bmp;
+                    GetImageSafe = cloneBitmap ? (Bitmap)bmp.Clone() : bmp;
                     ResumeLayout();
 
                     oldImage?.Dispose();
