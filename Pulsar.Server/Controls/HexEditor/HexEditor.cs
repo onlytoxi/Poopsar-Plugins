@@ -226,6 +226,7 @@ namespace Pulsar.Server.Controls.HexEditor
         #region Overriden
 
         //Override font to trigger update on font change
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Font Font
         {
             set
@@ -239,6 +240,7 @@ namespace Pulsar.Server.Controls.HexEditor
 
         //Hides the property Text that is not used for the control
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override string Text
         {
             get
