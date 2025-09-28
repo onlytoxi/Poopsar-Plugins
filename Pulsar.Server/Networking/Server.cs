@@ -332,7 +332,7 @@ namespace Pulsar.Server.Networking
                 {
                     var upnp = new UPnPService();
                     _upnpByPort[port] = upnp;
-                    upnp.CreatePortMapAsync(port);
+                    _ = upnp.CreatePortMapAsync(port);
                 }
 
                 var item = new SocketAsyncEventArgs();
@@ -524,7 +524,7 @@ namespace Pulsar.Server.Networking
 
             foreach (var upnpKvp in _upnpByPort.ToList())
             {
-                try { upnpKvp.Value.DeletePortMapAsync(upnpKvp.Key); } catch { }
+                try { _ = upnpKvp.Value.DeletePortMapAsync(upnpKvp.Key); } catch { }
             }
             _upnpByPort.Clear();
 

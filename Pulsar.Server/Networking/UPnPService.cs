@@ -1,7 +1,9 @@
 ﻿using Open.Nat;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pulsar.Server.Networking
 {
@@ -34,24 +36,30 @@ namespace Pulsar.Server.Networking
         /// Creates a new port mapping on the UPnP device.
         /// </summary>
         /// <param name="port">The port to map.</param>
-        public async void CreatePortMapAsync(int port)
+        public async Task CreatePortMapAsync(int port)
         {
             try
             {
-                var cts = new CancellationTokenSource(10000);
-                _device = await _discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+                using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                _device = await _discoverer.DiscoverDeviceAsync(PortMapper.Upnp, timeoutCts).ConfigureAwait(false);
 
-                Mapping mapping = new Mapping(Protocol.Tcp, port, port);
+                var mapping = new Mapping(Protocol.Tcp, port, port);
 
-                await _device.CreatePortMapAsync(mapping);
+                await _device.CreatePortMapAsync(mapping).ConfigureAwait(false);
 
-                if (_mappings.ContainsKey(mapping.PrivatePort))
-                    _mappings[mapping.PrivatePort] = mapping;
-                else
-                    _mappings.Add(mapping.PrivatePort, mapping);
+                _mappings[mapping.PrivatePort] = mapping;
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine($"UPnP discovery timed out while creating port map for {port}.");
             }
             catch (Exception ex) when (ex is MappingException || ex is NatDeviceNotFoundException)
             {
+                Debug.WriteLine($"UPnP mapping failed for port {port}: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected UPnP error when creating port map for {port}: {ex}");
             }
         }
 
@@ -59,17 +67,29 @@ namespace Pulsar.Server.Networking
         /// Deletes an existing port mapping.
         /// </summary>
         /// <param name="port">The port mapping to delete.</param>
-        public async void DeletePortMapAsync(int port)
+        public async Task DeletePortMapAsync(int port)
         {
             if (_mappings.TryGetValue(port, out var mapping))
             {
                 try
                 {
-                    await _device.DeletePortMapAsync(mapping);
+                    if (_device == null)
+                        return;
+
+                    await _device.DeletePortMapAsync(mapping).ConfigureAwait(false);
                     _mappings.Remove(mapping.PrivatePort);
+                }
+                catch (OperationCanceledException)
+                {
+                    Debug.WriteLine($"UPnP delete timed out for port {port}.");
                 }
                 catch (Exception ex) when (ex is MappingException || ex is NatDeviceNotFoundException)
                 {
+                    Debug.WriteLine($"UPnP delete failed for port {port}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Unexpected UPnP error when deleting port map for {port}: {ex}");
                 }
             }
         }
