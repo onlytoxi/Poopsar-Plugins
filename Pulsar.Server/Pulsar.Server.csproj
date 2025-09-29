@@ -13,7 +13,7 @@
 		<DonutDir>$(MSBuildProjectDirectory)\..\external\donut</DonutDir>
 		<CustomResourceTypesSupport>true</CustomResourceTypesSupport>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
-		<UseWPF>false</UseWPF>
+		<UseWPF>true</UseWPF>
 		<NoWarn>$(NoWarn);CA1416</NoWarn>
 	</PropertyGroup>
 	<!-- Donut build configuration -->

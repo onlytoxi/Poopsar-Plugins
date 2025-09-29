@@ -56,12 +56,11 @@ namespace Pulsar.Server.Forms
             btnClearDrawing = new System.Windows.Forms.Button();
             btnShow = new System.Windows.Forms.Button();
             toolTipButtons = new System.Windows.Forms.ToolTip(components);
-            picDesktop = new RapidPictureBox();
+            picDesktop = new RemoteDesktopElementHost();
             ((System.ComponentModel.ISupportInitialize)barQuality).BeginInit();
             panelTop.SuspendLayout();
             panelDrawingTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)strokeWidthTrackBar).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)picDesktop).BeginInit();
             SuspendLayout();
             // 
             // btnStart
@@ -338,13 +337,11 @@ namespace Pulsar.Server.Forms
             // picDesktop
             // 
             picDesktop.BackColor = System.Drawing.Color.Black;
-            picDesktop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             picDesktop.Dock = System.Windows.Forms.DockStyle.Fill;
-            picDesktop.Image = (System.Drawing.Image)resources.GetObject("picDesktop.Image");
             picDesktop.Location = new System.Drawing.Point(0, 0);
+            picDesktop.Margin = new System.Windows.Forms.Padding(0);
             picDesktop.Name = "picDesktop";
             picDesktop.Size = new System.Drawing.Size(848, 562);
-            picDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             picDesktop.TabIndex = 0;
             picDesktop.TabStop = false;
             picDesktop.MouseDown += picDesktop_MouseDown;
@@ -376,7 +373,6 @@ namespace Pulsar.Server.Forms
             panelDrawingTools.ResumeLayout(false);
             panelDrawingTools.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)strokeWidthTrackBar).EndInit();
-            ((System.ComponentModel.ISupportInitialize)picDesktop).EndInit();
             ResumeLayout(false);
 
         }
@@ -395,7 +391,7 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.ComboBox cbMonitors;
         private System.Windows.Forms.Button btnKeyboard;
         private System.Windows.Forms.ToolTip toolTipButtons;
-        private Controls.RapidPictureBox picDesktop;
+    private Controls.RemoteDesktopElementHost picDesktop;
         private System.Windows.Forms.Button enableGPU;
         private System.Windows.Forms.Label sizeLabelCounter;
         private System.Windows.Forms.Button colorPicker;

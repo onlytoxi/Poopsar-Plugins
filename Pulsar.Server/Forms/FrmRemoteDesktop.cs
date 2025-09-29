@@ -130,7 +130,20 @@ namespace Pulsar.Server.Forms
             _clipboardMonitor = new ClipboardMonitor(client);
 
             RegisterMessageHandler();
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"FrmRemoteDesktop.InitializeComponent failed: {ex}");
+                MessageBox.Show(
+                    $"Failed to initialize Remote Desktop form.\n\n{ex}",
+                    "Remote Desktop Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                throw;
+            }
 
             DarkModeManager.ApplyDarkMode(this);
             ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
@@ -406,8 +419,6 @@ namespace Pulsar.Server.Forms
             { 
                 Enabled = false 
             });
-            
-            picDesktop.Image?.Dispose();
         }
 
         private void FrmRemoteDesktop_Resize(object sender, EventArgs e)
@@ -534,7 +545,7 @@ namespace Pulsar.Server.Forms
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (picDesktop.Image != null && _enableKeyboardInput && this.ContainsFocus)
+            if (picDesktop.HasFrame && _enableKeyboardInput && this.ContainsFocus)
             {
                 if (!IsLockKey(e.KeyCode))
                     e.Handled = true;
@@ -550,7 +561,7 @@ namespace Pulsar.Server.Forms
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            if (picDesktop.Image != null && _enableKeyboardInput && this.ContainsFocus)
+            if (picDesktop.HasFrame && _enableKeyboardInput && this.ContainsFocus)
             {
                 if (!IsLockKey(e.KeyCode))
                     e.Handled = true;
