@@ -239,8 +239,7 @@ namespace Pulsar.Server.Forms
             if (_RemoteWebcamHandler.IsStarted) StopStream();
             UnregisterMessageHandler();
             _RemoteWebcamHandler.Dispose();
-            picWebcam.GetImageSafe?.Dispose();
-            picWebcam.GetImageSafe = null;
+            picWebcam.Image?.Dispose();
         }
 
         private void FrmRemoteWebcam_Resize(object sender, EventArgs e)

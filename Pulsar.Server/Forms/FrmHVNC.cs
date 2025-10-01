@@ -357,8 +357,7 @@ namespace Pulsar.Server.Forms
                 Enabled = false 
             });
             
-            picDesktop.GetImageSafe?.Dispose();
-            picDesktop.GetImageSafe = null;
+            picDesktop.Image?.Dispose();
         }
 
         private void FrmHVNC_Resize(object sender, EventArgs e)

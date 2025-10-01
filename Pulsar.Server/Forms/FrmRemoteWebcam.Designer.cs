@@ -43,9 +43,10 @@ namespace Pulsar.Server.Forms
             btnHide = new System.Windows.Forms.Button();
             btnShow = new System.Windows.Forms.Button();
             toolTipButtons = new System.Windows.Forms.ToolTip(components);
-            picWebcam = new RemoteDesktopElementHost();
+            picWebcam = new RapidPictureBox();
             ((System.ComponentModel.ISupportInitialize)barQuality).BeginInit();
             panelTop.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)picWebcam).BeginInit();
             SuspendLayout();
             // 
             // btnStart
@@ -165,11 +166,13 @@ namespace Pulsar.Server.Forms
             // picWebcam
             // 
             picWebcam.BackColor = System.Drawing.Color.Black;
+            picWebcam.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             picWebcam.Dock = System.Windows.Forms.DockStyle.Fill;
+            picWebcam.Image = (System.Drawing.Image)resources.GetObject("picWebcam.Image");
             picWebcam.Location = new System.Drawing.Point(0, 37);
-            picWebcam.Margin = new System.Windows.Forms.Padding(0);
             picWebcam.Name = "picWebcam";
             picWebcam.Size = new System.Drawing.Size(882, 525);
+            picWebcam.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             picWebcam.TabIndex = 0;
             picWebcam.TabStop = false;
             // 
@@ -194,6 +197,7 @@ namespace Pulsar.Server.Forms
             ((System.ComponentModel.ISupportInitialize)barQuality).EndInit();
             panelTop.ResumeLayout(false);
             panelTop.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)picWebcam).EndInit();
             ResumeLayout(false);
 
         }
@@ -210,7 +214,7 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.Button btnShow;
         private System.Windows.Forms.ComboBox cbMonitors;
         private System.Windows.Forms.ToolTip toolTipButtons;
-    private Controls.RemoteDesktopElementHost picWebcam;
+        private Controls.RapidPictureBox picWebcam;
         private System.Windows.Forms.Label sizeLabelCounter;
     }
 }
