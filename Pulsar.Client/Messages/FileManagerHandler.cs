@@ -44,13 +44,13 @@ namespace Pulsar.Client.Messages
             {
                 case true:
 
-                    _tokenSource.DisposeSafe();
+                    _tokenSource?.Dispose();
                     _tokenSource = new CancellationTokenSource();
                     _token = _tokenSource.Token;
                     break;
                 case false:
                     // cancel all running transfers on disconnect
-                    _tokenSource.CancelSafe();
+                    _tokenSource.Cancel();
                     break;
             }
         }
@@ -559,23 +559,20 @@ namespace Pulsar.Client.Messages
             GC.SuppressFinalize(this);
         }
 
-        private bool _disposed;
-
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || _disposed)
-                return;
-
-            _disposed = true;
-            _client.ClientState -= OnClientStateChange;
-            _tokenSource.CancelSafe();
-            _tokenSource.DisposeSafe();
-            foreach (var transfer in _activeTransfers)
+            if (disposing)
             {
-                transfer.Value?.Dispose();
-            }
+                _client.ClientState -= OnClientStateChange;
+                _tokenSource.Cancel();
+                _tokenSource.Dispose();
+                foreach (var transfer in _activeTransfers)
+                {
+                    transfer.Value?.Dispose();
+                }
 
-            _activeTransfers.Clear();
+                _activeTransfers.Clear();
+            }
         }
     }
 }

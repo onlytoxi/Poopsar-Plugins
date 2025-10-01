@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using Pulsar.Client.Utilities;
 using System.Linq;
 using Pulsar.Common.Messages.Monitoring.VirtualMonitor;
-using Pulsar.Common.Extensions;
 
 namespace Pulsar.Client.Messages
 {
@@ -95,8 +94,7 @@ namespace Pulsar.Client.Messages
         private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
 
-    private ScreenOverlay _screenOverlay = new ScreenOverlay();
-    private bool _disposed;
+        private ScreenOverlay _screenOverlay = new ScreenOverlay();
 
         private bool _useGPU = false;
 
@@ -278,7 +276,7 @@ namespace Pulsar.Client.Messages
         {
             Debug.WriteLine("Stopping remote desktop session");
 
-            _cancellationTokenSource.CancelSafe();
+            _cancellationTokenSource?.Cancel();
 
             if (_captureThread != null && _captureThread.IsAlive)
             {
@@ -948,36 +946,35 @@ namespace Pulsar.Client.Messages
         
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || _disposed)
-                return;
-
-            _disposed = true;
-            StopScreenStreaming();
-            _streamCodec?.Dispose();
-            _cancellationTokenSource.DisposeSafe();
-            _frameRequestEvent?.Dispose();
-            _reusableStream?.Dispose();
-            
-            _drawingThreadRunning = false;
-            _drawingSignal.Set();
-            if (_drawingThread != null && _drawingThread.IsAlive)
+            if (disposing)
             {
-                _drawingThread.Join(1000);
-            }
-            _drawingSignal.Dispose();
-            _screenOverlay?.Dispose();
+                StopScreenStreaming();
+                _streamCodec?.Dispose();
+                _cancellationTokenSource?.Dispose();
+                _frameRequestEvent?.Dispose();
+                _reusableStream?.Dispose();
+                
+                _drawingThreadRunning = false;
+                _drawingSignal.Set();
+                if (_drawingThread != null && _drawingThread.IsAlive)
+                {
+                    _drawingThread.Join(1000);
+                }
+                _drawingSignal.Dispose();
+                _screenOverlay?.Dispose();
 
-            // Clean up GPU resources
-            if (_useGPU)
-            {
-                ScreenHelperGPU.CleanupResources();
-            }
+                // Clean up GPU resources
+                if (_useGPU)
+                {
+                    ScreenHelperGPU.CleanupResources();
+                }
 
-            if (_linearFrameBuffer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(_linearFrameBuffer);
-                _linearFrameBuffer = IntPtr.Zero;
-                _linearBufferSize = 0;
+                if (_linearFrameBuffer != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(_linearFrameBuffer);
+                    _linearFrameBuffer = IntPtr.Zero;
+                    _linearBufferSize = 0;
+                }
             }
         }
     }

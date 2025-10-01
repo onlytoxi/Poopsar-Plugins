@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using Pulsar.Client.Networking;
 using Pulsar.Common.Messages;
 using System.Runtime.InteropServices;
-using Pulsar.Common.Extensions;
 
 namespace Pulsar.Client.User
 {
@@ -80,21 +79,18 @@ namespace Pulsar.Client.User
             GC.SuppressFinalize(this);
         }
 
-        private bool _disposed;
-
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || _disposed)
-                return;
-
-            _disposed = true;
-            _tokenSource.CancelSafe();
-            _tokenSource.DisposeSafe();
-
-            if (_hookId != IntPtr.Zero)
+            if (disposing)
             {
-                UnhookWinEvent(_hookId);
-                _hookId = IntPtr.Zero;
+                _tokenSource.Cancel();
+                _tokenSource.Dispose();
+
+                if (_hookId != IntPtr.Zero)
+                {
+                    UnhookWinEvent(_hookId);
+                    _hookId = IntPtr.Zero;
+                }
             }
         }
     }

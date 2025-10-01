@@ -12,7 +12,6 @@ using System.Diagnostics;
 using Pulsar.Common.Messages.Webcam;
 using Pulsar.Common.Messages.Other;
 using System.Collections.Concurrent;
-using Pulsar.Common.Extensions;
 
 namespace Pulsar.Client.Messages
 {    
@@ -26,7 +25,6 @@ namespace Pulsar.Client.Messages
         private readonly WebcamHelper _webcamHelper = new WebcamHelper();
 
         private CancellationTokenSource _cancellationTokenSource;
-        private bool _disposed;
 
         // frame control variables
         private readonly ConcurrentQueue<byte[]> _frameBuffer = new ConcurrentQueue<byte[]>();
@@ -165,7 +163,7 @@ namespace Pulsar.Client.Messages
                 }
                 Debug.WriteLine("Stopping remote webcam session");
 
-                _cancellationTokenSource.CancelSafe();
+                _cancellationTokenSource?.Cancel();
 
                 if (_captureThread != null && _captureThread.IsAlive)
                 {
@@ -400,15 +398,14 @@ namespace Pulsar.Client.Messages
         
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || _disposed)
-                return;
-
-            _disposed = true;
-            StopWebcamStreaming();
-            _streamCodec?.Dispose();
-            _cancellationTokenSource.DisposeSafe();
-            _frameRequestEvent?.Dispose();
-            _reusableStream?.Dispose();
+            if (disposing)
+            {
+                StopWebcamStreaming();
+                _streamCodec?.Dispose();
+                _cancellationTokenSource?.Dispose();
+                _frameRequestEvent?.Dispose();
+                _reusableStream?.Dispose();
+            }
         }
     }
 }

