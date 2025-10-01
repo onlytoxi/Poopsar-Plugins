@@ -62,17 +62,8 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Pulsar.Common\Pulsar.Common.csproj">
-			<Private>false</Private>
-		</ProjectReference>
+		<ProjectReference Include="..\Pulsar.Common\Pulsar.Common.csproj" />
 	</ItemGroup>
-	<Target Name="CleanupCosturaEmbeddedAssemblies" AfterTargets="AfterBuild">
-		<ItemGroup>
-			<_CosturaEmbedded Include="$(TargetDir)Pulsar.Common.dll" />
-			<_CosturaEmbedded Include="$(TargetDir)Pulsar.Common.pdb" />
-		</ItemGroup>
-		<Delete Files="@(_CosturaEmbedded)" ContinueOnError="true" />
-	</Target>
 	<ItemGroup>
 		<PackageReference Include="AForge.Video" Version="2.2.5" />
 		<PackageReference Include="AForge.Video.DirectShow" Version="2.2.5" />
