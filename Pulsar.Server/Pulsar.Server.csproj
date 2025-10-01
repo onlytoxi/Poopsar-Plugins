@@ -13,7 +13,7 @@
 		<DonutDir>$(MSBuildProjectDirectory)\..\external\donut</DonutDir>
 		<CustomResourceTypesSupport>true</CustomResourceTypesSupport>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
-		<UseWPF>false</UseWPF>
+		<UseWPF>true</UseWPF>
 		<NoWarn>$(NoWarn);CA1416</NoWarn>
 	</PropertyGroup>
 	<!-- Donut build configuration -->
@@ -74,7 +74,6 @@
 		<PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
 		<PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
 		<PackageReference Include="System.ServiceModel.Federation" Version="8.1.2" />
-		<PackageReference Include="WinFormsComInterop" Version="0.5.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="Controls\DotNetBarTabControl.cs" />

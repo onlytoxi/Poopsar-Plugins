@@ -60,11 +60,10 @@ namespace Pulsar.Server.Forms
             this.btnHide = new System.Windows.Forms.Button();
             this.btnShow = new System.Windows.Forms.Button();
             this.toolTipButtons = new System.Windows.Forms.ToolTip(this.components);
-            this.picDesktop = new Pulsar.Server.Controls.HVNCRapidPictureBox();
+            this.picDesktop = new Pulsar.Server.Controls.RemoteDesktopElementHost();
             ((System.ComponentModel.ISupportInitialize)(this.barQuality)).BeginInit();
             this.panelTop.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picDesktop)).BeginInit();
             this.SuspendLayout();
             // 
             // btnStart
@@ -92,7 +91,7 @@ namespace Pulsar.Server.Forms
             // 
             // barQuality
             // 
-            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.barQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.barQuality.Location = new System.Drawing.Point(456, 3);
             this.barQuality.Maximum = 100;
@@ -361,15 +360,11 @@ namespace Pulsar.Server.Forms
             // picDesktop
             // 
             this.picDesktop.BackColor = System.Drawing.Color.Black;
-            this.picDesktop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picDesktop.Cursor = System.Windows.Forms.Cursors.Default;
             this.picDesktop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.picDesktop.GetImageSafe = null;
             this.picDesktop.Location = new System.Drawing.Point(0, 0);
+            this.picDesktop.Margin = new System.Windows.Forms.Padding(0);
             this.picDesktop.Name = "picDesktop";
-            this.picDesktop.Running = false;
             this.picDesktop.Size = new System.Drawing.Size(859, 562);
-            this.picDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picDesktop.TabIndex = 0;
             this.picDesktop.TabStop = false;
             // 
@@ -395,7 +390,6 @@ namespace Pulsar.Server.Forms
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.contextMenuStrip.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.picDesktop)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -414,7 +408,7 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.ComboBox cbMonitors;
         private System.Windows.Forms.Button btnKeyboard;
         private System.Windows.Forms.ToolTip toolTipButtons;
-        private Controls.HVNCRapidPictureBox picDesktop;
+        private Controls.RemoteDesktopElementHost picDesktop;
         private System.Windows.Forms.Label sizeLabelCounter;
         private Controls.MenuButton dropDownMenuButton;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
