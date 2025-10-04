@@ -12,13 +12,14 @@ namespace Pulsar.Server
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
 
             using (FrmMain mainForm = new FrmMain())
             {
                 DiscordRPCManager.Initialize(mainForm);
 
                 Application.Run(mainForm);
-                
+
                 DiscordRPCManager.Shutdown();
             }
         }

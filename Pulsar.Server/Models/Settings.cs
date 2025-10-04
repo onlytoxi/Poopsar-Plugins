@@ -162,12 +162,6 @@ namespace Pulsar.Server.Models
             set { LoadSettings().ShowToolTip = value; SaveSettings(); }
         }
 
-        public static bool EnableNoIPUpdater
-        {
-            get { return LoadSettings().EnableNoIPUpdater; }
-            set { LoadSettings().EnableNoIPUpdater = value; SaveSettings(); }
-        }
-
         public static string TelegramChatID
         {
             get { return LoadSettings().TelegramChatID; }
@@ -180,24 +174,6 @@ namespace Pulsar.Server.Models
             set { LoadSettings().TelegramBotToken = value; SaveSettings(); }
         }
 
-        public static string NoIPHost
-        {
-            get { return LoadSettings().NoIPHost; }
-            set { LoadSettings().NoIPHost = value; SaveSettings(); }
-        }
-
-        public static string NoIPUsername
-        {
-            get { return LoadSettings().NoIPUsername; }
-            set { LoadSettings().NoIPUsername = value; SaveSettings(); }
-        }
-
-        public static string NoIPPassword
-        {
-            get { return LoadSettings().NoIPPassword; }
-            set { LoadSettings().NoIPPassword = value; SaveSettings(); }
-        }
-
         public static string SaveFormat
         {
             get { return LoadSettings().SaveFormat; }
@@ -208,6 +184,12 @@ namespace Pulsar.Server.Models
         {
             get { return LoadSettings().ReverseProxyPort; }
             set { LoadSettings().ReverseProxyPort = value; SaveSettings(); }
+        }
+
+        public static bool ShowCountryGroups
+        {
+            get { return LoadSettings().ShowCountryGroups; }
+            set { LoadSettings().ShowCountryGroups = value; SaveSettings(); }
         }
     }
 }

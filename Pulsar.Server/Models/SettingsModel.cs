@@ -46,14 +46,6 @@ namespace Pulsar.Server.Models
         [JsonProperty("telegramBotToken")]
         public string TelegramBotToken { get; set; } = "";
 
-        [JsonProperty("noIPHost")]
-        public string NoIPHost { get; set; } = "";
-
-        [JsonProperty("noIPUsername")]
-        public string NoIPUsername { get; set; } = "";
-
-        [JsonProperty("noIPPassword")]
-        public string NoIPPassword { get; set; } = "";
 
         [JsonProperty("saveFormat")]
         public string SaveFormat { get; set; } = "APP - URL - USER:PASS";
@@ -63,5 +55,8 @@ namespace Pulsar.Server.Models
 
         [JsonProperty("ListenPorts")]
         public ushort[] ListenPorts { get; set; } = [4782];
+
+        [JsonProperty("showCountryGroups")]
+        public bool ShowCountryGroups { get; set; } = true;
     }
 }
