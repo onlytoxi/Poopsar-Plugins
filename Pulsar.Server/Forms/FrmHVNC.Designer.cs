@@ -291,12 +291,12 @@ namespace Pulsar.Server.Forms
             // 
             // cLONEBROWSERPROFILEToolStripMenuItem
             // 
-            this.cLONEBROWSERPROFILEToolStripMenuItem.Checked = true;
-            this.cLONEBROWSERPROFILEToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cLONEBROWSERPROFILEToolStripMenuItem.Checked = false;
+            this.cLONEBROWSERPROFILEToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Unchecked;
             this.cLONEBROWSERPROFILEToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.cLONEBROWSERPROFILEToolStripMenuItem.Name = "cLONEBROWSERPROFILEToolStripMenuItem";
             this.cLONEBROWSERPROFILEToolStripMenuItem.Size = new System.Drawing.Size(215, 22);
-            this.cLONEBROWSERPROFILEToolStripMenuItem.Text = "CLONE BROWSER PROFILE";
+            this.cLONEBROWSERPROFILEToolStripMenuItem.Text = "DIRECT START BROWSER";
             this.cLONEBROWSERPROFILEToolStripMenuItem.Click += new System.EventHandler(this.cLONEBROWSERPROFILEToolStripMenuItem_Click);
             // 
             // sizeLabelCounter
