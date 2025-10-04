@@ -252,6 +252,7 @@ namespace Pulsar.Server.Forms
             {
                 mainForm.EventLogVisability();
                 mainForm.RefreshClientGroups();
+                mainForm.RefreshClientTheme();
             }
 
             string[] ipList = BlockedRichTB.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);

@@ -11,6 +11,8 @@ using Pulsar.Common.Messages.Preview;
 using Pulsar.Common.Messages.QuickCommands;
 using Pulsar.Common.Messages.UserSupport.MessageBox;
 using Pulsar.Common.Messages.UserSupport.Website;
+using Pulsar.Server.Controls;
+using Pulsar.Server.Controls.Wpf;
 using Pulsar.Server.Extensions;
 using Pulsar.Server.Forms.DarkMode;
 using Pulsar.Server.Messages;
@@ -54,6 +56,9 @@ namespace Pulsar.Server.Forms
         private readonly object _lockClients = new object();
         private readonly object _offlineRefreshLock = new object();
         private bool _offlineRefreshPending;
+        private readonly HashSet<Client> _visibleClients = new HashSet<Client>();
+    private readonly Dictionary<Client, ClientListEntry> _clientEntryMap = new();
+        private bool _syncingSelection;
         private IReadOnlyList<OfflineClientRecord> _cachedOfflineClients = Array.Empty<OfflineClientRecord>();
         private PreviewHandler _previewImageHandler;
         private static readonly string PulsarStuffDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PulsarStuff");
@@ -74,7 +79,11 @@ namespace Pulsar.Server.Forms
             typeof(ListView).InvokeMember("DoubleBuffered",
                 System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                 null, this.lstOfflineClients, new object[] { true });
+            lstClients.Visible = false;
+            wpfClientsHost.SelectionChanged += WpfClientsHost_SelectionChanged;
+            wpfClientsHost.FavoriteToggled += WpfClientsHost_FavoriteToggled;
             DarkModeManager.ApplyDarkMode(this);
+            RefreshClientTheme();
             ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
             _discordRpc = new DiscordRPC.DiscordRPC(this);  // Initialize Discord RPC
             _discordRpc.Enabled = Settings.DiscordRPC;     // Sync with settings on startup
@@ -234,11 +243,21 @@ namespace Pulsar.Server.Forms
 
         public void RefreshClientGroups()
         {
+            wpfClientsHost?.SetGroupByCountry(Settings.ShowCountryGroups);
             SortClientsByFavoriteStatus();
+        }
+
+        public void RefreshClientTheme()
+        {
+            wpfClientsHost?.ApplyTheme(Settings.DarkMode);
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
+            wpfClientsHost?.SetGroupByCountry(Settings.ShowCountryGroups);
+            RefreshClientTheme();
+            ApplyWpfSearchFilter();
+
             int accountTypeIndex = -1;
             for (int i = 0; i < lstClients.Columns.Count; i++)
             {
@@ -387,20 +406,26 @@ namespace Pulsar.Server.Forms
 
         private void AdjustClientListViewSize()
         {
+            int targetWidth;
             if (tableLayoutPanel1.Visible)
             {
-                // Adjust the size of lstClients when tableLayoutPanel1 is visible
-                lstClients.Width = this.ClientSize.Width - tableLayoutPanel1.Width;
+                targetWidth = this.ClientSize.Width - tableLayoutPanel1.Width;
             }
             else
             {
-                // Adjust the size of lstClients when tableLayoutPanel1 is hidden
-                lstClients.Width = this.ClientSize.Width;
+                targetWidth = this.ClientSize.Width;
+            }
+
+            lstClients.Width = targetWidth;
+            if (wpfClientsHost != null)
+            {
+                wpfClientsHost.Width = targetWidth;
             }
         }
 
         private void lstClients_SelectedIndexChanged(object sender, EventArgs e)
         {
+            SyncWpfSelectionFromList();
             UpdateWindowTitle();
 
             var selectedClients = GetSelectedClients();
@@ -461,6 +486,8 @@ namespace Pulsar.Server.Forms
                     {
                         lstClients.Items.Clear();
                         lstClients.Groups.Clear();
+                        _visibleClients.Clear();
+                        wpfClientsHost?.ClearClients();
                     }
 
                     string statusText;
@@ -737,7 +764,10 @@ namespace Pulsar.Server.Forms
                 {
                     var item = GetListViewItemByClient(client);
                     if (item != null)
+                    {
                         item.ToolTipText = text;
+                        wpfClientsHost?.SetToolTip(client, text);
+                    }
                 });
             }
             catch (InvalidOperationException)
@@ -848,6 +878,11 @@ namespace Pulsar.Server.Forms
 
         private void RefreshStarButtons()
         {
+            if (!lstClients.Visible)
+            {
+                return;
+            }
+
             try
             {
                 this.Invoke((MethodInvoker)delegate
@@ -884,6 +919,11 @@ namespace Pulsar.Server.Forms
 
         private void AddStarButton(ListViewItem item, Client client)
         {
+            if (!lstClients.Visible)
+            {
+                return;
+            }
+
             var starButton = new Button
             {
                 Size = new System.Drawing.Size(20, 20),
@@ -939,6 +979,7 @@ namespace Pulsar.Server.Forms
         private void SortClientsByFavoriteStatus()
         {
             lstClients.BeginUpdate();
+            _visibleClients.Clear();
 
             // Remove all star buttons first
             var controlsToRemove = lstClients.Controls.Cast<Control>()
@@ -986,11 +1027,15 @@ namespace Pulsar.Server.Forms
                     if (ShouldShowClientInSearch(client, item))
                     {
                         lstClients.Items.Add(item);
+                        _visibleClients.Add(client);
                     }
                     else
                     {
                         _allClientItems[client] = item;
+                        _visibleClients.Remove(client);
                     }
+
+                    SyncWpfEntryFromListViewItem(item);
                 }
             }
 
@@ -1004,6 +1049,8 @@ namespace Pulsar.Server.Forms
             }
 
             lstClients.EndUpdate();
+            wpfClientsHost?.RefreshSort();
+            ApplyWpfSearchFilter();
         }
 
         private ListViewGroup GetGroupFromCountry(string country, string countryWithCode)
@@ -1025,6 +1072,150 @@ namespace Pulsar.Server.Forms
             }
 
             return lvg;
+        }
+
+        private void WpfClientsHost_SelectionChanged(object sender, EventArgs e)
+        {
+            if (_syncingSelection)
+            {
+                return;
+            }
+
+            try
+            {
+                _syncingSelection = true;
+                SyncListViewSelectionFromWpf();
+            }
+            finally
+            {
+                _syncingSelection = false;
+            }
+
+            UpdateWindowTitle();
+        }
+
+        private void SyncListViewSelectionFromWpf()
+        {
+            if (wpfClientsHost == null)
+            {
+                return;
+            }
+
+            var selectedClients = wpfClientsHost.SelectedClients;
+
+            lstClients.BeginUpdate();
+            try
+            {
+                foreach (ListViewItem item in lstClients.Items)
+                {
+                    if (item.Tag is Client client)
+                    {
+                        item.Selected = selectedClients.Contains(client);
+                    }
+                }
+            }
+            finally
+            {
+                lstClients.EndUpdate();
+            }
+        }
+
+        private void SyncWpfSelectionFromList()
+        {
+            if (wpfClientsHost == null)
+            {
+                return;
+            }
+
+            if (_syncingSelection)
+            {
+                return;
+            }
+
+            try
+            {
+                _syncingSelection = true;
+                var selectedClients = lstClients.SelectedItems.Cast<ListViewItem>()
+                    .Select(item => item.Tag as Client)
+                    .Where(client => client != null)
+                    .Cast<Client>()
+                    .ToList();
+
+                wpfClientsHost.SetSelectedClients(selectedClients);
+            }
+            finally
+            {
+                _syncingSelection = false;
+            }
+        }
+
+        private void WpfClientsHost_FavoriteToggled(object sender, Client client)
+        {
+            if (client == null)
+            {
+                return;
+            }
+
+            Favorites.ToggleFavorite(client.Value.UserAtPc);
+
+            lstClients.Invoke((MethodInvoker)SortClientsByFavoriteStatus);
+
+            var item = GetListViewItemByClient(client);
+            if (item != null)
+            {
+                SyncWpfEntryFromListViewItem(item);
+            }
+        }
+
+        private void SyncWpfEntryFromListViewItem(ListViewItem item)
+        {
+            if (wpfClientsHost == null)
+            {
+                return;
+            }
+
+            if (item?.Tag is not Client client)
+            {
+                return;
+            }
+
+            var entry = wpfClientsHost.AddOrUpdate(client, e =>
+            {
+                e.Ip = item.SubItems[0].Text;
+                e.Nickname = item.SubItems[1].Text;
+                e.Tag = item.SubItems[2].Text;
+                e.UserAtPc = item.SubItems[3].Text;
+                e.Version = item.SubItems[4].Text;
+                e.Status = item.SubItems[STATUS_ID].Text;
+                e.CurrentWindow = item.SubItems[CURRENTWINDOW_ID].Text;
+                e.UserStatus = item.SubItems[USERSTATUS_ID].Text;
+                e.CountryWithCode = item.SubItems[8].Text;
+                e.Country = client.Value?.Country ?? "Unknown";
+                e.OperatingSystem = item.SubItems.Count > 9 ? item.SubItems[9].Text : string.Empty;
+                e.AccountType = item.SubItems.Count > 10 ? item.SubItems[10].Text : string.Empty;
+                e.IsFavorite = Favorites.IsFavorite(client.Value.UserAtPc);
+                e.ImageIndex = item.ImageIndex;
+                e.ToolTip = item.ToolTipText ?? string.Empty;
+            });
+
+            _clientEntryMap[client] = entry;
+        }
+
+        private void ApplyWpfSearchFilter()
+        {
+            if (wpfClientsHost == null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_currentSearchFilter))
+            {
+                wpfClientsHost.ApplyFilter(null);
+            }
+            else
+            {
+                wpfClientsHost.ApplyFilter(entry => ShouldShowClientInSearch(entry.Client, entry));
+            }
         }
 
         private void AddClientToListview(Client client)
@@ -1064,18 +1255,22 @@ namespace Pulsar.Server.Forms
                         {
                             lstClients.Items.Add(lvi);
                             AddStarButton(lvi, client);
+                            _visibleClients.Add(client);
                         }
                         else
                         {
                             _allClientItems[client] = lvi;
+                            _visibleClients.Remove(client);
                         }
-                        
+
                         SortClientsByFavoriteStatus();
                         lstClients.EndUpdate();
                     }
                     //lvi.UseItemStyleForSubItems = false;
                     //lvi.SubItems[4].ForeColor = Color.Green;
                 });
+                SyncWpfEntryFromListViewItem(lvi);
+                ApplyWpfSearchFilter();
                 EventLog(client.Value.UserAtPc + " Has connected.", "normal");
                 UpdateWindowTitle();
             }
@@ -1170,6 +1365,10 @@ namespace Pulsar.Server.Forms
                 });
                 
                 _allClientItems.Remove(client);
+                _visibleClients.Remove(client);
+                _clientEntryMap.Remove(client);
+                wpfClientsHost?.Remove(client);
+                ApplyWpfSearchFilter();
                 
                 UpdateWindowTitle();
                 EventLog(client.Value.UserAtPc + " Has disconnected.", "normal");
@@ -1444,6 +1643,8 @@ namespace Pulsar.Server.Forms
                                         break;
                                 }
                             }
+
+                            SyncWpfEntryFromListViewItem(item);
                         }
                     }
                 }
@@ -1476,6 +1677,11 @@ namespace Pulsar.Server.Forms
 
         private Client[] GetSelectedClients()
         {
+            if (wpfClientsHost != null)
+            {
+                return wpfClientsHost.SelectedClients.ToArray();
+            }
+
             List<Client> clients = new List<Client>();
 
             lstClients.Invoke((MethodInvoker)delegate
@@ -2838,6 +3044,7 @@ namespace Pulsar.Server.Forms
                         {
                             _allClientItems[client] = item;
                         }
+                        _visibleClients.Remove(client);
                     }
                     lstClients.Items.Remove(item);
                 }
@@ -2846,6 +3053,8 @@ namespace Pulsar.Server.Forms
             {
                 lstClients.EndUpdate();
             }
+
+            ApplyWpfSearchFilter();
         }
 
         private void ShowAllClients()
@@ -2867,6 +3076,8 @@ namespace Pulsar.Server.Forms
                             item.Group = GetGroupFromCountry(country, countryWithCode);
                         }
                         lstClients.Items.Add(item);
+                        _visibleClients.Add(client);
+                        SyncWpfEntryFromListViewItem(item);
                     }
                 }
                 _allClientItems.Clear();
@@ -2877,6 +3088,8 @@ namespace Pulsar.Server.Forms
             {
                 lstClients.EndUpdate();
             }
+
+            ApplyWpfSearchFilter();
         }
 
         private bool ShouldShowClientInSearch(Client client, ListViewItem item)
@@ -2904,6 +3117,35 @@ namespace Pulsar.Server.Forms
             }
 
             return false;
+        }
+
+        private bool ShouldShowClientInSearch(Client client, ClientListEntry entry)
+        {
+            if (entry == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(_currentSearchFilter))
+                return true;
+
+            string searchLower = _currentSearchFilter.ToLowerInvariant();
+
+            static bool Matches(string value, string search)
+                => !string.IsNullOrEmpty(value) && value.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (Matches(entry.Ip, searchLower) || Matches(entry.Nickname, searchLower) || Matches(entry.Tag, searchLower) ||
+                Matches(entry.UserAtPc, searchLower) || Matches(entry.Version, searchLower) || Matches(entry.Status, searchLower) ||
+                Matches(entry.CurrentWindow, searchLower) || Matches(entry.UserStatus, searchLower) || Matches(entry.CountryWithCode, searchLower) ||
+                Matches(entry.OperatingSystem, searchLower) || Matches(entry.AccountType, searchLower))
+            {
+                return true;
+            }
+
+            string nickname = GetClientNickname(client)?.ToLowerInvariant() ?? string.Empty;
+            string publicIp = (client.Value?.PublicIP ?? client.EndPoint?.Address?.ToString() ?? string.Empty).ToLowerInvariant();
+
+            return nickname.Contains(searchLower) || publicIp.Contains(searchLower);
         }
 
         private void UpdateSearchResultsCount()

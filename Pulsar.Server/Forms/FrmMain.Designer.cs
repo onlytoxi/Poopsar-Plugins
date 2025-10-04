@@ -132,6 +132,7 @@ namespace Pulsar.Server.Forms
             hOfflineAccountType = new ColumnHeader();
             tabPage1 = new TabPage();
             lstClients = new AeroListView();
+            wpfClientsHost = new ClientsListElementHost();
             hIP = new ColumnHeader();
             hNick = new ColumnHeader();
             hTag = new ColumnHeader();
@@ -1137,6 +1138,7 @@ namespace Pulsar.Server.Forms
             // 
             // tabPage1
             // 
+            tabPage1.Controls.Add(wpfClientsHost);
             tabPage1.Controls.Add(lstClients);
             tabPage1.Controls.Add(tableLayoutPanel1);
             tabPage1.Controls.Add(DebugLogRichBox);
@@ -1169,6 +1171,15 @@ namespace Pulsar.Server.Forms
             lstClients.SelectedIndexChanged += lstClients_SelectedIndexChanged;
             lstClients.MouseWheel += lstClients_MouseWheel;
             lstClients.Resize += lstClients_Resize;
+            // 
+            // wpfClientsHost
+            // 
+            wpfClientsHost.ContextMenuStrip = contextMenuStrip;
+            wpfClientsHost.Dock = DockStyle.Fill;
+            wpfClientsHost.Location = new Point(0, 0);
+            wpfClientsHost.Name = "wpfClientsHost";
+            wpfClientsHost.Size = new Size(849, 349);
+            wpfClientsHost.TabIndex = 22;
             // 
             // hIP
             // 
@@ -2358,7 +2369,8 @@ namespace Pulsar.Server.Forms
         private ColumnHeader hOfflineOS;
         private ColumnHeader hOfflineAccountType;
         private TabPage tabPage1;
-        private AeroListView lstClients;
+    private AeroListView lstClients;
+    private ClientsListElementHost wpfClientsHost;
         private ColumnHeader hIP;
         private ColumnHeader hNick;
         private ColumnHeader hTag;
