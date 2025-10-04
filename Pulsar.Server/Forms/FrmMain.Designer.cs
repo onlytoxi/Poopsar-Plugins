@@ -130,9 +130,11 @@ namespace Pulsar.Server.Forms
             hOfflineCountry = new ColumnHeader();
             hOfflineOS = new ColumnHeader();
             hOfflineAccountType = new ColumnHeader();
+            tabStats = new TabPage();
+            statsElementHost = new StatsElementHost();
             tabPage1 = new TabPage();
-            lstClients = new AeroListView();
             wpfClientsHost = new ClientsListElementHost();
+            lstClients = new AeroListView();
             hIP = new ColumnHeader();
             hNick = new ColumnHeader();
             hTag = new ColumnHeader();
@@ -241,17 +243,19 @@ namespace Pulsar.Server.Forms
             connectedToolStripStatusLabel = new ToolStripStatusLabel();
             menuStrip = new MenuStrip();
             clientsToolStripMenuItem = new ToolStripMenuItem();
+            offlineClientsToolStripMenuItem = new ToolStripMenuItem();
+            statsToolStripMenuItem = new ToolStripMenuItem();
             autoTasksToolStripMenuItem = new ToolStripMenuItem();
             cryptoClipperToolStripMenuItem = new ToolStripMenuItem();
             notificationCentreToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             builderToolStripMenuItem = new ToolStripMenuItem();
-            offlineClientsToolStripMenuItem = new ToolStripMenuItem();
             contextMenuStrip.SuspendLayout();
             tableLayoutPanel.SuspendLayout();
             MainTabControl.SuspendLayout();
             tabOfflineClients.SuspendLayout();
+            tabStats.SuspendLayout();
             tabPage1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
@@ -1046,6 +1050,7 @@ namespace Pulsar.Server.Forms
             // MainTabControl
             // 
             MainTabControl.Controls.Add(tabOfflineClients);
+            MainTabControl.Controls.Add(tabStats);
             MainTabControl.Controls.Add(tabPage1);
             MainTabControl.Controls.Add(tabPage2);
             MainTabControl.Controls.Add(tabPage3);
@@ -1055,7 +1060,7 @@ namespace Pulsar.Server.Forms
             MainTabControl.Location = new Point(0, 25);
             MainTabControl.Margin = new Padding(0);
             MainTabControl.Name = "MainTabControl";
-            MainTabControl.SelectedIndex = 1;
+            MainTabControl.SelectedIndex = 2;
             MainTabControl.Size = new Size(1144, 491);
             MainTabControl.TabIndex = 7;
             MainTabControl.SelectedIndexChanged += MainTabControl_SelectedIndexChanged;
@@ -1136,6 +1141,25 @@ namespace Pulsar.Server.Forms
             hOfflineAccountType.Text = "Account Type";
             hOfflineAccountType.Width = 100;
             // 
+            // tabStats
+            // 
+            tabStats.Controls.Add(statsElementHost);
+            tabStats.Location = new Point(4, 24);
+            tabStats.Margin = new Padding(0);
+            tabStats.Name = "tabStats";
+            tabStats.Size = new Size(1136, 463);
+            tabStats.TabIndex = 1;
+            tabStats.Text = "Stats";
+            tabStats.UseVisualStyleBackColor = true;
+            // 
+            // statsElementHost
+            // 
+            statsElementHost.Dock = DockStyle.Fill;
+            statsElementHost.Location = new Point(0, 0);
+            statsElementHost.Name = "statsElementHost";
+            statsElementHost.Size = new Size(1136, 463);
+            statsElementHost.TabIndex = 0;
+            // 
             // tabPage1
             // 
             tabPage1.Controls.Add(wpfClientsHost);
@@ -1150,6 +1174,15 @@ namespace Pulsar.Server.Forms
             tabPage1.TabIndex = 1;
             tabPage1.Text = "ClientTabPage";
             tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // wpfClientsHost
+            // 
+            wpfClientsHost.ContextMenuStrip = contextMenuStrip;
+            wpfClientsHost.Dock = DockStyle.Fill;
+            wpfClientsHost.Location = new Point(0, 0);
+            wpfClientsHost.Name = "wpfClientsHost";
+            wpfClientsHost.Size = new Size(849, 349);
+            wpfClientsHost.TabIndex = 22;
             // 
             // lstClients
             // 
@@ -1171,15 +1204,6 @@ namespace Pulsar.Server.Forms
             lstClients.SelectedIndexChanged += lstClients_SelectedIndexChanged;
             lstClients.MouseWheel += lstClients_MouseWheel;
             lstClients.Resize += lstClients_Resize;
-            // 
-            // wpfClientsHost
-            // 
-            wpfClientsHost.ContextMenuStrip = contextMenuStrip;
-            wpfClientsHost.Dock = DockStyle.Fill;
-            wpfClientsHost.Location = new Point(0, 0);
-            wpfClientsHost.Name = "wpfClientsHost";
-            wpfClientsHost.Size = new Size(849, 349);
-            wpfClientsHost.TabIndex = 22;
             // 
             // hIP
             // 
@@ -1946,7 +1970,7 @@ namespace Pulsar.Server.Forms
             Cookies.Location = new Point(4, 26);
             Cookies.Name = "Cookies";
             Cookies.Padding = new Padding(3);
-            Cookies.Size = new Size(969, 429);
+            Cookies.Size = new Size(969, 427);
             Cookies.TabIndex = 1;
             Cookies.Text = "Cookies";
             Cookies.UseVisualStyleBackColor = true;
@@ -1958,7 +1982,7 @@ namespace Pulsar.Server.Forms
             aeroListView3.FullRowSelect = true;
             aeroListView3.Location = new Point(3, 3);
             aeroListView3.Name = "aeroListView3";
-            aeroListView3.Size = new Size(963, 423);
+            aeroListView3.Size = new Size(963, 421);
             aeroListView3.TabIndex = 1;
             aeroListView3.UseCompatibleStateImageBehavior = false;
             aeroListView3.View = View.Details;
@@ -1979,7 +2003,7 @@ namespace Pulsar.Server.Forms
             Communication.Location = new Point(4, 26);
             Communication.Name = "Communication";
             Communication.Padding = new Padding(3);
-            Communication.Size = new Size(969, 429);
+            Communication.Size = new Size(969, 427);
             Communication.TabIndex = 2;
             Communication.Text = "Communication";
             Communication.UseVisualStyleBackColor = true;
@@ -1991,7 +2015,7 @@ namespace Pulsar.Server.Forms
             aeroListView4.FullRowSelect = true;
             aeroListView4.Location = new Point(3, 3);
             aeroListView4.Name = "aeroListView4";
-            aeroListView4.Size = new Size(963, 423);
+            aeroListView4.Size = new Size(963, 421);
             aeroListView4.TabIndex = 2;
             aeroListView4.UseCompatibleStateImageBehavior = false;
             aeroListView4.View = View.Details;
@@ -2012,7 +2036,7 @@ namespace Pulsar.Server.Forms
             Games.Location = new Point(4, 26);
             Games.Name = "Games";
             Games.Padding = new Padding(3);
-            Games.Size = new Size(969, 429);
+            Games.Size = new Size(969, 427);
             Games.TabIndex = 3;
             Games.Text = "Games";
             Games.UseVisualStyleBackColor = true;
@@ -2024,7 +2048,7 @@ namespace Pulsar.Server.Forms
             aeroListView5.FullRowSelect = true;
             aeroListView5.Location = new Point(3, 3);
             aeroListView5.Name = "aeroListView5";
-            aeroListView5.Size = new Size(963, 423);
+            aeroListView5.Size = new Size(963, 421);
             aeroListView5.TabIndex = 0;
             aeroListView5.UseCompatibleStateImageBehavior = false;
             aeroListView5.View = View.Details;
@@ -2040,7 +2064,7 @@ namespace Pulsar.Server.Forms
             tabPage6.Location = new Point(4, 26);
             tabPage6.Name = "tabPage6";
             tabPage6.Padding = new Padding(3);
-            tabPage6.Size = new Size(969, 429);
+            tabPage6.Size = new Size(969, 427);
             tabPage6.TabIndex = 4;
             tabPage6.Text = "Wallets";
             tabPage6.UseVisualStyleBackColor = true;
@@ -2052,7 +2076,7 @@ namespace Pulsar.Server.Forms
             aeroListView6.FullRowSelect = true;
             aeroListView6.Location = new Point(3, 3);
             aeroListView6.Name = "aeroListView6";
-            aeroListView6.Size = new Size(963, 423);
+            aeroListView6.Size = new Size(963, 421);
             aeroListView6.TabIndex = 1;
             aeroListView6.UseCompatibleStateImageBehavior = false;
             aeroListView6.View = View.Details;
@@ -2067,7 +2091,7 @@ namespace Pulsar.Server.Forms
             tabPage7.Location = new Point(4, 26);
             tabPage7.Name = "tabPage7";
             tabPage7.Padding = new Padding(3);
-            tabPage7.Size = new Size(969, 429);
+            tabPage7.Size = new Size(969, 427);
             tabPage7.TabIndex = 5;
             tabPage7.Text = "Other";
             tabPage7.UseVisualStyleBackColor = true;
@@ -2126,7 +2150,7 @@ namespace Pulsar.Server.Forms
             menuStrip.Dock = DockStyle.Fill;
             menuStrip.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             menuStrip.ImageScalingSize = new Size(24, 24);
-            menuStrip.Items.AddRange(new ToolStripItem[] { clientsToolStripMenuItem, offlineClientsToolStripMenuItem, autoTasksToolStripMenuItem, cryptoClipperToolStripMenuItem, notificationCentreToolStripMenuItem, aboutToolStripMenuItem, settingsToolStripMenuItem, builderToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { clientsToolStripMenuItem, offlineClientsToolStripMenuItem, statsToolStripMenuItem, autoTasksToolStripMenuItem, cryptoClipperToolStripMenuItem, notificationCentreToolStripMenuItem, aboutToolStripMenuItem, settingsToolStripMenuItem, builderToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Size = new Size(1144, 25);
@@ -2140,6 +2164,24 @@ namespace Pulsar.Server.Forms
             clientsToolStripMenuItem.Size = new Size(71, 21);
             clientsToolStripMenuItem.Text = "Clients";
             clientsToolStripMenuItem.Click += clientsToolStripMenuItem_Click;
+            // 
+            // offlineClientsToolStripMenuItem
+            // 
+            offlineClientsToolStripMenuItem.Image = Properties.Resources.disconnect;
+            offlineClientsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            offlineClientsToolStripMenuItem.Name = "offlineClientsToolStripMenuItem";
+            offlineClientsToolStripMenuItem.Size = new Size(110, 21);
+            offlineClientsToolStripMenuItem.Text = "Offline Clients";
+            offlineClientsToolStripMenuItem.Click += offlineClientsToolStripMenuItem_Click;
+            // 
+            // statsToolStripMenuItem
+            // 
+            statsToolStripMenuItem.Image = Properties.Resources.chart_curve;
+            statsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            statsToolStripMenuItem.Name = "statsToolStripMenuItem";
+            statsToolStripMenuItem.Size = new Size(60, 21);
+            statsToolStripMenuItem.Text = "Stats";
+            statsToolStripMenuItem.Click += statsToolStripMenuItem_Click;
             // 
             // autoTasksToolStripMenuItem
             // 
@@ -2201,15 +2243,6 @@ namespace Pulsar.Server.Forms
             builderToolStripMenuItem.Text = "Builder";
             builderToolStripMenuItem.Click += builderToolStripMenuItem_Click;
             // 
-            // offlineClientsToolStripMenuItem
-            // 
-            offlineClientsToolStripMenuItem.Image = Properties.Resources.disconnect;
-            offlineClientsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
-            offlineClientsToolStripMenuItem.Name = "offlineClientsToolStripMenuItem";
-            offlineClientsToolStripMenuItem.Size = new Size(110, 21);
-            offlineClientsToolStripMenuItem.Text = "Offline Clients";
-            offlineClientsToolStripMenuItem.Click += offlineClientsToolStripMenuItem_Click;
-            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
@@ -2222,7 +2255,7 @@ namespace Pulsar.Server.Forms
             MinimumSize = new Size(680, 415);
             Name = "FrmMain";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Pulsar NATIVE EDITION - Connected: 0";
+            Text = "Pulsar Premium - Connected: 0";
             FormClosing += FrmMain_FormClosing;
             Load += FrmMain_Load;
             contextMenuStrip.ResumeLayout(false);
@@ -2230,6 +2263,7 @@ namespace Pulsar.Server.Forms
             tableLayoutPanel.PerformLayout();
             MainTabControl.ResumeLayout(false);
             tabOfflineClients.ResumeLayout(false);
+            tabStats.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
@@ -2357,6 +2391,7 @@ namespace Pulsar.Server.Forms
         private ToolStripMenuItem disableTaskManagerToolStripMenuItem;
         private NoButtonTabControl MainTabControl;
         private TabPage tabOfflineClients;
+    private TabPage tabStats;
         private AeroListView lstOfflineClients;
         private ColumnHeader hOfflineIP;
         private ColumnHeader hOfflineNickname;
@@ -2371,6 +2406,7 @@ namespace Pulsar.Server.Forms
         private TabPage tabPage1;
     private AeroListView lstClients;
     private ClientsListElementHost wpfClientsHost;
+        private StatsElementHost statsElementHost;
         private ColumnHeader hIP;
         private ColumnHeader hNick;
         private ColumnHeader hTag;
@@ -2458,5 +2494,6 @@ namespace Pulsar.Server.Forms
         private AeroListView aeroListView1;
         private ColumnHeader columnHeader6;
         private ToolStripMenuItem offlineClientsToolStripMenuItem;
+        private ToolStripMenuItem statsToolStripMenuItem;
     }
 }

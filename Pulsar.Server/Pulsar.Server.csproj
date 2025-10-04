@@ -75,6 +75,9 @@
 		<PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
 		<PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
 		<PackageReference Include="System.ServiceModel.Federation" Version="8.1.2" />
+		<PackageReference Include="LiveChartsCore" Version="2.0.0-rc6.1" />
+		<PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0-rc6.1" />
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc6.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="Controls\DotNetBarTabControl.cs" />

@@ -19,6 +19,7 @@ using Pulsar.Server.Messages;
 using Pulsar.Server.Models;
 using Pulsar.Server.Networking;
 using Pulsar.Server.Persistence;
+using Pulsar.Server.Statistics;
 using Pulsar.Server.Utilities;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,9 @@ namespace Pulsar.Server.Forms
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object();
         private readonly object _offlineRefreshLock = new object();
+        private readonly object _statsRefreshLock = new object();
         private bool _offlineRefreshPending;
+        private bool _statsRefreshPending;
         private readonly HashSet<Client> _visibleClients = new HashSet<Client>();
     private readonly Dictionary<Client, ClientListEntry> _clientEntryMap = new();
         private bool _syncingSelection;
@@ -73,6 +76,7 @@ namespace Pulsar.Server.Forms
             OfflineClientRepository.Initialize();
             OfflineClientRepository.ResetOnlineState();
             InitializeComponent();
+            statsElementHost?.ShowLoading();
             typeof(ListView).InvokeMember("DoubleBuffered",
                 System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                 null, this.lstClients, new object[] { true });
@@ -150,8 +154,8 @@ namespace Pulsar.Server.Forms
                         int selected = lstClients.SelectedItems.Count;
                         int connected = ListenServer?.ConnectedClients?.Length ?? 0;
                         this.Text = (selected > 0)
-                            ? string.Format("Pulsar NATIVE EDITION - Connected: {0} [Selected: {1}]", connected, selected)
-                            : string.Format("Pulsar NATIVE EDITION - Connected: {0}", connected);
+                            ? string.Format("Pulsar Premium - Connected: {0} [Selected: {1}]", connected, selected)
+                            : string.Format("Pulsar Premium - Connected: {0}", connected);
                     }
                     finally
                     {
@@ -250,6 +254,7 @@ namespace Pulsar.Server.Forms
         public void RefreshClientTheme()
         {
             wpfClientsHost?.ApplyTheme(Settings.DarkMode);
+            statsElementHost?.ApplyTheme(Settings.DarkMode);
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -298,6 +303,7 @@ namespace Pulsar.Server.Forms
 
             LoadAutoTasks();
             ScheduleOfflineListRefresh();
+            ScheduleStatsRefresh();
         }
 
         private void lstClients_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
@@ -557,6 +563,7 @@ namespace Pulsar.Server.Forms
             {
                 OfflineClientRepository.UpsertClient(client);
                 ScheduleOfflineListRefresh();
+                ScheduleStatsRefresh();
                 lock (_clientConnections)
                 {
                     if (!ListenServer.Listening) return;
@@ -579,6 +586,7 @@ namespace Pulsar.Server.Forms
         {
             OfflineClientRepository.MarkClientOffline(client);
             ScheduleOfflineListRefresh();
+            ScheduleStatsRefresh();
             lock (_clientConnections)
             {
                 if (!ListenServer.Listening) return;
@@ -1379,6 +1387,71 @@ namespace Pulsar.Server.Forms
         }
 
         #region Offline clients
+
+        private void ScheduleStatsRefresh()
+        {
+            if (statsElementHost == null)
+            {
+                return;
+            }
+
+            lock (_statsRefreshLock)
+            {
+                if (_statsRefreshPending)
+                {
+                    return;
+                }
+
+                _statsRefreshPending = true;
+            }
+
+            statsElementHost.ShowLoading();
+
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                ClientStatisticsSnapshot snapshot;
+
+                try
+                {
+                    var allClients = OfflineClientRepository.GetAllClients();
+                    snapshot = ClientStatisticsService.CreateSnapshot(allClients);
+                }
+                catch (Exception ex)
+                {
+                    snapshot = ClientStatisticsSnapshot.CreateError(ex.Message);
+                }
+                finally
+                {
+                    lock (_statsRefreshLock)
+                    {
+                        _statsRefreshPending = false;
+                    }
+                }
+
+                if (!IsHandleCreated || IsDisposed)
+                {
+                    return;
+                }
+
+                try
+                {
+                    BeginInvoke((MethodInvoker)(() =>
+                    {
+                        if (snapshot.HasError)
+                        {
+                            statsElementHost?.ShowError(snapshot.ErrorMessage ?? "Unknown error");
+                        }
+                        else
+                        {
+                            statsElementHost?.UpdateSnapshot(snapshot);
+                        }
+                    }));
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+            });
+        }
 
         private void ScheduleOfflineListRefresh()
         {
@@ -2401,6 +2474,11 @@ namespace Pulsar.Server.Forms
             MainTabControl.SelectTab(tabOfflineClients);
         }
 
+        private void statsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabStats);
+        }
+
         private void clearSelectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (lstNoti.SelectedItems.Count > 0)
@@ -2727,6 +2805,11 @@ namespace Pulsar.Server.Forms
                 PopulateOfflineClientsList(_cachedOfflineClients);
                 UpdateOfflineTabHeader(_cachedOfflineClients.Count);
                 ScheduleOfflineListRefresh();
+                ScheduleStatsRefresh();
+            }
+            else if (MainTabControl.SelectedTab == tabStats)
+            {
+                ScheduleStatsRefresh();
             }
         }
 

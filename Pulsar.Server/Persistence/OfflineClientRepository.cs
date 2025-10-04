@@ -225,6 +225,46 @@ namespace Pulsar.Server.Persistence
 
             AddParameter(command, "$isOnline", isOnline ? 1 : 0);
 
+            return ReadClients(command);
+        }
+
+        public static IReadOnlyList<OfflineClientRecord> GetAllClients()
+        {
+            Initialize();
+
+            using var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT
+                    ClientId,
+                    Username,
+                    PcName,
+                    UserAtPc,
+                    PublicIP,
+                    Tag,
+                    OperatingSystem,
+                    Version,
+                    Country,
+                    CountryCode,
+                    AccountType,
+                    ImageIndex,
+                    FirstSeenUtc,
+                    LastSeenUtc,
+                    IsOnline
+                FROM Clients
+                ORDER BY
+                    CASE WHEN LastSeenUtc IS NULL THEN 1 ELSE 0 END,
+                    LastSeenUtc DESC,
+                    UserAtPc;
+            ";
+
+            return ReadClients(command);
+        }
+
+        private static IReadOnlyList<OfflineClientRecord> ReadClients(SqliteCommand command)
+        {
             var results = new List<OfflineClientRecord>();
 
             using var reader = command.ExecuteReader();
