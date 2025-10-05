@@ -39,6 +39,9 @@
 		<Reference Include="System.Net.Http" />
 		<Reference Include="System.Security" />
 		<Reference Include="System.Web" />
+		<Reference Include="WindowsBase" />
+		<Reference Include="UIAutomationClient" />
+		<Reference Include="UIAutomationTypes" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Update="Properties\Resources.resx">
