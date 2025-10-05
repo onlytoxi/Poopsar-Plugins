@@ -76,6 +76,7 @@ namespace Pulsar.Server.Forms
             OfflineClientRepository.Initialize();
             OfflineClientRepository.ResetOnlineState();
             InitializeComponent();
+            Text = $"Pulsar Premium - {ServerVersion.Display}";
             statsElementHost?.ShowLoading();
             typeof(ListView).InvokeMember("DoubleBuffered",
                 System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
@@ -153,9 +154,10 @@ namespace Pulsar.Server.Forms
                     {
                         int selected = lstClients.SelectedItems.Count;
                         int connected = ListenServer?.ConnectedClients?.Length ?? 0;
+                        string baseTitle = $"Pulsar Premium - {ServerVersion.Display}";
                         this.Text = (selected > 0)
-                            ? string.Format("Pulsar Premium - Connected: {0} [Selected: {1}]", connected, selected)
-                            : string.Format("Pulsar Premium - Connected: {0}", connected);
+                            ? $"{baseTitle} - Connected: {connected} [Selected: {selected}]"
+                            : $"{baseTitle} - Connected: {connected}";
                     }
                     finally
                     {

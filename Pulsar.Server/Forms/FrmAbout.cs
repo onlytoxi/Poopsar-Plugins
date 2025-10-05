@@ -1,18 +1,32 @@
 ﻿using Pulsar.Server.Forms.DarkMode;
+using Pulsar.Server.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace Pulsar.Server.Forms
 {
     public partial class FrmAbout : Form
     {
         private readonly string _repositoryUrl = @"https://github.com/Quasar-Continuation/Pulsar";
+        private const string ContributorsMessage = """
+Thanks to the contributors below for making this project possible:
+
+- **[KingKDot](https://github.com/KingKDot)** – Lead Developer
+- **[Twobit](https://github.com/officialtwobit)** – Multi-Feature Wizard
+- **[Lucky](https://t.me/V_Lucky_V)** – HVNC Specialist
+- **[fedx](https://github.com/fedx-988)** – README Designer & Discord RPC
+- **[Ace](https://github.com/Knakiri)** – HVNC Features & WinRE Survival
+- **[Java](https://github.com/JavaRenamed-dev)** – Feature Additions
+- **[Body](https://body.sh)** – Obfuscation
+- **[cpores](https://github.com/vahrervert)** – VNC Drawing, Favorites, Overlays
+- **[Rishie](https://github.com/rishieissocool)** – Gatherer Options
+- **[jungsuxx](https://github.com/jungsuxx)** – HVNC Input & Code Simplification
+- **[MOOM aka my lebron](https://github.com/moom825/)** – Inspiration & Batch Obfuscation
+- **[Poli](https://github.com/paulmaster59/)** – Discord Server & Custom Pulsar Crypter
+- **[Deadman](https://github.com/DeadmanLabs)** – Memory Dumping and Shellcode Builder
+- **[User76](https://github.com/user76-real)** – Networking Optimizations
+""";
 
         public FrmAbout()
         {
@@ -21,55 +35,12 @@ namespace Pulsar.Server.Forms
             DarkModeManager.ApplyDarkMode(this);
 			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
 
-            lblVersion.Text = $"v{Application.ProductVersion}";
+            lblVersion.Text = ServerVersion.Display;
             rtxtContent.Text = Properties.Resources.License;
-            LoadContributors();
+            cntTxtContent.Text = ContributorsMessage;
 
             lnkGithubPage.Links.Add(new LinkLabel.Link { LinkData = _repositoryUrl });
             lnkCredits.Links.Add(new LinkLabel.Link { LinkData = "https://github.com/Pulsar/Pulsar/tree/master/Licenses" });
-        }
-
-        private async void LoadContributors()
-        {
-            try
-            {
-                string contributors = await FetchContributors();
-                DisplayContributors(contributors);
-            }
-            catch (Exception ex)
-            {
-                DisplayContributors("Error fetching contributors: " + ex.Message);
-            }
-        }
-
-        private async Task<string> FetchContributors()
-        {
-            using (WebClient client = new WebClient())
-            {
-                client.Headers.Add("User-Agent", "Pulsar-Modded");
-                string apiUrl = "https://api.github.com/repos/Quasar-Continuation/Pulsar/contributors";
-                
-                string response = await client.DownloadStringTaskAsync(new Uri(apiUrl));
-                var contributorData = JsonConvert.DeserializeObject<List<Contributor>>(response);
-                
-                StringBuilder sb = new StringBuilder();
-                foreach (var contributor in contributorData)
-                {
-                    sb.AppendLine($"- {contributor.Login}");
-                }
-                
-                return sb.ToString();
-            }
-        }
-
-        private void DisplayContributors(string contributors)
-        {
-            StringBuilder contributorsText = new StringBuilder();
-            contributorsText.AppendLine("Thanks to the contributors below for making this project possible:");
-            contributorsText.AppendLine();
-            contributorsText.Append(contributors);
-            
-            cntTxtContent.Text = contributorsText.ToString();
         }
 
         private void lnkGithubPage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -88,11 +59,5 @@ namespace Pulsar.Server.Forms
         {
             this.Close();
         }
-    }
-
-    public class Contributor
-    {
-        [JsonProperty("login")]
-        public string Login { get; set; }
     }
 }

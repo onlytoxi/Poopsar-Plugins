@@ -3,6 +3,7 @@ using Pulsar.Common.Helpers;
 using Pulsar.Server.Build;
 using Pulsar.Server.Forms.DarkMode;
 using Pulsar.Server.Models;
+using Pulsar.Server.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -562,7 +563,7 @@ namespace Pulsar.Server.Forms
             
             options.Delay = (int)numericUpDownDelay.Value;
             options.IconPath = txtIconPath.Text;
-            options.Version = Application.ProductVersion;
+            options.Version = ServerVersion.Current;
             options.InstallPath = GetInstallPath();
             options.InstallSub = txtInstallSubDirectory.Text;
             options.InstallName = txtInstallName.Text + ".exe";
