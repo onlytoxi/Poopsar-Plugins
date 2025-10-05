@@ -37,6 +37,7 @@
             this.lblLicense = new System.Windows.Forms.Label();
             this.lnkCredits = new System.Windows.Forms.LinkLabel();
             this.lnkGithubPage = new System.Windows.Forms.LinkLabel();
+            this.lnkTelegram = new System.Windows.Forms.LinkLabel();
             this.lblSubTitle = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.cntTxtContent = new System.Windows.Forms.RichTextBox();
@@ -79,7 +80,7 @@
             this.btnOkay.Location = new System.Drawing.Point(438, 370);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(75, 23);
-            this.btnOkay.TabIndex = 7;
+            this.btnOkay.TabIndex = 8;
             this.btnOkay.Text = "&Okay";
             this.btnOkay.UseVisualStyleBackColor = true;
             this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
@@ -92,7 +93,7 @@
             this.rtxtContent.ReadOnly = true;
             this.rtxtContent.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.rtxtContent.Size = new System.Drawing.Size(498, 145);
-            this.rtxtContent.TabIndex = 6;
+            this.rtxtContent.TabIndex = 7;
             this.rtxtContent.Text = "";
             // 
             // lblLicense
@@ -102,7 +103,7 @@
             this.lblLicense.Location = new System.Drawing.Point(12, 201);
             this.lblLicense.Name = "lblLicense";
             this.lblLicense.Size = new System.Drawing.Size(46, 15);
-            this.lblLicense.TabIndex = 5;
+            this.lblLicense.TabIndex = 6;
             this.lblLicense.Text = "License";
             // 
             // lnkCredits
@@ -111,7 +112,7 @@
             this.lnkCredits.Location = new System.Drawing.Point(415, 83);
             this.lnkCredits.Name = "lnkCredits";
             this.lnkCredits.Size = new System.Drawing.Size(97, 13);
-            this.lnkCredits.TabIndex = 4;
+            this.lnkCredits.TabIndex = 5;
             this.lnkCredits.TabStop = true;
             this.lnkCredits.Text = "3rd-party licenses";
             this.lnkCredits.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkCredits_LinkClicked);
@@ -126,6 +127,17 @@
             this.lnkGithubPage.TabStop = true;
             this.lnkGithubPage.Text = "GitHub page";
             this.lnkGithubPage.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkGithubPage_LinkClicked);
+            // 
+            // lnkTelegram
+            // 
+            this.lnkTelegram.AutoSize = true;
+            this.lnkTelegram.Location = new System.Drawing.Point(344, 61);
+            this.lnkTelegram.Name = "lnkTelegram";
+            this.lnkTelegram.Size = new System.Drawing.Size(95, 13);
+            this.lnkTelegram.TabIndex = 4;
+            this.lnkTelegram.TabStop = true;
+            this.lnkTelegram.Text = "Telegram channel";
+            this.lnkTelegram.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkTelegram_LinkClicked);
             // 
             // lblSubTitle
             // 
@@ -144,7 +156,7 @@
             this.label1.Location = new System.Drawing.Point(12, 108);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(74, 15);
-            this.label1.TabIndex = 8;
+            this.label1.TabIndex = 9;
             this.label1.Text = "Contributors";
             // 
             // cntTxtContent
@@ -155,7 +167,7 @@
             this.cntTxtContent.ReadOnly = true;
             this.cntTxtContent.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.cntTxtContent.Size = new System.Drawing.Size(498, 62);
-            this.cntTxtContent.TabIndex = 9;
+            this.cntTxtContent.TabIndex = 10;
             this.cntTxtContent.Text = "";
             // 
             // FrmAbout
@@ -168,6 +180,7 @@
             this.Controls.Add(this.cntTxtContent);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblSubTitle);
+            this.Controls.Add(this.lnkTelegram);
             this.Controls.Add(this.lnkGithubPage);
             this.Controls.Add(this.lnkCredits);
             this.Controls.Add(this.lblLicense);
@@ -200,6 +213,7 @@
         private System.Windows.Forms.Label lblLicense;
         private System.Windows.Forms.LinkLabel lnkCredits;
         private System.Windows.Forms.LinkLabel lnkGithubPage;
+        private System.Windows.Forms.LinkLabel lnkTelegram;
         private System.Windows.Forms.Label lblSubTitle;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RichTextBox cntTxtContent;

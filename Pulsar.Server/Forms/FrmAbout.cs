@@ -8,7 +8,8 @@ namespace Pulsar.Server.Forms
 {
     public partial class FrmAbout : Form
     {
-        private readonly string _repositoryUrl = @"https://github.com/Quasar-Continuation/Pulsar";
+    private readonly string _repositoryUrl = @"https://github.com/Quasar-Continuation/Pulsar";
+    private readonly string _telegramUrl = @"https://t.me/novashadowisgay";
         private const string ContributorsMessage = """
 Thanks to the contributors below for making this project possible:
 
@@ -40,24 +41,50 @@ Thanks to the contributors below for making this project possible:
             cntTxtContent.Text = ContributorsMessage;
 
             lnkGithubPage.Links.Add(new LinkLabel.Link { LinkData = _repositoryUrl });
+            lnkTelegram.Links.Add(new LinkLabel.Link { LinkData = _telegramUrl });
             lnkCredits.Links.Add(new LinkLabel.Link { LinkData = "https://github.com/Pulsar/Pulsar/tree/master/Licenses" });
         }
 
         private void lnkGithubPage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            lnkGithubPage.LinkVisited = true;
-            Process.Start(e.Link.LinkData.ToString());
+            OpenLink(lnkGithubPage, e);
         }
 
         private void lnkCredits_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            lnkCredits.LinkVisited = true;
-            Process.Start(e.Link.LinkData.ToString());
+            OpenLink(lnkCredits, e);
+        }
+
+        private void lnkTelegram_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenLink(lnkTelegram, e);
         }
 
         private void btnOkay_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private static void OpenLink(LinkLabel label, LinkLabelLinkClickedEventArgs e)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.LinkVisited = true;
+
+            if (e.Link?.LinkData is string target)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Unable to open link.\n\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }
