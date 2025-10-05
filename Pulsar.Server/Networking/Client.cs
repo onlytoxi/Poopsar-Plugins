@@ -212,11 +212,42 @@ namespace Pulsar.Server.Networking
                 ConnectedTime = DateTime.UtcNow;
                 _stream = stream ?? throw new ArgumentNullException(nameof(stream));
                 _serverCertificate = serverCertificate ?? throw new ArgumentNullException(nameof(serverCertificate));
+
+#if DEBUG
+                var certificateUsable = SecureMessageEnvelopeHelper.CanUse(_serverCertificate);
+                var enforceEncryptionFlag = Environment.GetEnvironmentVariable("PULSAR_DEBUG_ENFORCE_ENCRYPTION");
+                var enforceEncryption = !string.IsNullOrWhiteSpace(enforceEncryptionFlag)
+                    && (enforceEncryptionFlag.Equals("1", StringComparison.OrdinalIgnoreCase)
+                        || enforceEncryptionFlag.Equals("true", StringComparison.OrdinalIgnoreCase)
+                        || enforceEncryptionFlag.Equals("yes", StringComparison.OrdinalIgnoreCase));
+
+                if (enforceEncryption && certificateUsable)
+                {
+                    _encryptTraffic = true;
+                    Debug.WriteLine("[SERVER] Debug build: encryption enforced via PULSAR_DEBUG_ENFORCE_ENCRYPTION.");
+                }
+                else
+                {
+                    _encryptTraffic = false;
+                    if (!certificateUsable)
+                    {
+                        Debug.WriteLine("[SERVER] Debug build: server certificate unavailable, running without encryption.");
+                    }
+                    else
+                    {
+                        var logMessage = enforceEncryption
+                            ? "[SERVER] Debug build: encryption enforcement requested but certificate cannot be used; continuing without encryption."
+                            : "[SERVER] Debug build: encryption disabled by default for development.";
+                        Debug.WriteLine(logMessage);
+                    }
+                }
+#else
                 _encryptTraffic = SecureMessageEnvelopeHelper.CanUse(_serverCertificate);
                 if (!_encryptTraffic)
                 {
                     throw new InvalidOperationException("A valid server certificate is required for secure communication.");
                 }
+#endif
 
                 _readBuffer = new byte[HEADER_SIZE];
                 _readOffset = 0;

@@ -182,11 +182,42 @@ namespace Pulsar.Client.Networking
             _readBuffer = new byte[HEADER_SIZE];
             _readOffset = 0;
             _readLength = HEADER_SIZE;
+
+#if DEBUG
+            var certificateUsable = SecureMessageEnvelopeHelper.CanUse(_serverCertificate);
+            var enforceEncryptionFlag = Environment.GetEnvironmentVariable("PULSAR_DEBUG_ENFORCE_ENCRYPTION");
+            var enforceEncryption = !string.IsNullOrWhiteSpace(enforceEncryptionFlag)
+                && (enforceEncryptionFlag.Equals("1", StringComparison.OrdinalIgnoreCase)
+                    || enforceEncryptionFlag.Equals("true", StringComparison.OrdinalIgnoreCase)
+                    || enforceEncryptionFlag.Equals("yes", StringComparison.OrdinalIgnoreCase));
+
+            if (enforceEncryption && certificateUsable)
+            {
+                EncryptTraffic = true;
+                Debug.WriteLine("[CLIENT] Debug build: encryption enforced via PULSAR_DEBUG_ENFORCE_ENCRYPTION.");
+            }
+            else
+            {
+                EncryptTraffic = false;
+                if (!certificateUsable)
+                {
+                    Debug.WriteLine("[CLIENT] Debug build: server certificate missing, running without encryption.");
+                }
+                else
+                {
+                    var logMessage = enforceEncryption
+                        ? "[CLIENT] Debug build: encryption enforcement requested but certificate cannot be used; continuing without encryption."
+                        : "[CLIENT] Debug build: encryption disabled by default for development.";
+                    Debug.WriteLine(logMessage);
+                }
+            }
+#else
             EncryptTraffic = SecureMessageEnvelopeHelper.CanUse(_serverCertificate);
             if (!EncryptTraffic)
             {
                 throw new InvalidOperationException("A valid server certificate is required for secure communication.");
             }
+#endif
         }
 
         /// <summary>
