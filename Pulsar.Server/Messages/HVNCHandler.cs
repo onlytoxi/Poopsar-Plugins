@@ -202,15 +202,16 @@ namespace Pulsar.Server.Messages
                     Interlocked.Increment(ref _frameBytesSamples);
                 }
 
-                using (MemoryStream ms = new MemoryStream(message.Image))
+                using (var ms = new MemoryStream(message.Image))
                 {
                     try
                     {
                         var decoded = _codec.DecodeData(ms);
-                        if (decoded != null && (decoded.Width != LocalResolution.Width || decoded.Height != LocalResolution.Height) && LocalResolution.Width > 0 && LocalResolution.Height > 0)
-                            OnReport(new Bitmap(decoded, LocalResolution));
-                        else
+                        if (decoded != null)
+                        {
+                            EnsureLocalResolutionInitialized(decoded.Size);
                             OnReport(decoded);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -230,6 +231,20 @@ namespace Pulsar.Server.Messages
             if (IsBufferedMode && (message.IsLastRequestedFrame || _pendingFrames <= 1))
             {
                 await RequestMoreFramesAsync();
+            }
+        }
+
+        private void EnsureLocalResolutionInitialized(Size fallbackSize)
+        {
+            if (fallbackSize.Width <= 0 || fallbackSize.Height <= 0)
+            {
+                return;
+            }
+
+            var current = LocalResolution;
+            if (current.Width <= 0 || current.Height <= 0)
+            {
+                LocalResolution = fallbackSize;
             }
         }
 
