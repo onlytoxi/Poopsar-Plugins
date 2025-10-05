@@ -1,15 +1,14 @@
 ﻿using Pulsar.Common.Extensions;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Other;
+using Pulsar.Common.Networking;
 using Pulsar.Server.Forms;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Net.Security;
 using System.Net.Sockets;
-using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 
@@ -402,19 +401,26 @@ namespace Pulsar.Server.Networking
                     switch (e.SocketError)
                     {
                         case SocketError.Success:
-                            SslStream sslStream = null;
                             try
                             {
                                 Socket clientSocket = e.AcceptSocket;
                                 clientSocket.SetKeepAliveEx(KeepAliveInterval, KeepAliveTime);
                                 clientSocket.NoDelay = true;
-                                sslStream = new SslStream(new NetworkStream(clientSocket, true), false);
-                                sslStream.BeginAuthenticateAsServer(ServerCertificate, false, SslProtocols.Tls12, false, EndAuthenticateClient,
-                                    new PendingClient { Stream = sslStream, EndPoint = (IPEndPoint)clientSocket.RemoteEndPoint });
+
+                                var networkStream = new NetworkStream(clientSocket, true);
+                                var client = new Client(networkStream, (IPEndPoint)clientSocket.RemoteEndPoint, ServerCertificate);
+                                AddClient(client);
+                                OnClientState(client, true);
                             }
                             catch (Exception)
                             {
-                                sslStream?.Close();
+                                try
+                                {
+                                    e.AcceptSocket?.Close();
+                                }
+                                catch
+                                {
+                                }
                             }
                             break;
                         case SocketError.ConnectionReset:
@@ -432,33 +438,6 @@ namespace Pulsar.Server.Networking
             catch (Exception)
             {
                 Disconnect();
-            }
-        }
-
-        private class PendingClient
-        {
-            public SslStream Stream { get; set; }
-            public IPEndPoint EndPoint { get; set; }
-        }
-
-        /// <summary>
-        /// Ends the authentication process of a newly connected client.
-        /// </summary>
-        /// <param name="ar">The status of the asynchronous operation.</param>
-        private void EndAuthenticateClient(IAsyncResult ar)
-        {
-            var con = (PendingClient)ar.AsyncState;
-            try
-            {
-                con.Stream.EndAuthenticateAsServer(ar);
-
-                Client client = new Client(con.Stream, con.EndPoint);
-                AddClient(client);
-                OnClientState(client, true);
-            }
-            catch (Exception)
-            {
-                con.Stream.Close();
             }
         }
 

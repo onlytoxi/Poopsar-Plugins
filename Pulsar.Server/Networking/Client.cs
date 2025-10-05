@@ -7,7 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Net.Security;
+using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Pulsar.Server.Networking
@@ -144,7 +145,9 @@ namespace Pulsar.Server.Networking
         /// <summary>
         /// The stream used for communication.
         /// </summary>
-        private SslStream _stream;
+        private Stream _stream;
+        private readonly X509Certificate2 _serverCertificate;
+        private readonly bool _encryptTraffic;
 
         readonly object _readMessageLock = new object();
         readonly object _sendMessageLock = new object();
@@ -199,7 +202,7 @@ namespace Pulsar.Server.Networking
         /// </summary>
         private const int HEADER_SIZE = 4;  // 4 B
 
-        public Client(SslStream stream, IPEndPoint endPoint)
+        public Client(Stream stream, IPEndPoint endPoint, X509Certificate2 serverCertificate)
         {
             try
             {
@@ -207,7 +210,13 @@ namespace Pulsar.Server.Networking
                 Value = new UserState();
                 EndPoint = endPoint;
                 ConnectedTime = DateTime.UtcNow;
-                _stream = stream;
+                _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+                _serverCertificate = serverCertificate ?? throw new ArgumentNullException(nameof(serverCertificate));
+                _encryptTraffic = SecureMessageEnvelopeHelper.CanUse(_serverCertificate);
+                if (!_encryptTraffic)
+                {
+                    throw new InvalidOperationException("A valid server certificate is required for secure communication.");
+                }
 
                 _readBuffer = new byte[HEADER_SIZE];
                 _readOffset = 0;
@@ -257,6 +266,7 @@ namespace Pulsar.Server.Networking
                             try
                             {
                                 var message = PulsarMessagePackSerializer.Deserialize(_readBuffer);
+                                message = ProcessIncomingMessage(message);
                                 OnClientRead(message, _readBuffer.Length);
                             }
                             finally
@@ -336,7 +346,18 @@ namespace Pulsar.Server.Networking
             {
                 lock (_sendMessageLock)
                 {
-                    var payload = PulsarMessagePackSerializer.Serialize(message);
+                    if (_stream == null)
+                    {
+                        return;
+                    }
+
+                    var prepared = PrepareMessageForSend(message);
+                    if (prepared == null)
+                    {
+                        return;
+                    }
+
+                    var payload = PulsarMessagePackSerializer.Serialize(prepared);
                     int totalLength = HEADER_SIZE + payload.Length;
                     var buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(totalLength);
                     try
@@ -384,6 +405,51 @@ namespace Pulsar.Server.Networking
             {
                 while (_sendBuffers.TryDequeue(out _)) ;
             }
+        }
+
+        private IMessage PrepareMessageForSend(IMessage message)
+        {
+            if (message == null)
+            {
+                return null;
+            }
+
+            if (message is SecureMessageEnvelope)
+            {
+                return message;
+            }
+
+            if (!_encryptTraffic)
+            {
+                return message;
+            }
+
+            if (!SecureMessageEnvelopeHelper.CanUse(_serverCertificate))
+            {
+                throw new InvalidOperationException("Secure transport is enabled but the server certificate is unavailable.");
+            }
+
+            return SecureMessageEnvelopeHelper.Wrap(message, _serverCertificate);
+        }
+
+        private IMessage ProcessIncomingMessage(IMessage message)
+        {
+            if (message is SecureMessageEnvelope secureEnvelope)
+            {
+                if (!SecureMessageEnvelopeHelper.CanUse(_serverCertificate))
+                {
+                    throw new InvalidOperationException("Received a secure envelope but the server certificate is unavailable for decryption.");
+                }
+
+                return SecureMessageEnvelopeHelper.Unwrap(secureEnvelope, _serverCertificate);
+            }
+
+            if (_encryptTraffic)
+            {
+                throw new InvalidOperationException($"Received unexpected plaintext message of type {message?.GetType().Name} while encryption is enforced.");
+            }
+
+            return message;
         }
 
         /// <summary>

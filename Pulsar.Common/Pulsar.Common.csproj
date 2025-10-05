@@ -29,9 +29,11 @@
 	  <None Remove="Messages\Administration\RemoteExecute\**" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+		<Reference Include="System.Core" />
 		<Reference Include="System.Management" />
 		<Reference Include="System.ServiceModel" />
 		<Reference Include="System.Windows.Forms" />
+		<Reference Include="System.Security" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
 		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />

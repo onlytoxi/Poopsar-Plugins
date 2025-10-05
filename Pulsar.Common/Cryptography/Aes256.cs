@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -8,11 +9,14 @@ namespace Pulsar.Common.Cryptography
     public class Aes256
     {
         private const int KeyLength = 32;
-        private const int AuthKeyLength = 64;
-        private const int IvLength = 16;
-        private const int HmacSha256Length = 32;
+        private const int NonceLength = 12;
+        private const int TagLength = 16;
+        private const int Pbkdf2Iterations = 100_000;
         private readonly byte[] _key;
-        private readonly byte[] _authKey;
+
+        private static readonly object ModeLogLock = new object();
+        private static bool _modeLogged;
+        private static readonly ConcurrentDictionary<string, byte[]> KeyCache = new ConcurrentDictionary<string, byte[]>(StringComparer.Ordinal);
 
         private static readonly byte[] Salt =
         {
@@ -26,11 +30,8 @@ namespace Pulsar.Common.Cryptography
             if (string.IsNullOrEmpty(masterKey))
                 throw new ArgumentException($"{nameof(masterKey)} can not be null or empty.");
 
-            using (Rfc2898DeriveBytes derive = new Rfc2898DeriveBytes(masterKey, Salt, 50000))
-            {
-                _key = derive.GetBytes(KeyLength);
-                _authKey = derive.GetBytes(AuthKeyLength);
-            }
+            _key = (byte[])KeyCache.GetOrAdd(masterKey, DeriveKey).Clone();
+            EnsureModeLogged();
         }
 
         public string Encrypt(string input)
@@ -38,46 +39,23 @@ namespace Pulsar.Common.Cryptography
             return Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes(input)));
         }
 
-        /* FORMAT
-         * ----------------------------------------
-         * |     HMAC     |   IV   |  CIPHERTEXT  |
-         * ----------------------------------------
-         *     32 bytes    16 bytes
-         */
         public byte[] Encrypt(byte[] input)
         {
             if (input == null)
                 throw new ArgumentNullException($"{nameof(input)} can not be null.");
 
-            using (var ms = new MemoryStream())
-            {
-                ms.Position = HmacSha256Length; // reserve first 32 bytes for HMAC
-                using (var aesProvider = new AesCryptoServiceProvider())
-                {
-                    aesProvider.KeySize = 256;
-                    aesProvider.BlockSize = 128;
-                    aesProvider.Mode = CipherMode.CBC;
-                    aesProvider.Padding = PaddingMode.PKCS7;
-                    aesProvider.Key = _key;
-                    aesProvider.GenerateIV();
+            var nonce = CreateRandomBytes(NonceLength);
+            var ciphertext = new byte[input.Length];
+            var tag = new byte[TagLength];
 
-                    using (var cs = new CryptoStream(ms, aesProvider.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        ms.Write(aesProvider.IV, 0, aesProvider.IV.Length); // write next 16 bytes the IV, followed by ciphertext
-                        cs.Write(input, 0, input.Length);
-                        cs.FlushFinalBlock();
+            EncryptInternal(nonce, input, ciphertext, tag);
 
-                        using (var hmac = new HMACSHA256(_authKey))
-                        {
-                            byte[] hash = hmac.ComputeHash(ms.ToArray(), HmacSha256Length, ms.ToArray().Length - HmacSha256Length); // compute the HMAC of IV and ciphertext
-                            ms.Position = 0; // write hash at beginning
-                            ms.Write(hash, 0, hash.Length);
-                        }
-                    }
-                }
+            var output = new byte[NonceLength + TagLength + ciphertext.Length];
+            Buffer.BlockCopy(nonce, 0, output, 0, NonceLength);
+            Buffer.BlockCopy(tag, 0, output, NonceLength, TagLength);
+            Buffer.BlockCopy(ciphertext, 0, output, NonceLength + TagLength, ciphertext.Length);
 
-                return ms.ToArray();
-            }
+            return output;
         }
 
         public string Decrypt(string input)
@@ -90,39 +68,101 @@ namespace Pulsar.Common.Cryptography
             if (input == null)
                 throw new ArgumentNullException($"{nameof(input)} can not be null.");
 
-            using (var ms = new MemoryStream(input))
+            if (input.Length < NonceLength + TagLength)
+                throw new CryptographicException("Ciphertext is too short to contain nonce and tag.");
+
+            var nonce = new byte[NonceLength];
+            var tag = new byte[TagLength];
+            var ciphertextLength = input.Length - NonceLength - TagLength;
+            var ciphertext = new byte[ciphertextLength];
+
+            Buffer.BlockCopy(input, 0, nonce, 0, NonceLength);
+            Buffer.BlockCopy(input, NonceLength, tag, 0, TagLength);
+            Buffer.BlockCopy(input, NonceLength + TagLength, ciphertext, 0, ciphertextLength);
+
+            var plaintext = new byte[ciphertextLength];
+            DecryptInternal(nonce, ciphertext, tag, plaintext);
+            return plaintext;
+        }
+
+        private static byte[] CreateRandomBytes(int length)
+        {
+            var buffer = new byte[length];
+            using (var rng = RandomNumberGenerator.Create())
             {
-                using (var aesProvider = new AesCryptoServiceProvider())
-                {
-                    aesProvider.KeySize = 256;
-                    aesProvider.BlockSize = 128;
-                    aesProvider.Mode = CipherMode.CBC;
-                    aesProvider.Padding = PaddingMode.PKCS7;
-                    aesProvider.Key = _key;
-
-                    // read first 32 bytes for HMAC
-                    using (var hmac = new HMACSHA256(_authKey))
-                    {
-                        var hash = hmac.ComputeHash(ms.ToArray(), HmacSha256Length, ms.ToArray().Length - HmacSha256Length);
-                        byte[] receivedHash = new byte[HmacSha256Length];
-                        ms.Read(receivedHash, 0, receivedHash.Length);
-
-                        if (!SafeComparison.AreEqual(hash, receivedHash))
-                            throw new CryptographicException("Invalid message authentication code (MAC).");
-                    }
-
-                    byte[] iv = new byte[IvLength];
-                    ms.Read(iv, 0, IvLength); // read next 16 bytes for IV, followed by ciphertext
-                    aesProvider.IV = iv;
-
-                    using (var cs = new CryptoStream(ms, aesProvider.CreateDecryptor(), CryptoStreamMode.Read))
-                    using (var resultStream = new MemoryStream())
-                    {
-                        cs.CopyTo(resultStream);
-                        return resultStream.ToArray();
-                    }
-                }
+                rng.GetBytes(buffer);
             }
+
+            return buffer;
+        }
+
+    private void EncryptInternal(byte[] nonce, byte[] plaintext, byte[] ciphertext, byte[] tag)
+    {
+#if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            using (var aesGcm = new AesGcm(_key))
+            {
+                aesGcm.Encrypt(nonce, plaintext, ciphertext, tag);
+            }
+#elif NETFRAMEWORK
+            AesGcmCng.Encrypt(_key, nonce, plaintext, ciphertext, tag);
+#else
+#error AES-GCM fallback requires either .NET 5+ or .NET Framework with CNG support.
+#endif
+        }
+
+        private void DecryptInternal(byte[] nonce, byte[] ciphertext, byte[] tag, byte[] plaintext)
+        {
+#if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            using (var aesGcm = new AesGcm(_key))
+            {
+                aesGcm.Decrypt(nonce, ciphertext, tag, plaintext);
+            }
+#elif NETFRAMEWORK
+            try
+            {
+                AesGcmCng.Decrypt(_key, nonce, ciphertext, tag, plaintext);
+            }
+            catch (CryptographicException)
+            {
+                throw;
+            }
+#else
+#error AES-GCM fallback requires either .NET 5+ or .NET Framework with CNG support.
+#endif
+        }
+
+        private static byte[] DeriveKey(string masterKey)
+        {
+            using (var derive = new Rfc2898DeriveBytes(masterKey, Salt, Pbkdf2Iterations, HashAlgorithmName.SHA256))
+            {
+                return derive.GetBytes(KeyLength);
+            }
+        }
+
+        private static void EnsureModeLogged()
+        {
+            if (_modeLogged)
+                return;
+
+            lock (ModeLogLock)
+            {
+                if (_modeLogged)
+                    return;
+
+                Console.WriteLine($"[Pulsar] Transport E2EE mode: {GetModeDescription()}");
+                _modeLogged = true;
+            }
+        }
+
+        private static string GetModeDescription()
+        {
+#if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return "AES-GCM via System.Security.Cryptography.AesGcm";
+#elif NETFRAMEWORK
+            return "AES-GCM via Windows CNG (AuthenticatedAes)";
+#else
+            return "AES-GCM (unknown runtime configuration)";
+#endif
         }
     }
 }

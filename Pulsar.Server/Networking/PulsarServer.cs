@@ -89,12 +89,6 @@ namespace Pulsar.Server.Networking
             base.ClientRead += OnClientRead;
         }
 
-#if DEBUG
-    private bool ShouldUseSecureEnvelope => false;
-#else
-    private bool ShouldUseSecureEnvelope => SecureMessageEnvelopeHelper.CanUse(ServerCertificate);
-#endif
-
         /// <summary>
         /// Decides if the client connected or disconnected.
         /// </summary>
@@ -120,20 +114,6 @@ namespace Pulsar.Server.Networking
         /// <param name="message">The received message.</param>
         private void OnClientRead(Server server, Client client, IMessage message)
         {
-            if (ShouldUseSecureEnvelope && message is SecureMessageEnvelope secureEnvelope)
-            {
-                try
-                {
-                    message = SecureMessageEnvelopeHelper.Unwrap(secureEnvelope, ServerCertificate);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Secure envelope unwrap failed: {ex.Message}");
-                    client.Disconnect();
-                    return;
-                }
-            }
-
             if (!client.Identified)
             {
                 if (message.GetType() == typeof(ClientIdentification))
@@ -141,21 +121,7 @@ namespace Pulsar.Server.Networking
                     client.Identified = IdentifyClient(client, (ClientIdentification)message);
                     if (client.Identified)
                     {
-                        IMessage response = new ClientIdentificationResult { Result = true };
-                        if (ShouldUseSecureEnvelope)
-                        {
-                            try
-                            {
-                                response = SecureMessageEnvelopeHelper.Wrap(response, ServerCertificate);
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Secure envelope wrap failed: {ex.Message}");
-                                // fall back to plain response
-                                response = new ClientIdentificationResult { Result = true };
-                            }
-                        }
-
+                        var response = new ClientIdentificationResult { Result = true };
                         client.Send(response); // finish handshake
                         OnClientConnected(client);
                     }
