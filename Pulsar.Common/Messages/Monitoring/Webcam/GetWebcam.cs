@@ -27,5 +27,8 @@ namespace Pulsar.Common.Messages.Webcam
 
         [Key(7)]
         public bool IsBufferedMode { get; set; } = true;
+
+        [Key(8)]
+        public WebcamEncoding Encoding { get; set; } = WebcamEncoding.Stream;
     }
 }

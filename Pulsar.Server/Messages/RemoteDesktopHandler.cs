@@ -362,7 +362,21 @@ namespace Pulsar.Server.Messages
                         if (decoded != null)
                         {
                             EnsureLocalResolutionInitialized(decoded.Size);
-                            OnReport(decoded);
+
+                            Bitmap frameClone = null;
+                            try
+                            {
+                                frameClone = (Bitmap)decoded.Clone();
+                            }
+                            catch (Exception cloneEx)
+                            {
+                                Debug.WriteLine($"Error cloning decoded frame: {cloneEx.Message}");
+                            }
+
+                            if (frameClone != null)
+                            {
+                                OnReport(frameClone);
+                            }
                         }
                     }
                     catch (Exception ex)

