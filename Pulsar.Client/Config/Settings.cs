@@ -15,7 +15,7 @@ namespace Pulsar.Client.Config
     public static class Settings
     {
     // Version string reported to the server regardless of assembly metadata.
-    private const string VersionOverride = "2.1.0";
+    private const string VersionOverride = "2.2.0";
 
 #if DEBUG
         public static string VERSION = "1.0.0";
