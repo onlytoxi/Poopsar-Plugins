@@ -352,10 +352,6 @@ namespace Pulsar.Server.Forms
             _hVNCHandler.Dispose();
             _clipboardMonitor?.Dispose();
 
-            _connectClient.Send(new SetClipboardMonitoringEnabled
-            {
-                Enabled = false
-            });
 
             picDesktop.GetImageSafe?.Dispose();
             picDesktop.GetImageSafe = null;
@@ -463,12 +459,8 @@ namespace Pulsar.Server.Forms
             UpdateInputButtonsVisualState();
 
             _clipboardMonitor.IsEnabled = _enableBidirectionalClipboard;
-            Debug.WriteLine(_clipboardMonitor.IsEnabled ? "HVNC: Clipboard monitor enabled." : "HVNC: Clipboard monitor disabled.");
+            Debug.WriteLine(_clipboardMonitor.IsEnabled ? "HVNC: Server->Client clipboard sync enabled." : "HVNC: Server->Client clipboard sync disabled.");
 
-            _connectClient.Send(new SetClipboardMonitoringEnabled
-            {
-                Enabled = _enableBidirectionalClipboard
-            });
 
             if (_enableBidirectionalClipboard)
             {

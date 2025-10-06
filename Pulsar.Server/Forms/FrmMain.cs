@@ -855,6 +855,8 @@ namespace Pulsar.Server.Forms
                         }
 
                         ClipperCheckbox.Checked = data.ContainsKey("ClipperEnabled") && Convert.ToBoolean(data["ClipperEnabled"]);
+                        
+                        ClipperCheckbox.Text = ClipperCheckbox.Checked ? "Stop" : "Start";
                     }
                 }
                 catch (Exception ex)

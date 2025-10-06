@@ -415,10 +415,6 @@ namespace Pulsar.Server.Forms
             _remoteDesktopHandler.Dispose();
             _clipboardMonitor?.Dispose();
 
-            _connectClient.Send(new SetClipboardMonitoringEnabled
-            {
-                Enabled = false
-            });
         }
 
         private void FrmRemoteDesktop_Resize(object sender, EventArgs e)
@@ -846,13 +842,12 @@ namespace Pulsar.Server.Forms
 
             UpdateInputButtonsVisualState();
 
+            // Server-side clipboard monitor only controls server->client sync
             _clipboardMonitor.IsEnabled = _enableBidirectionalClipboard;
-            Debug.WriteLine(_clipboardMonitor.IsEnabled ? "Clipboard monitor enabled." : "Clipboard monitor disabled.");
+            Debug.WriteLine(_clipboardMonitor.IsEnabled ? "Server->Client clipboard sync enabled." : "Server->Client clipboard sync disabled.");
 
-            _connectClient.Send(new SetClipboardMonitoringEnabled
-            {
-                Enabled = _enableBidirectionalClipboard
-            });
+            // Note: We do NOT control client clipboard monitoring here.
+            // Client clipboard monitoring is always active for crypto clipper and general monitoring.
 
             if (_enableBidirectionalClipboard)
             {
