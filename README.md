@@ -1,6 +1,6 @@
 # Pulsar
 
-![GitHub Actions Build Status](https://img.shields.io/github/actions/workflow/status/Quasar-Continuation/Poopsar/auto-build.yml)
+![GitHub Actions Build Status](https://img.shields.io/github/actions/workflow/status/Quasar-Continuation/Poopsar/dotnet.yml)
 [![Downloads](https://img.shields.io/github/downloads/Quasar-Continuation/Poopsar/total.svg)](https://github.com/Quasar-Continuation/Poopsar/releases)
 [![License](https://img.shields.io/github/license/Quasar-Continuation/Poopsar.svg)](LICENSE)
 ![.NET](https://img.shields.io/badge/.NET-4.7.2%2B-blue)
@@ -11,6 +11,8 @@
 Pulsar is a lightweight, fast, and powerful remote administration tool written in C#. Whether you're providing user support, handling daily admin tasks, or monitoring endpoints, Pulsar offers high stability and an intuitive interface—making it your go-to solution for remote administration.
 
 ---
+## ⚙️ Requirements
+[.NET 9.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-9.0.9-windows-x64-installer?cid=getdotnetcore)
 
 ## 📖 Table of Contents
 - [Need Help or Suggestions?](#-need-help-or-want-to-offer-suggestions)
@@ -31,7 +33,7 @@ Pulsar is a lightweight, fast, and powerful remote administration tool written i
 
 ## 📚 Need Help or Want to Offer Suggestions?
 
-Join our [Telegram channel](https://t.me/SomaliDevs) for updates, discussions, and support from the development team and community.
+Join our [Telegram channel](https://t.me/novashadowisgay) for updates, discussions, and support from the development team and community.
 ---
 
 ## 📸 Screenshots
