@@ -1,4 +1,4 @@
-name: .NET 9.0 Windows Release
+name: Pulsar .NET 9.0 Windows Release
 
 on:
   push:
@@ -36,61 +36,40 @@ jobs:
       - name: Prepare Build Output
         run: |
           New-Item -ItemType Directory -Path "./build_output" -Force
-          # Copy published server files
           Copy-Item -Path "./publish/server/*" -Destination "./build_output/" -Recurse -Force
-          # Copy client as client.bin - check expected locations
           if (Test-Path "./bin/Release/net9.0-windows/client.bin") {
             Copy-Item -Path "./bin/Release/net9.0-windows/client.bin" -Destination "./build_output/client.bin" -Force
-            Write-Host "Copied client.bin from net9.0-windows directory"
           } elseif (Test-Path "./bin/Release/net472/Client.exe") {
             Copy-Item -Path "./bin/Release/net472/Client.exe" -Destination "./build_output/client.bin" -Force
-            Write-Host "Copied Client.exe from net472 directory as client.bin"
           } else {
-            Write-Host "Warning: Client executable not found in expected locations"
-            Write-Host "Checking available files:"
-            Get-ChildItem -Path "./bin/Release" -Recurse -Include "*.exe","*.bin" | Select-Object FullName
+            Write-Host "Warning: Client executable not found"
           }
         shell: pwsh
 
       - name: Zip Build Output
-        run: Compress-Archive -Path "./build_output/*" -DestinationPath "build_output.zip"
+        run: Compress-Archive -Path "./build_output/*" -DestinationPath "pulsar-net-win64.zip"
         shell: pwsh
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: build_output.zip
+          path: pulsar-net-win64.zip
 
-        # delete
-      - name: Delete old AutoBuild release
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          tag_name: AutoBuild
-          delete_release: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      # we need release
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
+      - name: Delete existing release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: AutoBuild
-          release_name: AutoBuild
-          body: "Automated Build Release"
-          draft: false
-          prerelease: false
+        run: |
+          gh release delete Pulsar-v2.2 --yes --cleanup-tag || echo "No existing release/tag to delete"
+        shell: bash
 
-      # upload
-      - name: Upload Release Asset (build_output.zip)
-        id: upload-release-asset-zip
-        uses: actions/upload-release-asset@v1
+      - name: Create Release 
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build_output.zip
-          asset_name: build_output.zip
-          asset_content_type: application/octet-stream
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+         gh release create Pulsar-v2.2 pulsar-net-win64.zip \
+         -t "Pulsar-v2.2" \
+         -n "Automated build release for Pulsar v2.2" \
+         --draft=false \
+         --prerelease=false
+        shell: bash
