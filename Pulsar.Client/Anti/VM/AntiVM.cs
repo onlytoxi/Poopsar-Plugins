@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Management;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using Pulsar.Client.Anti.Helper;
