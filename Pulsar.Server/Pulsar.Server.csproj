@@ -280,9 +280,19 @@
 			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
 		</None>
 	</ItemGroup>
+		<ItemGroup>
+			<Content Include="Build\DeferredAssemblies\**\*">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			</Content>
+		</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Pulsar.Common\Pulsar.Common.csproj" />
 	</ItemGroup>
+		<ItemGroup>
+			<Content Include="DeferredAssemblies\**\*">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			</Content>
+		</ItemGroup>
 	<ItemGroup>
 		<Reference Update="mscorlib">
 			<Private>False</Private>

