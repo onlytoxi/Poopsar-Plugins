@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Pulsar.Common.Video.Compression;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.IO.Compression;
 using System.Runtime.CompilerServices;
 
 namespace Pulsar.Common.Video.Codecs
@@ -24,52 +24,30 @@ namespace Pulsar.Common.Video.Codecs
                 lock (_imageProcessLock)
                 {
                     _imageQuality = value;
+                    if (_jpgCompression != null)
+                    {
+                        _jpgCompression.Dispose();
+                    }
+                    _jpgCompression = new JpgCompression(_imageQuality);
                 }
             }
         }
 
         private int _imageQuality;
-        private const byte CodecVersion = 1;
-        private const byte PacketTypeKeyframe = 1;
-        private const byte PacketTypeDelta = 2;
-        private const byte CompressionFlagNone = 0;
-        private const byte CompressionFlagDeflate = 1;
-
-        private const int BlockMetadataIntCount = 6;
-        private const int BlockMetadataSize = BlockMetadataIntCount * sizeof(int);
-        private const int KeyframeHeaderSize = 1 + 1 + 1 + 1 + (5 * sizeof(int));
-        private const int DeltaFrameHeaderSize = 4;
-
-        [Flags]
-        private enum BlockFlags
-        {
-            None = 0,
-            Compressed = 1
-        }
-
         private byte[] _encodeBuffer;
         private Bitmap _decodedBitmap;
         private PixelFormat _encodedFormat;
         private int _encodedWidth;
         private int _encodedHeight;
         private readonly object _imageProcessLock = new object();
+        private JpgCompression _jpgCompression;
         private bool _disposed;
 
         private readonly List<Rectangle> _workingBlocks = new List<Rectangle>();
         private readonly List<Rectangle> _finalUpdates = new List<Rectangle>();
 
-        private readonly byte[] _metadataBuffer = new byte[BlockMetadataSize];
+        private readonly byte[] _metadataBuffer = new byte[20]; // 5 * sizeof(int)
         private readonly byte[] _lengthBuffer = new byte[4];
-        private byte[] _deltaBuffer;
-        private byte[] _compressedBlockBuffer;
-        private byte[] _decodedFrameBuffer;
-        private int _decodedStride;
-        private PixelFormat _decodedFormat;
-        private int _decodedPixelSize;
-        private CompressionLevel CompressionLevel =>
-            _imageQuality <= 0 ? CompressionLevel.NoCompression :
-            _imageQuality < 50 ? CompressionLevel.Fastest :
-            CompressionLevel.Optimal;
 
         /// <summary>
         /// Initialize a new instance of UnsafeStreamCodec class.
@@ -103,6 +81,11 @@ namespace Pulsar.Common.Video.Codecs
                 if (_decodedBitmap != null)
                 {
                     _decodedBitmap.Dispose();
+                }
+
+                if (_jpgCompression != null)
+                {
+                    _jpgCompression.Dispose();
                 }
             }
 
@@ -173,35 +156,22 @@ namespace Pulsar.Common.Video.Codecs
         private unsafe void InitializeEncodeBuffer(IntPtr scan0, Size imageSize, PixelFormat format,
             int stride, int rawLength, Stream outStream)
         {
-            _encodedFormat = format;
-            _encodedWidth = imageSize.Width;
-            _encodedHeight = imageSize.Height;
-            _encodeBuffer = new byte[rawLength];
-            EnsureDeltaBufferSize(rawLength);
+            this._encodedFormat = format;
+            this._encodedWidth = imageSize.Width;
+            this._encodedHeight = imageSize.Height;
+            this._encodeBuffer = new byte[rawLength];
 
             fixed (byte* ptr = _encodeBuffer)
             {
-                NativeMethods.memcpy(new IntPtr(ptr), scan0, (uint)rawLength);
+                using (Bitmap tmpBmp = new Bitmap(imageSize.Width, imageSize.Height, stride, format, scan0))
+                {
+                    byte[] compressed = _jpgCompression.Compress(tmpBmp);
+
+                    outStream.Write(BitConverter.GetBytes(compressed.Length), 0, 4);
+                    outStream.Write(compressed, 0, compressed.Length);
+                    NativeMethods.memcpy(new IntPtr(ptr), scan0, (uint)rawLength);
+                }
             }
-
-            byte compressionFlag;
-            byte[] framePayload = CompressBuffer(_encodeBuffer, rawLength, out compressionFlag);
-
-            byte[] header = new byte[KeyframeHeaderSize];
-            header[0] = CodecVersion;
-            header[1] = PacketTypeKeyframe;
-            header[2] = compressionFlag;
-            header[3] = (byte)GetPixelSize(format);
-            Array.Copy(BitConverter.GetBytes((int)format), 0, header, 4, 4);
-            Array.Copy(BitConverter.GetBytes(_encodedWidth), 0, header, 8, 4);
-            Array.Copy(BitConverter.GetBytes(_encodedHeight), 0, header, 12, 4);
-            Array.Copy(BitConverter.GetBytes(stride), 0, header, 16, 4);
-            Array.Copy(BitConverter.GetBytes(rawLength), 0, header, 20, 4);
-
-            int payloadLength = header.Length + framePayload.Length;
-            outStream.Write(BitConverter.GetBytes(payloadLength), 0, 4);
-            outStream.Write(header, 0, header.Length);
-            outStream.Write(framePayload, 0, framePayload.Length);
         }
 
         private void ValidateImageFormat(PixelFormat format, Size imageSize)
@@ -225,11 +195,7 @@ namespace Pulsar.Common.Video.Codecs
 
                 DetectChangedColumns(encBuffer, pScan0, scanArea, stride, pixelSize);
 
-                if (_finalUpdates.Count > 0)
-                {
-                    WriteDeltaFrameHeader(outStream, pixelSize);
-                    WriteCompressedBlocks(pScan0, stride, pixelSize, outStream);
-                }
+                WriteCompressedBlocks(pScan0, stride, pixelSize, outStream);
             }
         }
 
@@ -288,6 +254,7 @@ namespace Pulsar.Common.Video.Codecs
 
                     if (HasBlockChanged(encBuffer, pScan0, currentBlock, stride, pixelSize))
                     {
+                        UpdateEncodeBuffer(encBuffer, pScan0, currentBlock, stride, pixelSize);
                         MergeOrAddBlock(currentBlock);
                     }
                 }
@@ -307,6 +274,18 @@ namespace Pulsar.Common.Video.Codecs
             }
 
             return false;
+        }
+
+        private unsafe void UpdateEncodeBuffer(byte* encBuffer, byte* pScan0, Rectangle block,
+            int stride, int pixelSize)
+        {
+            uint blockStride = (uint)(pixelSize * block.Width);
+
+            for (int j = 0; j < block.Height; j++)
+            {
+                int blockOffset = (stride * (block.Y + j)) + (pixelSize * block.X);
+                NativeMethods.memcpy(encBuffer + blockOffset, pScan0 + blockOffset, blockStride);
+            }
         }
 
         private void MergeOrAddBlock(Rectangle currentBlock)
@@ -339,182 +318,52 @@ namespace Pulsar.Common.Video.Codecs
             int pixelSize, Stream outStream)
         {
             int blockStride = pixelSize * rect.Width;
-            int blockSize = blockStride * rect.Height;
-            EnsureDeltaBufferSize(blockSize);
-
-            fixed (byte* previousPtr = _encodeBuffer)
-            {
-                int deltaOffset = 0;
-                for (int j = 0; j < rect.Height; j++)
-                {
-                    int rowOffset = ((rect.Y + j) * stride) + (rect.X * pixelSize);
-                    for (int k = 0; k < blockStride; k++)
-                    {
-                        byte current = pScan0[rowOffset + k];
-                        byte previous = previousPtr[rowOffset + k];
-                        _deltaBuffer[deltaOffset + k] = (byte)(current ^ previous);
-                        previousPtr[rowOffset + k] = current;
-                    }
-                    deltaOffset += blockStride;
-                }
-            }
-
-            byte compressionFlag;
-            byte[] payload = CompressBuffer(_deltaBuffer, blockSize, out compressionFlag);
-            BlockFlags flags = compressionFlag == CompressionFlagDeflate ? BlockFlags.Compressed : BlockFlags.None;
 
             Array.Copy(BitConverter.GetBytes(rect.X), 0, _metadataBuffer, 0, 4);
             Array.Copy(BitConverter.GetBytes(rect.Y), 0, _metadataBuffer, 4, 4);
             Array.Copy(BitConverter.GetBytes(rect.Width), 0, _metadataBuffer, 8, 4);
             Array.Copy(BitConverter.GetBytes(rect.Height), 0, _metadataBuffer, 12, 4);
-            Array.Copy(BitConverter.GetBytes(payload.Length), 0, _metadataBuffer, 16, 4);
-            Array.Copy(BitConverter.GetBytes((int)flags), 0, _metadataBuffer, 20, 4);
 
-            outStream.Write(_metadataBuffer, 0, BlockMetadataSize);
-            outStream.Write(payload, 0, payload.Length);
-        }
+            outStream.Write(_metadataBuffer, 0, 20);
 
-        private void WriteDeltaFrameHeader(Stream outStream, int pixelSize)
-        {
-            byte[] header = new byte[DeltaFrameHeaderSize];
-            header[0] = CodecVersion;
-            header[1] = PacketTypeDelta;
-            header[2] = CompressionFlagNone;
-            header[3] = (byte)pixelSize;
-            outStream.Write(header, 0, header.Length);
-        }
+            long lengthPosition = outStream.Position - 4;
+            long dataStart = outStream.Position;
 
-        private void EnsureDeltaBufferSize(int requiredSize)
-        {
-            if (_deltaBuffer == null || _deltaBuffer.Length < requiredSize)
-            {
-                _deltaBuffer = new byte[requiredSize];
-            }
-        }
-
-        private void EnsureCompressedBufferSize(int requiredSize)
-        {
-            if (_compressedBlockBuffer == null || _compressedBlockBuffer.Length < requiredSize)
-            {
-                _compressedBlockBuffer = new byte[requiredSize];
-            }
-        }
-
-        private void EnsureDecodedFrameBufferSize(int requiredSize)
-        {
-            if (_decodedFrameBuffer == null || _decodedFrameBuffer.Length < requiredSize)
-            {
-                _decodedFrameBuffer = new byte[requiredSize];
-            }
-        }
-
-        private byte[] CompressBuffer(byte[] buffer, int length, out byte compressionFlag)
-        {
-            if (length <= 0)
-            {
-                compressionFlag = CompressionFlagNone;
-                return Array.Empty<byte>();
-            }
-
-            if (CompressionLevel == CompressionLevel.NoCompression)
-            {
-                compressionFlag = CompressionFlagNone;
-                byte[] rawCopy = new byte[length];
-                Buffer.BlockCopy(buffer, 0, rawCopy, 0, length);
-                return rawCopy;
-            }
-
-            using (var ms = new MemoryStream())
-            {
-                using (var ds = new DeflateStream(ms, CompressionLevel, true))
-                {
-                    ds.Write(buffer, 0, length);
-                }
-                byte[] compressed = ms.ToArray();
-                if (compressed.Length >= length)
-                {
-                    compressionFlag = CompressionFlagNone;
-                    byte[] rawCopy = new byte[length];
-                    Buffer.BlockCopy(buffer, 0, rawCopy, 0, length);
-                    return rawCopy;
-                }
-
-                compressionFlag = CompressionFlagDeflate;
-                return compressed;
-            }
-        }
-
-        private void DecompressInto(byte[] source, int sourceLength, byte[] destination, int expectedLength, byte compressionFlag)
-        {
-            if (compressionFlag == CompressionFlagNone)
-            {
-                if (sourceLength < expectedLength)
-                    throw new InvalidDataException("Insufficient uncompressed data.");
-
-                Buffer.BlockCopy(source, 0, destination, 0, expectedLength);
-                return;
-            }
-
-            if (compressionFlag != CompressionFlagDeflate)
-                throw new InvalidDataException("Unsupported compression flag.");
-
-            using (var ms = new MemoryStream(source, 0, sourceLength))
-            using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
-            {
-                int offset = 0;
-                while (offset < expectedLength)
-                {
-                    int read = ds.Read(destination, offset, expectedLength - offset);
-                    if (read <= 0)
-                        throw new InvalidDataException("Unexpected end of compressed block.");
-                    offset += read;
-                }
-            }
-        }
-
-        private unsafe void ApplyFrameBufferToBitmap()
-        {
-            if (_decodedBitmap == null || _decodedFrameBuffer == null)
-                return;
-
-            BitmapData data = null;
+            Bitmap tmpBmp = null;
+            BitmapData tmpData = null;
 
             try
             {
-                data = _decodedBitmap.LockBits(new Rectangle(0, 0, _decodedBitmap.Width, _decodedBitmap.Height),
-                    ImageLockMode.WriteOnly, _decodedFormat);
+                tmpBmp = new Bitmap(rect.Width, rect.Height, this._encodedFormat);
+                tmpData = tmpBmp.LockBits(new Rectangle(0, 0, rect.Width, rect.Height),
+                    ImageLockMode.ReadWrite, tmpBmp.PixelFormat);
 
-                fixed (byte* srcPtr = _decodedFrameBuffer)
-                {
-                    byte* destPtr = (byte*)data.Scan0.ToPointer();
-                    for (int y = 0; y < _decodedBitmap.Height; y++)
-                    {
-                        IntPtr src = new IntPtr(srcPtr + (y * _decodedStride));
-                        IntPtr dest = new IntPtr(destPtr + (y * data.Stride));
-                        NativeMethods.memcpy(dest, src, (uint)Math.Min(_decodedStride, data.Stride));
-                    }
-                }
+                CopyBlockData(pScan0, (byte*)tmpData.Scan0.ToPointer(), rect, stride, blockStride);
+                _jpgCompression.Compress(tmpBmp, outStream);
             }
             finally
             {
-                if (data != null)
-                {
-                    _decodedBitmap.UnlockBits(data);
-                }
+                if (tmpData != null)
+                    tmpBmp.UnlockBits(tmpData);
+                if (tmpBmp != null)
+                    tmpBmp.Dispose();
             }
+
+            long dataLength = outStream.Position - dataStart;
+            long currentPosition = outStream.Position;
+            outStream.Position = lengthPosition;
+            outStream.Write(BitConverter.GetBytes(dataLength), 0, 4);
+            outStream.Position = currentPosition;
         }
 
-        private void ApplyDeltaToFrame(Rectangle rect, int blockStride)
+        private unsafe void CopyBlockData(byte* source, byte* destination, Rectangle rect,
+            int stride, int blockStride)
         {
-            int deltaOffset = 0;
-            for (int j = 0; j < rect.Height; j++)
+            for (int j = 0, offset = 0; j < rect.Height; j++)
             {
-                int rowOffset = ((rect.Y + j) * _decodedStride) + (rect.X * _decodedPixelSize);
-                for (int k = 0; k < blockStride; k++)
-                {
-                    _decodedFrameBuffer[rowOffset + k] ^= _deltaBuffer[deltaOffset + k];
-                }
-                deltaOffset += blockStride;
+                int blockOffset = (stride * (rect.Y + j)) + (rect.X * GetPixelSize(this._encodedFormat));
+                NativeMethods.memcpy(destination + offset, source + blockOffset, (uint)blockStride);
+                offset += blockStride;
             }
         }
 
@@ -523,146 +372,60 @@ namespace Pulsar.Common.Video.Codecs
             if (_disposed) throw new ObjectDisposedException("UnsafeStreamCodec");
             if (length < 4) return _decodedBitmap;
 
-            int managedLength = checked((int)length);
-            byte[] managed = new byte[managedLength];
-            fixed (byte* dest = managed)
+            int dataSize = *(int*)codecBuffer;
+
+            if (_decodedBitmap == null)
             {
-                NativeMethods.memcpy(new IntPtr(dest), codecBuffer, length);
+                byte[] temp = new byte[dataSize];
+
+                fixed (byte* tempPtr = temp)
+                {
+                    NativeMethods.memcpy(new IntPtr(tempPtr),
+                        new IntPtr(codecBuffer.ToInt32() + 4), (uint)dataSize);
+                }
+
+                using (MemoryStream stream = new MemoryStream(temp, 0, dataSize))
+                {
+                    this._decodedBitmap = (Bitmap)Bitmap.FromStream(stream);
+                }
             }
 
-            using (MemoryStream stream = new MemoryStream(managed, 0, managedLength, writable: false, publiclyVisible: true))
-            {
-                return DecodeData(stream);
-            }
+            return _decodedBitmap;
         }
 
         public Bitmap DecodeData(Stream inStream)
         {
             if (_disposed) throw new ObjectDisposedException("UnsafeStreamCodec");
 
-            ReadFully(inStream, _lengthBuffer, 0, 4);
+            inStream.Read(_lengthBuffer, 0, 4);
             int dataSize = BitConverter.ToInt32(_lengthBuffer, 0);
 
-            if (dataSize <= 0)
+            if (_decodedBitmap == null)
             {
+                byte[] temp = new byte[dataSize];
+                inStream.Read(temp, 0, dataSize);
+
+                using (MemoryStream stream = new MemoryStream(temp, 0, dataSize))
+                {
+                    this._decodedBitmap = (Bitmap)Bitmap.FromStream(stream);
+                }
+
                 return _decodedBitmap;
             }
 
-            byte[] payload = new byte[dataSize];
-            ReadFully(inStream, payload, 0, dataSize);
-
-            using (MemoryStream payloadStream = new MemoryStream(payload, writable: false))
+            using (Graphics graphics = Graphics.FromImage(_decodedBitmap))
             {
-                return DecodePayload(payloadStream, dataSize);
+                DecodeBlocks(inStream, graphics, dataSize);
             }
-        }
-
-        private Bitmap DecodePayload(Stream payloadStream, int payloadLength)
-        {
-            int version = payloadStream.ReadByte();
-            if (version < 0)
-                return _decodedBitmap;
-
-            if (version != CodecVersion)
-                throw new InvalidDataException($"Unsupported codec version {version}.");
-
-            int packetTypeValue = payloadStream.ReadByte();
-            if (packetTypeValue < 0)
-                throw new InvalidDataException("Missing packet type.");
-
-            byte packetType = (byte)packetTypeValue;
-            byte compressionFlag = (byte)payloadStream.ReadByte();
-            byte pixelSize = (byte)payloadStream.ReadByte();
-
-            if (packetType == PacketTypeKeyframe)
-            {
-                return DecodeKeyframe(payloadStream, payloadLength, compressionFlag, pixelSize);
-            }
-
-            if (packetType == PacketTypeDelta)
-            {
-                return DecodeDelta(payloadStream, payloadLength, compressionFlag, pixelSize);
-            }
-
-            throw new InvalidDataException($"Unknown packet type {packetType}.");
-        }
-
-        private Bitmap DecodeKeyframe(Stream payloadStream, int payloadLength, byte compressionFlag, byte pixelSize)
-        {
-            int pixelFormatValue = ReadInt32(payloadStream);
-            int width = ReadInt32(payloadStream);
-            int height = ReadInt32(payloadStream);
-            int stride = ReadInt32(payloadStream);
-            int rawLength = ReadInt32(payloadStream);
-
-            int remaining = payloadLength - KeyframeHeaderSize;
-            if (remaining < 0)
-                throw new InvalidDataException("Invalid keyframe payload length.");
-
-            if (width <= 0 || height <= 0)
-                throw new InvalidDataException("Invalid keyframe dimensions.");
-
-            if (stride <= 0 || rawLength <= 0)
-                throw new InvalidDataException("Invalid keyframe buffer parameters.");
-
-            PixelFormat format = (PixelFormat)pixelFormatValue;
-            int expectedPixelSize = GetPixelSize(format);
-            if (pixelSize != expectedPixelSize)
-                throw new InvalidDataException("Pixel size mismatch for keyframe.");
-
-            if (rawLength != stride * height)
-                throw new InvalidDataException("Keyframe raw length does not match stride and height.");
-
-            byte[] compressedFrame = new byte[remaining];
-            ReadFully(payloadStream, compressedFrame, 0, remaining);
-
-            EnsureDecodedFrameBufferSize(rawLength);
-            DecompressInto(compressedFrame, remaining, _decodedFrameBuffer, rawLength, compressionFlag);
-
-            _decodedStride = stride;
-            _decodedFormat = format;
-            _decodedPixelSize = expectedPixelSize;
-
-            if (_decodedBitmap != null)
-            {
-                _decodedBitmap.Dispose();
-            }
-
-            _decodedBitmap = new Bitmap(width, height, _decodedFormat);
-            ApplyFrameBufferToBitmap();
 
             return _decodedBitmap;
         }
 
-        private Bitmap DecodeDelta(Stream payloadStream, int payloadLength, byte headerCompressionFlag, byte pixelSize)
-        {
-            if (_decodedBitmap == null || _decodedFrameBuffer == null)
-                throw new InvalidOperationException("Delta frame received before keyframe.");
-
-            if (headerCompressionFlag != CompressionFlagNone)
-                throw new InvalidDataException("Unsupported delta frame compression flag.");
-
-            if (pixelSize != _decodedPixelSize)
-                throw new InvalidDataException("Pixel size mismatch for delta frame.");
-
-            if (payloadLength < DeltaFrameHeaderSize)
-                throw new InvalidDataException("Delta frame header is incomplete.");
-
-            int remainingData = payloadLength - DeltaFrameHeaderSize;
-            DecodeDeltaBlocks(payloadStream, remainingData);
-            ApplyFrameBufferToBitmap();
-            return _decodedBitmap;
-        }
-
-        private void DecodeDeltaBlocks(Stream payloadStream, int remainingData)
+        private void DecodeBlocks(Stream inStream, Graphics graphics, int remainingData)
         {
             while (remainingData > 0)
             {
-                if (remainingData < BlockMetadataSize)
-                    throw new InvalidDataException("Incomplete block metadata.");
-
-                ReadFully(payloadStream, _metadataBuffer, 0, BlockMetadataSize);
-                remainingData -= BlockMetadataSize;
+                inStream.Read(_metadataBuffer, 0, 20);
 
                 Rectangle rect = new Rectangle(
                     BitConverter.ToInt32(_metadataBuffer, 0),
@@ -670,47 +433,18 @@ namespace Pulsar.Common.Video.Codecs
                     BitConverter.ToInt32(_metadataBuffer, 8),
                     BitConverter.ToInt32(_metadataBuffer, 12));
 
-                if (rect.Width <= 0 || rect.Height <= 0)
-                    throw new InvalidDataException("Invalid block dimensions in delta frame.");
-
-                if (rect.Right > _decodedBitmap.Width || rect.Bottom > _decodedBitmap.Height)
-                    throw new InvalidDataException("Delta block exceeds bitmap bounds.");
-
                 int updateLength = BitConverter.ToInt32(_metadataBuffer, 16);
-                BlockFlags flags = (BlockFlags)BitConverter.ToInt32(_metadataBuffer, 20);
 
-                if (updateLength < 0 || updateLength > remainingData)
-                    throw new InvalidDataException("Invalid block payload length.");
+                byte[] buffer = new byte[updateLength];
+                inStream.Read(buffer, 0, updateLength);
 
-                EnsureCompressedBufferSize(updateLength);
-                ReadFully(payloadStream, _compressedBlockBuffer, 0, updateLength);
-                remainingData -= updateLength;
+                using (MemoryStream stream = new MemoryStream(buffer, 0, updateLength))
+                using (Bitmap bitmap = (Bitmap)Image.FromStream(stream))
+                {
+                    graphics.DrawImage(bitmap, rect.Location);
+                }
 
-                int blockStride = rect.Width * _decodedPixelSize;
-                int blockSize = blockStride * rect.Height;
-                EnsureDeltaBufferSize(blockSize);
-
-                byte compressionFlag = (flags & BlockFlags.Compressed) != 0 ? CompressionFlagDeflate : CompressionFlagNone;
-                DecompressInto(_compressedBlockBuffer, updateLength, _deltaBuffer, blockSize, compressionFlag);
-                ApplyDeltaToFrame(rect, blockStride);
-            }
-        }
-
-        private int ReadInt32(Stream stream)
-        {
-            ReadFully(stream, _lengthBuffer, 0, 4);
-            return BitConverter.ToInt32(_lengthBuffer, 0);
-        }
-
-        private void ReadFully(Stream stream, byte[] buffer, int offset, int count)
-        {
-            int totalRead = 0;
-            while (totalRead < count)
-            {
-                int read = stream.Read(buffer, offset + totalRead, count - totalRead);
-                if (read <= 0)
-                    throw new EndOfStreamException("Unexpected end of stream.");
-                totalRead += read;
+                remainingData -= updateLength + 20; // 20 bytes metadata
             }
         }
     }

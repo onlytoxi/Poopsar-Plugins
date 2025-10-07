@@ -1,7 +1,6 @@
 ﻿using MessagePack;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Video;
-using Pulsar.Common.Enums;
 
 namespace Pulsar.Common.Messages.Webcam
 {
@@ -28,8 +27,5 @@ namespace Pulsar.Common.Messages.Webcam
 
         [Key(7)]
         public float FrameRate { get; set; }
-
-        [Key(8)]
-        public WebcamEncoding Encoding { get; set; } = WebcamEncoding.Stream;
     }
 }

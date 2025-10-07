@@ -27,8 +27,6 @@ namespace Pulsar.Client.Helper.ScreenStuff.DesktopDuplication
             public int Width { get; internal set; }
             public int Height { get; internal set; }
             public System.Drawing.Imaging.PixelFormat PixelFormat { get; internal set; }
-            public long LastPresentTime { get; internal set; }
-            public long PresentDuration { get; internal set; }
 
             private Action _onDispose;
 
@@ -146,7 +144,7 @@ namespace Pulsar.Client.Helper.ScreenStuff.DesktopDuplication
             try
             {
                 // fml
-                mDeskDupl.AcquireNextFrame(500, out frameInfo, out desktopResource);
+                mDeskDupl.AcquireNextFrame(33, out frameInfo, out desktopResource);
             }
             catch (SharpDXException ex)
             {
@@ -158,13 +156,6 @@ namespace Pulsar.Client.Helper.ScreenStuff.DesktopDuplication
                 {
                     throw new DesktopDuplicationException("Failed to acquire next frame.");
                 }
-            }
-
-            if (frameInfo.LastPresentTime == 0)
-            {
-                desktopResource?.Dispose();
-                try { mDeskDupl.ReleaseFrame(); } catch { }
-                return false;
             }
 
             using (var tempTexture = desktopResource.QueryInterface<Texture2D>())
@@ -196,9 +187,6 @@ namespace Pulsar.Client.Helper.ScreenStuff.DesktopDuplication
                 Height = height,
                 PixelFormat = System.Drawing.Imaging.PixelFormat.Format32bppArgb
             };
-
-            mf.LastPresentTime = (long)frameInfo.LastPresentTime;
-            mf.PresentDuration = frameInfo.AccumulatedFrames;
 
             mapped = mf;
             return true;
