@@ -79,6 +79,7 @@ namespace Pulsar.Server.Forms
             InitializeComponent();
             Text = $"Pulsar Premium - {ServerVersion.Display}";
             statsElementHost?.ShowLoading();
+            heatMapElementHost?.ShowLoading();
             typeof(ListView).InvokeMember("DoubleBuffered",
                 System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                 null, this.lstClients, new object[] { true });
@@ -95,7 +96,7 @@ namespace Pulsar.Server.Forms
             _discordRpc.Enabled = Settings.DiscordRPC;     // Sync with settings on startup
 
             tableLayoutPanel1.VisibleChanged += TableLayoutPanel1_VisibleChanged;
-            
+
             InitializeSearch();
         }
 
@@ -260,6 +261,7 @@ namespace Pulsar.Server.Forms
         {
             wpfClientsHost?.ApplyTheme(Settings.DarkMode);
             statsElementHost?.ApplyTheme(Settings.DarkMode);
+            heatMapElementHost?.ApplyTheme(Settings.DarkMode);
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -858,7 +860,7 @@ namespace Pulsar.Server.Forms
                         }
 
                         ClipperCheckbox.Checked = data.ContainsKey("ClipperEnabled") && Convert.ToBoolean(data["ClipperEnabled"]);
-                        
+
                         ClipperCheckbox.Text = ClipperCheckbox.Checked ? "Stop" : "Start";
                     }
                 }
@@ -1007,9 +1009,9 @@ namespace Pulsar.Server.Forms
             }
 
             var allItems = new List<ListViewItem>();
-            
+
             allItems.AddRange(lstClients.Items.Cast<ListViewItem>().Where(item => item.Tag is Client));
-            
+
             allItems.AddRange(_allClientItems.Values);
 
             var sortedItems = allItems
@@ -1030,7 +1032,7 @@ namespace Pulsar.Server.Forms
                     {
                         string country = client.Value?.Country ?? "Unknown";
                         string countryWithCode = client.Value?.CountryWithCode ?? "Unknown";
-                        
+
                         var group = GetGroupFromCountry(country, countryWithCode);
                         item.Group = group;
                     }
@@ -1038,7 +1040,7 @@ namespace Pulsar.Server.Forms
                     {
                         item.Group = null;
                     }
-                    
+
                     if (ShouldShowClientInSearch(client, item))
                     {
                         lstClients.Items.Add(item);
@@ -1079,7 +1081,7 @@ namespace Pulsar.Server.Forms
             if (lvg == null)
             {
                 lvg = new ListViewGroup
-                { 
+                {
                     Name = country,
                     Header = countryWithCode
                 };
@@ -1254,7 +1256,7 @@ namespace Pulsar.Server.Forms
                     lock (_lockClients)
                     {
                         lstClients.BeginUpdate();
-                        
+
                         if (Settings.ShowCountryGroups)
                         {
                             string country = client.Value?.Country ?? "Unknown";
@@ -1265,7 +1267,7 @@ namespace Pulsar.Server.Forms
                         {
                             lvi.Group = null;
                         }
-                        
+
                         if (ShouldShowClientInSearch(client, lvi))
                         {
                             lstClients.Items.Add(lvi);
@@ -1378,13 +1380,13 @@ namespace Pulsar.Server.Forms
                         lstClients.EndUpdate();
                     }
                 });
-                
+
                 _allClientItems.Remove(client);
                 _visibleClients.Remove(client);
                 _clientEntryMap.Remove(client);
                 wpfClientsHost?.Remove(client);
                 ApplyWpfSearchFilter();
-                
+
                 UpdateWindowTitle();
                 EventLog(client.Value.UserAtPc + " Has disconnected.", "normal");
             }
@@ -1397,7 +1399,7 @@ namespace Pulsar.Server.Forms
 
         private void ScheduleStatsRefresh()
         {
-            if (statsElementHost == null)
+            if (statsElementHost == null && heatMapElementHost == null)
             {
                 return;
             }
@@ -1412,20 +1414,25 @@ namespace Pulsar.Server.Forms
                 _statsRefreshPending = true;
             }
 
-            statsElementHost.ShowLoading();
+            statsElementHost?.ShowLoading();
+            heatMapElementHost?.ShowLoading();
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                ClientStatisticsSnapshot snapshot;
+                ClientStatisticsSnapshot statsSnapshot;
+                ClientGeoSnapshot geoSnapshot;
 
                 try
                 {
                     var allClients = OfflineClientRepository.GetAllClients();
-                    snapshot = ClientStatisticsService.CreateSnapshot(allClients);
+                    statsSnapshot = ClientStatisticsService.CreateSnapshot(allClients);
+                    geoSnapshot = ClientGeoStatisticsService.CreateSnapshot(allClients, statsSnapshot.GeneratedAtUtc);
                 }
                 catch (Exception ex)
                 {
-                    snapshot = ClientStatisticsSnapshot.CreateError(ex.Message);
+                    var message = ex.Message;
+                    statsSnapshot = ClientStatisticsSnapshot.CreateError(message);
+                    geoSnapshot = ClientGeoSnapshot.CreateError(message);
                 }
                 finally
                 {
@@ -1444,13 +1451,23 @@ namespace Pulsar.Server.Forms
                 {
                     BeginInvoke((MethodInvoker)(() =>
                     {
-                        if (snapshot.HasError)
+                        if (statsSnapshot.HasError)
                         {
-                            statsElementHost?.ShowError(snapshot.ErrorMessage ?? "Unknown error");
+                            var message = statsSnapshot.ErrorMessage ?? "Unknown error";
+                            statsElementHost?.ShowError(message);
+                            heatMapElementHost?.ShowError(message);
+                            return;
+                        }
+
+                        statsElementHost?.UpdateSnapshot(statsSnapshot);
+
+                        if (geoSnapshot.HasError)
+                        {
+                            heatMapElementHost?.ShowError(geoSnapshot.ErrorMessage ?? "Unknown error");
                         }
                         else
                         {
-                            statsElementHost?.UpdateSnapshot(snapshot);
+                            heatMapElementHost?.UpdateSnapshot(geoSnapshot);
                         }
                     }));
                 }
@@ -2486,6 +2503,11 @@ namespace Pulsar.Server.Forms
             MainTabControl.SelectTab(tabStats);
         }
 
+        private void mapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabHeatMap);
+        }
+
         private void clearSelectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (lstNoti.SelectedItems.Count > 0)
@@ -3017,7 +3039,7 @@ namespace Pulsar.Server.Forms
             tabPage1.Controls.Add(_searchTextBox);
             tabPage1.Controls.Add(_searchLabel);
             tabPage1.Controls.Add(_searchResultsLabel);
-            
+
             _searchTextBox.BringToFront();
             _searchLabel.BringToFront();
             _searchResultsLabel.BringToFront();
@@ -3091,7 +3113,7 @@ namespace Pulsar.Server.Forms
             try
             {
                 var itemsToRemove = new List<ListViewItem>();
-                
+
                 foreach (ListViewItem item in lstClients.Items)
                 {
                     if (item.Tag is Client client)
@@ -3112,7 +3134,7 @@ namespace Pulsar.Server.Forms
                         {
                             string nickname = GetClientNickname(client)?.ToLowerInvariant() ?? "";
                             string publicIp = (client.Value?.PublicIP ?? client.EndPoint?.Address?.ToString() ?? "").ToLowerInvariant();
-                            
+
                             if (nickname.Contains(searchLower) || publicIp.Contains(searchLower))
                             {
                                 matches = true;
@@ -3156,7 +3178,7 @@ namespace Pulsar.Server.Forms
                 {
                     var client = kvp.Key;
                     var item = kvp.Value;
-                    
+
                     if (!lstClients.Items.Contains(item))
                     {
                         if (client.Value != null)
@@ -3200,7 +3222,7 @@ namespace Pulsar.Server.Forms
 
             string nickname = GetClientNickname(client)?.ToLowerInvariant() ?? "";
             string publicIp = (client.Value?.PublicIP ?? client.EndPoint?.Address?.ToString() ?? "").ToLowerInvariant();
-            
+
             if (nickname.Contains(searchLower) || publicIp.Contains(searchLower))
             {
                 return true;

@@ -169,6 +169,8 @@ namespace Pulsar.Server.Forms
             toolStripSeparator1 = new ToolStripSeparator();
             clearLogsToolStripMenuItem = new ToolStripMenuItem();
             splitter1 = new Splitter();
+            tabHeatMap = new TabPage();
+            heatMapElementHost = new HeatMapElementHost();
             tabPage2 = new TabPage();
             lstNoti = new AeroListView();
             columnHeader1 = new ColumnHeader();
@@ -251,6 +253,7 @@ namespace Pulsar.Server.Forms
             aboutToolStripMenuItem = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             builderToolStripMenuItem = new ToolStripMenuItem();
+            mapToolStripMenuItem = new ToolStripMenuItem();
             contextMenuStrip.SuspendLayout();
             tableLayoutPanel.SuspendLayout();
             MainTabControl.SuspendLayout();
@@ -262,6 +265,7 @@ namespace Pulsar.Server.Forms
             tblLayoutQuickButtons.SuspendLayout();
             gBoxClientInfo.SuspendLayout();
             DebugContextMenuStrip.SuspendLayout();
+            tabHeatMap.SuspendLayout();
             tabPage2.SuspendLayout();
             NotificationContextMenuStrip.SuspendLayout();
             tabPage3.SuspendLayout();
@@ -1052,6 +1056,7 @@ namespace Pulsar.Server.Forms
             MainTabControl.Controls.Add(tabOfflineClients);
             MainTabControl.Controls.Add(tabStats);
             MainTabControl.Controls.Add(tabPage1);
+            MainTabControl.Controls.Add(tabHeatMap);
             MainTabControl.Controls.Add(tabPage2);
             MainTabControl.Controls.Add(tabPage3);
             MainTabControl.Controls.Add(tabPage4);
@@ -1502,6 +1507,25 @@ namespace Pulsar.Server.Forms
             splitter1.TabIndex = 34;
             splitter1.TabStop = false;
             splitter1.Visible = false;
+            // 
+            // tabHeatMap
+            // 
+            tabHeatMap.Controls.Add(heatMapElementHost);
+            tabHeatMap.Location = new Point(4, 24);
+            tabHeatMap.Margin = new Padding(0);
+            tabHeatMap.Name = "tabHeatMap";
+            tabHeatMap.Size = new Size(1136, 463);
+            tabHeatMap.TabIndex = 2;
+            tabHeatMap.Text = "Heat Map";
+            tabHeatMap.UseVisualStyleBackColor = true;
+            // 
+            // heatMapElementHost
+            // 
+            heatMapElementHost.Dock = DockStyle.Fill;
+            heatMapElementHost.Location = new Point(0, 0);
+            heatMapElementHost.Name = "heatMapElementHost";
+            heatMapElementHost.Size = new Size(1136, 463);
+            heatMapElementHost.TabIndex = 0;
             // 
             // tabPage2
             // 
@@ -2150,7 +2174,7 @@ namespace Pulsar.Server.Forms
             menuStrip.Dock = DockStyle.Fill;
             menuStrip.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             menuStrip.ImageScalingSize = new Size(24, 24);
-            menuStrip.Items.AddRange(new ToolStripItem[] { clientsToolStripMenuItem, offlineClientsToolStripMenuItem, statsToolStripMenuItem, autoTasksToolStripMenuItem, cryptoClipperToolStripMenuItem, notificationCentreToolStripMenuItem, aboutToolStripMenuItem, settingsToolStripMenuItem, builderToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { clientsToolStripMenuItem, offlineClientsToolStripMenuItem, statsToolStripMenuItem, mapToolStripMenuItem, autoTasksToolStripMenuItem, cryptoClipperToolStripMenuItem, notificationCentreToolStripMenuItem, aboutToolStripMenuItem, settingsToolStripMenuItem, builderToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Size = new Size(1144, 25);
@@ -2243,6 +2267,15 @@ namespace Pulsar.Server.Forms
             builderToolStripMenuItem.Text = "Builder";
             builderToolStripMenuItem.Click += builderToolStripMenuItem_Click;
             // 
+            // mapToolStripMenuItem
+            // 
+            mapToolStripMenuItem.Image = Properties.Resources.map;
+            mapToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            mapToolStripMenuItem.Name = "mapToolStripMenuItem";
+            mapToolStripMenuItem.Size = new Size(59, 21);
+            mapToolStripMenuItem.Text = "Map";
+            mapToolStripMenuItem.Click += mapToolStripMenuItem_Click;
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
@@ -2272,6 +2305,7 @@ namespace Pulsar.Server.Forms
             tblLayoutQuickButtons.PerformLayout();
             gBoxClientInfo.ResumeLayout(false);
             DebugContextMenuStrip.ResumeLayout(false);
+            tabHeatMap.ResumeLayout(false);
             tabPage2.ResumeLayout(false);
             NotificationContextMenuStrip.ResumeLayout(false);
             tabPage3.ResumeLayout(false);
@@ -2392,6 +2426,7 @@ namespace Pulsar.Server.Forms
         private NoButtonTabControl MainTabControl;
         private TabPage tabOfflineClients;
     private TabPage tabStats;
+    private TabPage tabHeatMap;
         private AeroListView lstOfflineClients;
         private ColumnHeader hOfflineIP;
         private ColumnHeader hOfflineNickname;
@@ -2407,6 +2442,7 @@ namespace Pulsar.Server.Forms
     private AeroListView lstClients;
     private ClientsListElementHost wpfClientsHost;
         private StatsElementHost statsElementHost;
+        private HeatMapElementHost heatMapElementHost;
         private ColumnHeader hIP;
         private ColumnHeader hNick;
         private ColumnHeader hTag;
@@ -2495,5 +2531,6 @@ namespace Pulsar.Server.Forms
         private ColumnHeader columnHeader6;
         private ToolStripMenuItem offlineClientsToolStripMenuItem;
         private ToolStripMenuItem statsToolStripMenuItem;
+        private ToolStripMenuItem mapToolStripMenuItem;
     }
 }
