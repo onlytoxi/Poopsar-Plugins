@@ -67,6 +67,10 @@ namespace Pulsar.Server.Forms
         private PreviewHandler _previewImageHandler;
         private static readonly string PulsarStuffDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PulsarStuff");
         private readonly string AutoTasksFilePath = Path.Combine(PulsarStuffDir, "autotasks.json");
+        private readonly string NotificationStateFilePath = Path.Combine(PulsarStuffDir, "notifications.json");
+        private readonly List<NotificationEntry> _notificationHistory = new();
+        private readonly object _notificationLock = new();
+        private Font _notificationUnreadFont;
 
         public FrmMain()
         {
@@ -98,6 +102,7 @@ namespace Pulsar.Server.Forms
             tableLayoutPanel1.VisibleChanged += TableLayoutPanel1_VisibleChanged;
 
             InitializeSearch();
+            InitializeNotificationTracking();
         }
 
         private void OnAddressReceived(object sender, Client client, string addressType)
@@ -308,6 +313,7 @@ namespace Pulsar.Server.Forms
 
             lstClients.ColumnWidthChanging += lstClients_ColumnWidthChanging;
 
+            LoadNotificationHistory();
             LoadAutoTasks();
             ScheduleOfflineListRefresh();
             ScheduleStatsRefresh();
@@ -323,6 +329,7 @@ namespace Pulsar.Server.Forms
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
+            SaveNotificationHistory();
             SaveAutoTasks();
 
             ListenServer.Disconnect();
@@ -2443,6 +2450,24 @@ namespace Pulsar.Server.Forms
             }
         }
 
+        #region Notification Centre
+
+        private void InitializeNotificationTracking()
+        {
+            if (lstNoti == null)
+            {
+                return;
+            }
+
+            _notificationUnreadFont ??= new Font(lstNoti.Font, FontStyle.Bold);
+            UpdateNotificationStatusLabel();
+        }
+
+        private bool ShouldMarkNotificationsAsReadOnArrival()
+        {
+            return MainTabControl?.SelectedTab == tabPage2 && WindowState != FormWindowState.Minimized && Visible && ContainsFocus;
+        }
+
         public static void AddNotiEvent(FrmMain frmMain, string client, string keywords, string windowText)
         {
             if (frmMain.lstNoti.InvokeRequired)
@@ -2450,38 +2475,222 @@ namespace Pulsar.Server.Forms
                 frmMain.lstNoti.Invoke(new Action(() => AddNotiEvent(frmMain, client, keywords, windowText)));
                 return;
             }
-            ListViewItem item = new ListViewItem(client);
-            item.SubItems.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-            item.SubItems.Add(keywords);
 
-            // truncate
-            string displayText = windowText;
-            if (windowText.Length > 100)
+            var entry = new NotificationEntry
             {
-                displayText = windowText.Substring(0, 100) + "...";
+                Client = client,
+                Timestamp = DateTime.Now,
+                Event = keywords,
+                Parameter = windowText ?? string.Empty,
+                IsRead = frmMain.ShouldMarkNotificationsAsReadOnArrival()
+            };
+
+            frmMain.AddNotification(entry, true);
+            frmMain.ShowNotificationToast(entry);
+        }
+
+        private void AddNotification(NotificationEntry entry, bool persist)
+        {
+            if (entry == null) return;
+
+            lock (_notificationLock)
+            {
+                _notificationHistory.Add(entry);
+                var item = CreateNotificationListViewItem(entry);
+                lstNoti.Items.Add(item);
             }
+
+            UpdateNotificationStatusLabel();
+
+            if (persist)
+            {
+                SaveNotificationHistory();
+            }
+        }
+
+        private ListViewItem CreateNotificationListViewItem(NotificationEntry entry)
+        {
+            string timestamp = entry.Timestamp.ToString("yyyy/MM/dd HH:mm:ss");
+            string eventName = entry.Event ?? string.Empty;
+            string parameter = entry.Parameter ?? string.Empty;
+            string displayText = parameter.Length > 100 ? parameter.Substring(0, 100) + "..." : parameter;
+
+            var item = new ListViewItem(entry.Client ?? string.Empty);
+            item.SubItems.Add(timestamp);
+            item.SubItems.Add(eventName);
             item.SubItems.Add(displayText);
+            item.ToolTipText = parameter;
+            item.Tag = entry;
 
-            item.ToolTipText = windowText;
+            ApplyNotificationItemStyle(item, entry.IsRead);
+            return item;
+        }
 
-            frmMain.lstNoti.Items.Add(item);
+        private void ApplyNotificationItemStyle(ListViewItem item, bool isRead)
+        {
+            if (item == null) return;
 
-            string notificationTitle = $"Keyword Triggered: {keywords}";
+            if (_notificationUnreadFont == null)
+            {
+                _notificationUnreadFont = new Font(lstNoti.Font, FontStyle.Bold);
+            }
+
+            item.Font = isRead ? lstNoti.Font : _notificationUnreadFont;
+        }
+
+        private void UpdateNotificationStatusLabel()
+        {
+            int pending;
+            int total;
+
+            lock (_notificationLock)
+            {
+                pending = _notificationHistory.Count(n => !n.IsRead);
+                total = _notificationHistory.Count;
+            }
+
+            const string centerTitle = "Notification Center";
+
+            if (lblNotificationStatus != null)
+            {
+                if (pending == 0)
+                {
+                    lblNotificationStatus.Text = total == 0
+                        ? "You're all caught up. No notifications yet."
+                        : $"You're all caught up. {total} notifications logged.";
+                }
+                else
+                {
+                    lblNotificationStatus.Text = total > pending
+                        ? $"Pending notifications: {pending} of {total}"
+                        : $"Pending notifications: {pending}";
+                }
+            }
+
+            if (tabPage2 != null)
+            {
+                tabPage2.Text = pending == 0
+                    ? centerTitle
+                    : $"{centerTitle} ({pending})";
+            }
+
+            if (notificationCentreToolStripMenuItem != null)
+            {
+                notificationCentreToolStripMenuItem.Text = pending == 0
+                    ? centerTitle
+                    : $"({pending}) {centerTitle}";
+            }
+        }
+
+        private void MarkAllNotificationsAsRead()
+        {
+            bool anyChanges = false;
+
+            lock (_notificationLock)
+            {
+                foreach (ListViewItem item in lstNoti.Items)
+                {
+                    if (item?.Tag is NotificationEntry entry && !entry.IsRead)
+                    {
+                        entry.IsRead = true;
+                        ApplyNotificationItemStyle(item, true);
+                        anyChanges = true;
+                    }
+                }
+            }
+
+            if (anyChanges)
+            {
+                UpdateNotificationStatusLabel();
+                SaveNotificationHistory();
+            }
+        }
+
+        private void ShowNotificationToast(NotificationEntry entry)
+        {
+            if (entry == null)
+            {
+                return;
+            }
+
+            string notificationTitle = $"Keyword Triggered: {entry.Event}";
+            string parameter = entry.Parameter ?? string.Empty;
             string notificationText;
 
-            if (keywords.Contains("(Clipboard)"))
+            if (!string.IsNullOrEmpty(entry.Event) && entry.Event.Contains("(Clipboard)"))
             {
-                notificationText = $"Client: {client}\nClipboard: {(windowText.Length > 50 ? windowText.Substring(0, 50) + "..." : windowText)}";
+                string clipboardPreview = parameter.Length > 50 ? parameter.Substring(0, 50) + "..." : parameter;
+                notificationText = $"Client: {entry.Client}\nClipboard: {clipboardPreview}";
             }
             else
             {
-                notificationText = $"Client: {client}\nWindow: {windowText}";
+                notificationText = $"Client: {entry.Client}\nWindow: {parameter}";
             }
 
-            frmMain.notifyIcon.Visible = true;
-            frmMain.notifyIcon.ShowBalloonTip(4000, notificationTitle, notificationText, ToolTipIcon.Info);
-            frmMain.notifyIcon.Visible = false;
+            notifyIcon.Visible = true;
+            notifyIcon.ShowBalloonTip(4000, notificationTitle, notificationText, ToolTipIcon.Info);
+            notifyIcon.Visible = false;
         }
+
+        private void SaveNotificationHistory()
+        {
+            try
+            {
+                lock (_notificationLock)
+                {
+                    if (!Directory.Exists(PulsarStuffDir))
+                    {
+                        Directory.CreateDirectory(PulsarStuffDir);
+                    }
+
+                    string json = JsonConvert.SerializeObject(_notificationHistory, Formatting.Indented);
+                    File.WriteAllText(NotificationStateFilePath, json);
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLog($"Failed to save notifications: {ex.Message}", "error");
+            }
+        }
+
+        private void LoadNotificationHistory()
+        {
+            if (lstNoti == null)
+            {
+                return;
+            }
+
+            try
+            {
+                lock (_notificationLock)
+                {
+                    _notificationHistory.Clear();
+                    lstNoti.Items.Clear();
+
+                    if (File.Exists(NotificationStateFilePath))
+                    {
+                        var existing = JsonConvert.DeserializeObject<List<NotificationEntry>>(File.ReadAllText(NotificationStateFilePath));
+                        if (existing != null)
+                        {
+                            _notificationHistory.AddRange(existing.OrderBy(n => n.Timestamp));
+                        }
+                    }
+
+                    foreach (var entry in _notificationHistory)
+                    {
+                        lstNoti.Items.Add(CreateNotificationListViewItem(entry));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLog($"Failed to load notifications: {ex.Message}", "error");
+            }
+
+            UpdateNotificationStatusLabel();
+        }
+
+        #endregion
 
         private void clientsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -2510,12 +2719,30 @@ namespace Pulsar.Server.Forms
 
         private void clearSelectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstNoti.SelectedItems.Count > 0)
+            if (lstNoti.SelectedItems.Count == 0)
             {
-                foreach (ListViewItem item in lstNoti.SelectedItems)
+                return;
+            }
+
+            bool removed = false;
+
+            lock (_notificationLock)
+            {
+                foreach (ListViewItem item in lstNoti.SelectedItems.Cast<ListViewItem>().ToArray())
                 {
+                    if (item.Tag is NotificationEntry entry)
+                    {
+                        _notificationHistory.Remove(entry);
+                        removed = true;
+                    }
                     lstNoti.Items.Remove(item);
                 }
+            }
+
+            if (removed)
+            {
+                SaveNotificationHistory();
+                UpdateNotificationStatusLabel();
             }
         }
 
@@ -2828,6 +3055,10 @@ namespace Pulsar.Server.Forms
             {
                 RefreshStarButtons();
                 SortClientsByFavoriteStatus();
+            }
+            else if (MainTabControl.SelectedTab == tabPage2)
+            {
+                MarkAllNotificationsAsRead();
             }
             else if (MainTabControl.SelectedTab == tabOfflineClients)
             {
@@ -3282,6 +3513,15 @@ namespace Pulsar.Server.Forms
         }
 
         #endregion
+    }
+
+    public class NotificationEntry
+    {
+        public string Client { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string Event { get; set; }
+        public string Parameter { get; set; }
+        public bool IsRead { get; set; }
     }
 
     public class AutoTask

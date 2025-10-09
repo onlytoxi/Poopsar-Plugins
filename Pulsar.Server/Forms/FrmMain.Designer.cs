@@ -17,9 +17,12 @@ namespace Pulsar.Server.Forms
         /// <param name="disposing">True, wenn verwaltete Ressourcen gelöscht werden sollen; andernfalls False.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                if (this.IsHandleCreated)
+                _notificationUnreadFont?.Dispose();
+                _notificationUnreadFont = null;
+
+                if (components != null && this.IsHandleCreated)
                 {
                     components.Dispose();
                 }
@@ -177,6 +180,8 @@ namespace Pulsar.Server.Forms
             columnHeader2 = new ColumnHeader();
             columnHeader3 = new ColumnHeader();
             columnHeader11 = new ColumnHeader();
+            notificationStatusPanel = new Panel();
+            lblNotificationStatus = new Label();
             NotificationContextMenuStrip = new ContextMenuStrip(components);
             addKeywordsToolStripMenuItem = new ToolStripMenuItem();
             clearSelectedToolStripMenuItem = new ToolStripMenuItem();
@@ -267,6 +272,7 @@ namespace Pulsar.Server.Forms
             DebugContextMenuStrip.SuspendLayout();
             tabHeatMap.SuspendLayout();
             tabPage2.SuspendLayout();
+            notificationStatusPanel.SuspendLayout();
             NotificationContextMenuStrip.SuspendLayout();
             tabPage3.SuspendLayout();
             cryptoGroupBox.SuspendLayout();
@@ -1177,7 +1183,7 @@ namespace Pulsar.Server.Forms
             tabPage1.Name = "tabPage1";
             tabPage1.Size = new Size(1136, 463);
             tabPage1.TabIndex = 1;
-            tabPage1.Text = "ClientTabPage";
+            tabPage1.Text = "Clients";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // wpfClientsHost
@@ -1188,11 +1194,9 @@ namespace Pulsar.Server.Forms
             wpfClientsHost.Name = "wpfClientsHost";
             wpfClientsHost.Size = new Size(849, 349);
             wpfClientsHost.TabIndex = 22;
-            // 
             // lstClients
             // 
             lstClients.Columns.AddRange(new ColumnHeader[] { hIP, hNick, hTag, hUserPC, hVersion, hStatus, hCurrentWindow, hUserStatus, hCountry, hOS, hAccountType });
-            lstClients.ContextMenuStrip = contextMenuStrip;
             lstClients.Dock = DockStyle.Fill;
             lstClients.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lstClients.FullRowSelect = true;
@@ -1530,12 +1534,13 @@ namespace Pulsar.Server.Forms
             // tabPage2
             // 
             tabPage2.Controls.Add(lstNoti);
+            tabPage2.Controls.Add(notificationStatusPanel);
             tabPage2.Location = new Point(4, 24);
             tabPage2.Margin = new Padding(0);
             tabPage2.Name = "tabPage2";
             tabPage2.Size = new Size(1136, 463);
             tabPage2.TabIndex = 2;
-            tabPage2.Text = "NotiTabPage";
+            tabPage2.Text = "Notifications";
             tabPage2.UseVisualStyleBackColor = true;
             // 
             // lstNoti
@@ -1545,11 +1550,11 @@ namespace Pulsar.Server.Forms
             lstNoti.Dock = DockStyle.Fill;
             lstNoti.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lstNoti.FullRowSelect = true;
-            lstNoti.Location = new Point(0, 0);
+            lstNoti.Location = new Point(0, 32);
             lstNoti.Margin = new Padding(0);
             lstNoti.Name = "lstNoti";
             lstNoti.ShowItemToolTips = true;
-            lstNoti.Size = new Size(1136, 463);
+            lstNoti.Size = new Size(1136, 431);
             lstNoti.SmallImageList = imgFlags;
             lstNoti.TabIndex = 2;
             lstNoti.UseCompatibleStateImageBehavior = false;
@@ -1574,6 +1579,28 @@ namespace Pulsar.Server.Forms
             // 
             columnHeader11.Text = "Parameter";
             columnHeader11.Width = 642;
+            // 
+            // notificationStatusPanel
+            // 
+            notificationStatusPanel.Controls.Add(lblNotificationStatus);
+            notificationStatusPanel.Dock = DockStyle.Top;
+            notificationStatusPanel.Location = new Point(0, 0);
+            notificationStatusPanel.Name = "notificationStatusPanel";
+            notificationStatusPanel.Padding = new Padding(12, 6, 12, 6);
+            notificationStatusPanel.Size = new Size(1136, 32);
+            notificationStatusPanel.TabIndex = 3;
+            // 
+            // lblNotificationStatus
+            // 
+            lblNotificationStatus.AutoSize = true;
+            lblNotificationStatus.Dock = DockStyle.Fill;
+            lblNotificationStatus.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblNotificationStatus.Location = new Point(12, 6);
+            lblNotificationStatus.Name = "lblNotificationStatus";
+            lblNotificationStatus.Size = new Size(1112, 20);
+            lblNotificationStatus.TabIndex = 0;
+            lblNotificationStatus.Text = "Pending notifications: 0";
+            lblNotificationStatus.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // NotificationContextMenuStrip
             // 
@@ -2307,6 +2334,8 @@ namespace Pulsar.Server.Forms
             DebugContextMenuStrip.ResumeLayout(false);
             tabHeatMap.ResumeLayout(false);
             tabPage2.ResumeLayout(false);
+            notificationStatusPanel.ResumeLayout(false);
+            notificationStatusPanel.PerformLayout();
             NotificationContextMenuStrip.ResumeLayout(false);
             tabPage3.ResumeLayout(false);
             tabPage3.PerformLayout();
@@ -2474,6 +2503,8 @@ namespace Pulsar.Server.Forms
         private Splitter splitter1;
         private TabPage tabPage2;
         private AeroListView lstNoti;
+    private Panel notificationStatusPanel;
+    private Label lblNotificationStatus;
         private ColumnHeader columnHeader1;
         private ColumnHeader columnHeader2;
         private ColumnHeader columnHeader3;
