@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Microsoft.Data.Sqlite;
 using Pulsar.Server.Networking;
 
@@ -261,6 +262,55 @@ namespace Pulsar.Server.Persistence
             ";
 
             return ReadClients(command);
+        }
+
+        public static void ClearOfflineClients()
+        {
+            Initialize();
+
+            using var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
+
+            ExecuteNonQuery(connection, "DELETE FROM Clients WHERE IsOnline = 0;");
+        }
+
+        public static void RemoveOfflineClients(IEnumerable<string> clientIds)
+        {
+            if (clientIds == null)
+            {
+                return;
+            }
+
+            var ids = clientIds.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().ToList();
+            if (ids.Count == 0)
+            {
+                return;
+            }
+
+            Initialize();
+
+            using var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
+
+            using var transaction = connection.BeginTransaction();
+            try
+            {
+                foreach (var id in ids)
+                {
+                    using var command = connection.CreateCommand();
+                    command.Transaction = transaction;
+                    command.CommandText = "DELETE FROM Clients WHERE ClientId = $id;";
+                    AddParameter(command, "$id", id);
+                    command.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
 
         private static IReadOnlyList<OfflineClientRecord> ReadClients(SqliteCommand command)

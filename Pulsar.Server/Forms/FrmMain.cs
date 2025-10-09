@@ -2707,6 +2707,89 @@ namespace Pulsar.Server.Forms
             MainTabControl.SelectTab(tabOfflineClients);
         }
 
+        private void clearOfflineClientsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            const string message = "This will permanently remove all offline client records. Continue?";
+            if (MessageBox.Show(message, "Clear Offline Clients", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                OfflineClientRepository.ClearOfflineClients();
+                _cachedOfflineClients = Array.Empty<OfflineClientRecord>();
+                PopulateOfflineClientsList(_cachedOfflineClients);
+                UpdateOfflineTabHeader(0);
+                ScheduleStatsRefresh();
+            }
+            catch (Exception ex)
+            {
+                EventLog($"Failed to clear offline clients: {ex.Message}", "error");
+                MessageBox.Show($"Failed to clear offline clients.\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void removeOfflineClientsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (lstOfflineClients.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
+            var selectedRecords = lstOfflineClients.SelectedItems
+                .Cast<ListViewItem>()
+                .Select(item => item.Tag as OfflineClientRecord)
+                .Where(record => record != null && !string.IsNullOrWhiteSpace(record.ClientId))
+                .ToList();
+
+            if (selectedRecords.Count == 0)
+            {
+                return;
+            }
+
+            var comparer = StringComparer.OrdinalIgnoreCase;
+            var clientIds = selectedRecords
+                .Select(record => record.ClientId)
+                .Distinct(comparer)
+                .ToList();
+
+            if (clientIds.Count == 0)
+            {
+                return;
+            }
+
+            var prompt = clientIds.Count == 1
+                ? "Remove the selected offline client?"
+                : $"Remove the {clientIds.Count} selected offline clients?";
+
+            if (MessageBox.Show(prompt, "Remove Offline Clients", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                OfflineClientRepository.RemoveOfflineClients(clientIds);
+
+                var removedSet = new HashSet<string>(clientIds, comparer);
+                var remaining = _cachedOfflineClients?
+                    .Where(record => record != null && (string.IsNullOrWhiteSpace(record.ClientId) || !removedSet.Contains(record.ClientId)))
+                    .ToList()
+                    ?? new List<OfflineClientRecord>();
+
+                _cachedOfflineClients = remaining;
+                PopulateOfflineClientsList(_cachedOfflineClients);
+                UpdateOfflineTabHeader(_cachedOfflineClients.Count);
+                ScheduleStatsRefresh();
+            }
+            catch (Exception ex)
+            {
+                EventLog($"Failed to remove offline clients: {ex.Message}", "error");
+                MessageBox.Show($"Failed to remove offline clients.\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void statsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MainTabControl.SelectTab(tabStats);

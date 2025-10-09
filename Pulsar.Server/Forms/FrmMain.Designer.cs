@@ -123,6 +123,8 @@ namespace Pulsar.Server.Forms
             MainTabControl = new NoButtonTabControl();
             tabOfflineClients = new TabPage();
             lstOfflineClients = new AeroListView();
+            OfflineClientsContextMenuStrip = new ContextMenuStrip(components);
+            removeOfflineClientsToolStripMenuItem = new ToolStripMenuItem();
             hOfflineIP = new ColumnHeader();
             hOfflineNickname = new ColumnHeader();
             hOfflineTag = new ColumnHeader();
@@ -251,6 +253,7 @@ namespace Pulsar.Server.Forms
             menuStrip = new MenuStrip();
             clientsToolStripMenuItem = new ToolStripMenuItem();
             offlineClientsToolStripMenuItem = new ToolStripMenuItem();
+            clearOfflineClientsToolStripMenuItem = new ToolStripMenuItem();
             statsToolStripMenuItem = new ToolStripMenuItem();
             autoTasksToolStripMenuItem = new ToolStripMenuItem();
             cryptoClipperToolStripMenuItem = new ToolStripMenuItem();
@@ -263,6 +266,7 @@ namespace Pulsar.Server.Forms
             tableLayoutPanel.SuspendLayout();
             MainTabControl.SuspendLayout();
             tabOfflineClients.SuspendLayout();
+            OfflineClientsContextMenuStrip.SuspendLayout();
             tabStats.SuspendLayout();
             tabPage1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
@@ -1076,6 +1080,20 @@ namespace Pulsar.Server.Forms
             MainTabControl.TabIndex = 7;
             MainTabControl.SelectedIndexChanged += MainTabControl_SelectedIndexChanged;
             // 
+            // OfflineClientsContextMenuStrip
+            // 
+            OfflineClientsContextMenuStrip.Items.AddRange(new ToolStripItem[] { removeOfflineClientsToolStripMenuItem });
+            OfflineClientsContextMenuStrip.Name = "OfflineClientsContextMenuStrip";
+            OfflineClientsContextMenuStrip.Size = new Size(180, 26);
+            // 
+            // removeOfflineClientsToolStripMenuItem
+            // 
+            removeOfflineClientsToolStripMenuItem.Name = "removeOfflineClientsToolStripMenuItem";
+            removeOfflineClientsToolStripMenuItem.Size = new Size(179, 22);
+            removeOfflineClientsToolStripMenuItem.ShortcutKeys = Keys.Delete;
+            removeOfflineClientsToolStripMenuItem.Text = "Remove Selected";
+            removeOfflineClientsToolStripMenuItem.Click += removeOfflineClientsToolStripMenuItem_Click;
+            // 
             // tabOfflineClients
             // 
             tabOfflineClients.Controls.Add(lstOfflineClients);
@@ -1095,6 +1113,7 @@ namespace Pulsar.Server.Forms
             lstOfflineClients.FullRowSelect = true;
             lstOfflineClients.Location = new Point(0, 0);
             lstOfflineClients.Name = "lstOfflineClients";
+            lstOfflineClients.ContextMenuStrip = OfflineClientsContextMenuStrip;
             lstOfflineClients.ShowItemToolTips = true;
             lstOfflineClients.Size = new Size(1136, 465);
             lstOfflineClients.SmallImageList = imgFlags;
@@ -2218,12 +2237,20 @@ namespace Pulsar.Server.Forms
             // 
             // offlineClientsToolStripMenuItem
             // 
+            offlineClientsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clearOfflineClientsToolStripMenuItem });
             offlineClientsToolStripMenuItem.Image = Properties.Resources.disconnect;
             offlineClientsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             offlineClientsToolStripMenuItem.Name = "offlineClientsToolStripMenuItem";
             offlineClientsToolStripMenuItem.Size = new Size(110, 21);
             offlineClientsToolStripMenuItem.Text = "Offline Clients";
             offlineClientsToolStripMenuItem.Click += offlineClientsToolStripMenuItem_Click;
+            // 
+            // clearOfflineClientsToolStripMenuItem
+            // 
+            clearOfflineClientsToolStripMenuItem.Name = "clearOfflineClientsToolStripMenuItem";
+            clearOfflineClientsToolStripMenuItem.Size = new Size(130, 22);
+            clearOfflineClientsToolStripMenuItem.Text = "Clear List";
+            clearOfflineClientsToolStripMenuItem.Click += clearOfflineClientsToolStripMenuItem_Click;
             // 
             // statsToolStripMenuItem
             // 
@@ -2354,6 +2381,7 @@ namespace Pulsar.Server.Forms
             statusStrip.PerformLayout();
             menuStrip.ResumeLayout(false);
             menuStrip.PerformLayout();
+            OfflineClientsContextMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
 
         }
@@ -2561,6 +2589,9 @@ namespace Pulsar.Server.Forms
         private AeroListView aeroListView1;
         private ColumnHeader columnHeader6;
         private ToolStripMenuItem offlineClientsToolStripMenuItem;
+        private ToolStripMenuItem clearOfflineClientsToolStripMenuItem;
+        private ContextMenuStrip OfflineClientsContextMenuStrip;
+        private ToolStripMenuItem removeOfflineClientsToolStripMenuItem;
         private ToolStripMenuItem statsToolStripMenuItem;
         private ToolStripMenuItem mapToolStripMenuItem;
     }
