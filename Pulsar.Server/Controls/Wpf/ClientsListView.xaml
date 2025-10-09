@@ -198,6 +198,30 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding CurrentWindow}" Header="Current Window" Width="200" />
                 <DataGridTextColumn Binding="{Binding UserStatus}" Header="User Status" Width="120" />
+                <DataGridTemplateColumn Header="Flag" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding FlagImage}"
+                                   Width="28"
+                                   Height="20"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Stretch="Uniform"
+                                   RenderOptions.BitmapScalingMode="Fant">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <Trigger Property="Source" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding CountryWithCode}" Header="Country" Width="160" />
                 <DataGridTextColumn Binding="{Binding OperatingSystem}" Header="OS" Width="180" />
                 <DataGridTextColumn Binding="{Binding AccountType}" Header="Account Type" Width="120" />

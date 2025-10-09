@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -33,6 +34,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
+using ImageSource = System.Windows.Media.ImageSource;
 
 namespace Pulsar.Server.Forms
 {
@@ -62,6 +65,7 @@ namespace Pulsar.Server.Forms
         private bool _statsRefreshPending;
         private readonly HashSet<Client> _visibleClients = new HashSet<Client>();
         private readonly Dictionary<Client, ClientListEntry> _clientEntryMap = new();
+    private readonly Dictionary<int, ImageSource> _flagImageCache = new();
         private bool _syncingSelection;
         private IReadOnlyList<OfflineClientRecord> _cachedOfflineClients = Array.Empty<OfflineClientRecord>();
         private PreviewHandler _previewImageHandler;
@@ -1191,6 +1195,33 @@ namespace Pulsar.Server.Forms
             }
         }
 
+        private ImageSource GetFlagImageSource(int imageIndex)
+        {
+            if (imageIndex < 0 || imageIndex >= imgFlags.Images.Count)
+            {
+                return null;
+            }
+
+            if (_flagImageCache.TryGetValue(imageIndex, out var cached))
+            {
+                return cached;
+            }
+
+            using var ms = new MemoryStream();
+            imgFlags.Images[imageIndex].Save(ms, ImageFormat.Png);
+            var bitmap = new BitmapImage();
+            using (var stream = new MemoryStream(ms.ToArray()))
+            {
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = stream;
+                bitmap.EndInit();
+            }
+            bitmap.Freeze();
+            _flagImageCache[imageIndex] = bitmap;
+            return bitmap;
+        }
+
         private void SyncWpfEntryFromListViewItem(ListViewItem item)
         {
             if (wpfClientsHost == null)
@@ -1219,6 +1250,7 @@ namespace Pulsar.Server.Forms
                 e.AccountType = item.SubItems.Count > 10 ? item.SubItems[10].Text : string.Empty;
                 e.IsFavorite = Favorites.IsFavorite(client.Value.UserAtPc);
                 e.ImageIndex = item.ImageIndex;
+                e.FlagImage = GetFlagImageSource(item.ImageIndex);
                 e.ToolTip = item.ToolTipText ?? string.Empty;
             });
 

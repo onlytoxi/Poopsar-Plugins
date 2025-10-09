@@ -25,6 +25,7 @@ namespace Pulsar.Server.Controls.Wpf
         private bool _isFavorite;
         private string _toolTip = string.Empty;
         private int _imageIndex;
+        private ImageSource? _flagImage;
 
         public ClientListEntry(Client client)
         {
@@ -123,6 +124,12 @@ namespace Pulsar.Server.Controls.Wpf
         {
             get => _imageIndex;
             set => SetField(ref _imageIndex, value);
+        }
+
+        public ImageSource? FlagImage
+        {
+            get => _flagImage;
+            set => SetField(ref _flagImage, value);
         }
 
         public Brush StatusBrush => string.Equals(Status, "Connected", StringComparison.OrdinalIgnoreCase)
