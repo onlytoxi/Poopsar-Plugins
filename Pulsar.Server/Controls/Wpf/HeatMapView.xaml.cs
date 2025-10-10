@@ -22,10 +22,21 @@ namespace Pulsar.Server.Controls.Wpf
             _viewModel = new HeatMapViewModel();
             DataContext = _viewModel;
 
+            Dispatcher.UnhandledException += OnDispatcherUnhandledException;
+
             _geoMap = CreateGeoMap();
             MapHost.Content = _geoMap;
 
             Bind(_geoMap, GeoMap.SeriesProperty, nameof(HeatMapViewModel.Series));
+        }
+
+        private void OnDispatcherUnhandledException(object? sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            if (e.Exception is NullReferenceException &&
+                e.Exception.StackTrace?.Contains("LiveChartsCore.SkiaSharpView.WPF.Rendering.CompositionTargetTicker.DisposeTicker", StringComparison.Ordinal) == true)
+            {
+                e.Handled = true;
+            }
         }
 
         public void ShowLoading()
