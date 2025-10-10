@@ -3265,7 +3265,7 @@ namespace Pulsar.Server.Forms
         {
             if (lstTasks.SelectedItems.Count > 0)
             {
-                foreach (ListViewItem item in lstTasks.SelectedItems.Cast<ListViewItem>().ToArray())
+                foreach (ListViewItem item in lstTasks.SelectedItems)
                 {
                     lstTasks.Items.Remove(item);
                 }
