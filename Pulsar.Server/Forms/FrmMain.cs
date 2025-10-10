@@ -39,6 +39,22 @@ using ImageSource = System.Windows.Media.ImageSource;
 
 namespace Pulsar.Server.Forms
 {
+    /// <summary>
+    /// Defines how auto tasks should be executed when clients connect.
+    /// </summary>
+    public enum AutoTaskExecutionMode
+    {
+        /// <summary>
+        /// Auto tasks run only once per client (based on client ID).
+        /// </summary>
+        OncePerClient,
+
+        /// <summary>
+        /// Auto tasks run every time a client connects.
+        /// </summary>
+        EveryConnection
+    }
+    
     public partial class FrmMain : Form
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -78,6 +94,7 @@ namespace Pulsar.Server.Forms
         private Dictionary<string, AutoTaskBehavior> _autoTaskBehaviors = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, AutoTaskBehavior> _autoTaskBehaviorsByTitle = new(StringComparer.OrdinalIgnoreCase);
         private AutoTaskExecutionContext _currentAutoTaskContext;
+        private readonly HashSet<string> _executedTaskClientCombinations = new HashSet<string>();
 
         public FrmMain()
         {
@@ -326,8 +343,58 @@ namespace Pulsar.Server.Forms
 
             LoadNotificationHistory();
             LoadAutoTasks();
+            InitializeAutoTasksMenu();
             ScheduleOfflineListRefresh();
             ScheduleStatsRefresh();
+        }
+
+        private void InitializeAutoTasksMenu()
+        {
+            var separator = new ToolStripSeparator();
+            TasksContextMenuStrip.Items.Add(separator);
+
+            var executeAllMenuItem = new ToolStripMenuItem("Execute on All Clients")
+            {
+                Image = Properties.Resources.application_go,
+                ToolTipText = "Execute auto tasks on all connected clients that haven't had them executed yet"
+            };
+            executeAllMenuItem.Click += (s, e) => ExecuteAutoTasksOnAllClients();
+            TasksContextMenuStrip.Items.Add(executeAllMenuItem);
+
+            var forceExecuteMenuItem = new ToolStripMenuItem("Force Execute on All Connected Clients")
+            {
+                Image = Properties.Resources.application_add,
+                ToolTipText = "Force execute auto tasks on all connected clients, regardless of previous execution"
+            };
+            forceExecuteMenuItem.Click += (s, e) => ForceExecuteAutoTasksOnAllClients();
+            TasksContextMenuStrip.Items.Add(forceExecuteMenuItem);
+
+            var resetTrackingMenuItem = new ToolStripMenuItem("Reset Execution Tracking")
+            {
+                Image = Properties.Resources.refresh,
+                ToolTipText = "Reset tracking so auto tasks will run on all clients again"
+            };
+            resetTrackingMenuItem.Click += (s, e) => ResetAutoTaskTracking();
+            TasksContextMenuStrip.Items.Add(resetTrackingMenuItem);
+
+            var separator2 = new ToolStripSeparator();
+            TasksContextMenuStrip.Items.Add(separator2);
+
+            var toggleModeMenuItem = new ToolStripMenuItem("Toggle Execution Mode")
+            {
+                Image = Properties.Resources.refresh,
+                ToolTipText = "Toggle between 'Once Per Client' and 'Every Connection' for selected tasks"
+            };
+            toggleModeMenuItem.Click += (s, e) => ToggleSelectedTasksExecutionMode();
+            TasksContextMenuStrip.Items.Add(toggleModeMenuItem);
+
+            var aboutModesMenuItem = new ToolStripMenuItem("About Task Execution Modes")
+            {
+                Image = Properties.Resources.information,
+                ToolTipText = "Learn about task execution modes"
+            };
+            aboutModesMenuItem.Click += (s, e) => ShowTaskExecutionModeDialog();
+            TasksContextMenuStrip.Items.Add(aboutModesMenuItem);
         }
 
         private void lstClients_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
@@ -733,7 +800,14 @@ namespace Pulsar.Server.Forms
                 return;
             }
 
-            Debug.WriteLine("Starting automated tasks for client.");
+            string clientId = client.Value?.Id;
+            if (string.IsNullOrEmpty(clientId))
+            {
+                Debug.WriteLine("Client ID is null or empty, skipping automated tasks.");
+                return;
+            }
+
+            Debug.WriteLine($"Starting automated tasks for client {clientId}.");
 
             if (lstTasks.InvokeRequired)
             {
@@ -744,10 +818,243 @@ namespace Pulsar.Server.Forms
             foreach (ListViewItem item in lstTasks.Items)
             {
                 var task = ExtractAutoTask(item);
+                if (task == null) continue;
+
+                if (task.ExecutionMode == AutoTaskExecutionMode.OncePerClient)
+                {
+                    string taskClientKey = $"{task.Identifier}_{clientId}";
+                    lock (_executedTaskClientCombinations)
+                    {
+                        if (_executedTaskClientCombinations.Contains(taskClientKey))
+                        {
+                            Debug.WriteLine($"Task '{task.Title}' already executed for client {clientId}, skipping.");
+                            continue;
+                        }
+                        _executedTaskClientCombinations.Add(taskClientKey);
+                    }
+                    Debug.WriteLine($"Executing task '{task.Title}' for client {clientId} (OncePerClient mode).");
+                }
+                else
+                {
+                    Debug.WriteLine($"Executing task '{task.Title}' for client {clientId} (EveryConnection mode).");
+                }
+
                 if (!TryExecuteAutoTask(task, client))
                 {
                     ExecuteLegacyAutoTask(task, client);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Executes auto tasks on all connected clients, respecting each task's execution mode.
+        /// </summary>
+        public void ExecuteAutoTasksOnAllClients()
+        {
+            if (lstTasks.Items.Count == 0)
+            {
+                MessageBox.Show("No auto tasks configured.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var clientsProcessed = 0;
+
+            lock (_lockClients)
+            {
+                foreach (ListViewItem item in lstClients.Items)
+                {
+                    if (item.Tag is Client client && client.Value != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_ => StartAutomatedTask(client));
+                        clientsProcessed++;
+                    }
+                }
+            }
+
+            MessageBox.Show($"Auto tasks queued for {clientsProcessed} clients (respecting individual task execution modes).", 
+                           "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Resets the tracking of which task-client combinations have been executed, allowing them to run again.
+        /// </summary>
+        public void ResetAutoTaskTracking()
+        {
+            lock (_executedTaskClientCombinations)
+            {
+                var count = _executedTaskClientCombinations.Count;
+                _executedTaskClientCombinations.Clear();
+                MessageBox.Show($"Auto task tracking reset for {count} task-client combinations. " +
+                               "Tasks with 'Once Per Client' mode will now run again on all clients.", 
+                               "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        /// <summary>
+        /// Forces auto tasks to execute on selected clients, regardless of whether they've been executed before.
+        /// </summary>
+        public void ForceExecuteAutoTasksOnSelectedClients()
+        {
+            var selectedClients = GetSelectedClients();
+            if (selectedClients.Length == 0)
+            {
+                MessageBox.Show("Please select one or more clients first.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (lstTasks.Items.Count == 0)
+            {
+                MessageBox.Show("No auto tasks configured.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            foreach (var client in selectedClients)
+            {
+                ThreadPool.QueueUserWorkItem(_ => {
+                    Debug.WriteLine($"Force executing automated tasks for client {client.Value?.Id}.");
+                    
+                    if (lstTasks.InvokeRequired)
+                    {
+                        lstTasks.Invoke(new Action(() => {
+                            foreach (ListViewItem item in lstTasks.Items)
+                            {
+                                var task = ExtractAutoTask(item);
+                                if (!TryExecuteAutoTask(task, client))
+                                {
+                                    ExecuteLegacyAutoTask(task, client);
+                                }
+                            }
+                        }));
+                    }
+                    else
+                    {
+                        foreach (ListViewItem item in lstTasks.Items)
+                        {
+                            var task = ExtractAutoTask(item);
+                            if (!TryExecuteAutoTask(task, client))
+                            {
+                                ExecuteLegacyAutoTask(task, client);
+                            }
+                        }
+                    }
+                });
+            }
+
+            MessageBox.Show($"Auto tasks queued for {selectedClients.Length} selected clients.", 
+                           "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Forces auto tasks to execute on all connected clients, regardless of whether they've been executed before.
+        /// </summary>
+        public void ForceExecuteAutoTasksOnAllClients()
+        {
+            if (lstTasks.Items.Count == 0)
+            {
+                MessageBox.Show("No auto tasks configured.", "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var clientsProcessed = 0;
+
+            lock (_lockClients)
+            {
+                foreach (ListViewItem item in lstClients.Items)
+                {
+                    if (item.Tag is Client client && client.Value != null)
+                    {
+                        ThreadPool.QueueUserWorkItem(_ => {
+                            // Force execute auto tasks without checking/updating the tracking
+                            Debug.WriteLine($"Force executing automated tasks for client {client.Value?.Id}.");
+                            
+                            if (lstTasks.InvokeRequired)
+                            {
+                                lstTasks.Invoke(new Action(() => {
+                                    foreach (ListViewItem taskItem in lstTasks.Items)
+                                    {
+                                        var task = ExtractAutoTask(taskItem);
+                                        if (!TryExecuteAutoTask(task, client))
+                                        {
+                                            ExecuteLegacyAutoTask(task, client);
+                                        }
+                                    }
+                                }));
+                            }
+                            else
+                            {
+                                foreach (ListViewItem taskItem in lstTasks.Items)
+                                {
+                                    var task = ExtractAutoTask(taskItem);
+                                    if (!TryExecuteAutoTask(task, client))
+                                    {
+                                        ExecuteLegacyAutoTask(task, client);
+                                    }
+                                }
+                            }
+                        });
+                        clientsProcessed++;
+                    }
+                }
+            }
+
+            MessageBox.Show($"Auto tasks queued for {clientsProcessed} connected clients (forced execution).", 
+                           "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Shows information about task execution modes and how to configure them.
+        /// </summary>
+        private void ShowTaskExecutionModeDialog()
+        {
+            string message = "Auto Task Execution Modes:\n\n" +
+                           "• Once Per Client: Task runs only once per client (default)\n" +
+                           "• Every Connection: Task runs every time a client connects\n\n" +
+                           "To change a task's execution mode:\n" +
+                           "1. Right-click on a task in the list\n" +
+                           "2. Select 'Toggle Execution Mode'\n\n" +
+                           "The execution mode is shown in the 'Arguments' column:\n" +
+                           "- '[Once]' = Once Per Client\n" +
+                           "- '[Every]' = Every Connection";
+
+            MessageBox.Show(message, "Auto Task Execution Modes", 
+                           MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Toggles the execution mode for selected tasks in the tasks list.
+        /// </summary>
+        private void ToggleSelectedTasksExecutionMode()
+        {
+            if (lstTasks.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Please select one or more tasks to toggle their execution mode.", 
+                               "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var updatedCount = 0;
+            foreach (ListViewItem item in lstTasks.SelectedItems)
+            {
+                var task = ExtractAutoTask(item);
+                if (task != null)
+                {
+                    task.ExecutionMode = task.ExecutionMode == AutoTaskExecutionMode.OncePerClient
+                        ? AutoTaskExecutionMode.EveryConnection
+                        : AutoTaskExecutionMode.OncePerClient;
+
+                    var newItem = CreateAutoTaskListViewItem(task);
+                    var index = lstTasks.Items.IndexOf(item);
+                    lstTasks.Items[index] = newItem;
+                    lstTasks.Items[index].Selected = true;
+                    updatedCount++;
+                }
+            }
+
+            if (updatedCount > 0)
+            {
+                SaveAutoTasks();
+                MessageBox.Show($"Execution mode toggled for {updatedCount} task(s).", 
+                               "Auto Tasks", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -1784,6 +2091,11 @@ namespace Pulsar.Server.Forms
 
         private Client[] GetSelectedClients()
         {
+            if (_currentAutoTaskContext != null)
+            {
+                return _currentAutoTaskContext.Clients;
+            }
+
             if (wpfClientsHost != null)
             {
                 return wpfClientsHost.SelectedClients.ToArray();
@@ -3554,7 +3866,19 @@ namespace Pulsar.Server.Forms
         {
             var item = new ListViewItem(task.Title ?? string.Empty);
             item.SubItems.Add(task.Param1 ?? string.Empty);
-            item.SubItems.Add(task.Param2 ?? string.Empty);
+            
+            string executionModeText = task.ExecutionMode == AutoTaskExecutionMode.OncePerClient ? "[Once]" : "[Every]";
+            string argumentsText = task.Param2 ?? string.Empty;
+            if (!string.IsNullOrEmpty(argumentsText))
+            {
+                argumentsText = $"{executionModeText} {argumentsText}";
+            }
+            else
+            {
+                argumentsText = executionModeText;
+            }
+            
+            item.SubItems.Add(argumentsText);
             item.Tag = task;
             return item;
         }
@@ -4512,6 +4836,7 @@ namespace Pulsar.Server.Forms
         public string Param3 { get; set; } = string.Empty;
         public string Param4 { get; set; } = string.Empty;
         public string Identifier { get; set; } = string.Empty;
+        public AutoTaskExecutionMode ExecutionMode { get; set; } = AutoTaskExecutionMode.OncePerClient;
     }
 
     public class ClientInfo
