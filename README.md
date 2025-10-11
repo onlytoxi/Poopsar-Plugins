@@ -14,6 +14,11 @@ Pulsar is a lightweight, fast, and powerful remote administration tool written i
 ## ⚙️ Requirements
 [.NET 9.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-9.0.9-windows-x64-installer?cid=getdotnetcore)
 
+
+# Telegram LINK
+
+[Tele Channel](https://t.me/novashadowisgay)
+
 ## 📖 Table of Contents
 - [Need Help or Suggestions?](#-need-help-or-want-to-offer-suggestions)
 - [Screenshots](#-screenshots)
