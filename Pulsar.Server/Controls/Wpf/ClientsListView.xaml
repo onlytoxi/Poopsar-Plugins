@@ -184,7 +184,43 @@
                 <Style TargetType="ScrollBar" BasedOn="{StaticResource SlimScrollBarStyle}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Ip}" Header="IP" Width="140" />
+                <DataGridTemplateColumn Header="IP" Width="180">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Image Source="{Binding FlagImage}"
+                                       Width="28"
+                                       Height="20"
+                                       VerticalAlignment="Center"
+                                       Stretch="Uniform"
+                                       RenderOptions.BitmapScalingMode="Fant">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <Trigger Property="Source" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <TextBlock Text="{Binding Ip}" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Margin" Value="6,0,0,0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding FlagImage}" Value="{x:Null}">
+                                                    <Setter Property="Margin" Value="0" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding Nickname}" Header="Nickname" Width="120" />
                 <DataGridTextColumn Binding="{Binding Tag}" Header="Tag" Width="80" />
                 <DataGridTextColumn Binding="{Binding UserAtPc}" Header="User@PC" Width="150" />
@@ -198,30 +234,6 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding CurrentWindow}" Header="Current Window" Width="200" />
                 <DataGridTextColumn Binding="{Binding UserStatus}" Header="User Status" Width="120" />
-                <DataGridTemplateColumn Header="Flag" Width="60">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Image Source="{Binding FlagImage}"
-                                   Width="28"
-                                   Height="20"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Stretch="Uniform"
-                                   RenderOptions.BitmapScalingMode="Fant">
-                                <Image.Style>
-                                    <Style TargetType="Image">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                        <Style.Triggers>
-                                            <Trigger Property="Source" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Image.Style>
-                            </Image>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding CountryWithCode}" Header="Country" Width="160" />
                 <DataGridTextColumn Binding="{Binding OperatingSystem}" Header="OS" Width="180" />
                 <DataGridTextColumn Binding="{Binding AccountType}" Header="Account Type" Width="120" />
