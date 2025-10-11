@@ -117,7 +117,11 @@ namespace Pulsar.Client.Messages
             if (_captureThread == null || !_captureThread.IsAlive)
             {
                 _cancellationTokenSource = new CancellationTokenSource();
-                _captureThread = new Thread(() => BufferedCaptureLoop(_cancellationTokenSource.Token));
+                _captureThread = new Thread(() => BufferedCaptureLoop(_cancellationTokenSource.Token))
+                {
+                    IsBackground = true,
+                    Name = "HVNC Capture Loop"
+                };
                 _captureThread.Start();
             }
         }

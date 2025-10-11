@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Automation;
 
 namespace Pulsar.Client.User
 {
@@ -122,6 +123,25 @@ namespace Pulsar.Client.User
 
         private bool IsUiAutomationException(Exception ex)
         {
+            if (ex == null)
+            {
+                return false;
+            }
+
+            if (ex is ElementNotAvailableException ||
+                ex is ElementNotEnabledException ||
+                ex is NoClickablePointException)
+            {
+                return true;
+            }
+
+            if (ex is InvalidOperationException &&
+                (ex.Source?.IndexOf("UIAutomation", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 ex.StackTrace?.IndexOf("MS.Internal.Automation", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                return true;
+            }
+
             var exceptionText = ex.ToString();
 
             if (string.IsNullOrEmpty(exceptionText))
@@ -129,15 +149,36 @@ namespace Pulsar.Client.User
                 return false;
             }
 
-            return exceptionText.Contains("MS.Internal.Automation") ||
-                   exceptionText.Contains("System.Windows.Automation") ||
-                   exceptionText.Contains("UIAutomationClient");
+            if (exceptionText.Contains("MS.Internal.Automation") ||
+                exceptionText.Contains("System.Windows.Automation") ||
+                exceptionText.Contains("UIAutomationClient") ||
+                exceptionText.Contains("AutomationProxies"))
+            {
+                return true;
+            }
+
+            if (exceptionText.IndexOf("L'op\u00E9ration n'est pas valide en raison de l'\u00E9tat actuel de l'objet", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+
+            if (exceptionText.IndexOf("The target element corresponds to a user interface that is no longer available", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private bool IsBlacklistedMessage(string message)
         {
             if (string.IsNullOrEmpty(message))
                 return false;
+
+            if (UniversalDebugLogger.IsUiAutomationLog(message))
+            {
+                return true;
+            }
 
             var blacklistedPatterns = new[]
             {
