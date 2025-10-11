@@ -623,7 +623,7 @@ namespace Pulsar.Server.Forms
                 sfd.Title = "Save Client as";
                 sfd.Filter = isShellcode ? "Shellcode Binary *.bin|*.bin" : "Executables *.exe|*.exe";
                 sfd.RestoreDirectory = true;
-                sfd.FileName = isShellcode ? "Client-built.bin" : "Client-built.exe";
+                sfd.FileName = isShellcode ? "Pulsar-Client.bin" : "Pulsar-Client.exe";
                 if (sfd.ShowDialog() != DialogResult.OK)
                 {
                     throw new Exception("Please choose a valid output path.");
