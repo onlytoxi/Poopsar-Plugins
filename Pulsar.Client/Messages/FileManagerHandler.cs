@@ -329,7 +329,15 @@ namespace Pulsar.Client.Messages
         {
             try
             {
-                string fileName = Path.GetFileName(filePath);
+                if (string.IsNullOrWhiteSpace(filePath))
+                    return null;
+
+                string fullPath = Path.GetFullPath(filePath);
+
+                if (!Path.IsPathRooted(fullPath))
+                    return null;
+
+                string fileName = Path.GetFileName(fullPath);
                 if (string.IsNullOrEmpty(fileName) || fileName.Contains(".."))
                     return null;
 
@@ -337,13 +345,14 @@ namespace Pulsar.Client.Messages
                 if (fileName.IndexOfAny(invalidChars) >= 0)
                     return null;
 
-                string safePath = Path.Combine(Path.GetTempPath(), fileName);
-                
-                string fullPath = Path.GetFullPath(safePath);
-                string tempDir = Path.GetFullPath(Path.GetTempPath());
-                
-                if (!fullPath.StartsWith(tempDir, StringComparison.OrdinalIgnoreCase))
+                string directory = Path.GetDirectoryName(fullPath);
+                if (string.IsNullOrEmpty(directory))
                     return null;
+
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
 
                 return fullPath;
             }
