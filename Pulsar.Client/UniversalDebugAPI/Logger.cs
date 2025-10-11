@@ -73,7 +73,10 @@ namespace Pulsar.Client.LoggingAPI
                 "Buffer size:",
                 "Pending requests:",
                 "Value does not fall within the expected range.",
-                "Accessibility.IAccessible.get_accChild"
+                "Accessibility.IAccessible.get_accChild",
+                "MS.Internal.Automation",
+                "System.Windows.Automation",
+                "UIAutomationClient"
             };
 
             foreach (var pattern in blacklistedPatterns)
