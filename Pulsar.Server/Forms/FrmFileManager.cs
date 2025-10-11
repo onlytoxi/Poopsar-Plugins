@@ -442,7 +442,7 @@ namespace Pulsar.Server.Forms
             if (!Directory.Exists(_connectClient.Value.DownloadDirectory))
                 Directory.CreateDirectory(_connectClient.Value.DownloadDirectory);
 
-            Process.Start(_connectClient.Value.DownloadDirectory);
+            Process.Start("explorer.exe", _connectClient.Value.DownloadDirectory);
         }
 
         private void cancelToolStripMenuItem_Click(object sender, EventArgs e)
