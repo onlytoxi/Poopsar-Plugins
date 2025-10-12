@@ -549,7 +549,7 @@ namespace Pulsar.Server.Forms
             }
             else if (selectedClients.Length == 0)
             {
-                pictureBoxMain.Image = Properties.Resources.no_previewbmp;
+                pictureBoxMain.Image = Properties.Resources.nopreviewbest_cropped;
                 clientInfoListView.Items.Clear();
 
                 var defaultStats = new (string Label, string Value)[]
