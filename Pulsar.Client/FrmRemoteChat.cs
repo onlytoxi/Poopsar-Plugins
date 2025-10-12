@@ -69,8 +69,7 @@ namespace Pulsar.Client
 
         private void FrmRemoteChat_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (Active)
-                e.Cancel = true;
+            // Allow the form to close
         }
         public void ForceFocus()
         {
@@ -131,6 +130,7 @@ namespace Pulsar.Client
         {
             try
             {
+                AddMessage("System", "Chat has been ended.");
                 SendMessageServer(_connectedClient, "Chat has been ended.");
             }
             catch (Exception ex)
