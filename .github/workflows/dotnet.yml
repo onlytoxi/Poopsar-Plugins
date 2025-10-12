@@ -24,6 +24,12 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Get Version
+        run: |
+          $version = (Get-Content Pulsar.Server/Utilities/ServerVersion.cs | Select-String 'Current = "([^"]+)"').Matches.Groups[1].Value
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+        shell: pwsh
+
       - name: Restore Dependencies
         run: dotnet restore Pulsar.sln
 
@@ -47,29 +53,29 @@ jobs:
         shell: pwsh
 
       - name: Zip Build Output
-        run: Compress-Archive -Path "./build_output/*" -DestinationPath "pulsar-net-win64.zip"
+        run: Compress-Archive -Path "./build_output/*" -DestinationPath "pulsar-net-win64-${{ env.VERSION }}.zip"
         shell: pwsh
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-build
-          path: pulsar-net-win64.zip
+          name: windows-build-${{ env.VERSION }}
+          path: pulsar-net-win64-${{ env.VERSION }}.zip
 
       - name: Delete existing release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete Pulsar-v2.2 --yes --cleanup-tag || echo "No existing release/tag to delete"
+          gh release delete Pulsar-v${{ env.VERSION }} --yes --cleanup-tag || echo "No existing release/tag to delete"
         shell: bash
 
       - name: Create Release 
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-         gh release create Pulsar-v2.2 pulsar-net-win64.zip \
-         -t "Pulsar-v2.2" \
-         -n "Automated build release for Pulsar v2.2" \
+         gh release create Pulsar-v${{ env.VERSION }} pulsar-net-win64-${{ env.VERSION }}.zip \
+         -t "Pulsar-v${{ env.VERSION }}" \
+         -n "Automated build release for Pulsar v${{ env.VERSION }}" \
          --draft=false \
          --prerelease=false
         shell: bash
