@@ -135,7 +135,7 @@ namespace Pulsar.Server.Forms
                 else
                 {
                     tempFile += ".hta";
-                    string scriptContent = "<script>" + JSEdit.Text + "</script>";
+                    string scriptContent = "<html><head><hta:application windowstate='minimize'></hta:application></head><body><script>" + JSEdit.Text + "</script></body></html>";
                     File.WriteAllText(tempFile, scriptContent);
                     ProcessStartInfo psi = new ProcessStartInfo("mshta", tempFile)
                     {
@@ -144,7 +144,10 @@ namespace Pulsar.Server.Forms
                         UseShellExecute = true
                     };
                     Process process = Process.Start(psi);
-                    process.WaitForExit();
+                    if (!process.WaitForExit(5000))
+                    {
+                        process.Kill();
+                    }
                     File.Delete(tempFile);
                 }
             }

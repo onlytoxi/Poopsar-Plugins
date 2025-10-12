@@ -109,7 +109,7 @@
             this.PSEdit.Name = "PSEdit";
             this.PSEdit.Size = new System.Drawing.Size(534, 379);
             this.PSEdit.TabIndex = 0;
-            this.PSEdit.Text = "Write-Host \"Hello you are being administrated using Pulsar Continuation\"\nPause";
+            this.PSEdit.Text = "start calc.exe";
             // 
             // tabPage2
             // 
@@ -130,7 +130,7 @@
             this.BATEdit.Name = "BATEdit";
             this.BATEdit.Size = new System.Drawing.Size(534, 379);
             this.BATEdit.TabIndex = 1;
-            this.BATEdit.Text = "@echo off\necho Hello you are being administrated using Pulsar Continuation\npause";
+            this.BATEdit.Text = "@echo off\nstart calc.exe";
             // 
             // tabPage3
             // 
