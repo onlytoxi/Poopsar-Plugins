@@ -17,22 +17,7 @@ namespace Pulsar.Common.Helpers
             EightPointOneOrHigher = Win32NT && (Environment.OSVersion.Version >= new Version(6, 3));
             TenOrHigher = Win32NT && (Environment.OSVersion.Version >= new Version(10, 0));
 
-            Name = "Unknown OS";
-            try
-            {
-                using (var searcher = new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem"))
-                {
-                    foreach (ManagementObject os in searcher.Get())
-                    {
-                        Name = os["Caption"].ToString();
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                // WMI not available, keep default "Unknown OS"
-            }
+            Name = GetOSNameFromEnvironment();
 
             Name = Regex.Replace(Name, "^.*(?=Windows)", "").TrimEnd().TrimStart(); // Remove everything before first match "Windows" and trim end & start
             Is64Bit = Environment.Is64BitOperatingSystem;
@@ -96,5 +81,54 @@ namespace Pulsar.Common.Helpers
         ///   <c>true</c> if the Operating System is Windows 10 or higher; otherwise, <c>false</c>.
         /// </value>
         public static bool TenOrHigher { get; }
+
+        /// <summary>
+        /// Gets the OS name from environment variables and registry as fallback for WMI.
+        /// </summary>
+        private static string GetOSNameFromEnvironment()
+        {
+            try
+            {
+                // Try to get from registry first (more reliable than WMI)
+                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion"))
+                {
+                    if (key != null)
+                    {
+                        var productName = key.GetValue("ProductName")?.ToString();
+                        if (!string.IsNullOrEmpty(productName))
+                        {
+                            return productName;
+                        }
+                    }
+                }
+
+                // Fallback to Environment.OSVersion (less detailed but always available)
+                var version = Environment.OSVersion;
+                if (version.Platform == PlatformID.Win32NT)
+                {
+                    if (version.Version.Major == 10 && version.Version.Minor == 0)
+                        return version.Version.Build >= 22000 ? "Windows 11" : "Windows 10";
+                    else if (version.Version.Major == 6)
+                    {
+                        if (version.Version.Minor == 3) return "Windows 8.1";
+                        if (version.Version.Minor == 2) return "Windows 8";
+                        if (version.Version.Minor == 1) return "Windows 7";
+                        if (version.Version.Minor == 0) return "Windows Vista";
+                    }
+                    else if (version.Version.Major == 5)
+                    {
+                        if (version.Version.Minor == 2) return "Windows XP Professional x64 Edition";
+                        if (version.Version.Minor == 1) return "Windows XP";
+                        if (version.Version.Minor == 0) return "Windows 2000";
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore errors
+            }
+
+            return "Unknown OS";
+        }
     }
 }
