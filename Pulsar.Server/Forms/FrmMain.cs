@@ -22,7 +22,6 @@ using Pulsar.Server.Persistence;
 using Pulsar.Server.Statistics;
 using Pulsar.Server.Utilities;
 using Pulsar.Server.Plugins;
-using Pulsar.Server.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -4863,6 +4862,81 @@ namespace Pulsar.Server.Forms
         }
 
         #endregion
+
+        #region Plugin System
+
+        private void InitializePlugins()
+        {
+            try
+            {
+                _serverContext = new ServerContext(this);
+                _pluginManager = new PluginManager(_serverContext);
+                _pluginManager.PluginsChanged += OnPluginsChanged;
+                
+                var pluginsDir = Path.Combine(Application.StartupPath, "Plugins");
+                if (!Directory.Exists(pluginsDir))
+                {
+                    Directory.CreateDirectory(pluginsDir);
+                }
+                
+                _pluginManager.LoadFrom(pluginsDir);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error initializing plugins: {ex.Message}");
+            }
+        }
+
+        private void OnPluginsChanged(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, EventArgs>(OnPluginsChanged), sender, e);
+                return;
+            }
+            
+            UpdatePluginStatus();
+        }
+
+        private void UpdatePluginStatus()
+        {
+            try
+            {
+                var pluginCount = _pluginManager?.Plugins.Count ?? 0;
+                // Update UI to show plugin count or status
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating plugin status: {ex.Message}");
+            }
+        }
+
+        private void UpdatePluginManagerWindow()
+        {
+            if (_pluginManagerForm?.IsDisposed == false)
+            {
+                _pluginManagerForm.Refresh();
+            }
+        }
+
+        private void pluginManagerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_pluginManagerForm?.IsDisposed != false)
+                {
+                    _pluginManagerForm = new FrmPluginManager(_pluginManager);
+                }
+                _pluginManagerForm.Show();
+                _pluginManagerForm.BringToFront();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening plugin manager: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        #endregion Plugin System
     }
 
     public class NotificationEntry
@@ -4885,15 +4959,13 @@ namespace Pulsar.Server.Forms
         public AutoTaskExecutionMode ExecutionMode { get; set; } = AutoTaskExecutionMode.OncePerClient;
     }
 
+    #endregion AutoTaskStuff
+
     public class ClientInfo
     {
         public string ClientId { get; set; }
         public string Nickname { get; set; }
     }
-
-    #endregion AutoTaskStuff
-
-    #region Plugin System
 
     public sealed class ServerContext : IServerContext
     {
@@ -4948,77 +5020,4 @@ namespace Pulsar.Server.Forms
             // Implementation for clearing plugin menu items
         }
     }
-
-    private void InitializePlugins()
-    {
-        try
-        {
-            _serverContext = new ServerContext(this);
-            _pluginManager = new PluginManager(_serverContext);
-            _pluginManager.PluginsChanged += OnPluginsChanged;
-            
-            var pluginsDir = Path.Combine(Application.StartupPath, "Plugins");
-            if (!Directory.Exists(pluginsDir))
-            {
-                Directory.CreateDirectory(pluginsDir);
-            }
-            
-            _pluginManager.LoadFrom(pluginsDir);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error initializing plugins: {ex.Message}");
-        }
-    }
-
-    private void OnPluginsChanged(object sender, EventArgs e)
-    {
-        if (InvokeRequired)
-        {
-            Invoke(new Action<object, EventArgs>(OnPluginsChanged), sender, e);
-            return;
-        }
-        
-        UpdatePluginStatus();
-    }
-
-    private void UpdatePluginStatus()
-    {
-        try
-        {
-            var pluginCount = _pluginManager?.Plugins.Count ?? 0;
-            // Update UI to show plugin count or status
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error updating plugin status: {ex.Message}");
-        }
-    }
-
-    private void UpdatePluginManagerWindow()
-    {
-        if (_pluginManagerForm?.IsDisposed == false)
-        {
-            _pluginManagerForm.Refresh();
-        }
-    }
-
-    private void pluginManagerToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        try
-        {
-            if (_pluginManagerForm?.IsDisposed != false)
-            {
-                _pluginManagerForm = new FrmPluginManager(_pluginManager);
-            }
-            _pluginManagerForm.Show();
-            _pluginManagerForm.BringToFront();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error opening plugin manager: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
-
-    #endregion Plugin System
 }
