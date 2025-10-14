@@ -722,7 +722,8 @@ namespace Pulsar.Server.Forms
                     {
                         try
                         {
-                            connectedToolStripStatusLabel.Text = $"Connected: {count}";
+                            var enabledPlugins = _pluginManager?.Plugins?.Count ?? 0;
+                            connectedToolStripStatusLabel.Text = $"Connected: {count} | Active plugins: {enabledPlugins}";
                         }
                         finally
                         {
@@ -4900,14 +4901,29 @@ namespace Pulsar.Server.Forms
 
         private void UpdatePluginStatus()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(UpdatePluginStatus));
+                return;
+            }
+
+            var enabledPlugins = 0;
+            var connectedCount = 0;
+
             try
             {
-                var pluginCount = _pluginManager?.Plugins.Count ?? 0;
-                // Update UI to show plugin count or status
+                enabledPlugins = _pluginManager?.Plugins?.Count ?? 0;
+                connectedCount = ListenServer?.ConnectedClients?.Length ?? 0;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error updating plugin status: {ex.Message}");
+                EventLog("Plugin status update error: " + ex.Message, "error");
+            }
+            finally
+            {
+                // Always update status bar, even if there was an error
+                listenToolStripStatusLabel.Text = $"Listening on port: 8080";
+                connectedToolStripStatusLabel.Text = $"Connected: {connectedCount} | Active plugins: {enabledPlugins}";
             }
         }
 

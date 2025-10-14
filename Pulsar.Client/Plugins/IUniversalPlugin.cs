@@ -7,11 +7,11 @@ namespace Pulsar.Client.Plugins
         string PluginId { get; }
         string Version { get; }
         string[] SupportedCommands { get; }
-        bool IsComplete { get; }
-
+        
         void Initialize(byte[] initData);
-        object ExecuteCommand(string command, byte[] parameters);
+        PluginResult ExecuteCommand(string command, byte[] parameters);
         void Cleanup();
+        bool IsComplete { get; }
     }
 
     public class PluginResult
