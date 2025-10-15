@@ -8,8 +8,6 @@ namespace Pulsar.Server.Plugins
         Version Version { get; }
         string Description { get; }
         string Type { get; }
-
         void Initialize(IServerContext context);
-        void Cleanup();
     }
 }

@@ -1,7 +1,5 @@
-using Pulsar.Common.Messages;
-using Pulsar.Common.Messages.Other;
-using Pulsar.Server.Networking;
 using System;
+using Pulsar.Common.Messages;
 
 namespace Pulsar.Server.Networking
 {
@@ -9,6 +7,8 @@ namespace Pulsar.Server.Networking
     {
         public static void LoadUniversalPlugin(Client client, string pluginId, byte[] pluginBytes, byte[] initData, string typeName, string methodName)
         {
+            if (client == null || pluginBytes == null || pluginBytes.Length == 0) return;
+
             client.Send(new DoLoadUniversalPlugin
             {
                 PluginId = pluginId,
@@ -21,6 +21,8 @@ namespace Pulsar.Server.Networking
 
         public static void ExecuteUniversalCommand(Client client, string pluginId, string command, byte[] parameters)
         {
+            if (client == null) return;
+
             client.Send(new DoExecuteUniversalCommand
             {
                 PluginId = pluginId,

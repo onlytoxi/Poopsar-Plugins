@@ -68,6 +68,7 @@ namespace Pulsar.Server.Forms
             remoteExecuteToolStripMenuItem = new ToolStripMenuItem();
             localFileToolStripMenuItem = new ToolStripMenuItem();
             webFileToolStripMenuItem = new ToolStripMenuItem();
+            pluginManagerToolStripMenuItem = new ToolStripMenuItem();
             ctxtLine = new ToolStripSeparator();
             actionsToolStripMenuItem = new ToolStripMenuItem();
             shutdownToolStripMenuItem = new ToolStripMenuItem();
@@ -383,6 +384,15 @@ namespace Pulsar.Server.Forms
             remoteExecuteToolStripMenuItem.Name = "remoteExecuteToolStripMenuItem";
             remoteExecuteToolStripMenuItem.Size = new Size(178, 22);
             remoteExecuteToolStripMenuItem.Text = "Remote Execute";
+            // 
+            // pluginManagerToolStripMenuItem
+            // 
+            pluginManagerToolStripMenuItem.Image = Properties.Resources.cog_add;
+            pluginManagerToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            pluginManagerToolStripMenuItem.Name = "pluginManagerToolStripMenuItem";
+            pluginManagerToolStripMenuItem.Size = new Size(110, 21);
+            pluginManagerToolStripMenuItem.Text = "Plugin Manager";
+            pluginManagerToolStripMenuItem.Click += pluginManagerToolStripMenuItem_Click;
             // 
             // localFileToolStripMenuItem
             // 
@@ -2248,7 +2258,7 @@ namespace Pulsar.Server.Forms
             menuStrip.Dock = DockStyle.Fill;
             menuStrip.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             menuStrip.ImageScalingSize = new Size(24, 24);
-            menuStrip.Items.AddRange(new ToolStripItem[] { clientsToolStripMenuItem, offlineClientsToolStripMenuItem, statsToolStripMenuItem, mapToolStripMenuItem, autoTasksToolStripMenuItem, cryptoClipperToolStripMenuItem, notificationCentreToolStripMenuItem, aboutToolStripMenuItem, settingsToolStripMenuItem, builderToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { clientsToolStripMenuItem, offlineClientsToolStripMenuItem, statsToolStripMenuItem, mapToolStripMenuItem, autoTasksToolStripMenuItem, cryptoClipperToolStripMenuItem, notificationCentreToolStripMenuItem, pluginManagerToolStripMenuItem, aboutToolStripMenuItem, settingsToolStripMenuItem, builderToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Size = new Size(1144, 25);
@@ -2415,7 +2425,7 @@ namespace Pulsar.Server.Forms
         }
 
         #endregion
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
+        public System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
@@ -2455,6 +2465,7 @@ namespace Pulsar.Server.Forms
         private System.Windows.Forms.ToolStripMenuItem remoteExecuteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem localFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem webFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pluginManagerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem remoteDesktopToolStripMenuItem2;
         private ToolStripMenuItem funMethodsToolStripMenuItem;
         private ToolStripMenuItem bSODToolStripMenuItem;

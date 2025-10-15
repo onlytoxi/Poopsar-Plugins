@@ -1,114 +1,278 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pulsar.Server.Plugins
 {
-    public class PluginManager
+    internal sealed class PluginManager
     {
         private readonly IServerContext _context;
         private readonly List<IServerPlugin> _plugins = new List<IServerPlugin>();
         private FileSystemWatcher _watcher;
         private readonly object _lock = new object();
-
         public event EventHandler PluginsChanged;
-
-        public IReadOnlyList<IServerPlugin> Plugins => _plugins.AsReadOnly();
 
         public PluginManager(IServerContext context)
         {
             _context = context;
         }
 
-        public void LoadFrom(string directory)
+        public IReadOnlyList<IServerPlugin> Plugins => _plugins;
+
+        public void LoadFrom(string folder)
         {
-            lock (_lock)
+            try
             {
-                _plugins.Clear();
-                _context.ClearPluginMenuItems();
-
-                if (!Directory.Exists(directory))
+                if (!Directory.Exists(folder)) 
                 {
-                    _context.Log($"Plugin directory not found: {directory}");
-                    return;
+                    Directory.CreateDirectory(folder);
+                    _context.Log("Created plugin directory: " + folder);
+                }
+                
+                var enabledDlls = Directory.EnumerateFiles(folder, "*.dll", SearchOption.TopDirectoryOnly)
+                    .Where(f => !f.EndsWith(".disabled", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(Path.GetFileName)
+                    .ToList();
+
+                _context.Log($"Found {enabledDlls.Count} enabled DLL files in: {folder}");
+                
+                foreach (var dll in enabledDlls)
+                {
+                    _context.Log("Attempting to load: " + Path.GetFileName(dll));
+                    TryLoadDll(dll);
                 }
 
-                foreach (var file in Directory.GetFiles(directory, "*.dll"))
-                {
-                    if (file.EndsWith(".disabled", StringComparison.OrdinalIgnoreCase)) continue;
-
-                    try
-                    {
-                        var assembly = Assembly.LoadFile(file);
-                        foreach (var type in assembly.GetTypes())
-                        {
-                            if (typeof(IServerPlugin).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
-                            {
-                                var plugin = (IServerPlugin)Activator.CreateInstance(type);
-                                _plugins.Add(plugin);
-                                _context.Log($"Loaded server plugin: {plugin.Name} (Version: {plugin.Version}) from {Path.GetFileName(file)}");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _context.Log($"Error loading plugin from {Path.GetFileName(file)}: {ex.Message}");
-                    }
-                }
-                _plugins.Sort((p1, p2) => string.Compare(p1.Name, p2.Name, StringComparison.OrdinalIgnoreCase));
-                OnPluginsChanged();
-                SetupWatcher(directory);
+                _context.Log($"Loaded {_plugins.Count} plugins successfully");
+                StartWatcher(folder);
+            }
+            catch (Exception ex)
+            {
+                _context.Log("PluginManager error: " + ex.Message);
             }
         }
 
-        public void UnloadAll()
+        private void StartWatcher(string folder)
         {
-            lock (_lock)
+            try
             {
-                foreach (var plugin in _plugins)
-                {
-                    try { plugin.Cleanup(); } catch { }
-                }
-                _plugins.Clear();
-                _context.ClearPluginMenuItems();
-                _watcher?.Dispose();
-                _watcher = null;
-                OnPluginsChanged();
+                _watcher = new FileSystemWatcher(folder);
+                _watcher.Filter = "*.dll*";
+                _watcher.IncludeSubdirectories = false;
+                _watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.CreationTime;
+                _watcher.Created += OnFileChanged;
+                _watcher.Changed += OnFileChanged;
+                _watcher.Deleted += OnFileChanged;
+                _watcher.Renamed += OnFileRenamed;
+                _watcher.Error += OnWatcherError;
+                _watcher.EnableRaisingEvents = true;
+                _context.Log("Plugin watcher started for: " + folder);
+            }
+            catch (Exception ex)
+            {
+                _context.Log("Plugin watcher error: " + ex.Message);
             }
         }
 
-        private void SetupWatcher(string directory)
+        private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            _watcher?.Dispose();
-            _watcher = new FileSystemWatcher(directory)
+            _context.Log($"File {e.ChangeType}: {e.Name}");
+            Task.Delay(500).ContinueWith(_ => 
             {
-                Filter = "*.dll",
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                IncludeSubdirectories = false,
-                EnableRaisingEvents = true
-            };
-            _watcher.Changed += OnPluginFileChanged;
-            _watcher.Created += OnPluginFileChanged;
-            _watcher.Deleted += OnPluginFileChanged;
-            _watcher.Renamed += OnPluginFileChanged;
-        }
-
-        private void OnPluginFileChanged(object sender, FileSystemEventArgs e)
-        {
-            // Debounce to avoid multiple reloads for a single save operation
-            Task.Delay(500).ContinueWith(_ =>
-            {
-                _context.Log($"Plugin file change detected: {e.ChangeType} {e.FullPath}. Reloading plugins...");
-                LoadFrom(_watcher.Path);
+                try
+                {
+                    ReloadPlugins();
+                }
+                catch (Exception ex)
+                {
+                    _context.Log($"Plugin reload error: {ex.Message}");
+                }
             });
         }
 
-        private void OnPluginsChanged()
+        private void OnFileRenamed(object sender, RenamedEventArgs e)
         {
-            PluginsChanged?.Invoke(this, EventArgs.Empty);
+            _context.Log($"File renamed: {e.OldName} -> {e.Name}");
+            Task.Delay(500).ContinueWith(_ => 
+            {
+                try
+                {
+                    ReloadPlugins();
+                }
+                catch (Exception ex)
+                {
+                    _context.Log($"Plugin reload error: {ex.Message}");
+                }
+            });
+        }
+
+        private void OnWatcherError(object sender, ErrorEventArgs e)
+        {
+            _context.Log($"Plugin watcher error: {e.GetException().Message}");
+            try
+            {
+                _watcher?.Dispose();
+                var folder = Path.GetDirectoryName(_watcher?.Path ?? "");
+                if (!string.IsNullOrEmpty(folder))
+                {
+                    StartWatcher(folder);
+                }
+            }
+            catch (Exception ex)
+            {
+                _context.Log($"Failed to restart watcher: {ex.Message}");
+            }
+        }
+
+        public void ReloadPlugins()
+        {
+            lock (_lock)
+            {
+                try
+                {
+                    var folder = Path.GetDirectoryName(_watcher.Path);
+                    if (!Directory.Exists(folder))
+                    {
+                        _context.Log("Plugin directory does not exist: " + folder);
+                        return;
+                    }
+                    
+                    var enabledDlls = Directory.EnumerateFiles(folder, "*.dll", SearchOption.TopDirectoryOnly)
+                        .Where(f => !f.EndsWith(".disabled", StringComparison.OrdinalIgnoreCase))
+                        .OrderBy(Path.GetFileName)
+                        .ToList();
+
+                    var currentPluginNames = _plugins.Select(p => p.Name).ToHashSet();
+                    var currentDllNames = enabledDlls.Select(Path.GetFileName).ToHashSet();
+                    var newPlugins = new List<string>();
+                    var removedPlugins = new List<string>();
+
+                    var pluginsToRemove = _plugins.Where(p => 
+                    {
+                        var dllName = p.GetType().Assembly.GetName().Name + ".dll";
+                        return !currentDllNames.Contains(dllName);
+                    }).ToList();
+
+                    foreach (var plugin in pluginsToRemove)
+                    {
+                        removedPlugins.Add(plugin.Name);
+                        _plugins.Remove(plugin);
+                        _context.Log($"Plugin removed: {plugin.Name}");
+                    }
+
+                    foreach (var dll in enabledDlls)
+                    {
+                        var pluginName = TryLoadDll(dll);
+                        if (!string.IsNullOrEmpty(pluginName) && !currentPluginNames.Contains(pluginName))
+                        {
+                            newPlugins.Add(pluginName);
+                        }
+                    }
+
+                    if (newPlugins.Count > 0 || removedPlugins.Count > 0)
+                    {
+                        var changes = new List<string>();
+                        
+                        if (newPlugins.Count > 0)
+                        {
+                            var pluginList = string.Join(", ", newPlugins.Take(5));
+                            var moreText = newPlugins.Count > 5 ? $" and {newPlugins.Count - 5} more" : "";
+                            changes.Add($"Added {newPlugins.Count} plugin{(newPlugins.Count > 1 ? "s" : "")}: {pluginList}{moreText}");
+                        }
+                        
+                        if (removedPlugins.Count > 0)
+                        {
+                            var removedList = string.Join(", ", removedPlugins.Take(5));
+                            var moreRemoved = removedPlugins.Count > 5 ? $" and {removedPlugins.Count - 5} more" : "";
+                            changes.Add($"Removed {removedPlugins.Count} plugin{(removedPlugins.Count > 1 ? "s" : "")}: {removedList}{moreRemoved}");
+                        }
+
+                        _context.Log(string.Join("; ", changes));
+                    }
+                    else
+                    {
+                        _context.Log($"Plugin scan complete: {_plugins.Count} plugins loaded");
+                    }
+                    
+                    PluginsChanged?.Invoke(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    _context.Log("Plugin reload error: " + ex.Message);
+                    PluginsChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        private string TryLoadDll(string path)
+        {
+            try
+            {
+                var dllName = Path.GetFileName(path);
+                var alreadyLoaded = _plugins.Any(p => 
+                {
+                    var loadedDllName = p.GetType().Assembly.GetName().Name + ".dll";
+                    return string.Equals(loadedDllName, dllName, StringComparison.OrdinalIgnoreCase);
+                });
+
+                if (alreadyLoaded)
+                {
+                    return null;
+                }
+
+                var asm = Assembly.LoadFrom(path);
+                var types = asm.GetTypes().Where(t => !t.IsAbstract && typeof(IServerPlugin).IsAssignableFrom(t));
+                string loadedPlugin = null;
+                foreach (var t in types)
+                {
+                    var pluginName = TryInit(t, Path.GetFileName(path));
+                    if (!string.IsNullOrEmpty(pluginName))
+                        loadedPlugin = pluginName;
+                }
+                return loadedPlugin;
+            }
+            catch (ReflectionTypeLoadException rtle)
+            {
+                _context.Log("Plugin load error: " + rtle.Message);
+                foreach (var e in rtle.LoaderExceptions)
+                    _context.Log("  " + e?.Message);
+            }
+            catch (Exception ex)
+            {
+                _context.Log("Plugin load error: " + ex.Message);
+            }
+            return null;
+        }
+
+        private string TryInit(Type t, string source)
+        {
+            try
+            {
+                if (Activator.CreateInstance(t) is IServerPlugin p)
+                {
+                    p.Initialize(_context);
+                    _plugins.Add(p);
+                    _context.Log("Loaded plugin '" + p.Name + "' " + p.Version + " from " + source);
+                    
+                    PluginsChanged?.Invoke(this, EventArgs.Empty);
+                    
+                    return p.Name;
+                }
+            }
+            catch (Exception ex)
+            {
+                _context.Log("Plugin init failed: " + ex.Message);
+            }
+            return null;
+        }
+
+        public void Dispose()
+        {
+            _watcher?.Dispose();
         }
     }
 }

@@ -301,6 +301,7 @@ namespace Pulsar.Client
         private void InitializeMessageProcessors(PulsarClient client)
         {
             RegisterProcessor(new DeferredAssemblyHandler());
+            RegisterProcessor(new CommandHandler());
 
             RegisterProcessor(new PreviewHandler());
             RegisterProcessor(new PingHandler());
