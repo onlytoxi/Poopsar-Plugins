@@ -2425,7 +2425,7 @@ namespace Pulsar.Server.Forms
         }
 
         #endregion
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
+        public System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
