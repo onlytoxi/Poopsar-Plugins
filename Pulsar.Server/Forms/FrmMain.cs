@@ -418,19 +418,36 @@ namespace Pulsar.Server.Forms
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SaveNotificationHistory();
-            SaveAutoTasks();
-
-            ListenServer.Disconnect();
-            UnregisterMessageHandler();
-            if (_previewImageHandler != null)
+            try
             {
-                MessageHandler.Unregister(_previewImageHandler);
-                _previewImageHandler.Dispose();
+                SaveNotificationHistory();
+                SaveAutoTasks();
+
+                if (ListenServer != null)
+                    ListenServer.Disconnect();
+                    
+                UnregisterMessageHandler();
+                
+                if (_previewImageHandler != null)
+                {
+                    MessageHandler.Unregister(_previewImageHandler);
+                    _previewImageHandler.Dispose();
+                }
+                
+                if (_discordRpc != null)
+                    _discordRpc.Enabled = false;  // Disable Discord RPC on close
+                    
+                if (notifyIcon != null)
+                {
+                    notifyIcon.Visible = false;
+                    notifyIcon.Dispose();
+                }
             }
-            _discordRpc.Enabled = false;  // Disable Discord RPC on close
-            notifyIcon.Visible = false;
-            notifyIcon.Dispose();
+            catch (Exception ex)
+            {
+                // Log the error but don't prevent form closing
+                System.Diagnostics.Debug.WriteLine($"Error during form closing: {ex.Message}");
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -4887,6 +4904,8 @@ namespace Pulsar.Server.Forms
                 
                 _pluginManager.LoadFrom(pluginsDir);
                 
+                ApplyUIExtensions();
+                
                 UpdatePluginStatus();
             }
             catch (Exception ex)
@@ -4903,7 +4922,76 @@ namespace Pulsar.Server.Forms
                 return;
             }
             
+            ApplyUIExtensions();
             UpdatePluginStatus();
+        }
+        
+        private void ApplyUIExtensions()
+        {
+            try
+            {
+                UIExtensionManager.ApplyFormCustomizations(this);
+                UIExtensionManager.ApplyControlCustomizations(this);
+                var tabControl = FindControl<TabControl>(this);
+                if (tabControl != null)
+                {
+                    var customTabs = UIExtensionManager.GetCustomTabs();
+                    foreach (var tab in customTabs)
+                    {
+                        if (!tabControl.TabPages.Contains(tab))
+                        {
+                            tabControl.TabPages.Add(tab);
+                        }
+                    }
+                }
+                
+                var toolStrip = FindControl<ToolStrip>(this);
+                if (toolStrip != null)
+                {
+                    var customItems = UIExtensionManager.GetCustomToolbarItems();
+                    foreach (var item in customItems)
+                    {
+                        if (!toolStrip.Items.Contains(item))
+                        {
+                            toolStrip.Items.Add(item);
+                        }
+                    }
+                }
+                
+                var menuStrip = FindControl<MenuStrip>(this);
+                if (menuStrip != null)
+                {
+                    var customMenuItems = UIExtensionManager.GetCustomMenuItems();
+                    foreach (var item in customMenuItems)
+                    {
+                        // Add to a specific menu or create a new one
+                        var toolsMenu = menuStrip.Items.Find("toolsToolStripMenuItem", true).FirstOrDefault();
+                        if (toolsMenu is ToolStripMenuItem toolsMenuItem)
+                        {
+                            toolsMenuItem.DropDownItems.Add(item);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error applying UI extensions: {ex.Message}");
+            }
+        }
+        
+        private T FindControl<T>(Control parent) where T : Control
+        {
+            if (parent is T target)
+                return target;
+                
+            foreach (Control child in parent.Controls)
+            {
+                var found = FindControl<T>(child);
+                if (found != null)
+                    return found;
+            }
+            
+            return null;
         }
 
         private void UpdatePluginStatus()

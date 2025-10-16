@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Pulsar.Server.Plugins;
 using Pulsar.Server.Forms.DarkMode;
@@ -351,10 +352,14 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private void SaveChanges()
+        private async void SaveChanges()
         {
             try
             {
+                btnSave.Enabled = false;
+                btnSave.Text = "Saving...";
+                Application.DoEvents();
+                
                 var changes = new List<string>();
                 
                 foreach (var pluginInfo in _pluginInfos)
@@ -394,38 +399,66 @@ namespace Pulsar.Server.Forms
                     }
                 }
                 
-                // Always reload plugins and refresh the list, even if no changes
-                try { _pluginManager.ReloadPlugins(); } catch { }
-                LoadPlugins();
+                await Task.Run(() => {
+                    try { _pluginManager.ReloadPlugins(); } catch { }
+                });
+                
+                this.Invoke(new Action(() => {
+                    LoadPlugins();
+                }));
 
-                if (changes.Count > 0)
-                {
-                    var result = MessageBox.Show($"Changes saved:\n{string.Join("\n", changes)}\n\nRestart Pulsar to apply changes?", 
-                        "Plugin Manager", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    
-                    if (result == DialogResult.Yes)
+                this.Invoke(new Action(() => {
+                    if (changes.Count > 0)
                     {
-                        var currentExe = Application.ExecutablePath;
-                        var startInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = currentExe,
-                            UseShellExecute = true
-                        };
+                        var result = MessageBox.Show($"Changes saved:\n{string.Join("\n", changes)}\n\nRestart Pulsar to apply changes?", 
+                            "Plugin Manager", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         
-                        System.Diagnostics.Process.Start(startInfo);
-                        Application.Exit();
+                        if (result == DialogResult.Yes)
+                        {
+                            var currentExe = Application.ExecutablePath;
+                            var startInfo = new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = currentExe,
+                                UseShellExecute = true
+                            };
+                            
+                            System.Diagnostics.Process.Start(startInfo);
+                            Application.Exit();
+                        }
                     }
-                }
-                else
-                {
-                    MessageBox.Show("Plugins reloaded successfully.", 
-                        "Plugin Manager", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                    else
+                    {
+                        var result = MessageBox.Show("No changes detected, but plugins have been reloaded.\n\nRestart Pulsar to ensure all plugins are properly loaded?", 
+                            "Plugin Manager", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        
+                        if (result == DialogResult.Yes)
+                        {
+                            var currentExe = Application.ExecutablePath;
+                            var startInfo = new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = currentExe,
+                                UseShellExecute = true
+                            };
+                            
+                            System.Diagnostics.Process.Start(startInfo);
+                            Application.Exit();
+                        }
+                    }
+                }));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to save changes: {ex.Message}", 
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Invoke(new Action(() => {
+                    MessageBox.Show($"Failed to save changes: {ex.Message}", 
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }));
+            }
+            finally
+            {
+                this.Invoke(new Action(() => {
+                    btnSave.Enabled = true;
+                    btnSave.Text = "Save & Restart";
+                }));
             }
         }
 

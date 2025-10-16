@@ -160,6 +160,13 @@ namespace Pulsar.Server.Plugins
                     foreach (var plugin in pluginsToRemove)
                     {
                         removedPlugins.Add(plugin.Name);
+                        
+                        if (plugin is IUIExtensionPlugin uiPlugin)
+                        {
+                            UIExtensionManager.UnregisterUIExtension(uiPlugin);
+                            _context.Log("Unregistered UI extension: " + plugin.Name);
+                        }
+                        
                         _plugins.Remove(plugin);
                         _context.Log($"Plugin removed: {plugin.Name}");
                     }
@@ -257,6 +264,12 @@ namespace Pulsar.Server.Plugins
                     p.Initialize(_context);
                     _plugins.Add(p);
                     _context.Log("Loaded plugin '" + p.Name + "' " + p.Version + " from " + source);
+                    
+                    if (p is IUIExtensionPlugin uiPlugin)
+                    {
+                        UIExtensionManager.RegisterUIExtension(uiPlugin);
+                        _context.Log("Registered UI extension: " + p.Name);
+                    }
                     
                     PluginsChanged?.Invoke(this, EventArgs.Empty);
                     
