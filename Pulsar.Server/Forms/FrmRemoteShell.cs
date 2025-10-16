@@ -130,6 +130,7 @@ namespace Pulsar.Server.Forms
         private void FrmRemoteShell_FormClosing(object sender, FormClosingEventArgs e)
         {
             UnregisterMessageHandler();
+            RemoteShellHandler.Dispose();
             if (_connectClient.Connected)
                 RemoteShellHandler.SendCommand("exit");
         }

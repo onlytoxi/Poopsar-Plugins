@@ -1,4 +1,5 @@
-﻿using Pulsar.Common.Messages;
+﻿using System;
+using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Administration.RemoteShell;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
@@ -9,7 +10,7 @@ namespace Pulsar.Server.Messages
     /// <summary>
     /// Handles messages for the interaction with the remote shell.
     /// </summary>
-    public class RemoteShellHandler : MessageProcessorBase<string>
+    public class RemoteShellHandler : MessageProcessorBase<string>, IDisposable
     {
         /// <summary>
         /// The client which is associated with this remote shell handler.
@@ -86,6 +87,12 @@ namespace Pulsar.Server.Messages
                 OnCommandError(message.Output);
             else
                 OnReport(message.Output);
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            CommandError = null;
         }
     }
 }

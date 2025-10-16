@@ -238,6 +238,7 @@ namespace Pulsar.Server.Forms
             UnsubscribeEvents();
             if (_RemoteWebcamHandler.IsStarted) StopStream();
             UnregisterMessageHandler();
+            _RemoteWebcamHandler.Dispose();
             picWebcam.GetImageSafe?.Dispose();
             picWebcam.GetImageSafe = null;
         }

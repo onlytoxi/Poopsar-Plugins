@@ -103,6 +103,7 @@ namespace Pulsar.Server.Forms
             MessageHandler.Unregister(_taskManagerHandler);
             _taskManagerHandler.OnResponseReceived -= CreateMemoryDump;
             _taskManagerHandler.ProcessActionPerformed -= ProcessActionPerformed;
+            _taskManagerHandler.Dispose();
 
             _connectClient.ClientState -= ClientDisconnected;
         }

@@ -13,7 +13,7 @@ namespace Pulsar.Server.Messages
     /// <summary>
     /// Handles messages for the interaction with remote tasks.
     /// </summary>
-    public class TaskManagerHandler : MessageProcessorBase<Process[]>
+    public class TaskManagerHandler : MessageProcessorBase<Process[]>, IDisposable
     {
         /// <summary>
         /// Represents the method that will handle the result of a process action.
@@ -201,6 +201,28 @@ namespace Pulsar.Server.Messages
         private void Execute(ISender client, DoProcessDumpResponse message)
         {
             OnResponseReceived?.Invoke(this, message);
+        }
+
+        /// <summary>
+        /// Disposes all managed and unmanaged resources associated with this message processor.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Clear event handlers to prevent memory leaks
+                ProcessActionPerformed = null;
+                OnResponseReceived = null;
+                
+                // Clear the last response to help with garbage collection
+                LastProcessesResponse = null;
+            }
         }
     }
 }
