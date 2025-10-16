@@ -18,7 +18,31 @@ namespace Pulsar.Server
             {
                 DiscordRPCManager.Initialize(mainForm);
 
-                Application.Run(mainForm);
+                var customMainForm = Pulsar.Server.Plugins.UIExtensionManager.GetCustomMainForm();
+                if (customMainForm != null)
+                {
+                    mainForm.Hide();
+                    customMainForm.Show();
+                    
+                    customMainForm.FormClosed += (s, e) => 
+                    {
+                        mainForm.Close();
+                    };
+                    
+                    customMainForm.Disposed += (s, e) => 
+                    {
+                        if (!mainForm.IsDisposed)
+                        {
+                            mainForm.Close();
+                        }
+                    };
+                    
+                    Application.Run(customMainForm);
+                }
+                else
+                {
+                    Application.Run(mainForm);
+                }
 
                 DiscordRPCManager.Shutdown();
             }
