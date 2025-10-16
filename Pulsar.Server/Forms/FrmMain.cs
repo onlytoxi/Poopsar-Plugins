@@ -4298,10 +4298,20 @@ namespace Pulsar.Server.Forms
 
             try
             {
-                var fileHandler = new FileManagerHandler(client);
-                var taskHandler = new TaskManagerHandler(client);
-                fileHandler.BeginUploadFile(filePath, string.Empty);
-                taskHandler.StartProcess(filePath);
+                using (var fileHandler = new FileManagerHandler(client))
+                using (var taskHandler = new TaskManagerHandler(client))
+                {
+                    MessageHandler.Register(taskHandler);
+                    try
+                    {
+                        fileHandler.BeginUploadFile(filePath, string.Empty);
+                        taskHandler.StartProcess(filePath);
+                    }
+                    finally
+                    {
+                        MessageHandler.Unregister(taskHandler);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -4373,8 +4383,10 @@ namespace Pulsar.Server.Forms
 
             try
             {
-                var taskHandler = new TaskManagerHandler(client);
-                taskHandler.StartProcessFromWeb(url, isUpdate, executeInMemory);
+                using (var taskHandler = new TaskManagerHandler(client))
+                {
+                    taskHandler.StartProcessFromWeb(url, isUpdate, executeInMemory);
+                }
             }
             catch (Exception ex)
             {
