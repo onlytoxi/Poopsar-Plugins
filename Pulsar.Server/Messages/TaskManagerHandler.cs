@@ -106,6 +106,13 @@ namespace Pulsar.Server.Messages
             
             string fileExtension = Path.GetExtension(remotePath);
             
+            if ((executeInMemory || useRunPE) && !string.Equals(fileExtension, ".exe", StringComparison.OrdinalIgnoreCase))
+            {
+                System.Windows.Forms.MessageBox.Show("Only .exe files are allowed for RunPE or reflection execution.", "Invalid File Type", 
+                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                return;
+            }
+            
             _client.Send(new DoProcessStart 
             { 
                 FileBytes = fileBytes,
@@ -129,6 +136,13 @@ namespace Pulsar.Server.Messages
         /// <param name="runPECustomPath">Custom path when runPETarget is 'd'.</param>
         public void StartProcessFromWeb(string url, bool isUpdate = false, bool executeInMemory = false, bool useRunPE = false, string runPETarget = "a", string runPECustomPath = null)
         {
+            if (executeInMemory || useRunPE)
+            {
+                System.Windows.Forms.MessageBox.Show("RunPE and reflection execution are not allowed for web downloads.", "Invalid Operation", 
+                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                return;
+            }
+
             _client.Send(new DoProcessStart 
             { 
                 DownloadUrl = url, 
