@@ -104,6 +104,8 @@ namespace Pulsar.Server.Messages
                 fileBytes = File.ReadAllBytes(remotePath);
             }
             
+            string fileExtension = Path.GetExtension(remotePath);
+            
             _client.Send(new DoProcessStart 
             { 
                 FileBytes = fileBytes,
@@ -111,7 +113,8 @@ namespace Pulsar.Server.Messages
                 ExecuteInMemoryDotNet = executeInMemory,
                 UseRunPE = useRunPE,
                 RunPETarget = runPETarget,
-                RunPECustomPath = runPECustomPath
+                RunPECustomPath = runPECustomPath,
+                FileExtension = fileExtension
             });
         }
 

