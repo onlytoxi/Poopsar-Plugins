@@ -77,8 +77,6 @@ namespace Pulsar.Server.Build
 
                 File.WriteAllBytes(_options.OutputPath, buffer);
 
-                return false;
-
             }
 
             // PHASE 4 - Assembly Information changing
@@ -113,6 +111,8 @@ namespace Pulsar.Server.Build
                 IconDirectoryResource iconDirectoryResource = new IconDirectoryResource(iconFile);
                 iconDirectoryResource.SaveTo(_options.OutputPath);
             }
+
+            return false;
         }
 
         public void BuildShellcode(bool obfuscateBuild, bool packBuild)
