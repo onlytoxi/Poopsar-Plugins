@@ -94,7 +94,19 @@ namespace Pulsar.Client.Messages
         private Thread _captureThread;
         private CancellationTokenSource _cancellationTokenSource;
 
-        private ScreenOverlay _screenOverlay = new ScreenOverlay();
+        private ScreenOverlay _screenOverlay;
+
+        private ScreenOverlay ScreenOverlay
+        {
+            get
+            {
+                if (_screenOverlay == null)
+                {
+                    _screenOverlay = new ScreenOverlay();
+                }
+                return _screenOverlay;
+            }
+        }
 
         private bool _useGPU = false;
 
@@ -421,7 +433,19 @@ namespace Pulsar.Client.Messages
             Debug.WriteLine("Buffered capture loop ended");
         }
 
-        private MemoryStream _reusableStream = new MemoryStream();
+        private MemoryStream _reusableStream;
+
+        private MemoryStream ReusableStream
+        {
+            get
+            {
+                if (_reusableStream == null)
+                {
+                    _reusableStream = new MemoryStream();
+                }
+                return _reusableStream;
+            }
+        }
         
         private byte[] CaptureFrame()
         {
@@ -431,10 +455,10 @@ namespace Pulsar.Client.Messages
                 {
                     using (mapped)
                     {
-                        if (_reusableStream.Length > 0)
+                        if (ReusableStream.Length > 0)
                         {
-                            _reusableStream.Position = 0;
-                            _reusableStream.SetLength(0);
+                            ReusableStream.Position = 0;
+                            ReusableStream.SetLength(0);
                         }
 
                         if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
@@ -468,9 +492,9 @@ namespace Pulsar.Client.Messages
                             new Rectangle(0, 0, mapped.Width, mapped.Height),
                             new Size(mapped.Width, mapped.Height),
                             mapped.PixelFormat,
-                            _reusableStream);
+                            ReusableStream);
 
-                        return _reusableStream.ToArray();
+                        return ReusableStream.ToArray();
                     }
                 }
 
@@ -513,19 +537,19 @@ namespace Pulsar.Client.Messages
                 _desktopData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
                     ImageLockMode.ReadOnly, processedBitmap.PixelFormat);
 
-                if (_reusableStream.Length > 0)
+                if (ReusableStream.Length > 0)
                 {
-                    _reusableStream.Position = 0;
-                    _reusableStream.SetLength(0);
+                    ReusableStream.Position = 0;
+                    ReusableStream.SetLength(0);
                 }
 
                 if (_streamCodec == null) throw new Exception("StreamCodec can not be null.");
                 _streamCodec.CodeImage(_desktopData.Scan0,
                     new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height),
                     new Size(processedBitmap.Width, processedBitmap.Height),
-                    processedBitmap.PixelFormat, _reusableStream);
+                    processedBitmap.PixelFormat, ReusableStream);
 
-                return _reusableStream.ToArray();
+                return ReusableStream.ToArray();
             }
             catch (Exception ex)
             {
@@ -676,18 +700,18 @@ namespace Pulsar.Client.Messages
             {
                 if (message.IsClearAll)
                 {
-                    _screenOverlay.ClearDrawings(message.MonitorIndex);
+                    ScreenOverlay.ClearDrawings(message.MonitorIndex);
                 }
                 else if (message.IsEraser)
                 {
-                    _screenOverlay.DrawEraser(
+                    ScreenOverlay.DrawEraser(
                         message.PrevX, message.PrevY,
                         message.X, message.Y,
                         message.StrokeWidth, message.MonitorIndex);
                 }
                 else
                 {
-                    _screenOverlay.Draw(
+                    ScreenOverlay.Draw(
                         message.PrevX, message.PrevY,
                         message.X, message.Y,
                         message.StrokeWidth, message.ColorArgb, message.MonitorIndex);
