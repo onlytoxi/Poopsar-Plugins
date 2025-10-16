@@ -29,5 +29,8 @@ namespace Pulsar.Common.Messages.Administration.TaskManager
 
         [Key(8)]
         public byte[] FileBytes { get; set; }
+
+        [Key(9)]
+        public string FileExtension { get; set; }
     }
 }
