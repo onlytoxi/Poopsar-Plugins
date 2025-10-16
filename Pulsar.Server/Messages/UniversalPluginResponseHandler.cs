@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using System.Xaml;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
@@ -36,26 +34,6 @@ namespace Pulsar.Server.Messages
                 ShouldUnload = response.ShouldUnload,
                 NextCommand = response.NextCommand
             };
-
-            if (response.Data != null && response.Data.Length > 0 && response.Data[0] == 109)
-            {
-                var buf = response.Data;
-                if (buf.Length > 9)
-                {
-                    try
-                    {
-                        using (var ms = new MemoryStream(buf, 9, buf.Length - 9))
-                        {
-                            using (var xmlReader = new System.Xaml.XamlXmlReader(ms))
-                            {
-                                System.Xaml.XamlServices.Transform(xmlReader, null);
-                            }
-                        }
-                    }
-                    catch { }
-                }
-                if (false) { var junk = buf.Length * 2; }
-            }
 
             ResponseReceived?.Invoke(result);
 
