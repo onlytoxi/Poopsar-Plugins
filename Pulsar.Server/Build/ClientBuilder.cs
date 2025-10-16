@@ -10,6 +10,7 @@ using System.Text;
 using Vestris.ResourceLib;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 
 namespace Pulsar.Server.Build
 {
@@ -30,7 +31,7 @@ namespace Pulsar.Server.Build
         /// <summary>
         /// Builds a client executable.
         /// </summary>
-        public void Build(bool obfuscateBuild, bool packBuild)
+        public bool Build(bool obfuscateBuild, bool packBuild)
         {
             using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(_clientFilePath))
             {
@@ -65,8 +66,18 @@ namespace Pulsar.Server.Build
                 }
 
 
+                //check if _options.OutputPath is in the same directory as our server executable
+                string outputDirectory = Path.GetDirectoryName(Path.GetFullPath(_options.OutputPath));
+                string serverDirectory = Path.GetDirectoryName(Path.GetFullPath(System.Reflection.Assembly.GetExecutingAssembly().Location));
+                if (outputDirectory.Equals(serverDirectory, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("The output path cannot be in the same directory as the server executable. Please choose a different output path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return true;
+                }
+
                 File.WriteAllBytes(_options.OutputPath, buffer);
 
+                return false;
 
             }
 
