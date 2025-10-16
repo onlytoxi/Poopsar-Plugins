@@ -394,11 +394,12 @@ namespace Pulsar.Server.Forms
                     }
                 }
                 
+                // Always reload plugins and refresh the list, even if no changes
+                try { _pluginManager.ReloadPlugins(); } catch { }
+                LoadPlugins();
+
                 if (changes.Count > 0)
                 {
-                    try { _pluginManager.ReloadPlugins(); } catch { }
-                    LoadPlugins();
-
                     var result = MessageBox.Show($"Changes saved:\n{string.Join("\n", changes)}\n\nRestart Pulsar to apply changes?", 
                         "Plugin Manager", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     
@@ -417,7 +418,7 @@ namespace Pulsar.Server.Forms
                 }
                 else
                 {
-                    MessageBox.Show("No changes to save.", 
+                    MessageBox.Show("Plugins reloaded successfully.", 
                         "Plugin Manager", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
