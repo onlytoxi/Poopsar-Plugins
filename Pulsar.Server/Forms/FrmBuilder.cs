@@ -102,8 +102,6 @@ namespace Pulsar.Server.Forms
             txtFileVersion.Enabled = !cryptable;
             chkCriticalProcess.Enabled = !cryptable;
             chkUACBypass.Enabled = !cryptable;
-            chkPackOutput.Enabled = !cryptable;
-            chkObfuscateOutput.Enabled = !cryptable;
             chkAntiDebug.Enabled = !cryptable;
             chkVM.Enabled = !cryptable;
 
@@ -136,8 +134,6 @@ namespace Pulsar.Server.Forms
 
                 chkCriticalProcess.Checked = false;
                 chkUACBypass.Checked = false;
-                chkPackOutput.Checked = false;
-                chkObfuscateOutput.Checked = false;
                 chkAntiDebug.Checked = false;
                 chkVM.Checked = false;
 
@@ -304,8 +300,6 @@ namespace Pulsar.Server.Forms
 
             chkVM.Checked = profile.EnableAntiVM;
             chkAntiDebug.Checked = profile.EnableAntiDebug;
-            chkObfuscateOutput.Checked = profile.EnableObfuscate;
-            chkPackOutput.Checked = profile.EnablePack;
             chkCriticalProcess.Checked = profile.EnableCriticalProcess;
             chkUACBypass.Checked = profile.EnableUACBypass;
 
@@ -347,8 +341,6 @@ namespace Pulsar.Server.Forms
 
             profile.EnableAntiVM = chkVM.Checked;
             profile.EnableAntiDebug = chkAntiDebug.Checked;
-            profile.EnableObfuscate = chkObfuscateOutput.Checked;
-            profile.EnablePack = chkPackOutput.Checked;
             profile.EnableCriticalProcess = chkCriticalProcess.Checked;
             profile.EnableUACBypass = chkUACBypass.Checked;
         }
@@ -700,20 +692,24 @@ namespace Pulsar.Server.Forms
 
                 var builder = new ClientBuilder(options, "client.bin");
 
-                builder.Build(chkObfuscateOutput.Checked, chkPackOutput.Checked);
+                var code = builder.Build(false, false);
 
-                try
+                if (!(code))
                 {
-                    this.Invoke((MethodInvoker)delegate
+                    try
                     {
-                        MessageBox.Show(this,
-                            $"Successfully built client! Saved to:\\{options.OutputPath}",
-                            "Build Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    });
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            MessageBox.Show(this,
+                                $"Successfully built client! Saved to:\\{options.OutputPath}",
+                                "Build Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        });
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
-                catch (Exception)
-                {
-                }
+
             }
             catch (Exception ex)
             {
@@ -741,7 +737,7 @@ namespace Pulsar.Server.Forms
 
                 var builder = new ClientBuilder(options, "client.bin");
 
-                builder.BuildShellcode(chkObfuscateOutput.Checked, chkPackOutput.Checked);
+                builder.BuildShellcode(false, false);
 
                 try
                 {
