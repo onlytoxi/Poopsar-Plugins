@@ -41,13 +41,13 @@ namespace Pulsar.Client.Anti
         {
             if (DebugMode)
             {
-                Console.WriteLine($"[DEBUG] {DateTime.Now:HH:mm:ss.fff} - {message}");
+                Debug.WriteLine($"[DEBUG] {DateTime.Now:HH:mm:ss.fff} - {message}");
             }
         }
 
         private static void LogDetection(string detectionType, string methodName, string description)
         {
-            Console.WriteLine($"[DETECTION] {DateTime.Now:HH:mm:ss.fff} - {detectionType} detected by '{methodName}': {description}");
+            Debug.WriteLine($"[DETECTION] {DateTime.Now:HH:mm:ss.fff} - {detectionType} detected by '{methodName}': {description}");
         }
 
         private static void CheckVirtualization()
@@ -90,7 +90,7 @@ namespace Pulsar.Client.Anti
                     if (vmCheck.Method())
                     {
                         LogDetection("VIRTUALIZATION", vmCheck.Name, vmCheck.Description);
-                        Console.WriteLine($"[FATAL] Process terminating due to virtualization detection - Exiting...");
+                        Debug.WriteLine($"[FATAL] Process terminating due to virtualization detection - Exiting...");
                         Process.GetCurrentProcess().Kill();
                     }
                     else
@@ -138,7 +138,7 @@ namespace Pulsar.Client.Anti
                         if (injectionCheck.Method())
                         {
                             LogDetection("INJECTION", injectionCheck.Name, injectionCheck.Description);
-                            Console.WriteLine($"[FATAL] Process terminating due to injection detection - Exiting...");
+                            Debug.WriteLine($"[FATAL] Process terminating due to injection detection - Exiting...");
                             Process.GetCurrentProcess().Kill();
                         }
                         else
@@ -211,7 +211,7 @@ namespace Pulsar.Client.Anti
                         if (debugCheck.Method())
                         {
                             LogDetection("DEBUGGER", debugCheck.Name, debugCheck.Description);
-                            Console.WriteLine($"[FATAL] Process terminating due to debugger detection - Exiting...");
+                            Debug.WriteLine($"[FATAL] Process terminating due to debugger detection - Exiting...");
                             Process.GetCurrentProcess().Kill();
                         }
                         else

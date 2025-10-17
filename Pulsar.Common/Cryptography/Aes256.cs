@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -149,7 +150,7 @@ namespace Pulsar.Common.Cryptography
                 if (_modeLogged)
                     return;
 
-                Console.WriteLine($"[Pulsar] Transport E2EE mode: {GetModeDescription()}");
+                Debug.WriteLine($"[Pulsar] Transport E2EE mode: {GetModeDescription()}");
                 _modeLogged = true;
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Pulsar.Client.Helper.UAC
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error enabling UAC: " + ex.Message);
+                Debug.WriteLine("Error enabling UAC: " + ex.Message);
             }
         }
 
@@ -38,7 +39,7 @@ namespace Pulsar.Client.Helper.UAC
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error disabling UAC: " + ex.Message);
+                Debug.WriteLine("Error disabling UAC: " + ex.Message);
             }
         }
     }
