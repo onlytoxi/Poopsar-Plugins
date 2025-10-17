@@ -201,7 +201,7 @@ namespace Pulsar.Server.Messages
 
             try
             {
-                Console.WriteLine($"Server: Setting server clipboard to: {message.ClipboardText.Substring(0, Math.Min(20, message.ClipboardText.Length))}...");
+                Debug.WriteLine($"Server: Setting server clipboard to: {message.ClipboardText.Substring(0, Math.Min(20, message.ClipboardText.Length))}...");
                 
                 ClipboardMonitor.NotifyReceivedFromClient(message.ClipboardText);
                 
@@ -211,11 +211,11 @@ namespace Pulsar.Server.Messages
                     {
                         Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
                         Clipboard.SetText(message.ClipboardText);
-                        Console.WriteLine("Server: Successfully set server clipboard");
+                        Debug.WriteLine("Server: Successfully set server clipboard");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Server: Error setting clipboard: {ex.Message}");
+                        Debug.WriteLine($"Server: Error setting clipboard: {ex.Message}");
                     }
                 });
                 clipboardThread.SetApartmentState(ApartmentState.STA);
@@ -224,7 +224,7 @@ namespace Pulsar.Server.Messages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Server: Error in clipboard thread creation: {ex.Message}");
+                Debug.WriteLine($"Server: Error in clipboard thread creation: {ex.Message}");
             }
 
             Task.Run(() =>

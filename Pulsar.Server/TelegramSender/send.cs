@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -18,7 +19,7 @@ namespace Pulsar.Server.TelegramSender
                                $"🌎 Country: {country}";
 
                 string url = $"https://api.telegram.org/bot{botToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(message)}";
-                Console.WriteLine($"Request URL: {url}");
+                Debug.WriteLine($"Request URL: {url}");
 
                 WebRequest request = WebRequest.Create(url);
                 request.Method = "GET";
@@ -36,7 +37,7 @@ namespace Pulsar.Server.TelegramSender
                     using (StreamReader reader = new StreamReader(stream))
                     {
                         string responseText = await reader.ReadToEndAsync();
-                        Console.WriteLine($"Response: {responseText}");
+                        Debug.WriteLine($"Response: {responseText}");
                         return responseText;
                     }
                 }
@@ -50,7 +51,7 @@ namespace Pulsar.Server.TelegramSender
                     using (StreamReader reader = new StreamReader(stream))
                     {
                         string errorText = await reader.ReadToEndAsync();
-                        Console.WriteLine($"Error Response: {errorText}");
+                        Debug.WriteLine($"Error Response: {errorText}");
                         throw new Exception($"Telegram API error: {errorResponse.StatusCode} - {errorText}");
                     }
                 }
@@ -58,7 +59,7 @@ namespace Pulsar.Server.TelegramSender
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to send Telegram message: {ex.Message}");
+                Debug.WriteLine($"Failed to send Telegram message: {ex.Message}");
                 throw;
             }
         }

@@ -2,6 +2,7 @@
 using Pulsar.Server.Build.Obfuscator.Transformers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -53,7 +54,7 @@ namespace Pulsar.Server.Build.Obfuscator
 
         public void Obfuscate()
         {
-            Console.WriteLine("Obfuscating....");
+            Debug.WriteLine("Obfuscating....");
             List<ITransformer> transformers = new List<ITransformer>()
             {
                 new RenamerTransformer(),

@@ -226,31 +226,6 @@ namespace Pulsar.Server.Forms
             excludeSystemDriveToolStripMenuItem = new ToolStripMenuItem();
             winREToolStripMenuItem1 = new ToolStripMenuItem();
             deleteTasksToolStripMenuItem = new ToolStripMenuItem();
-            tabPage5 = new TabPage();
-            splitter2 = new Splitter();
-            dotNetBarTabControl1 = new DotNetBarTabControl();
-            Passwords = new TabPage();
-            aeroListView2 = new AeroListView();
-            columnHeader9 = new ColumnHeader();
-            columnHeader10 = new ColumnHeader();
-            columnHeader12 = new ColumnHeader();
-            Cookies = new TabPage();
-            aeroListView3 = new AeroListView();
-            columnHeader14 = new ColumnHeader();
-            columnHeader16 = new ColumnHeader();
-            Communication = new TabPage();
-            aeroListView4 = new AeroListView();
-            columnHeader15 = new ColumnHeader();
-            columnHeader17 = new ColumnHeader();
-            Games = new TabPage();
-            aeroListView5 = new AeroListView();
-            columnHeader7 = new ColumnHeader();
-            tabPage6 = new TabPage();
-            aeroListView6 = new AeroListView();
-            columnHeader13 = new ColumnHeader();
-            tabPage7 = new TabPage();
-            aeroListView1 = new AeroListView();
-            columnHeader6 = new ColumnHeader();
             statusStrip = new StatusStrip();
             listenToolStripStatusLabel = new ToolStripStatusLabel();
             connectedToolStripStatusLabel = new ToolStripStatusLabel();
@@ -286,13 +261,6 @@ namespace Pulsar.Server.Forms
             cryptoGroupBox.SuspendLayout();
             tabPage4.SuspendLayout();
             TasksContextMenuStrip.SuspendLayout();
-            tabPage5.SuspendLayout();
-            dotNetBarTabControl1.SuspendLayout();
-            Passwords.SuspendLayout();
-            Cookies.SuspendLayout();
-            Communication.SuspendLayout();
-            Games.SuspendLayout();
-            tabPage6.SuspendLayout();
             statusStrip.SuspendLayout();
             menuStrip.SuspendLayout();
             SuspendLayout();
@@ -1107,7 +1075,6 @@ namespace Pulsar.Server.Forms
             MainTabControl.Controls.Add(tabPage2);
             MainTabControl.Controls.Add(tabPage3);
             MainTabControl.Controls.Add(tabPage4);
-            MainTabControl.Controls.Add(tabPage5);
             MainTabControl.Dock = DockStyle.Fill;
             MainTabControl.Location = new Point(0, 25);
             MainTabControl.Margin = new Padding(0);
@@ -1996,231 +1963,6 @@ namespace Pulsar.Server.Forms
             deleteTasksToolStripMenuItem.Text = "Delete Task&s";
             deleteTasksToolStripMenuItem.Click += deleteTasksToolStripMenuItem_Click;
             // 
-            // tabPage5
-            // 
-            tabPage5.Controls.Add(splitter2);
-            tabPage5.Controls.Add(dotNetBarTabControl1);
-            tabPage5.Controls.Add(aeroListView1);
-            tabPage5.Location = new Point(4, 24);
-            tabPage5.Name = "tabPage5";
-            tabPage5.Padding = new Padding(3);
-            tabPage5.Size = new Size(1136, 463);
-            tabPage5.TabIndex = 5;
-            tabPage5.Text = "GathererSorter";
-            tabPage5.UseVisualStyleBackColor = true;
-            // 
-            // splitter2
-            // 
-            splitter2.Location = new Point(156, 3);
-            splitter2.Name = "splitter2";
-            splitter2.Size = new Size(3, 457);
-            splitter2.TabIndex = 2;
-            splitter2.TabStop = false;
-            // 
-            // dotNetBarTabControl1
-            // 
-            dotNetBarTabControl1.Controls.Add(Passwords);
-            dotNetBarTabControl1.Controls.Add(Cookies);
-            dotNetBarTabControl1.Controls.Add(Communication);
-            dotNetBarTabControl1.Controls.Add(Games);
-            dotNetBarTabControl1.Controls.Add(tabPage6);
-            dotNetBarTabControl1.Controls.Add(tabPage7);
-            dotNetBarTabControl1.Dock = DockStyle.Fill;
-            dotNetBarTabControl1.ItemSize = new Size(90, 22);
-            dotNetBarTabControl1.Location = new Point(156, 3);
-            dotNetBarTabControl1.Name = "dotNetBarTabControl1";
-            dotNetBarTabControl1.SelectedIndex = 0;
-            dotNetBarTabControl1.Size = new Size(977, 457);
-            dotNetBarTabControl1.SizeMode = TabSizeMode.Fixed;
-            dotNetBarTabControl1.TabIndex = 1;
-            // 
-            // Passwords
-            // 
-            Passwords.Controls.Add(aeroListView2);
-            Passwords.Location = new Point(4, 26);
-            Passwords.Name = "Passwords";
-            Passwords.Padding = new Padding(3);
-            Passwords.Size = new Size(969, 427);
-            Passwords.TabIndex = 0;
-            Passwords.Text = "Passwords";
-            Passwords.UseVisualStyleBackColor = true;
-            // 
-            // aeroListView2
-            // 
-            aeroListView2.Columns.AddRange(new ColumnHeader[] { columnHeader9, columnHeader10, columnHeader12 });
-            aeroListView2.Dock = DockStyle.Fill;
-            aeroListView2.FullRowSelect = true;
-            aeroListView2.Location = new Point(3, 3);
-            aeroListView2.Name = "aeroListView2";
-            aeroListView2.Size = new Size(963, 421);
-            aeroListView2.TabIndex = 0;
-            aeroListView2.UseCompatibleStateImageBehavior = false;
-            aeroListView2.View = View.Details;
-            // 
-            // columnHeader9
-            // 
-            columnHeader9.Text = "Username";
-            columnHeader9.Width = 227;
-            // 
-            // columnHeader10
-            // 
-            columnHeader10.Text = "Password";
-            columnHeader10.Width = 266;
-            // 
-            // columnHeader12
-            // 
-            columnHeader12.Text = "Website";
-            columnHeader12.Width = 466;
-            // 
-            // Cookies
-            // 
-            Cookies.Controls.Add(aeroListView3);
-            Cookies.Location = new Point(4, 26);
-            Cookies.Name = "Cookies";
-            Cookies.Padding = new Padding(3);
-            Cookies.Size = new Size(969, 427);
-            Cookies.TabIndex = 1;
-            Cookies.Text = "Cookies";
-            Cookies.UseVisualStyleBackColor = true;
-            // 
-            // aeroListView3
-            // 
-            aeroListView3.Columns.AddRange(new ColumnHeader[] { columnHeader14, columnHeader16 });
-            aeroListView3.Dock = DockStyle.Fill;
-            aeroListView3.FullRowSelect = true;
-            aeroListView3.Location = new Point(3, 3);
-            aeroListView3.Name = "aeroListView3";
-            aeroListView3.Size = new Size(963, 421);
-            aeroListView3.TabIndex = 1;
-            aeroListView3.UseCompatibleStateImageBehavior = false;
-            aeroListView3.View = View.Details;
-            // 
-            // columnHeader14
-            // 
-            columnHeader14.Text = "Cookie";
-            columnHeader14.Width = 498;
-            // 
-            // columnHeader16
-            // 
-            columnHeader16.Text = "Website";
-            columnHeader16.Width = 461;
-            // 
-            // Communication
-            // 
-            Communication.Controls.Add(aeroListView4);
-            Communication.Location = new Point(4, 26);
-            Communication.Name = "Communication";
-            Communication.Padding = new Padding(3);
-            Communication.Size = new Size(969, 427);
-            Communication.TabIndex = 2;
-            Communication.Text = "Communication";
-            Communication.UseVisualStyleBackColor = true;
-            // 
-            // aeroListView4
-            // 
-            aeroListView4.Columns.AddRange(new ColumnHeader[] { columnHeader15, columnHeader17 });
-            aeroListView4.Dock = DockStyle.Fill;
-            aeroListView4.FullRowSelect = true;
-            aeroListView4.Location = new Point(3, 3);
-            aeroListView4.Name = "aeroListView4";
-            aeroListView4.Size = new Size(963, 421);
-            aeroListView4.TabIndex = 2;
-            aeroListView4.UseCompatibleStateImageBehavior = false;
-            aeroListView4.View = View.Details;
-            // 
-            // columnHeader15
-            // 
-            columnHeader15.Text = "Communicator";
-            columnHeader15.Width = 140;
-            // 
-            // columnHeader17
-            // 
-            columnHeader17.Text = "Token";
-            columnHeader17.Width = 819;
-            // 
-            // Games
-            // 
-            Games.Controls.Add(aeroListView5);
-            Games.Location = new Point(4, 26);
-            Games.Name = "Games";
-            Games.Padding = new Padding(3);
-            Games.Size = new Size(969, 427);
-            Games.TabIndex = 3;
-            Games.Text = "Games";
-            Games.UseVisualStyleBackColor = true;
-            // 
-            // aeroListView5
-            // 
-            aeroListView5.Columns.AddRange(new ColumnHeader[] { columnHeader7 });
-            aeroListView5.Dock = DockStyle.Fill;
-            aeroListView5.FullRowSelect = true;
-            aeroListView5.Location = new Point(3, 3);
-            aeroListView5.Name = "aeroListView5";
-            aeroListView5.Size = new Size(963, 421);
-            aeroListView5.TabIndex = 0;
-            aeroListView5.UseCompatibleStateImageBehavior = false;
-            aeroListView5.View = View.Details;
-            // 
-            // columnHeader7
-            // 
-            columnHeader7.Text = "Game";
-            columnHeader7.Width = 959;
-            // 
-            // tabPage6
-            // 
-            tabPage6.Controls.Add(aeroListView6);
-            tabPage6.Location = new Point(4, 26);
-            tabPage6.Name = "tabPage6";
-            tabPage6.Padding = new Padding(3);
-            tabPage6.Size = new Size(969, 427);
-            tabPage6.TabIndex = 4;
-            tabPage6.Text = "Wallets";
-            tabPage6.UseVisualStyleBackColor = true;
-            // 
-            // aeroListView6
-            // 
-            aeroListView6.Columns.AddRange(new ColumnHeader[] { columnHeader13 });
-            aeroListView6.Dock = DockStyle.Fill;
-            aeroListView6.FullRowSelect = true;
-            aeroListView6.Location = new Point(3, 3);
-            aeroListView6.Name = "aeroListView6";
-            aeroListView6.Size = new Size(963, 421);
-            aeroListView6.TabIndex = 1;
-            aeroListView6.UseCompatibleStateImageBehavior = false;
-            aeroListView6.View = View.Details;
-            // 
-            // columnHeader13
-            // 
-            columnHeader13.Text = "Wallet";
-            columnHeader13.Width = 959;
-            // 
-            // tabPage7
-            // 
-            tabPage7.Location = new Point(4, 26);
-            tabPage7.Name = "tabPage7";
-            tabPage7.Padding = new Padding(3);
-            tabPage7.Size = new Size(969, 427);
-            tabPage7.TabIndex = 5;
-            tabPage7.Text = "Other";
-            tabPage7.UseVisualStyleBackColor = true;
-            // 
-            // aeroListView1
-            // 
-            aeroListView1.Columns.AddRange(new ColumnHeader[] { columnHeader6 });
-            aeroListView1.Dock = DockStyle.Left;
-            aeroListView1.FullRowSelect = true;
-            aeroListView1.Location = new Point(3, 3);
-            aeroListView1.Name = "aeroListView1";
-            aeroListView1.Size = new Size(153, 457);
-            aeroListView1.TabIndex = 0;
-            aeroListView1.UseCompatibleStateImageBehavior = false;
-            aeroListView1.View = View.Details;
-            // 
-            // columnHeader6
-            // 
-            columnHeader6.Text = "User@PC";
-            columnHeader6.Width = 149;
-            // 
             // statusStrip
             // 
             statusStrip.Dock = DockStyle.Fill;
@@ -2409,13 +2151,6 @@ namespace Pulsar.Server.Forms
             cryptoGroupBox.PerformLayout();
             tabPage4.ResumeLayout(false);
             TasksContextMenuStrip.ResumeLayout(false);
-            tabPage5.ResumeLayout(false);
-            dotNetBarTabControl1.ResumeLayout(false);
-            Passwords.ResumeLayout(false);
-            Cookies.ResumeLayout(false);
-            Communication.ResumeLayout(false);
-            Games.ResumeLayout(false);
-            tabPage6.ResumeLayout(false);
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
             menuStrip.ResumeLayout(false);
@@ -2602,31 +2337,6 @@ namespace Pulsar.Server.Forms
         private ColumnHeader columnHeader4;
         private ColumnHeader columnHeader5;
         private ColumnHeader columnHeader8;
-        private TabPage tabPage5;
-        private Splitter splitter2;
-        private DotNetBarTabControl dotNetBarTabControl1;
-        private TabPage Passwords;
-        private AeroListView aeroListView2;
-        private ColumnHeader columnHeader9;
-        private ColumnHeader columnHeader10;
-        private ColumnHeader columnHeader12;
-        private TabPage Cookies;
-        private AeroListView aeroListView3;
-        private ColumnHeader columnHeader14;
-        private ColumnHeader columnHeader16;
-        private TabPage Communication;
-        private AeroListView aeroListView4;
-        private ColumnHeader columnHeader15;
-        private ColumnHeader columnHeader17;
-        private TabPage Games;
-        private AeroListView aeroListView5;
-        private ColumnHeader columnHeader7;
-        private TabPage tabPage6;
-        private AeroListView aeroListView6;
-        private ColumnHeader columnHeader13;
-        private TabPage tabPage7;
-        private AeroListView aeroListView1;
-        private ColumnHeader columnHeader6;
         private ToolStripMenuItem offlineClientsToolStripMenuItem;
         private ToolStripMenuItem clearOfflineClientsToolStripMenuItem;
         private ContextMenuStrip OfflineClientsContextMenuStrip;

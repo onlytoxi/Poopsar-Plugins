@@ -113,6 +113,8 @@ namespace Pulsar.Server.Build
                 IconDirectoryResource iconDirectoryResource = new IconDirectoryResource(iconFile);
                 iconDirectoryResource.SaveTo(_options.OutputPath);
             }
+
+            return false;
         }
 
         public void BuildShellcode(bool obfuscateBuild, bool packBuild)

