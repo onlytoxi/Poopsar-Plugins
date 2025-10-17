@@ -3759,11 +3759,6 @@ namespace Pulsar.Server.Forms
             }
         }
 
-        private void sorterToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MainTabControl.SelectTab(tabPage5);
-        }
-
         private void blockIPToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var clients = GetSelectedClients();

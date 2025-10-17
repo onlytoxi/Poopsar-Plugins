@@ -12,6 +12,7 @@ using Pulsar.Server.TelegramSender;
 using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 
 namespace Pulsar.Server.Forms
@@ -281,7 +282,7 @@ namespace Pulsar.Server.Forms
         {
             Settings.DiscordRPC = chkDiscordRPC.Checked;
             DiscordRPCManager.ApplyDiscordRPC(this);
-            Console.WriteLine("Discord RPC toggled to: " + chkDiscordRPC.Checked);
+            Debug.WriteLine("Discord RPC toggled to: " + chkDiscordRPC.Checked);
 
             if (_previousDiscordRPCState && !chkDiscordRPC.Checked)
             {

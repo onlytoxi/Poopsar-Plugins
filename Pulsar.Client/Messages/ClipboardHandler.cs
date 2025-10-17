@@ -93,7 +93,7 @@ namespace Pulsar.Client.Messages
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"ClipboardHandler: Error setting clipboard: {ex.Message}");
+                    Debug.WriteLine($"ClipboardHandler: Error setting clipboard: {ex.Message}");
                 }
             })
             { IsBackground = true };

